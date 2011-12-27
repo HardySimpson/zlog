@@ -1,0 +1,25 @@
+Building on Unix with gcc and autotools
+
+Home page for json-c:
+  http://oss.metaparadigm.com/json-c/
+
+If checking out from SVN (http://svn.metaparadigm.com/svn/json-c/trunk) or Git (https://github.com/jehiah/json-c):
+
+    $ sh autogen.sh
+
+Then 
+
+    $ ./configure
+    $ make
+    $ make install
+
+To build and run the test programs run 
+
+    $ make check
+
+Linking to libjson
+
+If your system has pkgconfig then you can just add this to your makefile
+
+CFLAGS += $(shell pkg-config --cflags json)
+LDFLAGS += $(shell pkg-config --libs json)

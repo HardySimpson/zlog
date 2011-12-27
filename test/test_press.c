@@ -1,0 +1,69 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+#include "../xlog.h"
+
+static xlog_category_t *my_cat;
+
+int work(long loop_count)
+{
+	while(loop_count-- > 0) {
+		XLOG_INFO(my_cat, "loglog");
+	}
+	return 0;
+}
+
+
+int test(long process_count, long loop_count)
+{
+	long i;
+	pid_t pid;
+
+	for (i = 0; i < process_count; i++) {
+		pid = fork();
+		if (pid < 0) {
+			printf("fork fail\n");
+		} else if(pid == 0) {
+			work(loop_count);
+			return 0;
+		}
+	}
+
+	for (i = 0; i < process_count; i++) {
+		pid = wait(NULL);
+	}
+
+	return 0;
+}
+
+
+int main(int argc, char** argv)
+{
+	int rc;
+
+	if (argc != 3) {
+		fprintf(stderr, "test nprocess nloop\n");
+		exit(1);
+	}
+
+	rc = xlog_init("test_press.conf");
+	if (rc) {
+		printf("init failed\n");
+		return 2;
+	}
+
+	my_cat = xlog_get_category("my_cat");
+	if (!my_cat) {
+		printf("get cat failed\n");
+		return 3;
+	}
+
+	test(atol(argv[1]), atol(argv[2]));
+
+	xlog_fini();
+	
+	return 0;
+}
