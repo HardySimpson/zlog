@@ -1,9 +1,9 @@
 Building on Unix with gcc and autotools
 
-Home page for json-c:
-  http://oss.metaparadigm.com/json-c/
+Home page for xlog:
+	https://github.com/HardySimpson/xlog
 
-If checking out from SVN (http://svn.metaparadigm.com/svn/json-c/trunk) or Git (https://github.com/jehiah/json-c):
+If checking out from Git (https://github.com/HardySimpson/xlog):
 
     $ sh autogen.sh
 
@@ -16,10 +16,13 @@ Then
 To build and run the test programs run 
 
     $ make check
+    $ cd test
 
-Linking to libjson
+Then run all the test program and see output
+
+Linking to libxlog
 
 If your system has pkgconfig then you can just add this to your makefile
 
-CFLAGS += $(shell pkg-config --cflags json)
-LDFLAGS += $(shell pkg-config --libs json)
+CFLAGS += $(shell pkg-config --cflags xlog)
+LDFLAGS += $(shell pkg-config --libs xlog)

@@ -14,4 +14,7 @@ xlog_chk_conf_CPPFLAGS = -I$(srcdir)/
 
 SUBDIRS = . test
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = xlog.pc
+
 EXTRA_DIST = autogen.sh

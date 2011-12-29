@@ -53,6 +53,6 @@ if test "x$GCC" = "xyes"; then
 fi
 
 
-AC_CONFIG_FILES([Makefile test/Makefile])
+AC_CONFIG_FILES([Makefile xlog.pc test/Makefile])
 
 AC_OUTPUT
