@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT([xlog], [0.9.0], [HardySimpson1984@gmail.com])
-AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+AM_INIT_AUTOMAKE([gnu -Wall -Werror])
 AC_CONFIG_SRCDIR([xlog.h])
 AC_CONFIG_HEADER([config.h])
 AC_GNU_SOURCE
