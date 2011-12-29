@@ -1,7 +1,7 @@
 /*
  * This file is part of the Xlog Library.
  *
- * Copyright (C) 2011 by Hardy Simpson <HardySimpson@gmail.com>
+ * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
  * The Xlog Library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
