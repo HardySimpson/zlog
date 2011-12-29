@@ -20,6 +20,10 @@
 #ifndef __xlog_h
 #define __xlog_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file xlog.h
  * @brief xlog interface
@@ -259,5 +263,9 @@ typedef enum {
 
 #define HXLOG_DEBUG(cat, buf, buf_len) \
 	hxlog(cat, __FILE__, __LINE__, XLOG_DEBUG, buf, buf_len)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

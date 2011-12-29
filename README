@@ -18,7 +18,7 @@ To build and run the test programs run
     $ make check
     $ cd test
 
-Then run all the test program and see output
+Then run all the test program under test directory and see output
 
 Linking to libxlog
 
