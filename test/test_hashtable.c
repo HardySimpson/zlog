@@ -23,9 +23,9 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../zc_error.c"
-#include "../zc_hashtable.h"
-#include "../zc_hashtable.c"
+#include "zc_error.c"
+#include "zc_hashtable.h"
+#include "zc_hashtable.c"
 
 void myfree(void *kv)
 {

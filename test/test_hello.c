@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../xlog.h"
+#include "xlog.h"
 
 int main(int argc, char** argv)
 {

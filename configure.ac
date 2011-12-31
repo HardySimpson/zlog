@@ -1,10 +1,7 @@
-#  -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
 AC_PREREQ(2.59)
 AC_INIT([xlog], [0.9.0], [HardySimpson1984@gmail.com])
 AM_INIT_AUTOMAKE([gnu -Wall -Werror])
-AC_CONFIG_SRCDIR([xlog.h])
+AC_CONFIG_SRCDIR([libxlog/xlog.h])
 AC_CONFIG_HEADER([config.h])
 AC_GNU_SOURCE
 #LT_INIT(disable-shared) 
@@ -21,9 +18,8 @@ AC_PROG_MAKE_SET
 # Checks for libraries.
 
 AC_CHECK_LIB([pthread], [pthread_rwlock_wrlock], [PTREADLIB=-lpthread])
-#AC_SUBST([PTREADLIB])
 if test "x$PTREADLIB" != "x-lpthread"; then
-	AC_MSG_ERROR([Unable to find pthread lib on this system])
+	AC_MSG_ERROR([You need libpthread in order to compile libxlog])
 fi
 
 # Checks for header files.
@@ -52,7 +48,18 @@ if test "x$GCC" = "xyes"; then
   CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -Werror -pthread"
 fi
 
+AC_ARG_ENABLE(test,
+	[AC_HELP_STRING([--enable-test], [Compile tests])],
+	enable_test=yes)
 
-AC_CONFIG_FILES([Makefile xlog.pc test/Makefile])
+AM_CONDITIONAL(ENABLE_TEST, test x$enable_test = xyes)
+
+AC_CONFIG_FILES([
+xlog.pc
+Makefile
+libxlog/Makefile
+xlog-chk-conf/Makefile
+test/Makefile
+])
 
 AC_OUTPUT

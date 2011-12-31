@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../xlog.h"
-#include "../rotater.h"
+#include "xlog.h"
+#include "rotater.h"
 
 extern int xlog_rotater_lsmv(char *base_file_path);
 

@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "../xlog.h"
+#include "xlog.h"
 
 static int ReadTotalFile( FILE * fp , char ** ptr , long * len )
 {

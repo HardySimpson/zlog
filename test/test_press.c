@@ -23,7 +23,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "../xlog.h"
+#include "xlog.h"
 
 static xlog_category_t *my_cat;
 
