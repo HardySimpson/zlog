@@ -18,7 +18,7 @@ doc/
 install-sh
 .libs
 libtool
-libxlog.so
+libxlog.so*
 ltmain.sh
 makefile.*
 Makefile

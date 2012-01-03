@@ -1,7 +1,17 @@
-Building on Unix with gcc and autotools
+What is xlog
+===================
 
-Home page for xlog:
-	https://github.com/HardySimpson/xlog
+xlog is a high efficent, thread safe, flexsible, pure c logging library. 
+
+Actually, in the c world there is NO good logging library for application
+like logback in java or log4cxx in c++.  printf can work, but can not be
+easily redirected or reformat, syslog is slow and designed for kenerl use.
+
+So I write xlog.
+
+
+Install
+===================
 
 If checking out from Git (https://github.com/HardySimpson/xlog):
 
@@ -9,20 +19,36 @@ If checking out from Git (https://github.com/HardySimpson/xlog):
 
 Then 
 
-    $ ./configure
+    $ ./configure --prefix=[where u wanna install it] --enable-test[compile test program]
     $ make
     $ make install
 
-To build and run the test programs run 
+If --enable-test is used, then run all the test program under
+test directory and see output. They are also good example codes
+which show how to use xlog
 
-    $ make check
-    $ cd test
-
-Then run all the test program under test directory and see output
-
-Linking to libxlog
+Linking to xlog
+===================
 
 If your system has pkgconfig then you can just add this to your makefile
 
 CFLAGS += $(shell pkg-config --cflags xlog)
 LDFLAGS += $(shell pkg-config --libs xlog)
+
+USE
+===================
+
+
+
+
+
+
+More information about xlog
+===================
+
+Web site:
+	https://github.com/HardySimpson/xlog
+
+Author's blog (in Chinese)
+	http://my.oschina.net/HardySimpson/blog
+
