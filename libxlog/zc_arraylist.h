@@ -42,4 +42,7 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn, void *dat
 
 int zc_arraylist_len(zc_arraylist_t * a_list);
 
+#define zc_arraylist_foreach(a_list, i, a_unit) \
+	for(i = 0, a_unit = a_list->array[0]; i < a_list->len; i++, a_unit = a_list->array[i])
+
 #endif

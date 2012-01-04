@@ -152,13 +152,7 @@ int xlog_format_gen_msg(xlog_format_t * a_format, xlog_thread_t * a_thread)
 
 	xlog_buf_restart(a_thread->msg_buf);
 
-	for (i = 0; i < zc_arraylist_len(a_format->pattern_specs); i++) {
-		a_spec = (xlog_spec_t *) zc_arraylist_get(a_format->pattern_specs, i);
-		if (!a_spec) {
-			zc_error("get null spec");
-			return -1;
-		}
-
+	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
 		rc = xlog_spec_gen_msg(a_spec, a_thread);
 		if (rc < 0) {
 			zc_error("xlog_spec_gen_msg fail");

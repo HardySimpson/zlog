@@ -72,13 +72,7 @@ static int xlog_category_match_rules(xlog_category_t *a_cat, zc_arraylist_t *rul
 	}
 
 	/* get match rules from all rules */
-	for (i = 0; i < zc_arraylist_len(rules); i++) {
-		a_rule = (xlog_rule_t *) zc_arraylist_get(rules, i);
-		if (!a_rule) {
-			zc_debug("zc_arraylist_get %d fail", i);
-			continue;
-		}
-
+	zc_arraylist_foreach(rules, i, a_rule) {
 		match = xlog_rule_match_category(a_rule, a_cat->name);
 		if (match) {
 			rc = zc_arraylist_add(a_cat->match_rules, a_rule);
@@ -146,14 +140,7 @@ int xlog_category_output(xlog_category_t *a_cat, xlog_thread_t *a_thread)
 	zc_assert(a_thread, -1);
 
 	/* go through all match rules to output */
-	for (i = 0; i < zc_arraylist_len(a_cat->match_rules); i++) {
-		a_rule = (xlog_rule_t *) zc_arraylist_get(a_cat->match_rules, i);
-		if (!a_rule) {
-			zc_error("get null rule");
-			rd = -1;
-			continue;
-		}
-
+	zc_arraylist_foreach(a_cat->match_rules, i, a_rule) {
 		rc = xlog_rule_output(a_rule, a_thread);
 		if (rc) {
 			zc_error("hzb_log_rule_output fail");

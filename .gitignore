@@ -34,3 +34,5 @@ test_*
 !test_*.c
 !test_*.conf
 xlog.pc
+press.log*
+callgrind*

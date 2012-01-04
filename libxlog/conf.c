@@ -415,129 +415,13 @@ void xlog_conf_profile(xlog_conf_t *a_conf)
 	zc_error("rotate_lock_file:[%s]", a_conf->rotate_lock_file);
 
 	zc_error("---rules[%p]---", a_conf->rules);
-	for (i = 0; i < zc_arraylist_len(a_conf->rules); i++) {
-		a_rule = (xlog_rule_t *) zc_arraylist_get(a_conf->rules, i);
-		if (!a_rule) {
-			zc_error("get null rule");
-			continue;
-		}
+	zc_arraylist_foreach(a_conf->rules, i, a_rule) {
 		xlog_rule_profile(a_rule);
 	}
 
 	zc_error("---formats[%p]---", a_conf->formats);
-	for (i = 0; i < zc_arraylist_len(a_conf->formats); i++) {
-		a_format = (xlog_format_t *) zc_arraylist_get(a_conf->formats, i);
-		if (!a_format) {
-			zc_error("get null format");
-			continue;
-		}
+	zc_arraylist_foreach(a_conf->formats, i, a_format) {
 		xlog_format_profile(a_format);
 	}
 	return;
 }
-
-#if 0
-int xlog_conf_output_event(xlog_conf_t * a_conf, xlog_event_t * a_event)
-{
-	int rc = 0;
-	int rd = 0;
-	int i;
-	xlog_rule_t *a_rule = NULL;
-	xlog_buf_t *a_buf = NULL;
-	pthread_t tid;
-
-	zc_assert(a_conf, -1);
-	zc_assert(a_event, -1);
-
-	rd = pthread_rwlock_rdlock(&(a_conf->lock));
-	if (rd) {
-		zc_error("pthread_rwlock_rdlock fail, rd[%d]", rd);
-		return -1;
-	}
-
-	if (a_conf->init_success <= 0) {
-		zc_error("befor log, must init fisrt!");
-		rc = -1;
-		goto xlog_conf_output_event_exit;
-	}
-
-	/* get or make a thread buf */
-	tid = pthread_self();
-	a_buf = zc_hashtable_get(a_conf->bufs, (void *)&tid);
-	if (!a_buf) {
-
-		rd = pthread_rwlock_unlock(&(a_conf->lock));
-		if (rd) {
-			zc_error("pthread_rwlock_unlock fail, rd[%d]", rd);
-			return -1;
-		}
-
-		/* change to wrlock, make and insert new thread buf */
-		rd = pthread_rwlock_wrlock(&(a_conf->lock));
-		if (rd) {
-			zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
-			return -1;
-		}
-
-		a_buf = zc_hashtable_get(a_conf->bufs, (void *)&tid);
-		if (!a_buf) {
-			pthread_t *ptid;
-
-			zc_debug("first use buf in tid[%ld]", (long)tid);
-
-			ptid = calloc(1, sizeof(*ptid));
-			if (!ptid) {
-				zc_error("calloc fail, errno[%d]", errno);
-				rc = -1;
-				goto xlog_conf_output_event_exit;
-			}
-			*ptid = tid;
-
-			rc = xlog_buf_init(&a_buf, a_conf->buf_size_min, a_conf->buf_size_max);
-			if (rc) {
-				zc_error("xlog_buf_init fail");
-				rc = -1;
-				goto xlog_conf_output_event_exit;
-			}
-
-			rc = zc_hashtable_put(a_conf->bufs, (void *)ptid, (void *)a_buf);
-			if (rc) {
-				zc_error("zc_hashtable_put fail");
-				rc = -1;
-				goto xlog_conf_output_event_exit;
-			}
-		}
-	}
-
-	xlog_event_set_category(a_event, a_conf->category);
-
-	/* go through all match rules to output */
-	for (i = 0; i < zc_arraylist_length(a_conf->match_rules); i++) {
-		a_rule = (xlog_rule_t *) zc_arraylist_get_idx(a_conf->match_rules, i);
-		if (!a_rule) {
-			zc_error("get null rule");
-			rc = -1;
-			goto xlog_conf_output_event_exit;
-		}
-
-		rc = xlog_rule_output_event(a_rule, a_buf, a_event);
-		if (rc) {
-			zc_error("hzb_log_rule_output_event fail");
-			rc = -1;
-			goto xlog_conf_output_event_exit;
-		}
-	}
-
-      xlog_conf_output_event_exit:
-	rd = pthread_rwlock_unlock(&(a_conf->lock));
-	if (rd) {
-		zc_error("pthread_rwlock_unlock fail, rd[%d]", rd);
-		return -1;
-	}
-
-	return rc;
-}
-#endif
-
-/*******************************************************************************/
-

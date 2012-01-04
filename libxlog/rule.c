@@ -115,13 +115,7 @@ static int xlog_rule_gen_path(xlog_rule_t * a_rule, xlog_thread_t *a_thread, cha
 
 	xlog_buf_restart(a_thread->path_buf);
 
-	for (i = 0; i < zc_arraylist_len(a_rule->dynamic_file_specs); i++) {
-		a_spec = (xlog_spec_t *) zc_arraylist_get(a_rule->dynamic_file_specs, i);
-		if (!a_spec) {
-			zc_error("get null spec");
-			return -1;
-		}
-
+	zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {
 		rc = xlog_spec_gen_path(a_spec, a_thread);
 		if (rc) {
 			zc_error("xlog_spec_gen_path fail");
@@ -442,13 +436,7 @@ xlog_rule_t *xlog_rule_new(zc_arraylist_t *formats, char *line, long line_len)
 		int find_flag = 0;
 		xlog_format_t *a_format;
 
-		for (i = 0, find_flag = 0; i < zc_arraylist_len(formats); i++) {
-			a_format = (xlog_format_t *) zc_arraylist_get(formats, i);
-			if (!a_format) {
-				zc_error("a_format is null");
-				rc = -1;
-				goto xlog_rule_new_exit;
-			}
+		zc_arraylist_foreach(formats, i, a_format) {
 			if (STRCMP(a_format->name, ==, format_name)) {
 				a_rule->format = a_format;
 				find_flag = 1;
