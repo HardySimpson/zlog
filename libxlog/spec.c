@@ -35,39 +35,52 @@
 static void xlog_spec_debug(xlog_spec_t * a_spec);
 
 /*******************************************************************************/
-
 static int xlog_spec_gen_time(xlog_spec_t * a_spec, xlog_thread_t * a_thread, xlog_buf_t * a_buf)
+{
+	int rc;
+
+	/* only when need fetch time, do it once */
+	if (!a_thread->event->time_stamp.tv_sec) {
+		gettimeofday(&(a_thread->event->time_stamp), NULL);
+		localtime_r(&(a_thread->event->time_stamp.tv_sec), &(a_thread->event->local_time));
+		sprintf(a_thread->event->us, "%6.6ld", (long)a_thread->event->time_stamp.tv_usec);
+	}
+
+	rc = xlog_buf_strftime(a_buf, a_spec->time_fmt, a_spec->time_len, &(a_thread->event->local_time));
+	if (rc) {
+		zc_error("xlog_buf_strftime maybe fail or overflow");
+		return rc;
+	}
+
+	return 0;
+}
+
+static int xlog_spec_gen_time_with_msus(xlog_spec_t * a_spec, xlog_thread_t * a_thread, xlog_buf_t * a_buf)
 {
 	int i;
 	int rc;
 
-	/* only when need fetch time, do it */
+	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
 		localtime_r(&(a_thread->event->time_stamp.tv_sec), &(a_thread->event->local_time));
-		sprintf(a_thread->event->ms, "%3.3d", (int)a_thread->event->time_stamp.tv_usec / 1000);
-		sprintf(a_thread->event->us, "%6.6d", (int)a_thread->event->time_stamp.tv_usec);
+		sprintf(a_thread->event->us, "%6.6ld", (long)a_thread->event->time_stamp.tv_usec);
 	}
 
 	/* replace real microsec and millisec here */
-	if (a_spec->ms_count > 0 || a_spec->us_count > 0) {
-		strcpy(a_thread->event->time_fmt_msus, a_spec->time_fmt);
-
-		for (i = 0; i < a_spec->ms_count; i++) {
-			memcpy(a_thread->event->time_fmt_msus + 
-				a_spec->ms_offset[i], a_thread->event->ms, 3);
-		}
-
-		for (i = 0; i < a_spec->us_count; i++) {
-			memcpy(a_thread->event->time_fmt_msus + 
-				a_spec->us_offset[i], a_thread->event->us, 6);
-		}
+	strcpy(a_thread->event->time_fmt_msus, a_spec->time_fmt);
+	for (i = 0; i < a_spec->ms_count; i++) {
+		memcpy(a_thread->event->time_fmt_msus + 
+			a_spec->ms_offset[i], a_thread->event->us, 3);
 	}
 
-	rc = xlog_buf_strftime(a_buf,
-	/* if need msus, use event->time_fmt_msus, which is thread safe */
-	(a_spec->ms_count > 0 || a_spec->us_count > 0) ? a_thread->event->time_fmt_msus : a_spec->time_fmt,
-	a_spec->time_len, &(a_thread->event->local_time));
+	for (i = 0; i < a_spec->us_count; i++) {
+		memcpy(a_thread->event->time_fmt_msus + 
+			a_spec->us_offset[i], a_thread->event->us, 6);
+	}
+
+	rc = xlog_buf_strftime(a_buf, a_thread->event->time_fmt_msus,
+		a_spec->time_len, &(a_thread->event->local_time));
 	if (rc) {
 		zc_error("xlog_buf_strftime maybe fail or overflow");
 		return rc;
@@ -81,14 +94,12 @@ static int xlog_spec_gen_mdc(xlog_spec_t * a_spec, xlog_thread_t * a_thread, xlo
 	int rc;
 	xlog_mdc_kv_t *a_mdc_kv;
 
-zc_debug("a_spec->mdc_key[%s]", a_spec->mdc_key);
 	a_mdc_kv = xlog_mdc_get_kv(a_thread->mdc, a_spec->mdc_key);
 	if (!a_mdc_kv) {
 		zc_error("xlog_mdc_get_kv key[%s] fail", a_spec->mdc_key);
 		return 0;
 	}
 
-zc_debug("a_spec->mdc_value[%s], value_len[%d]", a_mdc_kv->value, a_mdc_kv->value_len);
 	rc = xlog_buf_append(a_buf, a_mdc_kv->value, a_mdc_kv->value_len);
 	if (rc) {
 		zc_error("xlog_buf_append maybe fail or overflow");
@@ -484,7 +495,11 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
-			a_spec->gen_fn = xlog_spec_gen_time;
+			if (a_spec->ms_count > 0 || a_spec->us_count > 0) {
+				a_spec->gen_fn = xlog_spec_gen_time_with_msus;
+			} else {
+				a_spec->gen_fn = xlog_spec_gen_time;
+			}
 			break;
 		}
 

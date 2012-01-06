@@ -30,7 +30,7 @@
 
 #define zc_assert(expr,rv) \
 	if(!(expr)) { \
-		zc_error("expr is null"); \
+		zc_error(#expr" is null"); \
 		return rv; \
 	}
 

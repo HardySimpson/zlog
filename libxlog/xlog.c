@@ -437,7 +437,7 @@ static int xlog_output(xlog_category_t *a_cat, char *file, long line,
 			goto xlog_output_exit;
 		}
 
-		/* here between two lock, other tmap may create a thread */
+		/* here between two lock's gap, other tmap maybe create a thread */
 
 		rd = pthread_rwlock_wrlock(&xlog_env_lock);
 		if (rd) {
@@ -462,7 +462,7 @@ static int xlog_output(xlog_category_t *a_cat, char *file, long line,
 		}
 	}
 
-	xlog_event_set(a_thread->event,
+	xlog_event_refresh(a_thread->event,
 				a_cat->name, &(a_cat->name_len), 
 				file, line, priority,
 				hex_buf, hex_buf_len, str_format, str_args, generate_cmd);

@@ -22,8 +22,9 @@
 
 /**
  * @file event.h
- * @brief xlog event class, keep all infomation of one message
-    which comes from once user log function.
+ * @brief xlog event class, keep all infomation of a message.
+	event is alive from xlog_init to xlog_fini, but content of event is
+	refreshed in every xlog,vlog or hxlog
  */
 
 #include <sys/types.h>
@@ -61,7 +62,6 @@ typedef struct {
 
 	struct timeval time_stamp;	/**< will be assign when needed */
 	struct tm local_time;		/**< local time of time_stamp */
-	char ms[3 + 1];			/**< millisecond */
 	char us[6 + 1];			/**< microsecond */
 	char time_fmt_msus[MAXLEN_CFG_LINE + 1];
 					/**< a_spec->time_fmt + ms||us = time_fmt for thread&now */
@@ -85,11 +85,11 @@ xlog_event_t *xlog_event_new(void);
 void xlog_event_del(xlog_event_t *a_event);
 
 /**
- * xlog_event_t setter
+ * xlog_event_t initer
  *
  * @see xlog_event_t
  */
-void xlog_event_set(xlog_event_t * a_event,
+void xlog_event_refresh(xlog_event_t * a_event,
 		    char *category_name, size_t *category_name_len,
 		    char *file, long line, int priority,
 		    char *hex_buf, long hex_buf_len, char *str_format, va_list str_args, int generate_cmd);

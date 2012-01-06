@@ -234,7 +234,7 @@ int xlog_buf_append(xlog_buf_t * a_buf, const char *str, size_t str_len)
 
 	zc_assert(a_buf, -1);
 
-	if (str == NULL || str_len <= 0) {
+	if (str_len <= 0 || str == NULL) {
 		return 0;
 	}
 

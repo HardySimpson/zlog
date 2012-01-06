@@ -34,8 +34,7 @@
 [ ] hexlog的可定制话
 [ ] 兼容性问题
 [ ] 分类匹配的可定制化
-
-
+[ ] 取一次XLOG_ERROR_LOG和XLOG_DEBUG_LOG，避免多次getenv
 
 
 ==========
