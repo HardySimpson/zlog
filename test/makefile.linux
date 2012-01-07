@@ -1,0 +1,8 @@
+test_press	:	test_press.o
+	gcc -o $@ $^ -L../libxlog -lxlog -lpthread -Wl,-rpath ../libxlog
+
+.c.o	:
+	gcc -pg -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../libxlog
+
+clean	:
+	rm -f test_press press.log*

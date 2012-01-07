@@ -20,7 +20,6 @@ install-sh
 libtool
 libxlog.so*
 ltmain.sh
-makefile.*
 Makefile
 Makefile.in
 missing
