@@ -42,7 +42,7 @@ int xlog_init(char *conf_file)
 	int rc = 0;
 	int rd = 0;
 
-	zc_debug("------xlog_init start------");
+	zc_debug("------xlog_init start, compile time[%s]------", __TIME__);
 	rd = pthread_rwlock_wrlock(&xlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
