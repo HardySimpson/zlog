@@ -1,20 +1,20 @@
 /*
- * This file is part of the Xlog Library.
+ * This file is part of the zlog Library.
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson@gmail.com>
  *
- * The Xlog Library is free software: you can redistribute it and/or modify
+ * The zlog Library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * The Xlog Library is distributed in the hope that it will be useful,
+ * The zlog Library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with the Xlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdio.h>
@@ -23,14 +23,14 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "xlog.h"
+#include "zlog.h"
 
-static xlog_category_t *my_cat;
+static zlog_category_t *my_cat;
 
 int work(long loop_count)
 {
 	while(loop_count-- > 0) {
-		XLOG_INFO(my_cat, "loglog");
+		ZLOG_INFO(my_cat, "loglog");
 	}
 	return 0;
 }
@@ -68,13 +68,13 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
-	rc = xlog_init("test_press.conf");
+	rc = zlog_init("test_press.conf");
 	if (rc) {
 		printf("init failed\n");
 		return 2;
 	}
 
-	my_cat = xlog_get_category("my_cat");
+	my_cat = zlog_get_category("my_cat");
 	if (!my_cat) {
 		printf("get cat failed\n");
 		return 3;
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 
 	test(atol(argv[1]), atol(argv[2]));
 
-	xlog_fini();
+	zlog_fini();
 	
 	return 0;
 }

@@ -1,0 +1,23 @@
+all_o = zlog.o category.o rule.o format.o event.o conf.o priority.o buf.o rotater.o spec.o process.o \
+	zc_hashtable.o zc_error.o zc_arraylist.o zc_xplatform.o zc_util.o \
+
+all	:	libzlog.a zlog_chk_conf
+
+libzlog.a	:	$(all_o)
+	ar -rv $@ $(all_o)
+
+zlog_chk_conf	:	zlog_chk_conf.o
+	gcc -o $@ $^ -L. -lzlog -lpthread
+	ctags -R .
+
+.c.o	:
+	gcc -pg -Wall -D_GNU_SOURCE -o $@ -c $< -I.
+
+clean	:
+	-rm -f libzlog.a $(all_o) zlog_chk_conf zlog_chk_conf.o
+
+install :
+	cp -f libzlog.so $(HOME)/lib
+	cp -f zlog_chk_conf $(HOME)/bin
+	cp -f zlog.h $(HOME)/include
+	cp -f shbin/* $(HOME)/shbin

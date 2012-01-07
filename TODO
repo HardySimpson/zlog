@@ -1,6 +1,6 @@
 [x] 使用writev来写日志，提高效率，达到一次形成，多次输出的目的
 [x] 尝试信号量的方法来打成线程安全的转档互斥问题
-[x] xlog.h变长参数宏的问题（参考glib的log解决）
+[x] zlog.h变长参数宏的问题（参考glib的log解决）
 [x] rule的dynamic] file可以从format获取
 [x] 修改arraylist的读取长度，循环等
 [x] 运行期间指定是否采用线程
@@ -12,18 +12,18 @@
 [o] 解决微秒毫秒在配置中的表示
 [o] 把event并到thread内避免开内存
 [o] 增加init读取配置文件的api
-[o] default] format的解析，初始化全无的时候的输出，xlog_chk_conf的编写
+[o] default] format的解析，初始化全无的时候的输出，zlog_chk_conf的编写
 [o] 把category独立出来
 [o] 增加update接口
-[o] buf的大小无法通过xlog_init动态的改变，可以xlog_update重建所有缓存解决，呵呵
+[o] buf的大小无法通过zlog_init动态的改变，可以zlog_update重建所有缓存解决，呵呵
 [o] 调整文件创建权限，采用类似fopen的办法，为0666&(~umask)
 [o] syslog输出，搞定但发现syslog暴慢
 [o] 转档的模式，是否需要轮询等，解决为传统模式
-[o] 增加xlog_profile接口，诊断配置内存
+[o] 增加zlog_profile接口，诊断配置内存
 [o] 增加MDC,可配置的增加字段
 [o] 测试buf被重写的时候，是否会导致后面的\0没加
+[o] xlog要改名为zlog....
 
-[ ] xlog要改名为zlog....
 [ ] 和rsyslog对接的问题
 [ ] 用某种自动编译器以及文档生成器
 [ ] 增加man  age,  df, 案例, doxygen
@@ -32,10 +32,10 @@
 [ ] 打印堆栈。。可能需要语言支持
 [ ] 使用valgrind测试性能
 [ ] 增加获取当前使用文件名接口，供shell脚本用
-[ ] hexlog的可定制话
+[ ] hezlog的可定制话
 [ ] 兼容性问题
 [ ] 分类匹配的可定制化
-[ ] 取一次XLOG_ERROR_LOG和XLOG_DEBUG_LOG，避免多次getenv
+[ ] 取一次ZLOG_ERROR_LOG和ZLOG_DEBUG_LOG，避免多次getenv
 [ ] zc_assert一般关闭，调试打开
 [ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 

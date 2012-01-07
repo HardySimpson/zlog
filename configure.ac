@@ -1,7 +1,7 @@
 AC_PREREQ(2.59)
-AC_INIT([xlog], [0.9.0], [HardySimpson1984@gmail.com])
+AC_INIT([zlog], [0.9.0], [HardySimpson1984@gmail.com])
 AM_INIT_AUTOMAKE([gnu -Wall -Werror])
-AC_CONFIG_SRCDIR([libxlog/xlog.h])
+AC_CONFIG_SRCDIR([libzlog/zlog.h])
 AC_CONFIG_HEADER([config.h])
 AC_GNU_SOURCE
 #LT_INIT(disable-shared) 
@@ -19,7 +19,7 @@ AC_PROG_MAKE_SET
 
 AC_CHECK_LIB([pthread], [pthread_rwlock_wrlock], [PTREADLIB=-lpthread])
 if test "x$PTREADLIB" != "x-lpthread"; then
-	AC_MSG_ERROR([You need libpthread in order to compile libxlog])
+	AC_MSG_ERROR([You need libpthread in order to compile libzlog])
 fi
 
 # Checks for header files.
@@ -55,10 +55,10 @@ AC_ARG_ENABLE(test,
 AM_CONDITIONAL(ENABLE_TEST, test x$enable_test = xyes)
 
 AC_CONFIG_FILES([
-xlog.pc
+zlog.pc
 Makefile
-libxlog/Makefile
-xlog-chk-conf/Makefile
+libzlog/Makefile
+zlog-chk-conf/Makefile
 test/Makefile
 ])
 

@@ -1,20 +1,20 @@
 /*
- * This file is part of the Xlog Library.
+ * This file is part of the zlog Library.
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson@gmail.com>
  *
- * The Xlog Library is free software: you can redistribute it and/or modify
+ * The zlog Library is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * The Xlog Library is distributed in the hope that it will be useful,
+ * The zlog Library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with the Xlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <stdio.h>
@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "xlog.h"
+#include "zlog.h"
 
 static int ReadTotalFile( FILE * fp , char ** ptr , long * len )
 {
@@ -89,15 +89,15 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	
-	xlog_category_t *my_cat;
+	zlog_category_t *my_cat;
 
-	rc = xlog_init("test_hex.conf");
+	rc = zlog_init("test_hex.conf");
 	if (rc) {
 		printf("init failed\n");
 		return -1;
 	}
 	
-	my_cat = xlog_get_category("my_cat");
+	my_cat = zlog_get_category("my_cat");
 	if (!my_cat) {
 		printf("get category failed\n");
 	}
@@ -105,11 +105,11 @@ int main(int argc, char** argv)
 
 	rc = ReadTotalFile(fp, &dmp, &dmp_len);
 
-	HXLOG_DEBUG(my_cat, dmp, dmp_len);
+	HZLOG_DEBUG(my_cat, dmp, dmp_len);
 	fclose(fp);
 	free(dmp);
 
-	xlog_fini();
+	zlog_fini();
 	printf("hex log end\n");
 	
 	return 0;

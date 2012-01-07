@@ -1,8 +1,8 @@
 AM_CPPFLAGS =					\
-	-I$(top_srcdir)/libxlog
+	-I$(top_srcdir)/libzlog
 
 LDADD =						\
-	$(top_builddir)/libxlog/libxlog.la	\
+	$(top_builddir)/libzlog/libzlog.la	\
 	$(PTREADLIB)
 
 noinst_PROGRAMS =	\

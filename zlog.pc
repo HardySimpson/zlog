@@ -1,0 +1,11 @@
+prefix=/home/kent
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: zlog
+Description: A high efficent, thread safe, flexsible, pure c logging library
+Version: 0.9.0
+Requires: 
+Libs:  -L${libdir} -lzlog
+Cflags: -I${includedir}

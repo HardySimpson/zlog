@@ -1,19 +1,19 @@
-What is xlog
+What is zlog
 ===================
 
-xlog is a high efficent, thread safe, flexsible, pure c logging library. 
+zlog is a high efficent, thread safe, flexsible, pure c logging library. 
 
 Actually, in the c world there is NO good logging library for application
 like logback in java or log4cxx in c++.  printf can work, but can not be
 easily redirected or reformat, syslog is slow and designed for kenerl use.
 
-So I write xlog.
+So I write zlog.
 
 
 Install
 ===================
 
-If checking out from Git (https://github.com/HardySimpson/xlog):
+If checking out from Git (https://github.com/HardySimpson/zlog):
 
     $ sh autogen.sh
 
@@ -25,15 +25,15 @@ Then
 
 If --enable-test is used, then run all the test program under
 test directory and see output. They are also good example codes
-which show how to use xlog
+which show how to use zlog
 
-Linking to xlog
+Linking to zlog
 ===================
 
 If your system has pkgconfig then you can just add this to your makefile
 
-CFLAGS += $(shell pkg-config --cflags xlog)
-LDFLAGS += $(shell pkg-config --libs xlog)
+CFLAGS += $(shell pkg-config --cflags zlog)
+LDFLAGS += $(shell pkg-config --libs zlog)
 
 USE
 ===================
@@ -43,11 +43,11 @@ USE
 
 
 
-More information about xlog
+More information about zlog
 ===================
 
 Web site:
-	https://github.com/HardySimpson/xlog
+	https://github.com/HardySimpson/zlog
 
 Author's blog (in Chinese)
 	http://my.oschina.net/HardySimpson/blog
