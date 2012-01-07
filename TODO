@@ -36,6 +36,7 @@
 [ ] 分类匹配的可定制化
 [ ] 取一次XLOG_ERROR_LOG和XLOG_DEBUG_LOG，避免多次getenv
 [ ] zc_assert一般关闭，调试打开
+[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 
 
 ==========

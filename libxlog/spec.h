@@ -26,8 +26,10 @@
 
 typedef struct xlog_spec_t xlog_spec_t;
 
-typedef int (*xlog_spec_gen_fn) (xlog_spec_t * a_spec,
+typedef int (*xlog_spec_gen_buf_fn) (xlog_spec_t * a_spec,
 		xlog_thread_t * a_thread, xlog_buf_t * a_buf);
+
+typedef int (*xlog_spec_cook_thread_fn) (xlog_spec_t * a_spec, xlog_thread_t *a_thread);
 
 struct xlog_spec_t {
 	char *str;
@@ -44,7 +46,9 @@ struct xlog_spec_t {
 	char mdc_key[MAXLEN_PATH + 1];
 
 	char print_fmt[MAXLEN_CFG_LINE + 1];
-	xlog_spec_gen_fn gen_fn;
+	xlog_spec_gen_buf_fn gen_buf;
+	xlog_spec_cook_thread_fn gen_msg;
+	xlog_spec_cook_thread_fn gen_path;
 };
 
 int xlog_spec_gen_msg(xlog_spec_t * a_spec, xlog_thread_t *a_thread);
