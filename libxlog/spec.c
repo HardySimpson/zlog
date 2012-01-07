@@ -368,109 +368,7 @@ static int xlog_spec_gen_usrmsg(xlog_spec_t * a_spec, xlog_thread_t * a_thread, 
 
 	return 0;
 }
-/*******************************************************************************/
-int xlog_spec_gen_msg(xlog_spec_t * a_spec, xlog_thread_t *a_thread)
-{
-	zc_assert(a_spec, -1);
-	zc_assert(a_thread, -1);
-	return a_spec->gen_msg(a_spec, a_thread);
-}
 
-static int xlog_spec_gen_msg_direct(xlog_spec_t * a_spec, xlog_thread_t *a_thread)
-{
-	int rc = 0;
-
-	/* no need to reprint $1.2d here */
-	rc = a_spec->gen_buf(a_spec, a_thread, a_thread->msg_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, make out loop stop */
-		return 1;
-	}
-	return 0;
-}
-
-static int xlog_spec_gen_msg_reformat(xlog_spec_t * a_spec, xlog_thread_t *a_thread)
-{
-	int rc = 0;
-
-	xlog_buf_restart(a_thread->pre_msg_buf);
-
-	rc = a_spec->gen_buf(a_spec, a_thread, a_thread->pre_msg_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, try printf */
-	}
-
-	/** @todo use own alignment buf func here, for speed up */
-	/* now process $1.2 here */
-	rc = xlog_buf_printf(a_thread->msg_buf, a_spec->print_fmt, a_thread->pre_msg_buf->start);
-	if (rc < 0) {
-		zc_error("xlog_buf_printf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, make out loop stop */
-		return 1;
-	}
-
-	return 0;
-}
-
-/*******************************************************************************/
-int xlog_spec_gen_path(xlog_spec_t * a_spec, xlog_thread_t *a_thread)
-{
-	int rc = 0;
-
-	zc_assert(a_spec, -1);
-	zc_assert(a_thread, -1);
-
-	if ((a_spec->print_fmt)[0] == '\0' ) {
-		/* no need to reprint $1.2d here */
-		rc = a_spec->gen_buf(a_spec, a_thread, a_thread->path_buf);
-		if (rc < 0) {
-			zc_error("a_spec->gen_buf fail");
-			return -1;
-		} else if (rc > 0) {
-			/* can't ignore the overflow path */
-			zc_error("a_spec->gen_buf overflow");
-			return -1;
-		}
-		return 0;
-	} else {
-		xlog_buf_clean(a_thread->pre_path_buf);
-
-		rc = a_spec->gen_buf(a_spec, a_thread, a_thread->pre_path_buf);
-		if (rc < 0) {
-			zc_error("a_spec->gen_buf fail");
-			return -1;
-		} else if (rc > 0) {
-			/* can't ignore the overflow path */
-			zc_error("a_spec->gen_buf overflow");
-			return -1;
-		}
-
-		/** @todo use own alignment buf func here, for speed up */
-		/* now process $1.2 here */
-		rc = xlog_buf_printf(a_thread->path_buf, a_spec->print_fmt, a_thread->pre_path_buf->start);
-		if (rc < 0) {
-			zc_error("xlog_buf_printf fail");
-			return -1;
-		} else if (rc > 0) {
-			/* can't ignore the overflow path */
-			zc_error("xlog_buf_printf overflow");
-			return -1;
-		}
-		return 0;
-	}
-
-	return 0;
-}
-
-/*******************************************************************************/
 static int xlog_spec_parse_time_fmt(xlog_spec_t * a_spec)
 {
 	char a_time[3 * MAXLEN_CFG_LINE + 1];
@@ -561,17 +459,14 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 	a_spec->str = p = pattern_start;
 
 	switch (*p) {
- 	/* a string begin with $: $12.35d(%F %X,%l) */
 	case '$':
-		/* process width and precision char in $-12.35P */
+		/* skip width and precision char in $-12.35P */
 		nscan = sscanf(p, "$%[.0-9-]%n", a_spec->print_fmt + 1, &nread);
 		if (nscan == 1) {
 			a_spec->print_fmt[0] = '%';
 			a_spec->print_fmt[nread] = 's';
-			a_spec->gen_msg = xlog_spec_gen_msg_reformat;
 		} else {
 			nread = 1;
-			a_spec->gen_msg = xlog_spec_gen_msg_direct;
 		}
 
 		p += nread;
@@ -601,9 +496,9 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
 			if (a_spec->ms_count > 0 || a_spec->us_count > 0) {
-				a_spec->gen_buf = xlog_spec_gen_time_with_msus;
+				a_spec->gen_fn = xlog_spec_gen_time_with_msus;
 			} else {
-				a_spec->gen_buf = xlog_spec_gen_time;
+				a_spec->gen_fn = xlog_spec_gen_time;
 			}
 			break;
 		}
@@ -625,7 +520,7 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
-			a_spec->gen_buf = xlog_spec_gen_mdc;
+			a_spec->gen_fn = xlog_spec_gen_mdc;
 			break;
 		}
 
@@ -634,34 +529,34 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 
 		switch (*p) {
 		case 'c':
-			a_spec->gen_buf = xlog_spec_gen_category;
+			a_spec->gen_fn = xlog_spec_gen_category;
 			break;
 		case 'F':
-			a_spec->gen_buf = xlog_spec_gen_srcfile;
+			a_spec->gen_fn = xlog_spec_gen_srcfile;
 			break;
 		case 'H':
-			a_spec->gen_buf = xlog_spec_gen_hostname;
+			a_spec->gen_fn = xlog_spec_gen_hostname;
 			break;
 		case 'L':
-			a_spec->gen_buf = xlog_spec_gen_srcline;
+			a_spec->gen_fn = xlog_spec_gen_srcline;
 			break;
 		case 'm':
-			a_spec->gen_buf = xlog_spec_gen_usrmsg;
+			a_spec->gen_fn = xlog_spec_gen_usrmsg;
 			break;
 		case 'n':
-			a_spec->gen_buf = xlog_spec_gen_newline;
+			a_spec->gen_fn = xlog_spec_gen_newline;
 			break;
 		case 'p':
-			a_spec->gen_buf = xlog_spec_gen_pid;
+			a_spec->gen_fn = xlog_spec_gen_pid;
 			break;
 		case 'P':
-			a_spec->gen_buf = xlog_spec_gen_priority;
+			a_spec->gen_fn = xlog_spec_gen_priority;
 			break;
 		case 't':
-			a_spec->gen_buf = xlog_spec_gen_tid;
+			a_spec->gen_fn = xlog_spec_gen_tid;
 			break;
 		case '$':
-			a_spec->gen_buf = xlog_spec_gen_dollar;
+			a_spec->gen_fn = xlog_spec_gen_dollar;
 			break;
 		default:
 			zc_error("str[%s] in wrong format, p[%c]", a_spec->str, *p);
@@ -669,7 +564,6 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 			goto xlog_spec_init_exit;
 		}
 		break;
- 	/* a const string: /home/bb */
 	default:
 		*pattern_next = strchr(p, '$');
 		if (*pattern_next) {
@@ -678,10 +572,8 @@ xlog_spec_t * xlog_spec_new(char *pattern_start, char **pattern_next)
 			a_spec->len = strlen(p);
 			*pattern_next = p + a_spec->len;
 		}
-		a_spec->gen_buf = xlog_spec_gen_str;
-		a_spec->gen_msg = xlog_spec_gen_msg_direct;
+		a_spec->gen_fn = xlog_spec_gen_str;
 	}
-
 
       xlog_spec_init_exit:
 	if (rc) {
@@ -702,6 +594,100 @@ void xlog_spec_del(xlog_spec_t * a_spec)
 	zc_debug("free a_spec at[%p]", a_spec);
 }
 
+/*******************************************************************************/
+int xlog_spec_gen_msg(xlog_spec_t * a_spec, xlog_thread_t *a_thread)
+{
+	int rc = 0;
+
+	zc_assert(a_spec, -1);
+	zc_assert(a_thread, -1);
+
+	if ((a_spec->print_fmt)[0] == '\0' ) {
+		/* no need to reprint $1.2d here */
+		rc = a_spec->gen_fn(a_spec, a_thread, a_thread->msg_buf);
+		if (rc < 0) {
+			zc_error("a_spec->gen_fn fail");
+			return -1;
+		} else if (rc > 0) {
+			/* buf is full, make out loop stop */
+			return 1;
+		}
+		return 0;
+	} else {
+		xlog_buf_clean(a_thread->pre_msg_buf);
+
+		rc = a_spec->gen_fn(a_spec, a_thread, a_thread->pre_msg_buf);
+		if (rc < 0) {
+			zc_error("a_spec->gen_fn fail");
+			return -1;
+		} else if (rc > 0) {
+			/* buf is full, try printf */
+		}
+
+		/** @todo use own alignment buf func here, for speed up */
+		/* now process $1.2 here */
+		rc = xlog_buf_printf(a_thread->msg_buf, a_spec->print_fmt, a_thread->pre_msg_buf->start);
+		if (rc < 0) {
+			zc_error("xlog_buf_printf fail");
+			return -1;
+		} else if (rc > 0) {
+			/* buf is full, make out loop stop */
+			return 1;
+		}
+		return 0;
+	}
+
+	return 0;
+}
+
+int xlog_spec_gen_path(xlog_spec_t * a_spec, xlog_thread_t *a_thread)
+{
+	int rc = 0;
+
+	zc_assert(a_spec, -1);
+	zc_assert(a_thread, -1);
+
+	if ((a_spec->print_fmt)[0] == '\0' ) {
+		/* no need to reprint $1.2d here */
+		rc = a_spec->gen_fn(a_spec, a_thread, a_thread->path_buf);
+		if (rc < 0) {
+			zc_error("a_spec->gen_fn fail");
+			return -1;
+		} else if (rc > 0) {
+			/* can't ignore the overflow path */
+			zc_error("a_spec->gen_fn overflow");
+			return -1;
+		}
+		return 0;
+	} else {
+		xlog_buf_clean(a_thread->pre_path_buf);
+
+		rc = a_spec->gen_fn(a_spec, a_thread, a_thread->pre_path_buf);
+		if (rc < 0) {
+			zc_error("a_spec->gen_fn fail");
+			return -1;
+		} else if (rc > 0) {
+			/* can't ignore the overflow path */
+			zc_error("a_spec->gen_fn overflow");
+			return -1;
+		}
+
+		/** @todo use own alignment buf func here, for speed up */
+		/* now process $1.2 here */
+		rc = xlog_buf_printf(a_thread->path_buf, a_spec->print_fmt, a_thread->pre_path_buf->start);
+		if (rc < 0) {
+			zc_error("xlog_buf_printf fail");
+			return -1;
+		} else if (rc > 0) {
+			/* can't ignore the overflow path */
+			zc_error("xlog_buf_printf overflow");
+			return -1;
+		}
+		return 0;
+	}
+
+	return 0;
+}
 
 /*******************************************************************************/
 static void xlog_spec_debug(xlog_spec_t * a_spec)
