@@ -60,7 +60,6 @@ static int xlog_spec_gen_time_with_msus(xlog_spec_t * a_spec, xlog_thread_t * a_
 	int i;
 	int rc;
 
-zc_debug("");
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);

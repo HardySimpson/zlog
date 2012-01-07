@@ -1,5 +1,5 @@
 test_press	:	test_press.o
-	gcc -O1 -o $@ $^ -L../libxlog -lxlog -lpthread -Wl,-rpath ../libxlog
+	gcc -O1 -o $@ $^ -L../libxlog/.libs -lxlog -lpthread -Wl,-rpath ../libxlog/.libs
 
 .c.o	:
 	gcc -O1 -pg -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../libxlog
