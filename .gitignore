@@ -35,3 +35,4 @@ test_*
 xlog.pc
 press.log*
 callgrind*
+err.log
