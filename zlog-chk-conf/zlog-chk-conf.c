@@ -22,25 +22,55 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include <unistd.h>
+
 #include "zlog.h"
 
 int main(int argc, char *argv[])
 {
 	int rc = 0;
+	int op;
+	int quiet = 0;
+	static const char *help = 
+		"Useage: zlog_chk_conf [xlog configure files]...\n"
+		"\t-q,\tsuppress non-error message\n"
+		"\t-h,\tshow help message\n";
 
-	setenv("ZLOG_ERRORLOG", "/dev/stderr", 1);
-	setenv("ZLOG_ICC", "1", 1);
 
-	if (argc != 2) {
-		printf("zlog_chk_conf [conf_file]\n");
+	while((op = getopt(argc, argv, "qh")) > 0) {
+		if (op == 'h') {
+			puts(help);
+			return 0;
+		} else if (op == 'q') {
+			quiet = 1;
+		}
 	}
 
-	rc = zlog_init(argv[1]);
-	if (rc) {
-		printf("\ncheck zlog conf file syntax fail, see error message above\n");
-		exit(2);
-	} else {
-		printf("check zlog conf file syntax success, no error found\n");
+	argc -= optind;
+	argv += optind;
+
+	if (argc == 0) {
+		puts(help);
+		return -1;
+	}
+
+	setenv("ZLOG_ERROR_LOG", "/dev/stderr", 1);
+	setenv("ZLOG_ICC", "1", 1);
+
+	while (argc > 0) {
+		rc = zlog_init(*argv);
+		if (rc) {
+			printf("\n---[%s] syntax error, see error message above\n",
+				*argv);
+			exit(2);
+		} else {
+			zlog_fini();
+			if (!quiet) {
+				printf("--[%s] syntax right\n", *argv);
+			}
+		}
+		argc--;
+		argv++;
 	}
 
 	exit(0);

@@ -42,6 +42,7 @@ int zlog_init(char *conf_file)
 	int rc = 0;
 	int rd = 0;
 
+
 	zc_debug("------zlog_init start, compile time[%s]------", __TIME__);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
@@ -66,6 +67,7 @@ int zlog_init(char *conf_file)
 		zc_error("zlog_rotater_init fail");
 		goto zlog_init_exit;
 	}
+
 
 	rc = zlog_cmap_init(&zlog_env_cmap);
 	if (rc) {
