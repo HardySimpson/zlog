@@ -64,7 +64,8 @@ int zc_getopt(int argc, char *const *argv, const char *opts)
 	char *cp;
 
 	if (_sp == 1) {
-		if (zc_optind >= argc || argv[zc_optind][0] != '-' || argv[zc_optind] == NULL || argv[zc_optind][1] == '\0')
+		if (zc_optind >= argc || argv[zc_optind][0] != '-'
+		    || argv[zc_optind] == NULL || argv[zc_optind][1] == '\0')
 			return (EOF);
 		else if (strcmp(argv[zc_optind], "--") == 0) {
 			zc_optind++;
@@ -87,7 +88,8 @@ int zc_getopt(int argc, char *const *argv, const char *opts)
 			zc_optarg = &argv[zc_optind++][_sp + 1];
 		else if (++zc_optind >= argc) {
 			if (opts[0] != ':') {
-				warn("%s: option requires an argument" " -- %c\n", argv[0], c);
+				warn("%s: option requires an argument"
+				     " -- %c\n", argv[0], c);
 			}
 			_sp = 1;
 			zc_optarg = NULL;

@@ -55,7 +55,8 @@ typedef struct {
  * @param truncate_str if buffer is full, the end of buf will be filled with truncate_str.
  * @returns zlog_buf_t pointer for success, NULL for fail.
  */
-zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max, const char *truncate_str);
+zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max,
+			 const char *truncate_str);
 
 /**
  * zlog_buf_t destructor
@@ -117,7 +118,7 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
  * @returns 0 for success, -1 for fail, 1 for buffer is full(expand to size_max).
  */
 int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
-			const struct tm *a_tm);
+		      const struct tm *a_tm);
 
 /**
  * Output detail of zlog_buf_t to ZLOG_ERROR_LOG.

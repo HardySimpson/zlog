@@ -39,27 +39,27 @@ zlog_mdc_t *zlog_mdc_new(void);
 /**
  * destructor
  */
-void zlog_mdc_del(zlog_mdc_t *a_mdc);
+void zlog_mdc_del(zlog_mdc_t * a_mdc);
 
 /**
  * remove all values from mdc, remain map itself
  */
-void zlog_mdc_clean(zlog_mdc_t *a_mdc);
+void zlog_mdc_clean(zlog_mdc_t * a_mdc);
 
 /**
  * put key-value into a_mdc
  */
-int zlog_mdc_put(zlog_mdc_t *a_mdc, char *key, char *value);
+int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value);
 
 /**
  * get value from a_mdc
  */
-char *zlog_mdc_get(zlog_mdc_t *a_mdc, char *key);
+char *zlog_mdc_get(zlog_mdc_t * a_mdc, char *key);
 
 /**
  * remove key-value from a_mdc
  */
-void zlog_mdc_remove(zlog_mdc_t *a_mdc, char *key);
+void zlog_mdc_remove(zlog_mdc_t * a_mdc, char *key);
 
 typedef struct zlog_mdc_kv_t {
 	char key[MAXLEN_PATH + 1];
@@ -69,6 +69,6 @@ typedef struct zlog_mdc_kv_t {
 /**
  * get zlog_mdc_kv_t entry from a_mdc
  */
-zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t *a_mdc, char *key);
+zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t * a_mdc, char *key);
 
 #endif

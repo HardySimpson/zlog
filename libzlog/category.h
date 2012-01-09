@@ -51,7 +51,7 @@ int zlog_cmap_init(zlog_cmap_t * a_cmap);
  * @param rules list of all rules
  * @return 0 for success, -1 for fail
  */
-int zlog_cmap_update(zlog_cmap_t *a_cmap, zc_arraylist_t *rules);
+int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t * rules);
 
 /**
  * Cats finisher
@@ -85,8 +85,9 @@ typedef struct zlog_category_t {
  * @param rules if not found, use rules to create a new category
  * @returns poiter of zlog_category_t for success, NULL for fail
  */
-zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t *a_cmap,
-				char *category_name, zc_arraylist_t *rules);
+zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t * a_cmap,
+					  char *category_name,
+					  zc_arraylist_t * rules);
 
 #include "thread.h"
 
@@ -98,6 +99,6 @@ zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t *a_cmap,
  * which belongs to one thread
  * @returns 0 for success, -1 for fail
  */
-int zlog_category_output(zlog_category_t *a_cat, zlog_thread_t *a_thread);
+int zlog_category_output(zlog_category_t * a_cat, zlog_thread_t * a_thread);
 
 #endif

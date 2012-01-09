@@ -55,7 +55,8 @@ int zlog_tmap_init(zlog_tmap_t * a_tmap);
  * @param buf_size_max min size of buffer in every thread 
  * @return 0 for success, -1 for fail
  */
-int zlog_tmap_update(zlog_tmap_t *a_tmap, size_t buf_size_min, size_t buf_size_max);
+int zlog_tmap_update(zlog_tmap_t * a_tmap, size_t buf_size_min,
+		     size_t buf_size_max);
 
 /**
  * Finisher
@@ -88,8 +89,7 @@ typedef struct {
  * @param a_tmap the address pointed to by zlog_tmap_t.
  * @returns zlog_thread_t pointer, NULL for not found
  */
-zlog_thread_t * zlog_tmap_get_thread(zlog_tmap_t * a_tmap);
-
+zlog_thread_t *zlog_tmap_get_thread(zlog_tmap_t * a_tmap);
 
 /**
  * Create a thread from tmap
@@ -99,7 +99,8 @@ zlog_thread_t * zlog_tmap_get_thread(zlog_tmap_t * a_tmap);
  * @param buf_size_max all buffers in thread's max buf size
  * @returns zlog_thread_t pointer, NULL for not found
  */
-zlog_thread_t * zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min, size_t buf_size_max);
+zlog_thread_t *zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min,
+				    size_t buf_size_max);
 
 /**
  * Output detail of zlog_tmap_t to ZLOG_ERROR_LOG.

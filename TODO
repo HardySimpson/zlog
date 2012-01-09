@@ -23,19 +23,19 @@
 [o] 增加MDC,可配置的增加字段
 [o] 测试buf被重写的时候，是否会导致后面的\0没加
 [o] xlog要改名为zlog....
+[o] 取一次ZLOG_ERROR_LOG和ZLOG_DEBUG_LOG，避免多次getenv
 
+[ ] 使用valgrind测试性能
 [ ] 和rsyslog对接的问题
 [ ] 用某种自动编译器以及文档生成器
 [ ] 增加man  age,  df, 案例, doxygen
 [ ] 采用精细的reo en方法来建立用fo en来智能判断需不需要重开文件
 [ ] 测试多线程的效率
 [ ] 打印堆栈。。可能需要语言支持
-[ ] 使用valgrind测试性能
 [ ] 增加获取当前使用文件名接口，供shell脚本用
 [ ] hezlog的可定制话
 [ ] 兼容性问题
 [ ] 分类匹配的可定制化
-[ ] 取一次ZLOG_ERROR_LOG和ZLOG_DEBUG_LOG，避免多次getenv
 [ ] zc_assert一般关闭，调试打开
 [ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 

@@ -26,7 +26,7 @@
 #include "zc_defs.h"
 
 /*******************************************************************************/
-static void zlog_category_del(zlog_category_t *a_cat)
+static void zlog_category_del(zlog_category_t * a_cat)
 {
 	if (a_cat->match_rules)
 		zc_arraylist_del(a_cat->match_rules);
@@ -36,7 +36,7 @@ static void zlog_category_del(zlog_category_t *a_cat)
 	return;
 }
 
-static int zlog_category_set_name(zlog_category_t *a_cat, char *name)
+static int zlog_category_set_name(zlog_category_t * a_cat, char *name)
 {
 	size_t len;
 
@@ -52,7 +52,8 @@ static int zlog_category_set_name(zlog_category_t *a_cat, char *name)
 	return 0;
 }
 
-static int zlog_category_match_rules(zlog_category_t *a_cat, zc_arraylist_t *rules)
+static int zlog_category_match_rules(zlog_category_t * a_cat,
+				     zc_arraylist_t * rules)
 {
 	int i;
 	int count = 0;
@@ -97,7 +98,7 @@ static int zlog_category_match_rules(zlog_category_t *a_cat, zc_arraylist_t *rul
 	}
 }
 
-static zlog_category_t  *zlog_category_new(char *name, zc_arraylist_t *rules)
+static zlog_category_t *zlog_category_new(char *name, zc_arraylist_t * rules)
 {
 	int rc = 0;
 	zlog_category_t *a_cat;
@@ -130,7 +131,7 @@ static zlog_category_t  *zlog_category_new(char *name, zc_arraylist_t *rules)
 	}
 }
 
-int zlog_category_output(zlog_category_t *a_cat, zlog_thread_t *a_thread)
+int zlog_category_output(zlog_category_t * a_cat, zlog_thread_t * a_thread)
 {
 	int i;
 	int rc = 0;
@@ -152,6 +153,7 @@ int zlog_category_output(zlog_category_t *a_cat, zlog_thread_t *a_thread)
 
 	return rd;
 }
+
 /*******************************************************************************/
 int zlog_cmap_init(zlog_cmap_t * a_cmap)
 {
@@ -159,9 +161,9 @@ int zlog_cmap_init(zlog_cmap_t * a_cmap)
 
 	zc_assert(a_cmap, -1);
 	a_tab = zc_hashtable_new(20,
-				   (zc_hashtable_hash_fn) zc_hashtable_str_hash,
-				   (zc_hashtable_equal_fn) zc_hashtable_str_equal,
-				   NULL, (zc_hashtable_del_fn) zlog_category_del);
+				 (zc_hashtable_hash_fn) zc_hashtable_str_hash,
+				 (zc_hashtable_equal_fn) zc_hashtable_str_equal,
+				 NULL, (zc_hashtable_del_fn) zlog_category_del);
 	if (!a_tab) {
 		zc_error("init hashtable fail");
 		return -1;
@@ -173,7 +175,7 @@ int zlog_cmap_init(zlog_cmap_t * a_cmap)
 
 void zlog_cmap_fini(zlog_cmap_t * a_cmap)
 {
-	zc_assert(a_cmap, );
+	zc_assert(a_cmap,);
 	if (a_cmap->tab)
 		zc_hashtable_del(a_cmap->tab);
 
@@ -181,7 +183,7 @@ void zlog_cmap_fini(zlog_cmap_t * a_cmap)
 	return;
 }
 
-int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t *rules)
+int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t * rules)
 {
 	int rc = 0;
 	zc_hashtable_entry_t *a_entry;
@@ -190,7 +192,7 @@ int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t *rules)
 	zc_assert(a_cmap, -1);
 	zc_assert(rules, -1);
 	zc_hashtable_foreach(a_cmap->tab, a_entry) {
-		a_category = (zlog_category_t *)a_entry->value;
+		a_category = (zlog_category_t *) a_entry->value;
 		rc = zlog_category_match_rules(a_category, rules);
 		if (rc) {
 			zc_error("zlog_category_match_rules fail");
@@ -202,7 +204,9 @@ int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t *rules)
 }
 
 /*******************************************************************************/
-zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t *a_cmap, char *category_name, zc_arraylist_t *rules)
+zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t * a_cmap,
+					  char *category_name,
+					  zc_arraylist_t * rules)
 {
 	int rc = 0;
 	zlog_category_t *a_cat;
@@ -214,12 +218,12 @@ zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t *a_cmap, char *category_na
 	a_cat = zc_hashtable_get(a_cmap->tab, category_name);
 	if (a_cat) {
 		return a_cat;
-	} /* else not fount, create one */
-
+	}
+	/* else not fount, create one */
 	a_cat = zlog_category_new(category_name, rules);
 	if (!a_cat) {
 		zc_error("zc_category_new fail");
-		return NULL; 
+		return NULL;
 	}
 
 	rc = zc_hashtable_put(a_cmap->tab, a_cat->name, a_cat);
@@ -236,19 +240,19 @@ zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t *a_cmap, char *category_na
 		return a_cat;
 	}
 }
+
 /*******************************************************************************/
 void zlog_cmap_profile(zlog_cmap_t * a_cmap)
 {
 	zc_hashtable_entry_t *a_entry;
 	zlog_category_t *a_category;
 
-	zc_assert(a_cmap, );
+	zc_assert(a_cmap,);
 
 	zc_error("---cmap[%p]---", a_cmap);
 	zc_hashtable_foreach(a_cmap->tab, a_entry) {
-		a_category = (zlog_category_t *)a_entry->value;
+		a_category = (zlog_category_t *) a_entry->value;
 		zc_error("category:[%s]", a_category->name);
 	}
 	return;
 }
-

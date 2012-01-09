@@ -82,7 +82,7 @@ zlog_event_t *zlog_event_new(void);
  *
  * @param zlog_event_t pointer
  */
-void zlog_event_del(zlog_event_t *a_event);
+void zlog_event_del(zlog_event_t * a_event);
 
 /**
  * zlog_event_t initer
@@ -90,8 +90,9 @@ void zlog_event_del(zlog_event_t *a_event);
  * @see zlog_event_t
  */
 void zlog_event_refresh(zlog_event_t * a_event,
-		    char *category_name, size_t *category_name_len,
-		    char *file, long line, int priority,
-		    char *hex_buf, long hex_buf_len, char *str_format, va_list str_args, int generate_cmd);
+			char *category_name, size_t * category_name_len,
+			char *file, long line, int priority,
+			char *hex_buf, long hex_buf_len, char *str_format,
+			va_list str_args, int generate_cmd);
 
 #endif

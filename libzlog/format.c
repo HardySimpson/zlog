@@ -69,7 +69,8 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 
 	for (p = a_format->name; *p != '\0'; p++) {
 		if ((!isalnum(*p)) && (*p != '_')) {
-			zc_error("a_format->name[%s] is not alpha, digit or _", a_format->name);
+			zc_error("a_format->name[%s] is not alpha, digit or _",
+				 a_format->name);
 			rc = -1;
 			goto zlog_format_new_exit;
 		}
@@ -92,7 +93,8 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 	memset(a_format->pattern, 0x00, sizeof(a_format->pattern));
 	strncpy(a_format->pattern, p_start, p_end - p_start);
 
-	a_format->pattern_specs = zc_arraylist_new((zc_arraylist_del_fn) zlog_spec_del);
+	a_format->pattern_specs =
+	    zc_arraylist_new((zc_arraylist_del_fn) zlog_spec_del);
 	if (!(a_format->pattern_specs)) {
 		zc_error("zc_arraylist_new fail");
 		rc = -1;
@@ -170,16 +172,16 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 static void zlog_format_debug(zlog_format_t * a_format)
 {
 	zc_debug("format:[%p][%s]-[%s]", a_format,
-		a_format->name, a_format->pattern);
-	return ;
+		 a_format->name, a_format->pattern);
+	return;
 }
 
 void zlog_format_profile(zlog_format_t * a_format)
 {
-	zc_assert(a_format, );
+	zc_assert(a_format,);
 	zc_error("format:[%p][%s]-[%s]", a_format,
-		a_format->name, a_format->pattern);
-	return ;
+		 a_format->name, a_format->pattern);
+	return;
 }
 
 /*******************************************************************************/

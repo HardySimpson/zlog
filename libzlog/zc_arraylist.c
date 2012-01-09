@@ -87,7 +87,8 @@ static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 		return -1;
 	}
 	a_list->array = (void **)tmp;
-	memset(a_list->array + a_list->size, 0x00, (new_size - a_list->size) * sizeof(void *));
+	memset(a_list->array + a_list->size, 0x00,
+	       (new_size - a_list->size) * sizeof(void *));
 	a_list->size = new_size;
 	return 0;
 }
@@ -109,7 +110,6 @@ int zc_arraylist_set(zc_arraylist_t * a_list, int idx, void *data)
 	return 0;
 }
 
-
 int zc_arraylist_add(zc_arraylist_t * a_list, void *data)
 {
 	zc_assert(a_list, -1);
@@ -117,7 +117,8 @@ int zc_arraylist_add(zc_arraylist_t * a_list, void *data)
 }
 
 /* assum idx < len */
-static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx, void *data)
+static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx,
+				     void *data)
 {
 	if (a_list->array[idx] == NULL) {
 		a_list->array[idx] = data;
@@ -129,20 +130,22 @@ static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx, void *dat
 			return -1;
 		}
 	}
-	memmove(a_list->array + idx + 1, a_list->array + idx, (a_list->len - idx)*sizeof(void*));
+	memmove(a_list->array + idx + 1, a_list->array + idx,
+		(a_list->len - idx) * sizeof(void *));
 	a_list->array[idx] = data;
 	a_list->len++;
 	return 0;
 }
 
-int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp_fn, void *data)
+int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp_fn,
+			 void *data)
 {
 	int i;
 	zc_assert(a_list, -1);
 	zc_assert(cmp_fn, -1);
 
 	for (i = 0; i < a_list->len; i++) {
-		if ((*cmp_fn)(a_list->array[i], data) > 0)
+		if ((*cmp_fn) (a_list->array[i], data) > 0)
 			break;
 	}
 

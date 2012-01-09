@@ -27,13 +27,16 @@
 
 /*******************************************************************************/
 static void zlog_buf_debug(zlog_buf_t * a_buf);
-static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min, size_t bufsize_max);
+static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min,
+			     size_t bufsize_max);
 static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment);
 /*******************************************************************************/
-static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min, size_t bufsize_max)
+static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min,
+			     size_t bufsize_max)
 {
 	if (bufsize_max < bufsize_min) {
-		zc_error("bufsize_max[%ld] < bufsize_min[%ld]", bufsize_max, bufsize_min);
+		zc_error("bufsize_max[%ld] < bufsize_min[%ld]", bufsize_max,
+			 bufsize_min);
 		return -1;
 	}
 
@@ -46,7 +49,8 @@ static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min, size_t bufs
 
 	a_buf->size_max = bufsize_max;
 	if (a_buf->size_max != 0 && a_buf->size_max < a_buf->size_min) {
-		zc_error("a_buf->size_max[%ld] < a_buf->size_min[%ld]", a_buf->size_max, a_buf->size_min);
+		zc_error("a_buf->size_max[%ld] < a_buf->size_min[%ld]",
+			 a_buf->size_max, a_buf->size_min);
 		return -1;
 	}
 
@@ -59,7 +63,8 @@ static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min, size_t bufs
 	return 0;
 }
 
-zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max, const char *truncate_str)
+zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max,
+			 const char *truncate_str)
 {
 	int rc = 0;
 	zlog_buf_t *a_buf;
@@ -198,14 +203,18 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 		nwrite = vsnprintf(a_buf->end, size_left, format, ap);
 		if (nwrite < 0) {
 			zc_error("vsnprintf fail, errno[%d]", errno);
-			zc_error("nwrite[%d], size_left[%ld], format[%s]", nwrite, size_left, format);
+			zc_error("nwrite[%d], size_left[%ld], format[%s]",
+				 nwrite, size_left, format);
 			zc_error(format, ap);
 			return -1;
 		} else if (nwrite >= size_left) {
-			zc_debug("nwrite[%d]>=size_left[%ld],format[%s],resize", nwrite, size_left, format);
+			zc_debug("nwrite[%d]>=size_left[%ld],format[%s],resize",
+				 nwrite, size_left, format);
 			rc = zlog_buf_resize(a_buf, 0);
 			if (rc > 0) {
-				zc_error("conf limit to %ld, can't extend, so truncate", a_buf->size_max);
+				zc_error
+				    ("conf limit to %ld, can't extend, so truncate",
+				     a_buf->size_max);
 				a_buf->end += size_left - 1;
 				*(a_buf->end) = '\0';
 				zlog_buf_truncate(a_buf);
@@ -214,7 +223,8 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 				zc_error("zlog_buf_resize fail");
 				return -1;
 			} else {
-				zc_debug("zlog_buf_resize succ, to[%ld]", a_buf->size_real);
+				zc_debug("zlog_buf_resize succ, to[%ld]",
+					 a_buf->size_real);
 				continue;
 			}
 		} else {
@@ -248,7 +258,8 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 		zc_debug("size_left not enough, resize");
 		rc = zlog_buf_resize(a_buf, str_len - size_left + 1);
 		if (rc > 0) {
-			zc_error("conf limit to %ld, can't extend, so output", a_buf->size_max);
+			zc_error("conf limit to %ld, can't extend, so output",
+				 a_buf->size_max);
 			memcpy(a_buf->end, str, size_left - 1);
 			a_buf->end += size_left - 1;
 			*(a_buf->end) = '\0';
@@ -258,7 +269,8 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 			zc_error("zlog_buf_resize fail");
 			return -1;
 		} else {
-			zc_debug("zlog_buf_resize succ, to[%ld]", a_buf->size_real);
+			zc_debug("zlog_buf_resize succ, to[%ld]",
+				 a_buf->size_real);
 		}
 	}
 
@@ -269,7 +281,8 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 }
 
 /*******************************************************************************/
-int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len, const struct tm *a_tm)
+int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
+		      const struct tm *a_tm)
 {
 	int rc = 0;
 	size_t size_left;
@@ -293,7 +306,8 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 		zc_debug("size_left not enough, resize");
 		rc = zlog_buf_resize(a_buf, time_len - size_left + 1);
 		if (rc > 0) {
-			zc_error("conf limit to %ld, can't extend, so trucate", a_buf->size_max);
+			zc_error("conf limit to %ld, can't extend, so trucate",
+				 a_buf->size_max);
 			strftime(a_buf->end, size_left - 1, time_fmt, a_tm);
 			a_buf->end += size_left - 1;
 			a_buf->end = '\0';
@@ -303,7 +317,8 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 			zc_error("zlog_buf_resize fail");
 			return -1;
 		} else {
-			zc_debug("zlog_buf_resize succ, to[%ld]", a_buf->size_real);
+			zc_debug("zlog_buf_resize succ, to[%ld]",
+				 a_buf->size_real);
 		}
 	}
 
@@ -313,7 +328,9 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 	*(a_buf->end) = '\0';
 
 	if (nwrite <= 0) {
-		zc_error("strftime maybe failed or output 0 char, nwrite[%d], time_fmt[%s]", nwrite, time_fmt);
+		zc_error
+		    ("strftime maybe failed or output 0 char, nwrite[%d], time_fmt[%s]",
+		     nwrite, time_fmt);
 	}
 
 	return 0;
@@ -332,7 +349,8 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 	char *p = NULL;
 
 	if (a_buf->size_max != 0 && a_buf->size_real >= a_buf->size_max) {
-		zc_error("a_buf->size_real[%ld] >= a_buf->size_max[%ld]", a_buf->size_real, a_buf->size_max);
+		zc_error("a_buf->size_real[%ld] >= a_buf->size_max[%ld]",
+			 a_buf->size_real, a_buf->size_max);
 		return 1;
 	}
 
@@ -346,7 +364,8 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 		/* limit && use inner step */
 		if (a_buf->size_real + a_buf->size_step < a_buf->size_max) {
 			new_size = a_buf->size_real + a_buf->size_step;
-		} else if (a_buf->size_real + a_buf->size_step >= a_buf->size_max) {
+		} else if (a_buf->size_real + a_buf->size_step >=
+			   a_buf->size_max) {
 			new_size = a_buf->size_max;
 			rc = 1;
 		}
@@ -385,17 +404,17 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 static void zlog_buf_debug(zlog_buf_t * a_buf)
 {
 	zc_debug("buf:[%p][%ld-%ld][%s][%p][%ld]", a_buf,
-		a_buf->size_min, a_buf->size_max, a_buf->truncate_str,
-		a_buf->start, a_buf->end - a_buf->start);
+		 a_buf->size_min, a_buf->size_max, a_buf->truncate_str,
+		 a_buf->start, a_buf->end - a_buf->start);
 	return;
 }
 
 void zlog_buf_profile(zlog_buf_t * a_buf)
 {
-	zc_assert(a_buf, );
+	zc_assert(a_buf,);
 
 	zc_error("buf:[%p][%ld-%ld][%s][%p][%ld]", a_buf,
-		a_buf->size_min, a_buf->size_max, a_buf->truncate_str,
-		a_buf->start, a_buf->end - a_buf->start);
+		 a_buf->size_min, a_buf->size_max, a_buf->truncate_str,
+		 a_buf->start, a_buf->end - a_buf->start);
 	return;
 }

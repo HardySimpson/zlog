@@ -116,4 +116,3 @@ int zc_error_inner(const char *file, const long line, const char *fmt, ...)
 
 	return 0;
 }
-

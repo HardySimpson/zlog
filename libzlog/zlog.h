@@ -50,7 +50,7 @@ extern "C" {
  * @returns 0 for success, -1 for fail, detail will be record in ZLOG_ERROR_LOG.
  * @see zlog_update(), zlog_fini(), zlog.conf, ZLOG_ERROR_LOG
  */
-int zlog_init(char *conf_file);
+	int zlog_init(char *conf_file);
 
 /**
  * Update zlog from configure file.
@@ -65,14 +65,14 @@ int zlog_init(char *conf_file);
  * @returns 0 for success, -1 for fail, detail will be record in ZLOG_ERROR_LOG.
  * @see zlog_init(), zlog_fini(), zlog.conf, ZLOG_ERROR_LOG
  */
-int zlog_update(char *conf_file);
+	int zlog_update(char *conf_file);
 
 /**
  * Finish zlog, release all memory zlog_init() or zlog_update() applied.
  * 
  * @see zlog_init(), zlog_update(), zlog.conf, ZLOG_ERROR_LOG
  */
-void zlog_fini(void);
+	void zlog_fini(void);
 
 /**
  * Output detail of zlog's configure file to ZLOG_ERROR_LOG.
@@ -81,7 +81,7 @@ void zlog_fini(void);
  *
  * @see ZLOG_ERROR_LOG
  */
-void zlog_profile(void);
+	void zlog_profile(void);
 
 /**
  * Category is the core concept of zlog.
@@ -103,7 +103,7 @@ void zlog_profile(void);
  *
  * @see zlog_rule_match_category()
  */
-typedef struct zlog_category_t zlog_category_t;
+	typedef struct zlog_category_t zlog_category_t;
 
 /**
  * Get a category from global table for future log, if none, create it.
@@ -115,28 +115,28 @@ typedef struct zlog_category_t zlog_category_t;
     NULL for fail, detail will be record in ZLOG_ERROR_LOG.
  * @see zlog_set_category(), zlog_category_t, ZLOG_ERROR_LOG
  */
-zlog_category_t *zlog_get_category(char *category_name);
+	zlog_category_t *zlog_get_category(char *category_name);
 
 /**
  * put key-value into mdc of thread now, mdc is come from log4j, Mapped Diagnostic Context,
  * correspond to $M(key) in configure file
  */
-int zlog_put_mdc(char *key, char *value);
+	int zlog_put_mdc(char *key, char *value);
 
 /**
  * get value from mdc of thread now
  */
-char *zlog_get_mdc(char *key);
+	char *zlog_get_mdc(char *key);
 
 /**
  * remove key-value from mdc of thread now
  */
-void zlog_remove_mdc(char *key);
+	void zlog_remove_mdc(char *key);
 
 /**
  * remove all values from mdc of thread now
  */
-void zlog_clean_mdc(void);
+	void zlog_clean_mdc(void);
 
 /**
  * The real log fuction.
@@ -154,7 +154,8 @@ void zlog_clean_mdc(void);
     nothing will be output, and record a log in ZLOG_ERROR_LOG.
  * @see vzlog(), hzlog()
  */
-void zlog(zlog_category_t *a_cat, char *file, long line, int priority, char *format, ...);
+	void zlog(zlog_category_t * a_cat, char *file, long line, int priority,
+		  char *format, ...);
 
 /**
  * The real log fuction, va_list version.
@@ -170,7 +171,8 @@ void zlog(zlog_category_t *a_cat, char *file, long line, int priority, char *for
     nothing will be output, and record a log in ZLOG_ERROR_LOG.
  * @param args a va_list, will be va_copy() inner.
  */
-void vzlog(zlog_category_t *a_cat, char *file, long line, int priority, char *format, va_list args);
+	void vzlog(zlog_category_t * a_cat, char *file, long line, int priority,
+		   char *format, va_list args);
 
 /**
  * The real log fuction, output hexadecimal version.
@@ -193,17 +195,18 @@ void vzlog(zlog_category_t *a_cat, char *file, long line, int priority, char *fo
  * @param buf the buf start pointer
  * @param buf_len buf's length
  */
-void hzlog(zlog_category_t *a_cat, char *file, long line, int priority, char *buf, unsigned long buf_len);
+	void hzlog(zlog_category_t * a_cat, char *file, long line, int priority,
+		   char *buf, unsigned long buf_len);
 
-typedef enum {
-	ZLOG_UNKOWN = 0,	/**< when priority < 1 or > 6 */
-	ZLOG_DEBUG = 1,		/**< debug-level message */
-	ZLOG_INFO = 2,		/**< informational message */
-	ZLOG_NOTICE = 3,	/**< normal, but significant, condition */ 
-	ZLOG_WARN = 4,		/**< warning conditions, maybe application logic problem */
-	ZLOG_ERROR = 5,		/**< error conditions, maybe application fail */
-	ZLOG_FATAL = 6,		/**< system is unusable */
-} zlog_priority;
+	typedef enum {
+		ZLOG_UNKOWN = 0,/**< when priority < 1 or > 6 */
+		ZLOG_DEBUG = 1,	/**< debug-level message */
+		ZLOG_INFO = 2,	/**< informational message */
+		ZLOG_NOTICE = 3,/**< normal, but significant, condition */
+		ZLOG_WARN = 4,	/**< warning conditions, maybe application logic problem */
+		ZLOG_ERROR = 5,	/**< error conditions, maybe application fail */
+		ZLOG_FATAL = 6,	/**< system is unusable */
+	} zlog_priority;
 
 /* zlog macros */
 
@@ -267,5 +270,4 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif
-
 #endif

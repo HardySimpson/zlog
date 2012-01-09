@@ -32,7 +32,7 @@
  * zlog rotater struct
  */
 typedef struct {
-	pthread_mutex_t mlock; 	/**< thread lock */
+	pthread_mutex_t mlock;	/**< thread lock */
 	int lock_fd;		/**< process lock */
 } zlog_rotater_t;
 
@@ -88,6 +88,7 @@ void zlog_rotater_fini(zlog_rotater_t * a_rot);
    If rotate success, return 0.
    If rotate fail, return -1.
  */
-int zlog_rotater_rotate(zlog_rotater_t * a_rot, char *file_path, long file_maxsize, size_t msg_len);
+int zlog_rotater_rotate(zlog_rotater_t * a_rot, char *file_path,
+			long file_maxsize, size_t msg_len);
 
 #endif

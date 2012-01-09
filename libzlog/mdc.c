@@ -29,9 +29,9 @@ static zlog_mdc_kv_t *zlog_mdc_kv_new(char *key, char *value)
 {
 	zlog_mdc_kv_t *a_mdc_kv;
 	size_t value_len;
-	
+
 	value_len = strlen(value);
-	if(strlen(key) > MAXLEN_PATH || value_len > MAXLEN_PATH) {
+	if (strlen(key) > MAXLEN_PATH || value_len > MAXLEN_PATH) {
 		zc_error("key[%s] or value[%s] is too long", key, value);
 		return NULL;
 	}
@@ -49,9 +49,10 @@ static zlog_mdc_kv_t *zlog_mdc_kv_new(char *key, char *value)
 	return a_mdc_kv;
 }
 
-static void zlog_mdc_kv_del(zlog_mdc_kv_t *a_mdc_kv)
+static void zlog_mdc_kv_del(zlog_mdc_kv_t * a_mdc_kv)
 {
-	zc_debug("del a_mdc_kv[%p], key[%s], value[%s]", a_mdc_kv, a_mdc_kv->key, a_mdc_kv->value);
+	zc_debug("del a_mdc_kv[%p], key[%s], value[%s]", a_mdc_kv,
+		 a_mdc_kv->key, a_mdc_kv->value);
 	free(a_mdc_kv);
 }
 
@@ -68,8 +69,9 @@ zlog_mdc_t *zlog_mdc_new(void)
 	}
 
 	a_mdc->tab = zc_hashtable_new(20,
-		zc_hashtable_str_hash, zc_hashtable_str_equal,
-		NULL, (zc_hashtable_del_fn) zlog_mdc_kv_del);
+				      zc_hashtable_str_hash,
+				      zc_hashtable_str_equal, NULL,
+				      (zc_hashtable_del_fn) zlog_mdc_kv_del);
 	if (!a_mdc->tab) {
 		zc_error("zc_hashtable_new fail");
 		rc = -1;
@@ -85,27 +87,27 @@ zlog_mdc_t *zlog_mdc_new(void)
 	}
 }
 
-void zlog_mdc_del(zlog_mdc_t *a_mdc)
+void zlog_mdc_del(zlog_mdc_t * a_mdc)
 {
-	zc_assert(a_mdc, );
+	zc_assert(a_mdc,);
 
 	if (a_mdc->tab) {
 		zc_hashtable_del(a_mdc->tab);
 	}
-	
+
 	zc_debug("free a_mdc at[%p]", a_mdc);
 	free(a_mdc);
 	return;
 }
 
-void zlog_mdc_clean(zlog_mdc_t *a_mdc)
+void zlog_mdc_clean(zlog_mdc_t * a_mdc)
 {
-	zc_assert(a_mdc, );
+	zc_assert(a_mdc,);
 	zc_hashtable_clean(a_mdc->tab);
 	return;
 }
 
-int zlog_mdc_put(zlog_mdc_t *a_mdc, char *key, char *value)
+int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value)
 {
 	int rc = 0;
 	zlog_mdc_kv_t *a_mdc_kv;
@@ -130,7 +132,7 @@ int zlog_mdc_put(zlog_mdc_t *a_mdc, char *key, char *value)
 	return 0;
 }
 
-char *zlog_mdc_get(zlog_mdc_t *a_mdc, char *key)
+char *zlog_mdc_get(zlog_mdc_t * a_mdc, char *key)
 {
 	zlog_mdc_kv_t *a_mdc_kv;
 
@@ -146,7 +148,7 @@ char *zlog_mdc_get(zlog_mdc_t *a_mdc, char *key)
 	}
 }
 
-zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t *a_mdc, char *key)
+zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t * a_mdc, char *key)
 {
 	zlog_mdc_kv_t *a_mdc_kv;
 
@@ -162,10 +164,10 @@ zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t *a_mdc, char *key)
 	}
 }
 
-void zlog_mdc_remove(zlog_mdc_t *a_mdc, char *key)
+void zlog_mdc_remove(zlog_mdc_t * a_mdc, char *key)
 {
-	zc_assert(a_mdc, );
-	zc_assert(key, );
+	zc_assert(a_mdc,);
+	zc_assert(key,);
 
 	zc_hashtable_remove(a_mdc->tab, key);
 	return;

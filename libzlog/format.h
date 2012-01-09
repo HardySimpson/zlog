@@ -64,7 +64,6 @@ void zlog_format_del(zlog_format_t * a_format);
  */
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread);
 
-
 /**
  * Output detail of zlog_format_t to ZLOG_ERROR_LOG.
  *

@@ -28,7 +28,7 @@
 #include "zc_defs.h"
 #include "event.h"
 
-zlog_event_t * zlog_event_new(void)
+zlog_event_t *zlog_event_new(void)
 {
 	int rc = 0;
 	zlog_event_t *a_event;
@@ -39,7 +39,6 @@ zlog_event_t * zlog_event_new(void)
 		return NULL;
 	}
 
-
 	/*
 	 * at the zlog_init we gethostname,
 	 * u don't always change your hostname, eh?
@@ -47,7 +46,7 @@ zlog_event_t * zlog_event_new(void)
 	rc = gethostname(a_event->host_name, sizeof(a_event->host_name) - 1);
 	if (rc) {
 		zc_error("gethostname fail, rc[%d], errno[%d]", rc, errno);
-      		goto zlog_event_new_exit;
+		goto zlog_event_new_exit;
 	}
 
 	a_event->host_name_len = strlen(a_event->host_name);
@@ -78,11 +77,12 @@ void zlog_event_del(zlog_event_t * a_event)
 }
 
 void zlog_event_refresh(zlog_event_t * a_event,
-		    char *category_name, size_t *category_name_len,
-		    char *file, long line, int priority,
-		    char *hex_buf, long hex_buf_len, char *str_format, va_list str_args, int generate_cmd)
+			char *category_name, size_t * category_name_len,
+			char *file, long line, int priority,
+			char *hex_buf, long hex_buf_len, char *str_format,
+			va_list str_args, int generate_cmd)
 {
-	zc_assert(a_event, );
+	zc_assert(a_event,);
 
 	/*
 	 * category_name point to zlog_category_output's category.name

@@ -25,8 +25,10 @@
 #include "zc_hashtable.h"
 
 zc_hashtable_t *zc_hashtable_new(size_t a_size,
-				zc_hashtable_hash_fn hash_fn, zc_hashtable_equal_fn equal_fn,
-				zc_hashtable_del_fn key_del_fn, zc_hashtable_del_fn value_del_fn)
+				 zc_hashtable_hash_fn hash_fn,
+				 zc_hashtable_equal_fn equal_fn,
+				 zc_hashtable_del_fn key_del_fn,
+				 zc_hashtable_del_fn value_del_fn)
 {
 	zc_hashtable_t *a_table;
 
@@ -150,7 +152,8 @@ static int zc_hashtable_rehash(zc_hashtable_t * a_table)
 	return 0;
 }
 
-zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table, void *a_key)
+zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table,
+					     void *a_key)
 {
 	unsigned int i;
 	zc_hashtable_entry_t *p;
@@ -294,7 +297,8 @@ zc_hashtable_entry_t *zc_hashtable_begin(zc_hashtable_t * a_table)
 	return NULL;
 }
 
-zc_hashtable_entry_t *zc_hashtable_next(zc_hashtable_t * a_table, zc_hashtable_entry_t * a_entry)
+zc_hashtable_entry_t *zc_hashtable_next(zc_hashtable_t * a_table,
+					zc_hashtable_entry_t * a_entry)
 {
 	size_t i;
 	size_t j;

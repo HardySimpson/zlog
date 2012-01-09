@@ -27,9 +27,11 @@
 typedef struct zlog_spec_t zlog_spec_t;
 
 typedef int (*zlog_spec_gen_buf_fn) (zlog_spec_t * a_spec,
-		zlog_thread_t * a_thread, zlog_buf_t * a_buf);
+				     zlog_thread_t * a_thread,
+				     zlog_buf_t * a_buf);
 
-typedef int (*zlog_spec_cook_thread_fn) (zlog_spec_t * a_spec, zlog_thread_t *a_thread);
+typedef int (*zlog_spec_cook_thread_fn) (zlog_spec_t * a_spec,
+					 zlog_thread_t * a_thread);
 
 struct zlog_spec_t {
 	char *str;
@@ -51,10 +53,10 @@ struct zlog_spec_t {
 	zlog_spec_cook_thread_fn gen_path;
 };
 
-int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t *a_thread);
-int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t *a_thread);
+int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t * a_thread);
+int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread);
 
-zlog_spec_t * zlog_spec_new(char *pattern_start, char **pattern_end);
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
 void zlog_spec_del(zlog_spec_t * a_spec);
 
 void zlog_spec_profile(zlog_spec_t * a_spec);

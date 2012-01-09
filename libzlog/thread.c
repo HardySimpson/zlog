@@ -47,7 +47,7 @@ static void zlog_thread_del(zlog_thread_t * a_thread)
 	return;
 }
 
-static zlog_thread_t * zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
+static zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 {
 	int rc = 0;
 	zlog_thread_t *a_thread;
@@ -72,35 +72,39 @@ static zlog_thread_t * zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 		goto zlog_thread_init_exit;
 	}
 
-	a_thread->pre_path_buf = zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
+	a_thread->pre_path_buf =
+	    zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
 	if (!a_thread->pre_path_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
 		goto zlog_thread_init_exit;
 	}
 
-	a_thread->path_buf = zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
+	a_thread->path_buf =
+	    zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
 	if (!a_thread->path_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
 		goto zlog_thread_init_exit;
 	}
 
-	a_thread->pre_msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..."FILE_NEWLINE);
+	a_thread->pre_msg_buf =
+	    zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->pre_msg_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
 		goto zlog_thread_init_exit;
 	}
 
-	a_thread->msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..."FILE_NEWLINE);
+	a_thread->msg_buf =
+	    zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->msg_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
 		goto zlog_thread_init_exit;
 	}
 
-    zlog_thread_init_exit:
+      zlog_thread_init_exit:
 
 	if (rc) {
 		zlog_thread_del(a_thread);
@@ -111,7 +115,8 @@ static zlog_thread_t * zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 	}
 }
 
-static int zlog_thread_update(zlog_thread_t * a_thread, size_t buf_size_min, size_t buf_size_max)
+static int zlog_thread_update(zlog_thread_t * a_thread, size_t buf_size_min,
+			      size_t buf_size_max)
 {
 	int rc = 0;
 
@@ -120,21 +125,23 @@ static int zlog_thread_update(zlog_thread_t * a_thread, size_t buf_size_min, siz
 	if (a_thread->msg_buf)
 		zlog_buf_del(a_thread->msg_buf);
 
-	a_thread->pre_msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..."FILE_NEWLINE);
+	a_thread->pre_msg_buf =
+	    zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->pre_msg_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
 		goto zlog_thread_update_exit;
 	}
 
-	a_thread->msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..."FILE_NEWLINE);
+	a_thread->msg_buf =
+	    zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->msg_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
 		goto zlog_thread_update_exit;
 	}
 
-    zlog_thread_update_exit:
+      zlog_thread_update_exit:
 	if (rc) {
 		zlog_thread_del(a_thread);
 		return -1;
@@ -152,9 +159,9 @@ int zlog_tmap_init(zlog_tmap_t * a_tmap)
 
 	zc_assert(a_tmap, -1);
 	a_tab = zc_hashtable_new(20,
-				   (zc_hashtable_hash_fn) zc_hashtable_tid_hash,
-				   (zc_hashtable_equal_fn) zc_hashtable_tid_equal,
-				   NULL, (zc_hashtable_del_fn) zlog_thread_del);
+				 (zc_hashtable_hash_fn) zc_hashtable_tid_hash,
+				 (zc_hashtable_equal_fn) zc_hashtable_tid_equal,
+				 NULL, (zc_hashtable_del_fn) zlog_thread_del);
 	if (!a_tab) {
 		zc_error("init hashtable fail");
 		return -1;
@@ -164,7 +171,8 @@ int zlog_tmap_init(zlog_tmap_t * a_tmap)
 	}
 }
 
-int zlog_tmap_update(zlog_tmap_t *a_tmap, size_t buf_size_min, size_t buf_size_max)
+int zlog_tmap_update(zlog_tmap_t * a_tmap, size_t buf_size_min,
+		     size_t buf_size_max)
 {
 	int rc = 0;
 	zc_hashtable_entry_t *a_entry;
@@ -172,7 +180,7 @@ int zlog_tmap_update(zlog_tmap_t *a_tmap, size_t buf_size_min, size_t buf_size_m
 
 	zc_assert(a_tmap, -1);
 	zc_hashtable_foreach(a_tmap->tab, a_entry) {
-		a_thread = (zlog_thread_t *)a_entry->value;
+		a_thread = (zlog_thread_t *) a_entry->value;
 		rc = zlog_thread_update(a_thread, buf_size_min, buf_size_max);
 		if (rc) {
 			zc_error("zlog_thread_update fail");
@@ -185,7 +193,7 @@ int zlog_tmap_update(zlog_tmap_t *a_tmap, size_t buf_size_min, size_t buf_size_m
 
 void zlog_tmap_fini(zlog_tmap_t * a_tmap)
 {
-	zc_assert(a_tmap, );
+	zc_assert(a_tmap,);
 
 	if (a_tmap->tab)
 		zc_hashtable_del(a_tmap->tab);
@@ -195,7 +203,7 @@ void zlog_tmap_fini(zlog_tmap_t * a_tmap)
 
 /*******************************************************************************/
 
-zlog_thread_t * zlog_tmap_get_thread(zlog_tmap_t * a_tmap)
+zlog_thread_t *zlog_tmap_get_thread(zlog_tmap_t * a_tmap)
 {
 	pthread_t tid;
 	zlog_thread_t *a_thread;
@@ -210,9 +218,10 @@ zlog_thread_t * zlog_tmap_get_thread(zlog_tmap_t * a_tmap)
 	} else {
 		return a_thread;
 	}
-} 
+}
 
-zlog_thread_t * zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min, size_t buf_size_max)
+zlog_thread_t *zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min,
+				    size_t buf_size_max)
 {
 	int rc = 0;
 	zlog_thread_t *a_thread;
@@ -225,7 +234,8 @@ zlog_thread_t * zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min, 
 		return NULL;
 	}
 
-	rc = zc_hashtable_put(a_tmap->tab, (void *)&(a_thread->event->tid), (void *)a_thread);
+	rc = zc_hashtable_put(a_tmap->tab, (void *)&(a_thread->event->tid),
+			      (void *)a_thread);
 	if (rc) {
 		zc_error("zc_hashtable_put fail");
 		goto zlog_threads_create_thread_exit;
@@ -245,10 +255,10 @@ void zlog_tmap_profile(zlog_tmap_t * a_tmap)
 	zc_hashtable_entry_t *a_entry;
 	zlog_thread_t *a_thread;
 
-	zc_assert(a_tmap, );
+	zc_assert(a_tmap,);
 	zc_error("---tmap[%p]---", a_tmap);
 	zc_hashtable_foreach(a_tmap->tab, a_entry) {
-		a_thread = (zlog_thread_t *)a_entry->value;
+		a_thread = (zlog_thread_t *) a_entry->value;
 		zc_error("thread:[%ld]", a_thread->event->tid);
 	}
 	return;

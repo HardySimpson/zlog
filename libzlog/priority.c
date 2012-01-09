@@ -58,30 +58,30 @@ int zlog_priority_strtoi(char *priority)
 
 int zlog_priority_to_syslog(int zlog_priority)
 {
-	switch(zlog_priority) {
-		case 0:
-			return LOG_INFO;
-			break;
-		case 1:
-			return LOG_DEBUG;
-			break;
-		case 2:
-			return LOG_INFO;
-			break;
-		case 3:
-			return LOG_NOTICE;
-			break;
-		case 4:
-			return LOG_WARNING;
-			break;
-		case 5:
-			return LOG_ERR;
-			break;
-		case 6:
-			return LOG_ALERT;
-			break;
-		default:
-			return LOG_INFO;
-			break;
+	switch (zlog_priority) {
+	case 0:
+		return LOG_INFO;
+		break;
+	case 1:
+		return LOG_DEBUG;
+		break;
+	case 2:
+		return LOG_INFO;
+		break;
+	case 3:
+		return LOG_NOTICE;
+		break;
+	case 4:
+		return LOG_WARNING;
+		break;
+	case 5:
+		return LOG_ERR;
+		break;
+	case 6:
+		return LOG_ALERT;
+		break;
+	default:
+		return LOG_INFO;
+		break;
 	}
 }

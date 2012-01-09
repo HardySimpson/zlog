@@ -32,10 +32,12 @@
 #include "zc_defs.h"
 
 /*******************************************************************************/
-static void zlog_conf_debug(zlog_conf_t *a_conf);
-static const char zlog_default_format[] = "&default	\"$d(%m-%d %T) $P [$p:$F:$L] $m$n\"";
+static void zlog_conf_debug(zlog_conf_t * a_conf);
+static const char zlog_default_format[] =
+    "&default	\"$d(%m-%d %T) $P [$p:$F:$L] $m$n\"";
 /*******************************************************************************/
-static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len, int *init_chk_conf)
+static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
+				int *init_chk_conf)
 {
 	int rc = 0;
 	int nread = 0;
@@ -45,7 +47,9 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 	zlog_rule_t *a_rule = NULL;
 
 	if (line_len > MAXLEN_CFG_LINE || strlen(line) > MAXLEN_CFG_LINE) {
-		zc_error("line_len[%ld] > MAXLEN_CFG_LINE[%ld], may cause overflow", line_len, MAXLEN_CFG_LINE);
+		zc_error
+		    ("line_len[%ld] > MAXLEN_CFG_LINE[%ld], may cause overflow",
+		     line_len, MAXLEN_CFG_LINE);
 		return -1;
 	}
 
@@ -57,7 +61,8 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 		memset(value, 0x00, sizeof(value));
 		nread = sscanf(line + 1, "%s%s", name, value);
 		if (nread != 2) {
-			zc_error("sscanf [%s] fail, name or value is null", line);
+			zc_error("sscanf [%s] fail, name or value is null",
+				 line);
 			return -1;
 		}
 		if (STRCMP(name, ==, "buf_size_min")) {
@@ -71,8 +76,10 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 			a_conf->init_chk_conf = *init_chk_conf;
 			zc_debug("init_chk_conf=[%d]", *init_chk_conf);
 		} else if (STRCMP(name, ==, "rotate_lock_file")) {
-			if (strlen(value) > sizeof(a_conf->rotate_lock_file) - 1) {
-				zc_error("lock_file name[%s] is too long", value);
+			if (strlen(value) >
+			    sizeof(a_conf->rotate_lock_file) - 1) {
+				zc_error("lock_file name[%s] is too long",
+					 value);
 				return -1;
 			}
 			strcpy(a_conf->rotate_lock_file, value);
@@ -89,7 +96,8 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 			return -1;
 		}
 		if (STRCMP(a_format->name, ==, "default")) {
-			zc_debug("use conf file default format overwrite inner default format");
+			zc_debug
+			    ("use conf file default format overwrite inner default format");
 			rc = zc_arraylist_set(a_conf->formats, 0, a_format);
 			if (rc) {
 				zc_error("add list fail");
@@ -141,7 +149,8 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 
 	rc = lstat(a_conf->file, &a_stat);
 	if (rc) {
-		zc_error("lstat conf file[%s] fail, errno[%d]", a_conf->file, errno);
+		zc_error("lstat conf file[%s] fail, errno[%d]", a_conf->file,
+			 errno);
 		return -1;
 	}
 
@@ -172,9 +181,6 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 		if (*p == '\0' || *p == '#')
 			continue;
 
-		/* we now need to copy the characters to the begin of line. As this overlaps,
-		 * we can not use strcpy(). -- rgerhards, 2008-03-20
-		 */
 		for (i = 0; p[i] != '\0'; ++i) {
 			pline[i] = p[i];
 		}
@@ -200,15 +206,20 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 
 		*++p = '\0';
 
-		/* we now have the complete line, and are positioned at the first non-whitespace
+		/* we now have the complete line,
+		 * and are positioned at the first non-whitespace
 		 * character. So let's process it
 		 */
-		rc = zlog_conf_parse_line(a_conf, line, strlen(line), &init_chk_conf);
+		rc = zlog_conf_parse_line(a_conf, line, strlen(line),
+					  &init_chk_conf);
 		if (rc) {
-			/* we log a message, but otherwise ignore the error. After all, the next
-			 * line can be correct.  -- rgerhards, 2007-08-02
+			/* we log a message,
+			 * but otherwise ignore the error.
+			 * After all, the next
+			 * line can be correct.
 			 */
-			zc_error("parse configure file[%s] line[%ld] fail", a_conf->file, line_no);
+			zc_error("parse configure file[%s] line[%ld] fail",
+				 a_conf->file, line_no);
 			if (init_chk_conf || getenv("ZLOG_ICC")) {
 				rc = -1;
 				goto zlog_conf_read_config_exit;
@@ -225,7 +236,6 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 	return rc;
 }
 
-
 int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 {
 	int rc = 0;
@@ -235,11 +245,17 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 	zc_assert(a_conf, -1);
 
 	if (conf_file) {
-		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", conf_file);
-	} else if (getenv("ZLOG_CONFPATH") != NULL) {
-		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONFPATH"));
+		nwrite =
+		    snprintf(a_conf->file, sizeof(a_conf->file), "%s",
+			     conf_file);
+	} else if (getenv("ZLOG_CONF_PATH") != NULL) {
+		nwrite =
+		    snprintf(a_conf->file, sizeof(a_conf->file), "%s",
+			     getenv("ZLOG_CONF_PATH"));
 	} else {
-		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "/etc/zlog.conf");
+		nwrite =
+		    snprintf(a_conf->file, sizeof(a_conf->file),
+			     "/etc/zlog.conf");
 	}
 	if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
 		zc_error("not enough space for path name, nwrite=[%d]", nwrite);
@@ -249,13 +265,16 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 	a_conf->buf_size_min = 1024;
 	a_conf->buf_size_max = 0;
 
-	a_format = zlog_format_new((char *)zlog_default_format, strlen(zlog_default_format));
+	a_format =
+	    zlog_format_new((char *)zlog_default_format,
+			    strlen(zlog_default_format));
 	if (!a_format) {
 		zc_error("zlog_format_new fail");
 		return -1;
 	}
 
-	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
+	a_conf->formats =
+	    zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!(a_conf->formats)) {
 		zc_error("init format_list fail");
 		rc = -1;
@@ -277,7 +296,6 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 		rc = -1;
 		goto zlog_conf_init_exit;
 	}
-
 
 	rc = zlog_conf_read_config(a_conf);
 	if (rc) {
@@ -322,13 +340,16 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 
 	if (conf_file) {
 		memset(&a_conf->file, 0x00, sizeof(a_conf->file));
-		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", conf_file);
+		nwrite =
+		    snprintf(a_conf->file, sizeof(a_conf->file), "%s",
+			     conf_file);
 		if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
-			zc_error("not enough space for path name, nwrite=[%d]", nwrite);
+			zc_error("not enough space for path name, nwrite=[%d]",
+				 nwrite);
 			return -1;
 		}
-	} /* else use last conf file */
-
+	}
+	/* else use last conf file */
 	if (a_conf->formats) {
 		zc_arraylist_del(a_conf->formats);
 		a_conf->formats = NULL;
@@ -341,13 +362,16 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 	a_conf->buf_size_min = 1024;
 	a_conf->buf_size_max = 0;
 
-	a_format = zlog_format_new((char *)zlog_default_format, strlen(zlog_default_format));
+	a_format =
+	    zlog_format_new((char *)zlog_default_format,
+			    strlen(zlog_default_format));
 	if (!a_format) {
 		zc_error("zlog_format_new fail");
 		return -1;
 	}
 
-	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
+	a_conf->formats =
+	    zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!(a_conf->formats)) {
 		zc_error("init format_list fail");
 		rc = -1;
@@ -370,7 +394,6 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 		goto zlog_conf_update_exit;
 	}
 
-
 	rc = zlog_conf_read_config(a_conf);
 	if (rc) {
 		zc_error("zlog_conf_read_config fail");
@@ -388,7 +411,7 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 }
 
 /*******************************************************************************/
-static void zlog_conf_debug(zlog_conf_t *a_conf)
+static void zlog_conf_debug(zlog_conf_t * a_conf)
 {
 	zc_debug("---conf---");
 	zc_debug("file:[%s],mtime:[%s]", a_conf->file, a_conf->mtime);
@@ -401,7 +424,7 @@ static void zlog_conf_debug(zlog_conf_t *a_conf)
 	return;
 }
 
-void zlog_conf_profile(zlog_conf_t *a_conf)
+void zlog_conf_profile(zlog_conf_t * a_conf)
 {
 	int i;
 	zlog_rule_t *a_rule;
