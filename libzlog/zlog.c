@@ -41,6 +41,7 @@ int zlog_init(char *conf_file)
 {
 	int rc = 0;
 	int rd = 0;
+	zlog_thread_t *a_thread;
 
 	zc_debug("------zlog_init start, compile time[%s]------", __TIME__);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
@@ -77,6 +78,18 @@ int zlog_init(char *conf_file)
 	rc = zlog_tmap_init(&zlog_env_tmap);
 	if (rc) {
 		zc_error("zlog_tmap_init fail");
+		goto zlog_init_exit;
+	}
+
+	zc_debug("new all data(buf,event...)  in zlog_init thread");
+	a_thread = zlog_tmap_new_thread(
+				&zlog_env_tmap,
+				zlog_env_conf.buf_size_min,
+				zlog_env_conf.buf_size_max
+			);
+	if (!a_thread) {
+		zc_error("zlog_tmap_new_thread fail");
+		rc = -1;
 		goto zlog_init_exit;
 	}
 

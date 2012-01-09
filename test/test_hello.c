@@ -36,15 +36,14 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
+
 	my_cat = zlog_get_category("my_cat");
 	if (!my_cat) {
 		printf("get cat fail\n");
 	}
 
-
 	ZLOG_INFO(my_cat, "hello, zlog");
 	printf("log end\n");
-	zlog_profile();
 
 	zlog_fini();
 	

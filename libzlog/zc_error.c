@@ -106,7 +106,7 @@ int zc_error_inner(const char *file, const long line, const char *fmt, ...)
 
 	zc_time(time_str, sizeof(time_str));
 
-	fprintf(fp, "%s DEBUG (%d:%s:%ld) ", time_str, getpid(), file, line);
+	fprintf(fp, "%s ERROR (%d:%s:%ld) ", time_str, getpid(), file, line);
 	va_start(args, fmt);
 	vfprintf(fp, fmt, args);
 	va_end(args);

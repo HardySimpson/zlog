@@ -35,6 +35,8 @@
 static void zlog_conf_debug(zlog_conf_t * a_conf);
 static const char zlog_default_format[] =
     "&default	\"$d(%m-%d %T) $P [$p:$F:$L] $m$n\"";
+static const char zlog_default_rule[] =
+    "*.*	>stdout";
 /*******************************************************************************/
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 				int *init_chk_conf)
@@ -240,7 +242,9 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 {
 	int rc = 0;
 	zlog_format_t *a_format;
+	zlog_rule_t *a_rule;
 	int nwrite = 0;
+	int has_conf_file = 1;
 
 	zc_assert(a_conf, -1);
 
@@ -255,7 +259,8 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 	} else {
 		nwrite =
 		    snprintf(a_conf->file, sizeof(a_conf->file),
-			     "/etc/zlog.conf");
+			     "zlog default output to stdout");
+		has_conf_file = 0;
 	}
 	if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
 		zc_error("not enough space for path name, nwrite=[%d]", nwrite);
@@ -297,11 +302,32 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 		goto zlog_conf_init_exit;
 	}
 
-	rc = zlog_conf_read_config(a_conf);
-	if (rc) {
-		zc_error("zlog_conf_read_config fail");
-		rc = -1;
-		goto zlog_conf_init_exit;
+	if (has_conf_file) {
+		rc = zlog_conf_read_config(a_conf);
+		if (rc) {
+			zc_error("zlog_conf_read_config fail");
+			rc = -1;
+			goto zlog_conf_init_exit;
+		}
+	} else {
+		a_rule = zlog_rule_new(
+				a_conf->formats,
+				(char *)zlog_default_rule,
+				strlen(zlog_default_rule)
+			);
+		if (!a_rule) {
+			zc_error("zlog_rule_new fail");
+			goto zlog_conf_init_exit;
+		}
+
+		/* add default rule */
+		rc = zc_arraylist_add(a_conf->rules, a_rule);
+		if (rc) {
+			zc_error("zc_arraylist_add fail");
+			zlog_rule_del(a_rule);
+			rc = -1;
+			goto zlog_conf_init_exit;
+		}
 	}
 
       zlog_conf_init_exit:

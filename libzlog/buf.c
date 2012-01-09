@@ -27,43 +27,30 @@
 
 /*******************************************************************************/
 static void zlog_buf_debug(zlog_buf_t * a_buf);
-static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min,
-			     size_t bufsize_max);
+static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t buf_size_min,
+			     size_t buf_size_max);
 static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment);
 /*******************************************************************************/
-static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t bufsize_min,
-			     size_t bufsize_max)
+static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t buf_size_min,
+			     size_t buf_size_max)
 {
-	if (bufsize_max < bufsize_min) {
-		zc_error("bufsize_max[%ld] < bufsize_min[%ld]", bufsize_max,
-			 bufsize_min);
-		return -1;
-	}
-
-	if (bufsize_min == 0) {
-		a_buf->size_min = 1024;
-		zc_debug("bufsize_min not set, use 1024 instead");
-	} else {
-		a_buf->size_min = bufsize_min;
-	}
-
-	a_buf->size_max = bufsize_max;
-	if (a_buf->size_max != 0 && a_buf->size_max < a_buf->size_min) {
-		zc_error("a_buf->size_max[%ld] < a_buf->size_min[%ld]",
+	if (buf_size_max != 0 && buf_size_max < buf_size_min) {
+		zc_error("buf_size_max[%ld] < buf_size_min[%ld] && buf_size_max != 0",
 			 a_buf->size_max, a_buf->size_min);
 		return -1;
 	}
 
-	if (a_buf->size_max > a_buf->size_min) {
+	a_buf->size_min = buf_size_min;
+	a_buf->size_max = buf_size_max;
+
+	if (buf_size_max != 0) {
 		a_buf->size_step = (a_buf->size_max - a_buf->size_min) / 10;
-	} else {
-		a_buf->size_step = 0;
 	}
 
 	return 0;
 }
 
-zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max,
+zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 			 const char *truncate_str)
 {
 	int rc = 0;
@@ -86,7 +73,7 @@ zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max,
 		a_buf->truncate_str_len = strlen(truncate_str);
 	}
 
-	rc = zlog_buf_set_size(a_buf, bufsize_min, bufsize_max);
+	rc = zlog_buf_set_size(a_buf, buf_size_min, buf_size_max);
 	if (rc) {
 		zc_error("zlog_buf_set_size fail");
 		goto zlog_buf_create_exit;

@@ -50,12 +50,12 @@ typedef struct {
 /**
  * zlog_buf_t constructor
  * 
- * @param bufsize_min if is 0, set inner size_min = 1024.
- * @param bufsize_max if is 0, means buffer can expand unlimited.
+ * @param buf_size_min 
+ * @param buf_size_max if is 0, means buffer can expand unlimited.
  * @param truncate_str if buffer is full, the end of buf will be filled with truncate_str.
  * @returns zlog_buf_t pointer for success, NULL for fail.
  */
-zlog_buf_t *zlog_buf_new(size_t bufsize_min, size_t bufsize_max,
+zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 			 const char *truncate_str);
 
 /**

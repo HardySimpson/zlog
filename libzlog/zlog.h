@@ -46,7 +46,7 @@ extern "C" {
  * 
  * @param conf_file configure file path, both relative path and absolute path is accept.
     If conf_file is NULL, use environment variable ZLOG_CONFPATH instead, else if
-    ZLOG_CONFPATH is NULL, use /etc/zlog.conf instead.
+    ZLOG_CONF_PATH is NULL, output all logs to stdout.
  * @returns 0 for success, -1 for fail, detail will be record in ZLOG_ERROR_LOG.
  * @see zlog_update(), zlog_fini(), zlog.conf, ZLOG_ERROR_LOG
  */

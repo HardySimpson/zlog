@@ -215,6 +215,7 @@ zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t * a_cmap,
 	zc_assert(category_name, NULL);
 	zc_assert(rules, NULL);
 
+	/* 1st find category in global category map */
 	a_cat = zc_hashtable_get(a_cmap->tab, category_name);
 	if (a_cat) {
 		return a_cat;
