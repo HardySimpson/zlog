@@ -137,8 +137,9 @@ int zlog_category_output(zlog_category_t * a_cat, zlog_thread_t * a_thread)
 	int rc = 0;
 	int rd = 0;
 	zlog_rule_t *a_rule;
-	zc_assert(a_cat, -1);
-	zc_assert(a_thread, -1);
+
+	zc_assert_debug(a_cat, -1);
+	zc_assert_debug(a_thread, -1);
 
 	/* go through all match rules to output */
 	zc_arraylist_foreach(a_cat->match_rules, i, a_rule) {
@@ -159,7 +160,8 @@ int zlog_cmap_init(zlog_cmap_t * a_cmap)
 {
 	zc_hashtable_t *a_tab;
 
-	zc_assert(a_cmap, -1);
+	zc_assert_debug(a_cmap, -1);
+
 	a_tab = zc_hashtable_new(20,
 				 (zc_hashtable_hash_fn) zc_hashtable_str_hash,
 				 (zc_hashtable_equal_fn) zc_hashtable_str_equal,
@@ -175,7 +177,8 @@ int zlog_cmap_init(zlog_cmap_t * a_cmap)
 
 void zlog_cmap_fini(zlog_cmap_t * a_cmap)
 {
-	zc_assert(a_cmap,);
+	zc_assert_debug(a_cmap,);
+
 	if (a_cmap->tab)
 		zc_hashtable_del(a_cmap->tab);
 
@@ -189,8 +192,9 @@ int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t * rules)
 	zc_hashtable_entry_t *a_entry;
 	zlog_category_t *a_category;
 
-	zc_assert(a_cmap, -1);
-	zc_assert(rules, -1);
+	zc_assert_debug(a_cmap, -1);
+	zc_assert_debug(rules, -1);
+
 	zc_hashtable_foreach(a_cmap->tab, a_entry) {
 		a_category = (zlog_category_t *) a_entry->value;
 		rc = zlog_category_match_rules(a_category, rules);
@@ -211,9 +215,9 @@ zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t * a_cmap,
 	int rc = 0;
 	zlog_category_t *a_cat;
 
-	zc_assert(a_cmap, NULL);
-	zc_assert(category_name, NULL);
-	zc_assert(rules, NULL);
+	zc_assert_debug(a_cmap, NULL);
+	zc_assert_debug(category_name, NULL);
+	zc_assert_debug(rules, NULL);
 
 	/* 1st find category in global category map */
 	a_cat = zc_hashtable_get(a_cmap->tab, category_name);
@@ -248,7 +252,7 @@ void zlog_cmap_profile(zlog_cmap_t * a_cmap)
 	zc_hashtable_entry_t *a_entry;
 	zlog_category_t *a_category;
 
-	zc_assert(a_cmap,);
+	zc_assert_debug(a_cmap,);
 
 	zc_error("---cmap[%p]---", a_cmap);
 	zc_hashtable_foreach(a_cmap->tab, a_entry) {

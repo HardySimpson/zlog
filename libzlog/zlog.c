@@ -218,6 +218,8 @@ zlog_category_t *zlog_get_category(char *category_name)
 	int rd = 0;
 	zlog_category_t *a_cat = NULL;
 
+	zc_assert_runtime(category_name, NULL);
+
 	zc_debug("------zlog_get_category[%s] start------", category_name);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
@@ -255,6 +257,9 @@ int zlog_put_mdc(char *key, char *value)
 	int rc = 0;
 	int rd = 0;
 	zlog_thread_t *a_thread;
+
+	zc_assert_runtime(key, -1);
+	zc_assert_runtime(value, -1);
 
 	rd = pthread_rwlock_rdlock(&zlog_env_lock);
 	if (rd) {
@@ -328,6 +333,8 @@ char *zlog_get_mdc(char *key)
 	char *value = NULL;
 	zlog_thread_t *a_thread;
 
+	zc_assert_runtime(key, NULL);
+
 	rd = pthread_rwlock_rdlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_rdlock fail, rd[%d]", rd);
@@ -366,6 +373,8 @@ void zlog_remove_mdc(char *key)
 {
 	int rd = 0;
 	zlog_thread_t *a_thread;
+
+	zc_assert_runtime(key, );
 
 	rd = pthread_rwlock_rdlock(&zlog_env_lock);
 	if (rd) {
@@ -517,6 +526,8 @@ static int zlog_output(zlog_category_t * a_cat, char *file, long line,
 void zlog(zlog_category_t * a_cat, char *file, long line, int priority,
 	  char *format, ...)
 {
+	zc_assert_runtime(a_cat, );
+
 	va_list args;
 	va_start(args, format);
 	zlog_output(a_cat, file, line, priority, NULL, 0, format, args,
@@ -527,6 +538,8 @@ void zlog(zlog_category_t * a_cat, char *file, long line, int priority,
 void vzlog(zlog_category_t * a_cat, char *file, long line, int priority,
 	   char *format, va_list args)
 {
+	zc_assert_runtime(a_cat, );
+
 	zlog_output(a_cat, file, line, priority, NULL, 0, format, args,
 		    ZLOG_FMT);
 }
@@ -534,6 +547,8 @@ void vzlog(zlog_category_t * a_cat, char *file, long line, int priority,
 void hzlog(zlog_category_t * a_cat, char *file, long line, int priority,
 	   char *buf, unsigned long buf_len)
 {
+	zc_assert_runtime(a_cat, );
+
 	zlog_output(a_cat, file, line, priority, buf, buf_len, NULL, 0,
 		    ZLOG_HEX);
 }

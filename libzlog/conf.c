@@ -246,7 +246,7 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 	int nwrite = 0;
 	int has_conf_file = 1;
 
-	zc_assert(a_conf, -1);
+	zc_assert_debug(a_conf, -1);
 
 	if (conf_file) {
 		nwrite =
@@ -341,7 +341,7 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 
 void zlog_conf_fini(zlog_conf_t * a_conf)
 {
-	zc_assert(a_conf,);
+	zc_assert_debug(a_conf,);
 
 	if (a_conf->formats) {
 		zc_arraylist_del(a_conf->formats);
@@ -362,7 +362,7 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 	int nwrite = 0;
 	zlog_format_t *a_format;
 
-	zc_assert(a_conf, -1);
+	zc_assert_debug(a_conf, -1);
 
 	if (conf_file) {
 		memset(&a_conf->file, 0x00, sizeof(a_conf->file));

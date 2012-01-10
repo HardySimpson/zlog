@@ -410,8 +410,9 @@ static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 /*******************************************************************************/
 int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	zc_assert(a_spec, -1);
-	zc_assert(a_thread, -1);
+	zc_assert_debug(a_spec, -1);
+	zc_assert_debug(a_thread, -1);
+
 	return a_spec->gen_msg(a_spec, a_thread);
 }
 
@@ -465,8 +466,8 @@ static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec,
 /*******************************************************************************/
 int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	zc_assert(a_spec, -1);
-	zc_assert(a_thread, -1);
+	zc_assert_debug(a_spec, -1);
+	zc_assert_debug(a_thread, -1);
 	return a_spec->gen_path(a_spec, a_thread);
 }
 
@@ -597,8 +598,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 	int nscan, nread;
 	zlog_spec_t *a_spec;
 
-	zc_assert(pattern_start, NULL);
-	zc_assert(pattern_next, NULL);
+	zc_assert_debug(pattern_start, NULL);
+	zc_assert_debug(pattern_next, NULL);
 
 	a_spec = calloc(1, sizeof(zlog_spec_t));
 	if (!a_spec) {
@@ -750,7 +751,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 /*******************************************************************************/
 void zlog_spec_del(zlog_spec_t * a_spec)
 {
-	zc_assert(a_spec,);
+	zc_assert_debug(a_spec,);
 
 	free(a_spec);
 	zc_debug("free a_spec at[%p]", a_spec);
@@ -767,7 +768,7 @@ static void zlog_spec_debug(zlog_spec_t * a_spec)
 
 void zlog_spec_profile(zlog_spec_t * a_spec)
 {
-	zc_assert(a_spec,)
+	zc_assert_debug(a_spec,)
 	    zc_error("spec:[%p][%.*s][%s %d][%s]", a_spec,
 		     a_spec->len, a_spec->str,
 		     a_spec->time_fmt, a_spec->time_len, a_spec->print_fmt);

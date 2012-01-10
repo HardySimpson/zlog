@@ -46,7 +46,7 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 	char *q;
 	zlog_spec_t *a_spec;
 
-	zc_assert(line, NULL);
+	zc_assert_debug(line, NULL);
 
 	a_format = calloc(1, sizeof(zlog_format_t));
 	if (!a_format) {
@@ -129,7 +129,7 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 
 void zlog_format_del(zlog_format_t * a_format)
 {
-	zc_assert(a_format,);
+	zc_assert_debug(a_format,);
 
 	if (a_format->pattern_specs) {
 		zc_arraylist_del(a_format->pattern_specs);
@@ -149,8 +149,8 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 	int i;
 	zlog_spec_t *a_spec;
 
-	zc_assert(a_format, -1);
-	zc_assert(a_thread, -1);
+	zc_assert_debug(a_format, -1);
+	zc_assert_debug(a_thread, -1);
 
 	zlog_buf_restart(a_thread->msg_buf);
 
@@ -178,7 +178,7 @@ static void zlog_format_debug(zlog_format_t * a_format)
 
 void zlog_format_profile(zlog_format_t * a_format)
 {
-	zc_assert(a_format,);
+	zc_assert_debug(a_format,);
 	zc_error("format:[%p][%s]-[%s]", a_format,
 		 a_format->name, a_format->pattern);
 	return;

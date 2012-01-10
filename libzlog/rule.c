@@ -142,8 +142,8 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule,
 	char *file_path;
 	int fd;
 
-	zc_assert(a_rule, -1);
-	zc_assert(a_thread, -1);
+	zc_assert_debug(a_rule, -1);
+	zc_assert_debug(a_thread, -1);
 
 	rc = zlog_rule_gen_path(a_rule, a_thread, &file_path);
 	if (rc) {
@@ -188,8 +188,8 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule,
 	char *file_path;
 	int fd;
 
-	zc_assert(a_rule, -1);
-	zc_assert(a_thread, -1);
+	zc_assert_debug(a_rule, -1);
+	zc_assert_debug(a_thread, -1);
 
 	rc = zlog_rule_gen_path(a_rule, a_thread, &file_path);
 	if (rc) {
@@ -307,7 +307,7 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 /*******************************************************************************/
 static int syslog_facility_strtoi(char *facility)
 {
-	zc_assert(facility, LOG_USER);
+	zc_assert_debug(facility, LOG_USER);
 
 	if (STRICMP(facility, ==, "LOG_LOCAL0"))
 		return LOG_LOCAL0;
@@ -350,9 +350,9 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	char *q;
 	int len;
 
-	zc_assert(formats, NULL);
-	zc_assert(line, NULL);
-	zc_assert(line_len, NULL);
+	zc_assert_debug(formats, NULL);
+	zc_assert_debug(line, NULL);
+	zc_assert_debug(line_len, NULL);
 
 	a_rule = calloc(1, sizeof(zlog_rule_t));
 	if (!a_rule) {
@@ -604,7 +604,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 
 void zlog_rule_del(zlog_rule_t * a_rule)
 {
-	zc_assert(a_rule,);
+	zc_assert_debug(a_rule,);
 
 	if (a_rule->dynamic_file_specs) {
 		zc_arraylist_del(a_rule->dynamic_file_specs);
@@ -623,8 +623,8 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 /*******************************************************************************/
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	zc_assert(a_rule, -1);
-	zc_assert(a_thread, -1);
+	zc_assert_debug(a_rule, -1);
+	zc_assert_debug(a_thread, -1);
 
 	return a_rule->output_fn(a_rule, a_thread);
 }
@@ -632,8 +632,8 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 /*******************************************************************************/
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
 {
-	zc_assert(a_rule, -1);
-	zc_assert(category, -1);
+	zc_assert_debug(a_rule, -1);
+	zc_assert_debug(category, -1);
 
 	if (STRCMP(a_rule->category, ==, "*")) {
 		/* '*' match anything, so go on */
@@ -671,7 +671,7 @@ static void zlog_rule_debug(zlog_rule_t * a_rule)
 
 void zlog_rule_profile(zlog_rule_t * a_rule)
 {
-	zc_assert(a_rule,);
+	zc_assert_debug(a_rule,);
 	zc_error("rule:[%p][%s%c%d]-[%s,%ld][%p]", a_rule,
 		 a_rule->category, a_rule->compare_char, a_rule->priority,
 		 a_rule->file_path, a_rule->file_maxsize, a_rule->format);

@@ -34,6 +34,10 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment);
 static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t buf_size_min,
 			     size_t buf_size_max)
 {
+	if (buf_size_min == 0) {
+		zc_error("buf_size_min == 0, not allowed");
+		return -1;
+	}
 	if (buf_size_max != 0 && buf_size_max < buf_size_min) {
 		zc_error("buf_size_max[%ld] < buf_size_min[%ld] && buf_size_max != 0",
 			 a_buf->size_max, a_buf->size_min);
@@ -101,7 +105,7 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 /*******************************************************************************/
 void zlog_buf_del(zlog_buf_t * a_buf)
 {
-	zc_assert(a_buf,);
+	zc_assert_debug(a_buf,);
 
 	if (a_buf->start) {
 		free(a_buf->start);
@@ -112,19 +116,9 @@ void zlog_buf_del(zlog_buf_t * a_buf)
 }
 
 /*******************************************************************************/
-void zlog_buf_clean(zlog_buf_t * a_buf)
-{
-	zc_assert(a_buf,);
-
-	memset(a_buf->start, 0x00, a_buf->size_real);
-	a_buf->end = a_buf->start;
-	return;
-}
-
-/*******************************************************************************/
 void zlog_buf_restart(zlog_buf_t * a_buf)
 {
-	zc_assert(a_buf,);
+	zc_assert_debug(a_buf,);
 
 	a_buf->end = a_buf->start;
 	return;
@@ -136,8 +130,11 @@ int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...)
 	int rc;
 	va_list args;
 
-	zc_assert(a_buf, -1);
-	zc_assert(format, -1);
+	zc_assert_debug(a_buf, -1);
+
+	if (format == NULL) {
+		return 0;
+	}
 
 	va_start(args, format);
 	rc = zlog_buf_vprintf(a_buf, format, args);
@@ -173,7 +170,7 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 	size_t size_left;
 	int nwrite;
 
-	zc_assert(a_buf, -1);
+	zc_assert_debug(a_buf, -1);
 
 	if (format == NULL) {
 		return 0;
@@ -229,7 +226,7 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 	int rc = 0;
 	size_t size_left;
 
-	zc_assert(a_buf, -1);
+	zc_assert_debug(a_buf, -1);
 
 	if (str_len <= 0 || str == NULL) {
 		return 0;
@@ -275,9 +272,9 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 	size_t size_left;
 	size_t nwrite;
 
-	zc_assert(a_buf, -1);
-	zc_assert(time_fmt, -1);
-	zc_assert(a_tm, -1);
+	zc_assert_debug(a_buf, -1);
+	zc_assert_debug(time_fmt, -1);
+	zc_assert_debug(a_tm, -1);
 
 	if (time_len <= 0) {
 		return 0;
@@ -398,7 +395,7 @@ static void zlog_buf_debug(zlog_buf_t * a_buf)
 
 void zlog_buf_profile(zlog_buf_t * a_buf)
 {
-	zc_assert(a_buf,);
+	zc_assert_debug(a_buf,);
 
 	zc_error("buf:[%p][%ld-%ld][%s][%p][%ld]", a_buf,
 		 a_buf->size_min, a_buf->size_max, a_buf->truncate_str,

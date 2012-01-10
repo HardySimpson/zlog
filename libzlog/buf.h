@@ -66,13 +66,6 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 void zlog_buf_del(zlog_buf_t * a_buf);
 
 /**
- * set buffer to '\\0', from start to end, and restart the buffer
- * 
- * @param a_buf zlog_buf_t pointer, shall not be NULL.
- */
-void zlog_buf_clean(zlog_buf_t * a_buf);
-
-/**
  * set end = start, so next write buffer function can write from start.
  * 
  * @param a_buf zlog_buf_t pointer, shall not be NULL.
@@ -83,7 +76,7 @@ void zlog_buf_restart(zlog_buf_t * a_buf);
  * buffer write function, printf version
  *
  * @param a_buf zlog_buf_t pointer, shall not be NULL.
- * @param format C printf style format.
+ * @param format C printf style format, if NULL, return immediatey
  * @returns 0 for success, -1 for fail, 1 for buffer is full(expand to size_max).
  */
 int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...);
@@ -92,7 +85,7 @@ int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...);
  * buffer write function, vprintf version
  *
  * @param a_buf zlog_buf_t pointer, shall not be NULL.
- * @param format C printf style format.
+ * @param format C printf style format, if NULL, return immediatey
  * @param args a va_list, will be va_copy() inner.
  * @returns 0 for success, -1 for fail, 1 for buffer is full(expand to size_max).
  */

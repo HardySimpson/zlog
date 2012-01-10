@@ -138,8 +138,8 @@ int zlog_rotater_init(zlog_rotater_t * a_rot, char *lock_file)
 	int fd = 0;
 	const char *lf;
 
-	zc_assert(a_rot, -1);
-	zc_assert(lock_file, -1);
+	zc_assert_debug(a_rot, -1);
+	zc_assert_debug(lock_file, -1);
 
 	rc = pthread_mutex_init(&(a_rot->mlock), NULL);
 	if (rc) {
@@ -177,8 +177,8 @@ int zlog_rotater_update(zlog_rotater_t * a_rot, char *lock_file)
 	int fd = 0;
 	const char *lf;
 
-	zc_assert(a_rot, -1);
-	zc_assert(lock_file, -1);
+	zc_assert_debug(a_rot, -1);
+	zc_assert_debug(lock_file, -1);
 
 	if (a_rot->lock_fd) {
 		rc = close(a_rot->lock_fd);
@@ -209,7 +209,7 @@ int zlog_rotater_update(zlog_rotater_t * a_rot, char *lock_file)
 void zlog_rotater_fini(zlog_rotater_t * a_rot)
 {
 	int rc = 0;
-	zc_assert(a_rot,);
+	zc_assert_debug(a_rot,);
 
 	rc = pthread_mutex_destroy(&(a_rot->mlock));
 	if (rc) {
@@ -440,8 +440,8 @@ int zlog_rotater_rotate(zlog_rotater_t * a_rot, char *file_path,
 	int rd = 0;
 	struct stat info;
 
-	zc_assert(a_rot, -1);
-	zc_assert(file_path, -1);
+	zc_assert_debug(a_rot, -1);
+	zc_assert_debug(file_path, -1);
 
 	if (msg_len > file_maxsize) {
 		zc_debug("one msg's len[%ld] > file_maxsize[%ld], no rotate",

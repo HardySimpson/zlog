@@ -28,11 +28,19 @@
 #define zc_error(fmt, args...) \
 	zc_error_inner(__FILE__, __LINE__, fmt, ## args)
 
-#define zc_assert(expr,rv) \
+/* for debug , in real world  turn off*/
+#define zc_assert_debug(expr,rv) \
 	if(!(expr)) { \
 		zc_error(#expr" is null"); \
 		return rv; \
-	}
+	} 
+
+/* for runtime */
+#define zc_assert_runtime(expr,rv) \
+	if(!(expr)) { \
+		zc_error(#expr" is null"); \
+		return rv; \
+	} 
 
 extern int zc_debug_inner(const char *file, const long line, const char *fmt,
 			  ...);

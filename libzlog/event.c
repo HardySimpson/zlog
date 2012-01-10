@@ -69,7 +69,7 @@ zlog_event_t *zlog_event_new(void)
 
 void zlog_event_del(zlog_event_t * a_event)
 {
-	zc_assert(a_event,);
+	zc_assert_debug(a_event,);
 
 	zc_debug("free a_event at[%p]", a_event);
 	free(a_event);
@@ -82,7 +82,9 @@ void zlog_event_refresh(zlog_event_t * a_event,
 			char *hex_buf, long hex_buf_len, char *str_format,
 			va_list str_args, int generate_cmd)
 {
-	zc_assert(a_event,);
+	zc_assert_debug(a_event,);
+	zc_assert_debug(category_name,);
+	zc_assert_debug(category_name_len,);
 
 	/*
 	 * category_name point to zlog_category_output's category.name

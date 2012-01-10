@@ -68,7 +68,7 @@ void zc_arraylist_del(zc_arraylist_t * a_list)
 
 void *zc_arraylist_get(zc_arraylist_t * a_list, int i)
 {
-	zc_assert(a_list, NULL);
+	zc_assert_debug(a_list, NULL);
 	if (i >= a_list->len)
 		return NULL;
 	return a_list->array[i];
@@ -95,7 +95,7 @@ static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 
 int zc_arraylist_set(zc_arraylist_t * a_list, int idx, void *data)
 {
-	zc_assert(a_list, -1);
+	zc_assert_debug(a_list, -1);
 	if (idx > a_list->size - 1) {
 		if (zc_arraylist_expand_inner(a_list, idx)) {
 			zc_error("expand_internal fail");
@@ -112,7 +112,7 @@ int zc_arraylist_set(zc_arraylist_t * a_list, int idx, void *data)
 
 int zc_arraylist_add(zc_arraylist_t * a_list, void *data)
 {
-	zc_assert(a_list, -1);
+	zc_assert_debug(a_list, -1);
 	return zc_arraylist_set(a_list, a_list->len, data);
 }
 
@@ -141,8 +141,8 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp_fn,
 			 void *data)
 {
 	int i;
-	zc_assert(a_list, -1);
-	zc_assert(cmp_fn, -1);
+	zc_assert_debug(a_list, -1);
+	zc_assert_debug(cmp_fn, -1);
 
 	for (i = 0; i < a_list->len; i++) {
 		if ((*cmp_fn) (a_list->array[i], data) > 0)
@@ -157,6 +157,6 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp_fn,
 
 int zc_arraylist_len(zc_arraylist_t * a_list)
 {
-	zc_assert(a_list, -1);
+	zc_assert_debug(a_list, -1);
 	return a_list->len;
 }
