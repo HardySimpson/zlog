@@ -45,7 +45,7 @@ struct zlog_rule_t {
 	long file_maxsize;
 	int syslog_facility;
 
-	zlog_rule_output_fn output_fn;
+	zlog_rule_output_fn output;
 
 	zlog_format_t *format;
 };

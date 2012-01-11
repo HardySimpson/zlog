@@ -24,7 +24,7 @@
 
 #include "zc_defs.h"
 
-zc_arraylist_t *zc_arraylist_new(zc_arraylist_del_fn del_fn)
+zc_arraylist_t *zc_arraylist_new(zc_arraylist_del_fn del)
 {
 	zc_arraylist_t *a_list;
 
@@ -37,7 +37,7 @@ zc_arraylist_t *zc_arraylist_new(zc_arraylist_del_fn del_fn)
 	a_list->len = 0;
 
 	/* this could be NULL */
-	a_list->del_fn = del_fn;
+	a_list->del = del;
 	a_list->array = (void **)calloc(sizeof(void *), a_list->size);
 	if (!a_list->array) {
 		zc_error("calloc fail, errno[%d]", errno);
@@ -54,10 +54,10 @@ void zc_arraylist_del(zc_arraylist_t * a_list)
 
 	if (!a_list)
 		return;
-	if (a_list->del_fn) {
+	if (a_list->del) {
 		for (i = 0; i < a_list->len; i++) {
 			if (a_list->array[i])
-				a_list->del_fn(a_list->array[i]);
+				a_list->del(a_list->array[i]);
 		}
 	}
 	if (a_list->array)
@@ -102,8 +102,8 @@ int zc_arraylist_set(zc_arraylist_t * a_list, int idx, void *data)
 			return -1;
 		}
 	}
-	if (a_list->array[idx] && a_list->del_fn)
-		a_list->del_fn(a_list->array[idx]);
+	if (a_list->array[idx] && a_list->del)
+		a_list->del(a_list->array[idx]);
 	a_list->array[idx] = data;
 	if (a_list->len <= idx)
 		a_list->len = idx + 1;
@@ -137,15 +137,15 @@ static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx,
 	return 0;
 }
 
-int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp_fn,
+int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp,
 			 void *data)
 {
 	int i;
 	zc_assert_debug(a_list, -1);
-	zc_assert_debug(cmp_fn, -1);
+	zc_assert_debug(cmp, -1);
 
 	for (i = 0; i < a_list->len; i++) {
-		if ((*cmp_fn) (a_list->array[i], data) > 0)
+		if ((*cmp) (a_list->array[i], data) > 0)
 			break;
 	}
 

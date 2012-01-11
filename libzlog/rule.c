@@ -521,11 +521,11 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 					rc = -1;
 					goto zlog_rule_new_exit;
 				}
-				a_rule->output_fn =
+				a_rule->output =
 				    zlog_rule_output_static_file_single;
 			} else {
 				/* as rotate, so need to reopen everytime */
-				a_rule->output_fn =
+				a_rule->output =
 				    zlog_rule_output_static_file_rotate;
 			}
 		} else {
@@ -558,10 +558,10 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 			}
 
 			if (a_rule->file_maxsize <= 0) {
-				a_rule->output_fn =
+				a_rule->output =
 				    zlog_rule_output_dynamic_file_single;
 			} else {
-				a_rule->output_fn =
+				a_rule->output =
 				    zlog_rule_output_dynamic_file_rotate;
 			}
 		}
@@ -571,13 +571,13 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility =
 			    syslog_facility_strtoi(file_maxsize);
-			a_rule->output_fn = zlog_rule_output_syslog;
+			a_rule->output = zlog_rule_output_syslog;
 			openlog(NULL, LOG_NDELAY | LOG_NOWAIT | LOG_PID,
 				a_rule->syslog_facility);
 		} else if (STRNCMP(file_path + 1, ==, "stdout", 6)) {
-			a_rule->output_fn = zlog_rule_output_stdout;
+			a_rule->output = zlog_rule_output_stdout;
 		} else if (STRNCMP(file_path + 1, ==, "stderr", 6)) {
-			a_rule->output_fn = zlog_rule_output_stderr;
+			a_rule->output = zlog_rule_output_stderr;
 		} else {
 			zc_error
 			    ("[%s]the string after is not syslog, stdout or stderr",
@@ -649,7 +649,7 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 			}
 	}
 
-	return a_rule->output_fn(a_rule, a_thread);
+	return a_rule->output(a_rule, a_thread);
 }
 
 /*******************************************************************************/

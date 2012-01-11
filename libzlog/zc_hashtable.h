@@ -40,10 +40,10 @@ typedef struct {
 	zc_hashtable_entry_t **tab;
 	size_t tab_size;
 
-	zc_hashtable_hash_fn hash_fn;
-	zc_hashtable_equal_fn equal_fn;
-	zc_hashtable_del_fn key_del_fn;
-	zc_hashtable_del_fn value_del_fn;
+	zc_hashtable_hash_fn hash;
+	zc_hashtable_equal_fn equal;
+	zc_hashtable_del_fn key_del;
+	zc_hashtable_del_fn value_del;
 } zc_hashtable_t;
 
 zc_hashtable_t *zc_hashtable_new(size_t a_size,

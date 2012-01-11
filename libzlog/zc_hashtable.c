@@ -25,16 +25,16 @@
 #include "zc_hashtable.h"
 
 zc_hashtable_t *zc_hashtable_new(size_t a_size,
-				 zc_hashtable_hash_fn hash_fn,
-				 zc_hashtable_equal_fn equal_fn,
-				 zc_hashtable_del_fn key_del_fn,
-				 zc_hashtable_del_fn value_del_fn)
+				 zc_hashtable_hash_fn hash,
+				 zc_hashtable_equal_fn equal,
+				 zc_hashtable_del_fn key_del,
+				 zc_hashtable_del_fn value_del)
 {
 	zc_hashtable_t *a_table;
 
 	zc_assert_debug(a_size, NULL);
-	zc_assert_debug(hash_fn, NULL);
-	zc_assert_debug(equal_fn, NULL);
+	zc_assert_debug(hash, NULL);
+	zc_assert_debug(equal, NULL);
 
 	a_table = calloc(1, sizeof(*a_table));
 	if (!a_table) {
@@ -51,12 +51,12 @@ zc_hashtable_t *zc_hashtable_new(size_t a_size,
 	a_table->tab_size = a_size;
 
 	a_table->nelem = 0;
-	a_table->hash_fn = hash_fn;
-	a_table->equal_fn = equal_fn;
+	a_table->hash = hash;
+	a_table->equal = equal;
 
 	/* these two could be NULL */
-	a_table->key_del_fn = key_del_fn;
-	a_table->value_del_fn = value_del_fn;
+	a_table->key_del = key_del;
+	a_table->value_del = value_del;
 
 	return a_table;
 }
@@ -72,11 +72,11 @@ void zc_hashtable_del(zc_hashtable_t * a_table)
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
 			q = p->next;
-			if (a_table->key_del_fn) {
-				a_table->key_del_fn(p->key);
+			if (a_table->key_del) {
+				a_table->key_del(p->key);
 			}
-			if (a_table->value_del_fn) {
-				a_table->value_del_fn(p->value);
+			if (a_table->value_del) {
+				a_table->value_del(p->value);
 			}
 			free(p);
 		}
@@ -99,11 +99,11 @@ void zc_hashtable_clean(zc_hashtable_t * a_table)
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
 			q = p->next;
-			if (a_table->key_del_fn) {
-				a_table->key_del_fn(p->key);
+			if (a_table->key_del) {
+				a_table->key_del(p->key);
 			}
-			if (a_table->value_del_fn) {
-				a_table->value_del_fn(p->value);
+			if (a_table->value_del) {
+				a_table->value_del(p->value);
 			}
 			free(p);
 		}
@@ -161,9 +161,9 @@ zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table,
 	zc_assert_debug(a_table, NULL);
 	zc_assert_debug(a_key, NULL);
 
-	i = a_table->hash_fn(a_key) % a_table->tab_size;
+	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal_fn(a_key, p->key))
+		if (a_table->equal(a_key, p->key))
 			return p;
 	}
 
@@ -187,18 +187,18 @@ int zc_hashtable_put(zc_hashtable_t * a_table, void *a_key, void *a_value)
 	zc_assert_debug(a_table, -1);
 	zc_assert_debug(a_key, -1);
 
-	i = a_table->hash_fn(a_key) % a_table->tab_size;
+	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal_fn(a_key, p->key))
+		if (a_table->equal(a_key, p->key))
 			break;
 	}
 
 	if (p) {
-		if (a_table->key_del_fn) {
-			a_table->key_del_fn(p->key);
+		if (a_table->key_del) {
+			a_table->key_del(p->key);
 		}
-		if (a_table->value_del_fn) {
-			a_table->value_del_fn(p->value);
+		if (a_table->value_del) {
+			a_table->value_del(p->value);
 		}
 		p->key = a_key;
 		p->value = a_value;
@@ -218,7 +218,7 @@ int zc_hashtable_put(zc_hashtable_t * a_table, void *a_key, void *a_value)
 			return -1;
 		}
 
-		p->hash_key = a_table->hash_fn(a_key);
+		p->hash_key = a_table->hash(a_key);
 		p->key = a_key;
 		p->value = a_value;
 		p->next = NULL;
@@ -244,9 +244,9 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, void *a_key)
 	zc_assert_debug(a_table,);
 	zc_assert_debug(a_key,);
 
-	i = a_table->hash_fn(a_key) % a_table->tab_size;
+	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal_fn(a_key, p->key))
+		if (a_table->equal(a_key, p->key))
 			break;
 	}
 
@@ -255,11 +255,11 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, void *a_key)
 		return;
 	}
 
-	if (a_table->key_del_fn) {
-		a_table->key_del_fn(p->key);
+	if (a_table->key_del) {
+		a_table->key_del(p->key);
 	}
-	if (a_table->value_del_fn) {
-		a_table->value_del_fn(p->value);
+	if (a_table->value_del) {
+		a_table->value_del(p->value);
 	}
 
 	if (p->next) {
