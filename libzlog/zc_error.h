@@ -28,12 +28,16 @@
 #define zc_error(fmt, args...) \
 	zc_error_inner(__FILE__, __LINE__, fmt, ## args)
 
-/* for debug , in real world  turn off*/
-#define zc_assert_debug(expr,rv) \
-	if(!(expr)) { \
-		zc_error(#expr" is null"); \
-		return rv; \
-	} 
+#ifdef DEBUG
+	/* for debug , in real world  turn off*/
+	#define zc_assert_debug(expr,rv) \
+		if(!(expr)) { \
+			zc_error(#expr" is null"); \
+			return rv; \
+		} 
+#else 
+	#define zc_assert_debug(expr,rv)
+#endif
 
 /* for runtime */
 #define zc_assert_runtime(expr,rv) \

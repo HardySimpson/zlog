@@ -626,6 +626,29 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 	zc_assert_debug(a_rule, -1);
 	zc_assert_debug(a_thread, -1);
 
+	switch (a_rule->compare_char) {
+		case '*' :
+			break;
+		case '.' :
+			if (a_thread->event->priority >= a_rule->priority) {
+				break;
+			} else {
+				return 0;
+			}
+		case '=' :
+			if (a_thread->event->priority == a_rule->priority) {
+				break;
+			} else {
+				return 0;
+			}
+		case '!' :
+			if (a_thread->event->priority != a_rule->priority) {
+				break;
+			} else {
+				return 0;
+			}
+	}
+
 	return a_rule->output_fn(a_rule, a_thread);
 }
 

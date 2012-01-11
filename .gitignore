@@ -25,14 +25,15 @@ Makefile.in
 missing
 stamp-h1
 tags
-xlog-chk-conf
+zlog-chk-conf
 *.o
 *.lo
 *.la
 test_*
 !test_*.c
 !test_*.conf
-xlog.pc
+zlog.pc
 press.log*
 callgrind*
 err.log
+
