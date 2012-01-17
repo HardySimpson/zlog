@@ -22,14 +22,11 @@
 
 /**
  * @file conf.h
- * @brief zlog configure class
+ * @brief configure file representation
  */
 
 #include "zc_defs.h"
 
-/**
- * zlog conf struct
- */
 typedef struct {
 	char file[MAXLEN_PATH + 1];	/**< configure file path */
 	char mtime[20 + 1];		/**< the last modified time of configure file */
@@ -51,35 +48,12 @@ typedef struct {
 	zc_arraylist_t *rules;		/**< list of all rules */
 } zlog_conf_t;
 
-/**
- * zlog conf initer, read conf_file and fill a_conf
- *
- * @param a_conf the address pointed to by zlog_conf_t
- * @param conf_file configure file path. If it is NULL, read from ZLOG_CONF_PATH or /etc/zlog.conf
- * @returns 0 for success, -1 for fail
- */
 int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file);
 
-/**
- * zlog conf finisher, destroy formats list and rules list, clean all memeber of a_conf
- *
- * @param a_conf the address pointed to by zlog_conf_t
- */
 void zlog_conf_fini(zlog_conf_t * a_conf);
 
-/**
- * Update a_conf from conf_file.
- *
- * @param a_conf the address pointed to by zlog_conf_t
- * @param conf_file configure file path. If it is NULL, read from last conf_file
- */
 int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file);
 
-/**
- * Output detail of zlog_conf_t to ZLOG_ERROR_LOG.
- *
- * @param a_conf the address pointed to by zlog_conf_t.
- */
 void zlog_conf_profile(zlog_conf_t * a_conf);
 
 #endif

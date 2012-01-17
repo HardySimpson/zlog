@@ -22,53 +22,24 @@
 
 /**
  * @file format.h
- * @brief log pattern class
+ * @brief control ouput patterns of log
  */
 
 #include "thread.h"
 #include "zc_defs.h"
 
-/**
- * zlog format struct
- */
 typedef struct {
 	char name[MAXLEN_CFG_LINE + 1];		/**< name of format */
 	char pattern[MAXLEN_CFG_LINE + 1];	/**< pattern of format */
 	zc_arraylist_t *pattern_specs;		/**< list of pattern's specifiers */
 } zlog_format_t;
 
-/**
- * zlog format constructor, will parses a conf file line to name and pattern,
- * then parse pattern to pattern_specs.
- *
- * @param line configure file line of format
- * @parma line_len strlen(line)
- * @returns zlog_format_t pointer for success, NULL for fail
- */
 zlog_format_t *zlog_format_new(const char *line, long line_len);
 
-/**
- * zlog format destructor
- *
- * @param zlog_format_t pointer
- */
 void zlog_format_del(zlog_format_t * a_format);
 
-/**
- * generate msg from one format.pattern_specs,
- * if buffer in a_thread is not long enough, truncate it
- *
- * @param a_format zlog_format_t pointer
- * @parma a_thread contains buf and event
- * @returns 0 for success(maybe truncated), -1 for fail
- */
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread);
 
-/**
- * Output detail of zlog_format_t to ZLOG_ERROR_LOG.
- *
- * @param a_format zlog_format_t pointer, shall not be NULL.
- */
 void zlog_format_profile(zlog_format_t * a_format);
 
 #endif

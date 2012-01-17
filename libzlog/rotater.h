@@ -22,23 +22,17 @@
 
 /**
  * @file rotater.h
- * @brief rotater use posix record lock between multi-processes
-    and pthread_mutex lock between multi-threads to safely rotate log file
+ * @brief use posix record lock between multi-processes
+    and pthread_mutex lock between multi-threads for safely rotate log file
  */
 
 #include "zc_defs.h"
 
-/**
- * zlog rotater struct
- */
 typedef struct {
 	pthread_mutex_t mlock;	/**< thread lock */
 	int lock_fd;		/**< process lock */
 } zlog_rotater_t;
 
-/**
- * process wide rotater
- */
 extern zlog_rotater_t zlog_env_rotater;
 
 /**

@@ -22,9 +22,10 @@
 
 /**
  * @file event.h
- * @brief zlog event class, keep all infomation of a message.
-	event is alive from zlog_init to zlog_fini, but content of event is
-	refreshed in every zlog,vlog or hzlog
+ * @brief keep all infomation from user input and be passed through a log lifecycle
+ *
+ * event is alive from zlog_init to zlog_fini, but content of event is
+ * refreshed in every zlog,vlog or hzlog
  */
 
 #include <sys/types.h>
@@ -70,25 +71,10 @@ typedef struct {
 	pthread_t tid;			/**< thread id, pthread_self */
 } zlog_event_t;
 
-/**
- * zlog_event_t constructor
- *
- * @returns zlog_event_t pointer for success, NULL for fail
- */
 zlog_event_t *zlog_event_new(void);
 
-/**
- * zlog_event_t destructor
- *
- * @param zlog_event_t pointer
- */
 void zlog_event_del(zlog_event_t * a_event);
 
-/**
- * zlog_event_t initer
- *
- * @see zlog_event_t
- */
 void zlog_event_refresh(zlog_event_t * a_event,
 			char *category_name, size_t * category_name_len,
 			char *file, long line, int priority,

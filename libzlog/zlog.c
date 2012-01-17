@@ -35,7 +35,7 @@ static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
 static zlog_conf_t zlog_env_conf;
 static zlog_tmap_t zlog_env_tmap;
 static zlog_cmap_t zlog_env_cmap;
-static int zlog_env_init_flag;
+static int zlog_env_init_flag = 0;
 /*******************************************************************************/
 int zlog_init(char *conf_file)
 {

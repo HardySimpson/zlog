@@ -24,14 +24,14 @@
 
 /**
  * @file buf.h
- * @brief a self expand buffer class.
+ * @brief self expand buffer.
  */
 
 /**
  * zlog buffer struct
  */
 typedef struct {
-	size_t size_min;		/**< default 1024 */
+	size_t size_min;		/**< [in] default 1024 */
 	size_t size_max;		/**< 0 means unlimit */
 	size_t size_step;		/**< if size_max != 0 and need to expand,
 					 *   increate size_step every time.
@@ -107,7 +107,7 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
  * @param a_buf zlog_buf_t pointer, shall not be NULL.
  * @param time_fmt strftime's format.
  * @param time_len Guess the length after strftime, will be used for buffer expand inner.
- * @param tm strftime's tm.
+ * @param a_tm strftime's tm.
  * @returns 0 for success, -1 for fail, 1 for buffer is full(expand to size_max).
  */
 int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,

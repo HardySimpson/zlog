@@ -18,10 +18,6 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
 
 #include "zlog.h"
 
@@ -35,7 +31,6 @@ int main(int argc, char** argv)
 		printf("init failed\n");
 		return -1;
 	}
-
 
 	my_cat = zlog_get_category("my_cat");
 	if (!my_cat) {

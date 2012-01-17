@@ -17,6 +17,11 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @defgroup interface zlog interface
+ * @{
+ */
+
 #ifndef __zlog_h
 #define __zlog_h
 
@@ -24,17 +29,16 @@
 extern "C" {
 #endif
 
+
 /**
  * @file zlog.h
- * @brief zlog interface
- *
- * It is the only file need to be included for daily use of zlog.
+ * @brief It is the only file need to be included for daily use of zlog.
  */
 
 #include <stdarg.h>
 
 /**
- * Initialise zlog from configure file.
+ * @brief Initialise buffers, rules, formats and open lock file according to configure file.
  * 
  * zlog_init() shall use once per process, in any threads.
  * It will also create a category's table, a rotater for rotate too large log file,
@@ -53,7 +57,7 @@ extern "C" {
 	int zlog_init(char *conf_file);
 
 /**
- * Update zlog from configure file.
+ * @brief Update buffers, rules, formats and reopen lock file according to configure file.
  *
  * After zlog_init(), zlog_update() shall reread configure file.
  * Can be use at any time configure file changed, and can be use unlimit times.
@@ -68,14 +72,14 @@ extern "C" {
 	int zlog_update(char *conf_file);
 
 /**
- * Finish zlog, release all memory zlog_init() or zlog_update() applied.
+ * @brief Finish zlog, release all memory zlog_init() or zlog_update() applied.
  * 
  * @see zlog_init(), zlog_update(), zlog.conf, ZLOG_ERROR_LOG
  */
 	void zlog_fini(void);
 
 /**
- * Output detail of zlog's configure file to ZLOG_ERROR_LOG.
+ * @brief Output detail of zlog's configure file to ZLOG_ERROR_LOG.
  *
  * The function is always used when u are not sure what is zlog's conf now.
  *
@@ -84,10 +88,9 @@ extern "C" {
 	void zlog_profile(void);
 
 /**
- * Category is the core concept of zlog.
+ * @brief Points to a structure that contains rules from configure file.
  *
  * Not like logger of log4j, category in zlog doesn't have heritage.
- * A category has a name and several rules from confiugre file. 
  * For example, a category which name is "aa_bb_cc" match rules below:
  *
  * @code
@@ -106,7 +109,7 @@ extern "C" {
 	typedef struct zlog_category_t zlog_category_t;
 
 /**
- * Get a category from global table for future log, if none, create it.
+ * @brief Get a category from global table for future log, if none, create it.
  *
  * @param category_name category's name, must consist of alpha, digit or _.
     The length of category_name shall not be longer than PATH_MAX from limits.h,
@@ -118,28 +121,30 @@ extern "C" {
 	zlog_category_t *zlog_get_category(char *category_name);
 
 /**
- * put key-value into mdc of thread now, mdc is come from log4j, Mapped Diagnostic Context,
+ * @brief Put key-value into a map(one thread per map), can be show in log
+ *
+ * mdc is come from log4j, Mapped Diagnostic Context,
  * correspond to $M(key) in configure file
  */
 	int zlog_put_mdc(char *key, char *value);
 
 /**
- * get value from mdc of thread now
+ * @brief Get value from mdc of thread now
  */
 	char *zlog_get_mdc(char *key);
 
 /**
- * remove key-value from mdc of thread now
+ * @brief Remove key-value from mdc of thread now
  */
 	void zlog_remove_mdc(char *key);
 
 /**
- * remove all values from mdc of thread now
+ * @brief Remove all values from mdc of thread now
  */
 	void zlog_clean_mdc(void);
 
 /**
- * The real log fuction.
+ * @brief The real log fuction.
  *
  * Generaly use ZLOG_XXX macro, it is for super user.
  * In the begining of each thread of one process, it will be a litte slow,
@@ -158,7 +163,7 @@ extern "C" {
 		  char *format, ...);
 
 /**
- * The real log fuction, va_list version.
+ * @brief The real log fuction, va_list version.
  *
  * Generaly use VZLOG_XXX macro, it is for super user.
  *
@@ -175,7 +180,7 @@ extern "C" {
 		   char *format, va_list args);
 
 /**
- * The real log fuction, output hexadecimal version.
+ * @brief The real log fuction, output hexadecimal version.
  *
  * Generaly use HZLOG_XXX macro, it is for super user.
  * The output looks like:
@@ -207,8 +212,6 @@ extern "C" {
 		ZLOG_ERROR = 5,	/**< error conditions, maybe application fail */
 		ZLOG_FATAL = 6,	/**< system is unusable */
 	} zlog_priority;
-
-/* zlog macros */
 
 #define ZLOG_FATAL(cat, format, args...) \
 	zlog(cat, __FILE__, __LINE__, ZLOG_FATAL, format, ##args)
@@ -266,6 +269,10 @@ extern "C" {
 
 #define HZLOG_DEBUG(cat, buf, buf_len) \
 	hzlog(cat, __FILE__, __LINE__, ZLOG_DEBUG, buf, buf_len)
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

@@ -24,6 +24,18 @@
 #include "buf.h"
 #include "thread.h"
 
+/**
+ * @file spec.h
+ * @brief specifier, the atom unit of format string
+ *
+ * while zlog_init(), message format or dynamic log path will be parse to a list of spec.
+ * then at output time, zlog just need to traverse all specs to generate message or dynamic path
+ * a spec may consist of
+ * 	a const string: "/home/bb"
+ * or
+ * 	a string begin with $: "$12.35d(%F %X,%l)"
+ */
+
 typedef struct zlog_spec_t zlog_spec_t;
 
 typedef int (*zlog_spec_gen_buf_fn) (zlog_spec_t * a_spec,

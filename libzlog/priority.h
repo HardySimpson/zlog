@@ -22,31 +22,13 @@
 
 /**
  * @file priority.h
- * @brief zlog priority functions
+ * @brief change priority between string, int or syslog int
  */
 
-/**
- * make 0-5 to "UNKNOWN", "DEBUG"...
- *
- * @param priority int priority
- * @returns const static string of priority
- */
 char *zlog_priority_itostr(int priority);
 
-/**
- * make "UNKNOWN", "DEBUG"... to 0-5
- *
- * @param string of priority
- * @returns priority int priority
- */
 int zlog_priority_strtoi(char *priority);
 
-/**
- * make zlog priority to syslog priority
- *
- * @param zlog_priority int priority
- * @returns syslog priority
- */
 int zlog_priority_to_syslog(int zlog_priority);
 
 #endif

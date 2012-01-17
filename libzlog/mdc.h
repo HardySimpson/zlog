@@ -22,7 +22,7 @@
 
 /**
  * @file mdc.h
- * @brief zlog mapped diagnostic contexts
+ * @brief mapped diagnostic contexts, actually a string key-value map per thread
  */
 
 #include "zc_defs.h"
@@ -31,34 +31,16 @@ typedef struct {
 	zc_hashtable_t *tab;
 } zlog_mdc_t;
 
-/**
- * constructor
- */
 zlog_mdc_t *zlog_mdc_new(void);
 
-/**
- * destructor
- */
 void zlog_mdc_del(zlog_mdc_t * a_mdc);
 
-/**
- * remove all values from mdc, remain map itself
- */
 void zlog_mdc_clean(zlog_mdc_t * a_mdc);
 
-/**
- * put key-value into a_mdc
- */
 int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value);
 
-/**
- * get value from a_mdc
- */
 char *zlog_mdc_get(zlog_mdc_t * a_mdc, char *key);
 
-/**
- * remove key-value from a_mdc
- */
 void zlog_mdc_remove(zlog_mdc_t * a_mdc, char *key);
 
 typedef struct zlog_mdc_kv_t {
@@ -66,9 +48,7 @@ typedef struct zlog_mdc_kv_t {
 	char value[MAXLEN_PATH + 1];
 	size_t value_len;
 } zlog_mdc_kv_t;
-/**
- * get zlog_mdc_kv_t entry from a_mdc
- */
+
 zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t * a_mdc, char *key);
 
 #endif
