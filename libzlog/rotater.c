@@ -136,7 +136,6 @@ int zlog_rotater_init(zlog_rotater_t * a_rot, char *lock_file)
 {
 	int rc = 0;
 	int fd = 0;
-	const char *lf;
 
 	zc_assert_debug(a_rot, -1);
 	zc_assert_debug(lock_file, -1);
@@ -147,21 +146,15 @@ int zlog_rotater_init(zlog_rotater_t * a_rot, char *lock_file)
 		return -1;
 	}
 
-	if (STRCMP(lock_file, ==, "")) {
-		lf = "/tmp/zlog.lock";
-	} else {
-		lf = lock_file;
-	}
-
 	/* depends on umask of the user here
 	 * if user A create /tmp/zlog.lock 0600
 	 * user B is unable to read /tmp/zlog.lock
 	 * B has to choose another lock file except /tmp/zlog.lock
 	 */
-	fd = open(lf, O_RDWR | O_CREAT,
+	fd = open(lock_file, O_RDWR | O_CREAT,
 		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", lf, errno);
+		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
 		return -1;
 	}
 

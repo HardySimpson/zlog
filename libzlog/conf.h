@@ -31,7 +31,7 @@ typedef struct {
 	char file[MAXLEN_PATH + 1];	/**< configure file path */
 	char mtime[20 + 1];		/**< the last modified time of configure file */
 
-	int init_chk_conf;		/**< check configure file flag */
+	int ignore_error_format_rule;	/**< if format or rule syntax is error, omit it, default 0 */
 	size_t buf_size_min;		/**< each buffer size min */
 	size_t buf_size_max;		/**< each buffer size max */
 	char rotate_lock_file[MAXLEN_PATH + 1];

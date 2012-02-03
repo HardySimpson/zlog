@@ -18,7 +18,6 @@
  */
 
 #include <stdio.h>
-
 #include "zlog.h"
 
 int main(int argc, char** argv)
@@ -38,7 +37,6 @@ int main(int argc, char** argv)
 	}
 
 	ZLOG_INFO(my_cat, "hello, zlog");
-	printf("log end\n");
 
 	zlog_fini();
 	

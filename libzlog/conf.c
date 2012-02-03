@@ -38,8 +38,7 @@ static const char zlog_default_format[] =
 static const char zlog_default_rule[] =
     "*.*	>stdout";
 /*******************************************************************************/
-static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
-				int *init_chk_conf)
+static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 {
 	int rc = 0;
 	int nread = 0;
@@ -73,10 +72,14 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 		} else if (STRCMP(name, ==, "buf_size_max")) {
 			a_conf->buf_size_max = zc_parse_byte_size(value);
 			zc_debug("buf_size_max=[%ld]", a_conf->buf_size_max);
-		} else if (STRCMP(name, ==, "init_chk_conf")) {
-			*init_chk_conf = atoi(value);
-			a_conf->init_chk_conf = *init_chk_conf;
-			zc_debug("init_chk_conf=[%d]", *init_chk_conf);
+		} else if (STRCMP(name, ==, "ignore_error_format_rule")) {
+			if (STRICMP(value, ==, "true")) {
+				a_conf->ignore_error_format_rule = 1;
+			} else {
+				a_conf->ignore_error_format_rule = 0;
+			}
+			zc_debug("ignore_error_format_rule=[%d]",
+				a_conf->ignore_error_format_rule);
 		} else if (STRCMP(name, ==, "rotate_lock_file")) {
 			if (strlen(value) >
 			    sizeof(a_conf->rotate_lock_file) - 1) {
@@ -94,8 +97,13 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 	case '&':
 		a_format = zlog_format_new(line, strlen(line));
 		if (!a_format) {
-			zc_error("zlog_format_init fail,a_format is free");
-			return -1;
+			if (a_conf->ignore_error_format_rule) {
+				zc_error("ignore_error_format [%s]", line);
+				return 0;
+			} else {
+				zc_error("zlog_format_new fail [%s]", line);
+				return -1;
+			}
 		}
 		if (STRCMP(a_format->name, ==, "default")) {
 			zc_debug
@@ -118,8 +126,13 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len,
 	default:
 		a_rule = zlog_rule_new(a_conf->formats, line, strlen(line));
 		if (!a_rule) {
-			zc_error("zlog_rule_init fail, a_rule is free");
-			return -1;
+			if (a_conf->ignore_error_format_rule) {
+				zc_error("ignore_error_rule [%s]", line);
+				return 0;
+			} else {
+				zc_error("zlog_rule_new fail [%s]", line);
+				return -1;
+			}
 		}
 		rc = zc_arraylist_add(a_conf->rules, a_rule);
 		if (rc) {
@@ -137,7 +150,6 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 {
 	int rc = 0;
 	FILE *fp = NULL;
-	int init_chk_conf = 0;
 
 	char line[MAXLEN_CFG_LINE + 1];
 	char *pline = NULL;
@@ -212,23 +224,11 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 		 * and are positioned at the first non-whitespace
 		 * character. So let's process it
 		 */
-		rc = zlog_conf_parse_line(a_conf, line, strlen(line),
-					  &init_chk_conf);
+		rc = zlog_conf_parse_line(a_conf, line, strlen(line));
 		if (rc) {
-			/* we log a message,
-			 * but otherwise ignore the error.
-			 * After all, the next
-			 * line can be correct.
-			 */
 			zc_error("parse configure file[%s] line[%ld] fail",
 				 a_conf->file, line_no);
-			if (init_chk_conf || getenv("ZLOG_ICC")) {
-				rc = -1;
-				goto zlog_conf_read_config_exit;
-			} else {
-				rc = 0;
-				continue;
-			}
+			goto zlog_conf_read_config_exit;
 		}
 	}
 
@@ -267,8 +267,10 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 		return -1;
 	}
 
+	/* set default configuration start */
 	a_conf->buf_size_min = 1024;
 	a_conf->buf_size_max = 0;
+	strcpy(a_conf->rotate_lock_file, "/tmp/zlog.lock");
 
 	a_format =
 	    zlog_format_new((char *)zlog_default_format,
@@ -294,6 +296,7 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 		rc = -1;
 		goto zlog_conf_init_exit;
 	}
+	/* set default configuration end */
 
 	a_conf->rules = zc_arraylist_new((zc_arraylist_del_fn) zlog_rule_del);
 	if (!(a_conf->rules)) {
@@ -441,7 +444,7 @@ static void zlog_conf_debug(zlog_conf_t * a_conf)
 {
 	zc_debug("---conf---");
 	zc_debug("file:[%s],mtime:[%s]", a_conf->file, a_conf->mtime);
-	zc_debug("init_chk_conf:[%d]", a_conf->init_chk_conf);
+	zc_debug("ignore_error_format_rule:[%d]", a_conf->ignore_error_format_rule);
 	zc_debug("buf_size_min:[%ld]", a_conf->buf_size_min);
 	zc_debug("buf_size_max:[%ld]", a_conf->buf_size_max);
 	zc_debug("rotate_lock_file:[%s]", a_conf->rotate_lock_file);
@@ -458,7 +461,7 @@ void zlog_conf_profile(zlog_conf_t * a_conf)
 
 	zc_error("---conf[%p]---", a_conf);
 	zc_error("file:[%s],mtime:[%s]", a_conf->file, a_conf->mtime);
-	zc_error("init_chk_conf:[%d]", a_conf->init_chk_conf);
+	zc_error("ignore_error_format_rule:[%d]", a_conf->ignore_error_format_rule);
 	zc_error("buf_size_min:[%ld]", a_conf->buf_size_min);
 	zc_error("buf_size_max:[%ld]", a_conf->buf_size_max);
 	zc_error("rotate_lock_file:[%s]", a_conf->rotate_lock_file);
