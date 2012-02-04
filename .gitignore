@@ -11,7 +11,8 @@ config.status
 config.sub
 configure
 depcomp
-doc/
+doc/*
+!doc/*.lyx
 .deps
 *.gcda
 *.gcno

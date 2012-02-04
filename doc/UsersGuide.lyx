@@ -1,0 +1,609 @@
+#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass book
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Zlog User's Guide
+\end_layout
+
+\begin_layout Author
+by Hardy Simpson
+\end_layout
+
+\begin_layout Author
+Version 0.9
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+What is zlog?
+\end_layout
+
+\begin_layout Standard
+zlog is a high efficent, thread safe, flexsible, pure c logging library
+\end_layout
+
+\begin_layout Standard
+Actually, in the c world there is NO good logging library for application
+ like logback in java or log4cxx in c++.
+ printf can work, but can not be easily redirected or reformat, syslog is
+ slow and is designed for system use.
+\end_layout
+
+\begin_layout Standard
+So I write zlog.
+ 
+\end_layout
+
+\begin_layout Standard
+zlog has feartures below:
+\end_layout
+
+\begin_layout Itemize
+syslog style configure
+\begin_inset CommandInset label
+LatexCommand label
+name "ite:syslog-style-configure"
+
+\end_inset
+
+ file, easy for understand and use
+\end_layout
+
+\begin_layout Itemize
+sub-category model, which is agiler than hierarchy model from log4j
+\end_layout
+
+\begin_layout Itemize
+multiple output, include static file path, dynamic file path, stdout, stderr,
+ syslog
+\end_layout
+
+\begin_layout Itemize
+runtime change output flow or output format, just need to call one function
+\end_layout
+
+\begin_layout Itemize
+high efficieny, on my laptop, record 720'000 log per second, about 200 times
+ faster than syslog(3) with rsyslogd
+\end_layout
+
+\begin_layout Itemize
+save rotate log file by size when multiple process or multiple threads write
+ to one same log file
+\end_layout
+
+\begin_layout Itemize
+accurate to microseconds
+\end_layout
+
+\begin_layout Itemize
+MDC, a log4j style key-value map, expand user defined field in dynamic log
+ file path or log format, is also useful in multi-thread programming
+\end_layout
+
+\begin_layout Itemize
+self debugable, can output zlog's self debug&error log at runtime
+\end_layout
+
+\begin_layout Itemize
+low dependency, just depend on posix pthread library and fcntl(2), which
+ are available on nearly all unix-like system
+\end_layout
+
+\begin_layout Chapter
+Hello World
+\end_layout
+
+\begin_layout Section
+Build and Installation
+\end_layout
+
+\begin_layout Standard
+If checking out from Git (https://github.com/HardySimpson/zlog):
+\end_layout
+
+\begin_layout LyX-Code
+$ sh autogen.sh
+\end_layout
+
+\begin_layout Standard
+Then (if not checking from git, begin here)
+\end_layout
+
+\begin_layout LyX-Code
+$ ./configure --prefix=[where u wanna install it] --enable-test[compile test
+ program] 
+\end_layout
+
+\begin_layout LyX-Code
+$ make 
+\end_layout
+
+\begin_layout LyX-Code
+$ make install
+\end_layout
+
+\begin_layout Standard
+If --enable-test is used, then all the test program under test directory
+ will be built.
+ They are also good example codes which show how to use zlog.
+ If zlog is built in other path other than source path, you need to copy
+ all configure file to build path by hand, to run test program successfully,
+ for example:
+\end_layout
+
+\begin_layout LyX-Code
+$ cp $(top_srcdir)/test/*.conf $(top_builddir)/test/
+\end_layout
+
+\begin_layout LyX-Code
+$ cd $(top_builddir)/test/
+\end_layout
+
+\begin_layout LyX-Code
+$ ./test_hello
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout Section
+Compile and Link
+\end_layout
+
+\begin_layout Standard
+To use zlog, only add one line below in source c file or cpp file.
+\end_layout
+
+\begin_layout LyX-Code
+#include 
+\begin_inset Quotes eld
+\end_inset
+
+zlog.h
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If your system has pkgconfig then you can just add this to your makefile
+\end_layout
+
+\begin_layout LyX-Code
+CFLAGS += $(shell pkg-config --cflags zlog)
+\end_layout
+
+\begin_layout LyX-Code
+LDFLAGS += $(shell pkg-config --libs zlog)
+\end_layout
+
+\begin_layout Standard
+If has not
+\end_layout
+
+\begin_layout LyX-Code
+$ cc -c -o xx.o xx.c -I[where zlog.h is put, commonly /usr/local/include]
+\end_layout
+
+\begin_layout LyX-Code
+$ cc -o xx xx.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
+ 
+\end_layout
+
+\begin_layout Section
+Hello World Example
+\end_layout
+
+\begin_layout Enumerate
+create a new c source file:
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ vi test_hello.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h> 
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *my_cat;
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+rc = zlog_init("test_hello.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+my_cat = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!my_cat) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(my_cat, "hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+create a configure file in the same path as test_hello.c:
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ vi test_hello.conf
+\end_layout
+
+\begin_layout LyX-Code
+@ignore_error_format_rule    true
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_min                1024
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_max                0
+\end_layout
+
+\begin_layout LyX-Code
+@rotate_lock_file            /tmp/zlog.lock
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+&simple                 "$m$n"
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*                >stdout; simple
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+compile and run it!
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cc -c -o test_hello.o test_hello.c -I/usr/local/include
+\end_layout
+
+\begin_layout LyX-Code
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+\end_layout
+
+\begin_layout LyX-Code
+$ ./test_hello
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\end_deeper
+\begin_layout Chapter
+Configure File Syntax
+\end_layout
+
+\begin_layout Standard
+All actions of zlog library are dependent upon configure file: where to
+ output the log, how log is rotate, the output format, etc...
+ So let's see a configrue file.
+\end_layout
+
+\begin_layout Section
+Global Setting
+\end_layout
+
+\begin_layout LyX-Code
+# global setting begins with @
+\end_layout
+
+\begin_layout LyX-Code
+# all global setting could be not written, for use default value.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+# if ignore_error_format_rule is true, omit error syntax of formats and
+ rules.
+\end_layout
+
+\begin_layout LyX-Code
+# else zlog_init() will check sytnax of all formats and rules strictly,
+ any error will cause zlog_init() failed and return -1.
+\end_layout
+
+\begin_layout LyX-Code
+# default, ignore_error_format_rule is false.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+@ignore_error_format_rule    true
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+# zlog allocates one log buffer in each thread.
+\end_layout
+
+\begin_layout LyX-Code
+# buf_size_min indicates size of buffer malloced at init time.
+ while loging, if log content size > buf_size, buffer will expand automaticly,
+ till buf_size_max, and log conten is truncated.
+ 
+\end_layout
+
+\begin_layout LyX-Code
+# if buf_size_max is 0, means buf_size is unlimited, everytime buf_size
+ = 2*buf_size, till process use up all it's memory.
+\end_layout
+
+\begin_layout LyX-Code
+# size can append with unit KB, MB or GB, so 
+\begin_inset Quotes eld
+\end_inset
+
+@buf_size_min 1024
+\begin_inset Quotes erd
+\end_inset
+
+ equals 
+\begin_inset Quotes eld
+\end_inset
+
+@buf_size_min 1KB
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+# default, buf_size_min=1024, buf_size_max=0
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_min           1024
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_max           0
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+# rotate_lock_file is a lock file for rotate a log safely between multi-process.
+\end_layout
+
+\begin_layout LyX-Code
+# zlog will create the file at zlog_init(), make sure your program has permissio
+n to create and read-write the file.
+\end_layout
+
+\begin_layout LyX-Code
+# if programs run by different users who need to write and rotater the same
+ log file, make sure that each program has permission to create and read-write
+ the same lock file.
+\end_layout
+
+\begin_layout LyX-Code
+# default, rotate_lock_file is /tmp/zlog.lock
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+@rotate_lock_file       /tmp/zlog.lock
+\end_layout
+
+\begin_layout Section
+Category, Rule and Format
+\end_layout
+
+\begin_layout Section
+Control Input
+\end_layout
+
+\begin_layout Section
+Control Output Flow
+\end_layout
+
+\begin_layout Subsubsection
+rotate
+\end_layout
+
+\begin_layout Section
+Control Output Format
+\end_layout
+
+\begin_layout Subsection
+hex output
+\end_layout
+
+\begin_layout Section
+MDC
+\end_layout
+
+\begin_layout Section
+zlog tools
+\end_layout
+
+\begin_layout Section
+Debug zlog Itself
+\end_layout
+
+\begin_layout Standard
+environment variables
+\end_layout
+
+\end_body
+\end_document
