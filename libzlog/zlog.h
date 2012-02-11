@@ -116,7 +116,7 @@ extern "C" {
     which is commonly 4096 on linux system.
  * @returns a zlog_category_t pointer for success,
     NULL for fail, detail will be record in ZLOG_ERROR_LOG.
- * @see zlog_set_category(), zlog_category_t, ZLOG_ERROR_LOG
+ * @see zlog_category_t, ZLOG_ERROR_LOG
  */
 	zlog_category_t *zlog_get_category(char *category_name);
 

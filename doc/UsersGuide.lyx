@@ -88,18 +88,11 @@ zlog has feartures below:
 \end_layout
 
 \begin_layout Itemize
-syslog style configure
-\begin_inset CommandInset label
-LatexCommand label
-name "ite:syslog-style-configure"
-
-\end_inset
-
- file, easy for understand and use
+syslog style configure file, easy for understand and use
 \end_layout
 
 \begin_layout Itemize
-sub-category model, which is agiler than hierarchy model from log4j
+sub-category model, which is agiler than hierarchy model of log4j
 \end_layout
 
 \begin_layout Itemize
@@ -281,7 +274,7 @@ int rc;
 \end_layout
 
 \begin_layout LyX-Code
-zlog_category_t *my_cat;
+zlog_category_t *c;
 \end_layout
 
 \begin_layout LyX-Code
@@ -317,7 +310,7 @@ return -1;
 \end_layout
 
 \begin_layout LyX-Code
-my_cat = zlog_get_category("my_cat");
+c = zlog_get_category("my_cat");
 \end_layout
 
 \begin_layout LyX-Code
@@ -341,7 +334,7 @@ n");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(my_cat, "hello, zlog");
+ZLOG_INFO(c, "hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code
@@ -368,7 +361,7 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-@ignore_error_format_rule    true
+@ignore_error_format_rule    false
 \end_layout
 
 \begin_layout LyX-Code
@@ -396,7 +389,7 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*                >stdout; simple
+my_cat.DEBUG            >stdout; simple
 \end_layout
 
 \end_deeper
@@ -471,7 +464,7 @@ Global Setting
 \end_layout
 
 \begin_layout LyX-Code
-@ignore_error_format_rule    true
+@ignore_error_format_rule    false
 \end_layout
 
 \begin_layout LyX-Code
@@ -548,7 +541,7 @@ n to create and read-write the file.
 \end_layout
 
 \begin_layout LyX-Code
-# if programs run by different users who need to write and rotater the same
+# if programs run by different users who need to write and rotater a same
  log file, make sure that each program has permission to create and read-write
  the same lock file.
 \end_layout
@@ -569,16 +562,312 @@ n to create and read-write the file.
 Category, Rule and Format
 \end_layout
 
+\begin_layout Standard
+This is c source file:
+\end_layout
+
+\begin_layout LyX-Code
+zlog_init("test_hello.conf");      //read conf file to memory
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");   //match 
+\begin_inset Quotes eld
+\end_inset
+
+my_cat
+\begin_inset Quotes erd
+\end_inset
+
+ to c
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");       //logging action 
+\begin_inset Quotes eld
+\end_inset
+
+hello, zlog
+\begin_inset Quotes erd
+\end_inset
+
+ which is bound to c
+\end_layout
+
+\begin_layout Standard
+And this is part of conf file:
+\end_layout
+
+\begin_layout LyX-Code
+&simple                 "$m$n"           
+\end_layout
+
+\begin_layout LyX-Code
+# format, consist of a user message: 
+\begin_inset Quotes eld
+\end_inset
+
+hello, zlog
+\begin_inset Quotes erd
+\end_inset
+
+ and a return charactor.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.debug             >stdout; simple
+\end_layout
+
+\begin_layout LyX-Code
+# rule, all my_cat's log and priority bigger than debug, output to standard
+ output, use simple format decribed above.
+\end_layout
+
+\begin_layout Standard
+And this is the output
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout Standard
+Each logging action is bound to a category, which is a variable of zlog_category
+_t* type and matches one or many rules in configure file.
+ In this example, the name of category c is 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+my_cat
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+, and match
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+my_cat.debug >stdout; simple
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+ rule.
+\end_layout
+
+\begin_layout Standard
+Category and rule are loose coupled.
+ If there are 2 lines of rules above, using 
+\emph on
+ZLOG_INFO(c, "hello, zlog")
+\emph default
+ will cause to lines of output 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+hello, zlog
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ If the rule is written as 
+\begin_inset Quotes eld
+\end_inset
+
+my_ca.debug >stdout; simple
+\begin_inset Quotes erd
+\end_inset
+
+, nothing will be output to screen.
+ Loose coupling are both fallible and flexible.
+\end_layout
+
+\begin_layout Standard
+Rule and format are tightly coupled.
+ If a rule using a format that is not mentioned before, zlog_init() will
+ be failed, unless 
+\begin_inset Quotes eld
+\end_inset
+
+@ignore_error_format_rule false
+\begin_inset Quotes erd
+\end_inset
+
+ is set at the beginning of configure file, and using inner default format.
+\end_layout
+
 \begin_layout Section
 Control Input
 \end_layout
 
-\begin_layout Section
-Control Output Flow
+\begin_layout Standard
+Finally, We arrive at here.
+ The matching between category and rule of zlog is quite different from
+ other logging library like log4j.
+ I call it sub-category model.
 \end_layout
 
-\begin_layout Subsubsection
-rotate
+\begin_layout Standard
+In log4j, there are father logger and child logger.
+ For Example, if the configure file is like this:
+\end_layout
+
+\begin_layout LyX-Code
+log4j.logger.aa=DEBUG, A1
+\end_layout
+
+\begin_layout LyX-Code
+log4j.logger.aa.bb=
+\end_layout
+
+\begin_layout LyX-Code
+log4j.logger.aa.cc=INFO
+\end_layout
+
+\begin_layout Standard
+aa is a father logger.
+ aa.bb and aa.cc is the child of aa, aa.bb inherits aa's priority and appender,
+ which are DEBUG and A1.
+ aa.cc inherits and overwrite aa's priority.
+ So aa.cc has the priority of INFO and appender of A1.
+ Then, what will happen if I want all aa's log output to a special file
+ (and keep output of aa.bb and aa.cc not changed)? It is complicate to give
+ expression here.
+\end_layout
+
+\begin_layout Standard
+In zlog, all rules are independent.
+ For Example:
+\end_layout
+
+\begin_layout LyX-Code
+aa_bb.DEBUG         
+\begin_inset Quotes eld
+\end_inset
+
+$E(HOME)/log/aa_bb.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+aa_cc.INFO          
+\begin_inset Quotes eld
+\end_inset
+
+$E(HOME)/log/aa_cc.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+aa_.ERROR           
+\begin_inset Quotes eld
+\end_inset
+
+$E(HOME)/log/aa_error.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There is no heirship here, just 3 sperate rules.
+ 
+\end_layout
+
+\begin_layout Standard
+If the name of category is 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+aa_bb
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The c source file is like this.
+\end_layout
+
+\begin_layout LyX-Code
+category_t ab;
+\end_layout
+
+\begin_layout LyX-Code
+ab = zlog_get_category(
+\begin_inset Quotes eld
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_DEBUG(ab, 
+\begin_inset Quotes eld
+\end_inset
+
+ab's debug
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_ERROR(ab, 
+\begin_inset Quotes eld
+\end_inset
+
+ab's error
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout Standard
+the rule 1 and rule 3 match the category.
+ That make aa_bb's >DEBUG log output to 
+\emph on
+aa_bb.log
+\emph default
+ and aa_bb's >ERROR log output to 
+\emph on
+aa_error.log
+\emph default
+.
+ So aa
+\end_layout
+
+\begin_layout Section
+Control Output Flow
 \end_layout
 
 \begin_layout Section

@@ -97,7 +97,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 	case '&':
 		a_format = zlog_format_new(line, strlen(line));
 		if (!a_format) {
-			if (a_conf->ignore_error_format_rule) {
+			if (a_conf->ignore_error_format_rule || !getenv("ZLOG_ICC")) {
 				zc_error("ignore_error_format [%s]", line);
 				return 0;
 			} else {
@@ -126,7 +126,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 	default:
 		a_rule = zlog_rule_new(a_conf->formats, line, strlen(line));
 		if (!a_rule) {
-			if (a_conf->ignore_error_format_rule) {
+			if (a_conf->ignore_error_format_rule || !getenv("ZLOG_ICC")) {
 				zc_error("ignore_error_rule [%s]", line);
 				return 0;
 			} else {

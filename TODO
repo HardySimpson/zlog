@@ -41,9 +41,10 @@
 [ ] 打印堆栈。。可能需要语言支持
 [ ] 增加获取当前使用文件名接口，供shell脚本用
 [ ] hzlog的可定制话
-[ ] 兼容性问题
 [ ] 分类匹配的可定制化
-[ ] shbin,增加一些常用脚本
+[ ] 兼容性问题
+[ ] zlog-input -c category -p priority -f conf
+[ ] zlog-gen-conf
 
 
 ==========
