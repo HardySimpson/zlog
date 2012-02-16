@@ -2,7 +2,7 @@
 \lyxformat 345
 \begin_document
 \begin_header
-\textclass book
+\textclass scrbook
 \use_default_options true
 \language english
 \inputencoding auto
@@ -16,7 +16,7 @@
 \font_tt_scale 100
 
 \graphics default
-\paperfontsize default
+\paperfontsize 12
 \spacing single
 \use_hyperref false
 \papersize default
@@ -153,8 +153,13 @@ Then (if not checking from git, begin here)
 \end_layout
 
 \begin_layout LyX-Code
-$ ./configure --prefix=[where u wanna install it] --enable-test[compile test
- program] 
+$ ./configure --prefix=[where u wanna install it] 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+      --enable-test[compile test program] 
 \end_layout
 
 \begin_layout LyX-Code
@@ -168,7 +173,7 @@ $ make install
 \begin_layout Standard
 If --enable-test is used, then all the test program under test directory
  will be built.
- They are also good example codes which show how to use zlog.
+ These are also good example codes which show how to use zlog.
  If zlog is built in other path other than source path, you need to copy
  all configure file to build path by hand, to run test program successfully,
  for example:
@@ -257,7 +262,7 @@ $ vi test_hello.c
 \end_layout
 
 \begin_layout LyX-Code
-
+ 
 \end_layout
 
 \begin_layout LyX-Code
@@ -377,7 +382,7 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-
+ 
 \end_layout
 
 \begin_layout LyX-Code
@@ -385,7 +390,7 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-
+ 
 \end_layout
 
 \begin_layout LyX-Code
@@ -429,38 +434,21 @@ All actions of zlog library are dependent upon configure file: where to
 Global Setting
 \end_layout
 
-\begin_layout LyX-Code
-# global setting begins with @
+\begin_layout Standard
+Global setting begins with @.
+ All global setting could be not written, for use default value.
+ The full sytanx is:
 \end_layout
 
 \begin_layout LyX-Code
-# all global setting could be not written, for use default value.
+@[key][n space or tab][value]
 \end_layout
 
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
-# if ignore_error_format_rule is true, omit error syntax of formats and
- rules.
-\end_layout
-
-\begin_layout LyX-Code
-# else zlog_init() will check sytnax of all formats and rules strictly,
- any error will cause zlog_init() failed and return -1.
-\end_layout
-
-\begin_layout LyX-Code
-# default, ignore_error_format_rule is false.
-\end_layout
-
-\begin_layout LyX-Code
-
+\begin_layout Standard
+If ignore_error_format_rule is true, omit error syntax of formats and rules.
+ Else zlog_init() will check sytnax of all formats and rules strictly, any
+ error will cause zlog_init() failed and return -1.
+ Default, ignore_error_format_rule is false.
 \end_layout
 
 \begin_layout LyX-Code
@@ -471,28 +459,14 @@ Global Setting
 
 \end_layout
 
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
-# zlog allocates one log buffer in each thread.
-\end_layout
-
-\begin_layout LyX-Code
-# buf_size_min indicates size of buffer malloced at init time.
- while loging, if log content size > buf_size, buffer will expand automaticly,
+\begin_layout Standard
+zlog allocates one log buffer in each thread.
+ buf_size_min indicates size of buffer malloced at init time.
+ While loging, if log content size > buf_size, buffer will expand automaticly,
  till buf_size_max, and log conten is truncated.
- 
-\end_layout
-
-\begin_layout LyX-Code
-# if buf_size_max is 0, means buf_size is unlimited, everytime buf_size
- = 2*buf_size, till process use up all it's memory.
-\end_layout
-
-\begin_layout LyX-Code
-# size can append with unit KB, MB or GB, so 
+ If buf_size_max is 0, means buf_size is unlimited, everytime buf_size =
+ 2*buf_size, till process use up all it's memory.Size can append with unit
+ KB, MB or GB, so 
 \begin_inset Quotes eld
 \end_inset
 
@@ -508,15 +482,8 @@ Global Setting
 \begin_inset Quotes erd
 \end_inset
 
-
-\end_layout
-
-\begin_layout LyX-Code
-# default, buf_size_min=1024, buf_size_max=0
-\end_layout
-
-\begin_layout LyX-Code
-
+.
+ Default, buf_size_min=1024, buf_size_max=0.
 \end_layout
 
 \begin_layout LyX-Code
@@ -527,31 +494,18 @@ Global Setting
 @buf_size_max           0
 \end_layout
 
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
-# rotate_lock_file is a lock file for rotate a log safely between multi-process.
-\end_layout
-
-\begin_layout LyX-Code
-# zlog will create the file at zlog_init(), make sure your program has permissio
-n to create and read-write the file.
-\end_layout
-
-\begin_layout LyX-Code
-# if programs run by different users who need to write and rotater a same
+\begin_layout Standard
+rotate_lock_file is a lock file for rotate a log safely between multi-process.
+ zlog will create the file at zlog_init(), make sure your program has permission
+ to create and read-write the file.
+ If programs run by different users who need to write and rotater a same
  log file, make sure that each program has permission to create and read-write
  the same lock file.
+ Default, rotate_lock_file is /tmp/zlog.lock
 \end_layout
 
 \begin_layout LyX-Code
-# default, rotate_lock_file is /tmp/zlog.lock
-\end_layout
-
-\begin_layout LyX-Code
-
+ 
 \end_layout
 
 \begin_layout LyX-Code
@@ -567,11 +521,23 @@ This is c source file:
 \end_layout
 
 \begin_layout LyX-Code
-zlog_init("test_hello.conf");      //read conf file to memory
+zlog_init("test_hello.conf");
 \end_layout
 
 \begin_layout LyX-Code
-c = zlog_get_category("my_cat");   //match 
+/* read conf file to memory */
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+/* match 
 \begin_inset Quotes eld
 \end_inset
 
@@ -579,11 +545,23 @@ my_cat
 \begin_inset Quotes erd
 \end_inset
 
- to c
+ to c */
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(c, "hello, zlog");       //logging action 
+ 
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+/* logging action 
 \begin_inset Quotes eld
 \end_inset
 
@@ -591,7 +569,7 @@ hello, zlog
 \begin_inset Quotes erd
 \end_inset
 
- which is bound to c
+ which is bound to c */
 \end_layout
 
 \begin_layout Standard
@@ -603,15 +581,7 @@ And this is part of conf file:
 \end_layout
 
 \begin_layout LyX-Code
-# format, consist of a user message: 
-\begin_inset Quotes eld
-\end_inset
-
-hello, zlog
-\begin_inset Quotes erd
-\end_inset
-
- and a return charactor.
+# format, begein with a &
 \end_layout
 
 \begin_layout LyX-Code
@@ -619,12 +589,19 @@ hello, zlog
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.debug             >stdout; simple
+ 
 \end_layout
 
 \begin_layout LyX-Code
-# rule, all my_cat's log and priority bigger than debug, output to standard
- output, use simple format decribed above.
+my_cat.DEBUG             >stdout; simple
+\end_layout
+
+\begin_layout LyX-Code
+# rule, all my_cat's log and priority bigger than debug
+\end_layout
+
+\begin_layout LyX-Code
+# output to standard output, use simple format decribed above.
 \end_layout
 
 \begin_layout Standard
@@ -710,8 +687,178 @@ Rule and format are tightly coupled.
  is set at the beginning of configure file, and using inner default format.
 \end_layout
 
+\begin_layout Standard
+The syntax of format is:
+\end_layout
+
+\begin_layout LyX-Code
+&[name][n tab or space]
+\begin_inset Quotes eld
+\end_inset
+
+[conversion pattern]
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The syntax of rule is:
+\end_layout
+
+\begin_layout LyX-Code
+[selector][n tab or space][action]
+\end_layout
+
+\begin_layout LyX-Code
+[selector] = [category].[priority]
+\end_layout
+
+\begin_layout LyX-Code
+[action] = [output], [file size limitation,optional]; [format name, optional]
+\end_layout
+
 \begin_layout Section
-Control Input
+Select Input
+\end_layout
+
+\begin_layout Standard
+Whether or not a log will be output, depend on category and priority in
+ c source file match category and priority in rule or not.
+\end_layout
+
+\begin_layout LyX-Code
+[selector] = [category].[priority]
+\end_layout
+
+\begin_layout Subsection
+Priority matching
+\end_layout
+
+\begin_layout Standard
+There are six priority in zlog, "DEBUG", "INFO", "NOTICE", "WARN", "ERROR"
+ and "FATAL".
+ As all other log library, aa.DEBUG means all log of priority that is greater
+ than or equals to DEBUG will be output.
+ Still, there are more expression.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+example
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+all [source priority]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.DEBUG
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source priority]>=DEBUG
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.=DEBUG
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source priority]==DEBUG
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.!DEBUG
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source priority]!=DEBUG
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Category matching
 \end_layout
 
 \begin_layout Standard
@@ -751,6 +898,7 @@ aa is a father logger.
 
 \begin_layout Standard
 In zlog, all rules are independent.
+ Sub-category relationship is represent as a underline between words.
  For Example:
 \end_layout
 
@@ -759,7 +907,7 @@ aa_bb.DEBUG
 \begin_inset Quotes eld
 \end_inset
 
-$E(HOME)/log/aa_bb.log
+/var/log/aa_bb.log
 \begin_inset Quotes erd
 \end_inset
 
@@ -771,7 +919,7 @@ aa_cc.INFO
 \begin_inset Quotes eld
 \end_inset
 
-$E(HOME)/log/aa_cc.log
+/var/log/aa_cc.log
 \begin_inset Quotes erd
 \end_inset
 
@@ -783,7 +931,19 @@ aa_.ERROR
 \begin_inset Quotes eld
 \end_inset
 
-$E(HOME)/log/aa_error.log
+/var/log/aa_error.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+aa.*                
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/aa.log
 \begin_inset Quotes erd
 \end_inset
 
@@ -853,7 +1013,7 @@ ab's error
 \end_layout
 
 \begin_layout Standard
-the rule 1 and rule 3 match the category.
+Then rule 1 and rule 3 match the category.
  That make aa_bb's >DEBUG log output to 
 \emph on
 aa_bb.log
@@ -863,15 +1023,1095 @@ aa_bb.log
 aa_error.log
 \emph default
 .
- So aa
+ But rule 4 doesn't match the category.
+ It accurately matches the category 
+\begin_inset Quotes eld
+\end_inset
+
+aa
+\begin_inset Quotes erd
+\end_inset
+
+.
+ So, Let's conclude with a table here.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="4">
+<features>
+<column alignment="center" valignment="top" width="30text%">
+<column alignment="center" valignment="top" width="20col%">
+<column alignment="center" valignment="top" width="30col%">
+<column alignment="center" valignment="top" width="20col%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+summarize
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category string from configure file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+matched category
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no matched category
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+* matches all
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa, aa_bb, aa_cc, xx, yy ...
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NONE
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+string end with underline matches super-category and sub-categories 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa, aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+xx, yy
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+string not end with underline accurately matches category 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
-Control Output Flow
+Output Action
+\end_layout
+
+\begin_layout Standard
+Now, zlog supports 4 ways of output, the syntax is
+\end_layout
+
+\begin_layout LyX-Code
+[action] = [output], [file size limitation,optional]; [format name, optional]
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="3">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="30text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output action
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+file size limitation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to stranded out
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>stdout
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to strander error
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>stderr
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to syslog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>syslog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+[file path]
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+file size limitation, can be:
+\end_layout
+
+\begin_layout Plain Layout
+1000, 1k, 2M, 1G...
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+[file path]
+\emph default
+ can be absolute file path or relative file path.
+ It is quoted.
+ 
+\emph on
+Conversion pattern
+\emph default
+ can be used in file path.
+ If the file path is 
+\begin_inset Quotes eld
+\end_inset
+
+$E(HOME)/log/out.log
+\begin_inset Quotes erd
+\end_inset
+
+ and the program' environment $HOME is /home/harry, then the log file is
+ /home/harry/log/output.log.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Conversion-pattern"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+[file size limitation]
+\emph default
+ controls log file to rotate itself when the file is too large.
+ Let the action is
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+$E(HOME)/log/out.log
+\begin_inset Quotes erd
+\end_inset
+
+,1M
+\end_layout
+
+\begin_layout Standard
+After a out.log is filled by programs to 1M, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create) 
+\end_layout
+
+\begin_layout Standard
+If the new log is full again, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log.1 -> out.log.2
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create)
+\end_layout
+
+\begin_layout Standard
+So the oldest log has the biggest serial number.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+[format name]
+\emph default
+ is optional.
+ If not set, use zlog inner default format, which is:
+\end_layout
+
+\begin_layout LyX-Code
+&default "$d(%F %T) $P [$p:$F:$L] $m$n"
+\end_layout
+
+\begin_layout Standard
+every rule without format specified, would yield output:
+\end_layout
+
+\begin_layout LyX-Code
+2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
+\end_layout
+
+\begin_layout Standard
+The inner default format can be overwritten.
+ Just name a format which name is 
+\begin_inset Quotes eld
+\end_inset
+
+default
+\begin_inset Quotes erd
+\end_inset
+
+ in configure file
+\end_layout
+
+\begin_layout LyX-Code
+&default "$m$n
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then every rule without format specified, would yield output:
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
 \end_layout
 
 \begin_layout Section
-Control Output Format
+Conversion pattern
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Conversion-pattern"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The conversion pattern is closely related to the conversion pattern of the
+ printf function in C.
+ A conversion pattern is composed of literal text and format control expressions
+ called conversion specifiers.
+\end_layout
+
+\begin_layout Standard
+Conversion pattern is used both in filepath of rule, or pattern of format.
+\end_layout
+
+\begin_layout Standard
+You are free to insert any literal text within the conversion pattern.
+\end_layout
+
+\begin_layout Standard
+Each conversion specifier starts with a dollar sign ($) and is followed
+ by optional format modifiers and a conversion character.
+ The conversion character specifies the type of data, e.g.
+ category, priority, date, thread name.
+ The format modifiers control such things as field width, padding, left
+ and right justification.
+ The following is a simple example.
+\end_layout
+
+\begin_layout Standard
+Let the conversion pattern be
+\end_layout
+
+\begin_layout LyX-Code
+"$d(%m-%d %T) $-5P [$p:$F:$L] $m$n".
+\end_layout
+
+\begin_layout Standard
+Then the statements
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout Standard
+would yield the output
+\end_layout
+
+\begin_layout LyX-Code
+02-14 17:17:42 INFO  [4935:test_hello.c:39] hello, zlog
+\end_layout
+
+\begin_layout Standard
+Note that there is no explicit separator between text and conversion specifiers.
+ The pattern parser knows when it has reached the end of a conversion specifier
+ when it reads a conversion character.
+ In the example above the conversion specifier $-5p means the priority of
+ the logging event should be left justified to a width of five characters.
+ The recognized conversion characters are
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="16" columns="3">
+<features>
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="center" valignment="top" width="60text%">
+<column alignment="center" valignment="top" width="30text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Conversion Character
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Effect
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Example
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the category of the logging event.
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_bb
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+d
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the date of the logging event.
+ The date conversion specifier may be followed by a date format specifier
+ enclosed between parenthesis.
+ For example, $d(%F) or $d(%m-%d %T).
+ If no date format specifier is given then $d(%F %T) format is assumed.
+ The date format specifier admits the same syntax as the strftime(3), but
+ add %us and 
+\end_layout
+
+\begin_layout Plain Layout
+%ms for millisecond and microsecond.
+ see 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$d(%F) 2011-12-01
+\end_layout
+
+\begin_layout Plain Layout
+$d(%m-%d %T) 12-01 17:17:42
+\end_layout
+
+\begin_layout Plain Layout
+$d(%T.ms) 17:17:42.035
+\end_layout
+
+\begin_layout Plain Layout
+$d 2012-02-14 17:03:12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+E
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the environment variable, which is fixed at zlog_init()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$E(HOME) /home/harry
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+F
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the file name where the logging request was issued.
+ The file name comes from __FILE__ macro.
+ In some unix system __FILE__ is the full source path.
+ Use $f to strip path and remain file name.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+/home/harry/test_hello.c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+f
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the source file name, the string after the last '/' of $F.
+ It will cause a little performance loss in each log event.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+test_hello.c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+H
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the hostname of system, which is from gethostname(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+zlog-dev
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+L
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the line number from where the logging request was issued,
+ which comes from __LINE__ macro
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+135
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+m
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the application supplied message associated with the logging
+ event.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+hello, zlog
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+M
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the MDC (mapped diagnostic context) associated with the thread
+ that generated the logging event.
+ The M conversion character must be followed by the key for the map placed
+ between parenthesis, as in $M(clientNumber) where clientNumber is the key.
+ The value in the MDC corresponding to the key will be output.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12345
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+n
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Outputs 
+\begin_inset Quotes eld
+\end_inset
+
+
+\backslash
+n
+\begin_inset Quotes erd
+\end_inset
+
+, we do not support windows line separator now
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\backslash
+n
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+p
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the id of the process that generated the logging event, which
+ comes from getpid()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2134
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the priority of the logging event.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+INFO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the id of the process that generated the logging event, which
+ comes from pthread_self()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7636
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -880,6 +2120,13 @@ hex output
 
 \begin_layout Section
 MDC
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:MDC"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section

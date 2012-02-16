@@ -33,10 +33,8 @@
 
 /*******************************************************************************/
 static void zlog_conf_debug(zlog_conf_t * a_conf);
-static const char zlog_default_format[] =
-    "&default	\"$d(%m-%d %T) $P [$p:$F:$L] $m$n\"";
-static const char zlog_default_rule[] =
-    "*.*	>stdout";
+#define ZLOG_DEFAULT_FORMAT "&default   \"$d(%F %T) $P [$p:$F:$L] $m$n\""
+#define ZLOG_DEFAULT_RULE "*.*        >stdout"
 /*******************************************************************************/
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 {
@@ -97,7 +95,10 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 	case '&':
 		a_format = zlog_format_new(line, strlen(line));
 		if (!a_format) {
-			if (a_conf->ignore_error_format_rule || !getenv("ZLOG_ICC")) {
+			if (getenv("ZLOG_ICC")) {
+				zc_error("zlog_format_new fail [%s]", line);
+				return -1;
+			} else if (a_conf->ignore_error_format_rule) {
 				zc_error("ignore_error_format [%s]", line);
 				return 0;
 			} else {
@@ -126,7 +127,10 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 	default:
 		a_rule = zlog_rule_new(a_conf->formats, line, strlen(line));
 		if (!a_rule) {
-			if (a_conf->ignore_error_format_rule || !getenv("ZLOG_ICC")) {
+			if (getenv("ZLOG_ICC")) {
+				zc_error("zlog_rule_new fail [%s]", line);
+				return -1;
+			} else if (a_conf->ignore_error_format_rule) {
 				zc_error("ignore_error_rule [%s]", line);
 				return 0;
 			} else {
@@ -273,8 +277,8 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 	strcpy(a_conf->rotate_lock_file, "/tmp/zlog.lock");
 
 	a_format =
-	    zlog_format_new((char *)zlog_default_format,
-			    strlen(zlog_default_format));
+	    zlog_format_new((char *)ZLOG_DEFAULT_FORMAT,
+			    strlen(ZLOG_DEFAULT_FORMAT));
 	if (!a_format) {
 		zc_error("zlog_format_new fail");
 		return -1;
@@ -315,8 +319,8 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 	} else {
 		a_rule = zlog_rule_new(
 				a_conf->formats,
-				(char *)zlog_default_rule,
-				strlen(zlog_default_rule)
+				(char *)ZLOG_DEFAULT_RULE,
+				strlen(ZLOG_DEFAULT_RULE)
 			);
 		if (!a_rule) {
 			zc_error("zlog_rule_new fail");
@@ -392,8 +396,8 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 	a_conf->buf_size_max = 0;
 
 	a_format =
-	    zlog_format_new((char *)zlog_default_format,
-			    strlen(zlog_default_format));
+	    zlog_format_new((char *)ZLOG_DEFAULT_FORMAT,
+			    strlen(ZLOG_DEFAULT_FORMAT));
 	if (!a_format) {
 		zc_error("zlog_format_new fail");
 		return -1;

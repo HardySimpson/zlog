@@ -31,6 +31,8 @@
 #include "priority.h"
 #include "zc_defs.h"
 
+#define ZLOG_DEFAULT_TIME_FMT "%F %T"
+
 /*******************************************************************************/
 static void zlog_spec_debug(zlog_spec_t * a_spec);
 
@@ -153,6 +155,29 @@ static int zlog_spec_gen_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 
 	rc = zlog_buf_append(a_buf, a_thread->event->file,
 			     strlen(a_thread->event->file));
+	if (rc) {
+		zc_error("zlog_buf_append maybe fail or overflow");
+		return rc;
+	}
+	return 0;
+}
+
+static int zlog_spec_gen_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
+				 zlog_buf_t * a_buf)
+{
+	int rc;
+	char *p;
+	char *end;
+
+	end = a_thread->event->file + strlen(a_thread->event->file) - 1;
+	for (p = end; *p != '/' && p > a_thread->event->file; p--);
+		/* empty */
+
+	if (*p == '/') {
+		p++;
+	}
+
+	rc = zlog_buf_append(a_buf, p, end - p + 1);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -628,20 +653,27 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 		p += nread;
 
 		if (*p == 'd') {
-			nscan =
-			    sscanf(p, "d(%[^)])%n", a_spec->time_fmt, &nread);
-			if (nscan == 0) {
-				nread = 0;
-				if (STRNCMP(p, ==, "d()", 3)) {
-					nread = 3;
+			if (*(p+1) != '(') {
+				/* without '(' , use default */
+				strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
+				p++;
+			} else if (STRNCMP(p, ==, "d()", 3)) {
+				/* with () but without detail time format,
+				 * keep a_spec->time_fmt=="" */
+				p += 3;
+			} else {
+				nscan =
+				    sscanf(p, "d(%[^)])%n", a_spec->time_fmt, &nread);
+				if (nscan != 1) {
+					nread = 0;
 				}
-			}
-			p += nread;
-			if (*(p - 1) != ')') {
-				zc_error("in string[%s] can't find match \')\'",
-					 a_spec->str);
-				rc = -1;
-				goto zlog_spec_init_exit;
+				p += nread;
+				if (*(p - 1) != ')') {
+					zc_error("in string[%s] can't find match \')\'",
+						 a_spec->str);
+					rc = -1;
+					goto zlog_spec_init_exit;
+				}
 			}
 
 			rc = zlog_spec_parse_time_fmt(a_spec);
@@ -664,7 +696,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 		if (*p == 'M') {
 			nscan =
 			    sscanf(p, "M(%[^)])%n", a_spec->mdc_key, &nread);
-			if (nscan == 0) {
+			if (nscan != 1) {
 				nread = 0;
 				if (STRNCMP(p, ==, "M()", 3)) {
 					nread = 3;
@@ -693,6 +725,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 			break;
 		case 'F':
 			a_spec->gen_buf = zlog_spec_gen_srcfile;
+			break;
+		case 'f':
+			a_spec->gen_buf = zlog_spec_gen_srcfile_neat;
 			break;
 		case 'H':
 			a_spec->gen_buf = zlog_spec_gen_hostname;

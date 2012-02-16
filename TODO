@@ -45,7 +45,7 @@
 [ ] 兼容性问题
 [ ] zlog-input -c category -p priority -f conf
 [ ] zlog-gen-conf
-
+[ ] 增加!.*, 匹配未被匹配的分类
 
 ==========
 编写文章:
