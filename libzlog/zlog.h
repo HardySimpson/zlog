@@ -96,7 +96,7 @@ extern "C" {
  * @code
  * aa_.INFO             >stderr
  * aa_bb_.DEBUG         "/var/log/debug.log"
- * aa_bb_cc.ERROR       "/var/log/$c.log"
+ * aa_bb_cc.ERROR       "/var/log/%c.log"
  * @endcode
  *
  * But this category not match:
@@ -123,8 +123,8 @@ extern "C" {
 /**
  * @brief Put key-value into a map(one thread per map), can be show in log
  *
- * mdc is come from log4j, Mapped Diagnostic Context,
- * correspond to $M(key) in configure file
+ * mdc , Mapped Diagnostic Context,
+ * correspond to %M(key) in configure file
  */
 	int zlog_put_mdc(char *key, char *value);
 

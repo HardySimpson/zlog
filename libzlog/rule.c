@@ -369,9 +369,9 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	}
 	action = line + nread;
 
-	/* line         [f.INFO "$H/log/aa.log", 20MB; MyTemplate]
+	/* line         [f.INFO "%H/log/aa.log", 20MB; MyTemplate]
 	 * selector     [f.INFO]
-	 * action       ["$H/log/aa.log", 20MB; MyTemplate]
+	 * action       ["%H/log/aa.log", 20MB; MyTemplate]
 	 */
 
 	memset(category, 0x00, sizeof(category));
@@ -431,8 +431,8 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 		goto zlog_rule_new_exit;
 	}
 
-	/* action               ["$H/log/aa.log", 20MB ; MyTemplate]
-	 * output               ["$H/log/aa.log", 20MB ]
+	/* action               ["%H/log/aa.log", 20MB ; MyTemplate]
+	 * output               ["%H/log/aa.log", 20MB ]
 	 * format               [MyTemplate]
 	 */
 
@@ -476,8 +476,8 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 		goto zlog_rule_new_exit;
 	}
 
-	/* output               ["$(HOME)/log/aa.log" , 20MB ]  [>syslog , LOG_LOCAL0 ]
-	 * file_path            ["$(HOME)/log/aa.log" ]         [>syslog ]
+	/* output               ["%E(HOME)/log/aa.log" , 20MB ]  [>syslog , LOG_LOCAL0 ]
+	 * file_path            ["%E(HOME)/log/aa.log" ]         [>syslog ]
 	 * file_maxsize         [20MB]                          [LOG_LOCAL0]
 	 */
 
@@ -501,7 +501,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 		}
 		strncpy(a_rule->file_path, file_path + 1, len);
 
-		/* replace any environment variables like $E(HOME) */
+		/* replace any environment variables like %E(HOME) */
 		rc = zc_str_replace_env(a_rule->file_path,
 					sizeof(a_rule->file_path));
 		if (rc) {
@@ -510,8 +510,8 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 			goto zlog_rule_new_exit;
 		}
 
-		/* try to guess if the log file path is dynamic or static */
-		if (strchr(a_rule->file_path, '$') == NULL) {
+		/* try to figure out if the log file path is dynamic or static */
+		if (strchr(a_rule->file_path, '%') == NULL) {
 			if (a_rule->file_maxsize <= 0) {
 				a_rule->static_file_stream =
 				    fopen(a_rule->file_path, "a");

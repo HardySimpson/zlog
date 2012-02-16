@@ -225,12 +225,12 @@ static int zlog_spec_gen_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_gen_dollar(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
+static int zlog_spec_gen_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 				zlog_buf_t * a_buf)
 {
 	int rc;
 
-	rc = zlog_buf_append(a_buf, "$", 1);
+	rc = zlog_buf_append(a_buf, "%", 1);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -446,7 +446,7 @@ static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec,
 {
 	int rc = 0;
 
-	/* no need to reprint $1.2d here */
+	/* no need to reprint %1.2d here */
 	rc = a_spec->gen_buf(a_spec, a_thread, a_thread->msg_buf);
 	if (rc < 0) {
 		zc_error("a_spec->gen_buf fail");
@@ -474,7 +474,7 @@ static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec,
 	}
 
 	/** @todo use own alignment buf func here, for speed up */
-	/* now process $1.2 here */
+	/* now process %1.2 here */
 	rc = zlog_buf_printf(a_thread->msg_buf, a_spec->print_fmt,
 			     a_thread->pre_msg_buf->start);
 	if (rc < 0) {
@@ -501,7 +501,7 @@ static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec,
 {
 	int rc = 0;
 
-	/* no need to reprint $1.2d here */
+	/* no need to reprint %1.2d here */
 	rc = a_spec->gen_buf(a_spec, a_thread, a_thread->path_buf);
 	if (rc < 0) {
 		zc_error("a_spec->gen_buf fail");
@@ -529,7 +529,7 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec,
 	}
 
 	/** @todo use own alignment buf func here, for speed up */
-	/* now process $1.2 here */
+	/* now process %1.2 here */
 	rc = zlog_buf_printf(a_thread->path_buf, a_spec->print_fmt,
 			     a_thread->pre_path_buf->start);
 	if (rc < 0) {
@@ -614,7 +614,7 @@ static int zlog_spec_parse_time_fmt(zlog_spec_t * a_spec)
 
 /* a spec may consist of
  * a const string: /home/bb
- * a string begin with $: $12.35d(%F %X,%l)
+ * a string begin with %: %12.35d(%F %X,%l)
  */
 zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 {
@@ -635,10 +635,10 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 	a_spec->str = p = pattern_start;
 
 	switch (*p) {
-		/* a string begin with $: $12.35d(%F %X,%l) */
-	case '$':
-		/* process width and precision char in $-12.35P */
-		nscan = sscanf(p, "$%[.0-9-]%n", a_spec->print_fmt + 1, &nread);
+		/* a string begin with %: %12.35d(%F %X,%l) */
+	case '%':
+		/* process width and precision char in %-12.35P */
+		nscan = sscanf(p, "%%%[.0-9-]%n", a_spec->print_fmt + 1, &nread);
 		if (nscan == 1) {
 			a_spec->print_fmt[0] = '%';
 			a_spec->print_fmt[nread] = 's';
@@ -750,8 +750,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 		case 't':
 			a_spec->gen_buf = zlog_spec_gen_tid;
 			break;
-		case '$':
-			a_spec->gen_buf = zlog_spec_gen_dollar;
+		case '%':
+			a_spec->gen_buf = zlog_spec_gen_percent;
 			break;
 		default:
 			zc_error("str[%s] in wrong format, p[%c]", a_spec->str,
@@ -762,7 +762,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 		break;
 		/* a const string: /home/bb */
 	default:
-		*pattern_next = strchr(p, '$');
+		*pattern_next = strchr(p, '%');
 		if (*pattern_next) {
 			a_spec->len = *pattern_next - p;
 		} else {

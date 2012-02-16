@@ -33,7 +33,7 @@
  * a spec may consist of
  * 	a const string: "/home/bb"
  * or
- * 	a string begin with $: "$12.35d(%F %X,%l)"
+ * 	a string begin with %: "%12.35d(%F %X,%l)"
  */
 
 typedef struct zlog_spec_t zlog_spec_t;
