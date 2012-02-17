@@ -60,6 +60,7 @@ static int zlog_category_match_rules(zlog_category_t * a_cat,
 	int rc = 0;
 	int match = 0;
 	zlog_rule_t *a_rule;
+	zlog_rule_t *wastebin_rule = NULL;
 
 	if (a_cat->match_rules) {
 		/* before set, clean last match rules first */
@@ -83,10 +84,25 @@ static int zlog_category_match_rules(zlog_category_t * a_cat,
 			}
 			count++;
 		}
+
+		if (zlog_rule_is_wastebin(a_rule)) {
+			wastebin_rule = a_rule;
+		}
 	}
 
-	if (count == 0)
-		zc_debug("category[%s], no match rules", a_cat->name);
+	if (count == 0) {
+		if (wastebin_rule) {
+			zc_debug("category[%s], no match rules, use wastebin_rule", a_cat->name);
+			rc = zc_arraylist_add(a_cat->match_rules, wastebin_rule);
+			if (rc) {
+				zc_error("zc_arrylist_add fail");
+				goto zlog_category_match_rules_exit;
+			}
+			count++;
+		} else {
+			zc_debug("category[%s], no match rules & no wastebin_rule", a_cat->name);
+		}
+	}
 
       zlog_category_match_rules_exit:
 	if (rc) {

@@ -69,7 +69,7 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 
 	for (p = a_format->name; *p != '\0'; p++) {
 		if ((!isalnum(*p)) && (*p != '_')) {
-			zc_error("a_format->name[%s] is not alpha, digit or _",
+			zc_error("a_format->name[%s] character is not in [a-Z][0-9][_]",
 				 a_format->name);
 			rc = -1;
 			goto zlog_format_new_exit;

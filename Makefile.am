@@ -1,6 +1,6 @@
 SUBDIRS =		\
 	libzlog		\
-	zlog-chk-conf
+	tools
 
 if ENABLE_TEST
 SUBDIRS += test

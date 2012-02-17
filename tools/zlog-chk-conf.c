@@ -32,10 +32,9 @@ int main(int argc, char *argv[])
 	int op;
 	int quiet = 0;
 	static const char *help = 
-		"Useage: zlog_chk_conf [xlog configure files]...\n"
+		"Useage: zlog-chk-conf [conf files]...\n"
 		"\t-q,\tsuppress non-error message\n"
 		"\t-h,\tshow help message\n";
-
 
 	while((op = getopt(argc, argv, "qh")) > 0) {
 		if (op == 'h') {

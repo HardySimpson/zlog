@@ -27,6 +27,7 @@ missing
 stamp-h1
 tags
 zlog-chk-conf
+zlog-gen-conf
 *.o
 *.lo
 *.la

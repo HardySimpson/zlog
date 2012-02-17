@@ -110,8 +110,8 @@ high efficieny, on my laptop, record 720'000 log per second, about 200 times
 \end_layout
 
 \begin_layout Itemize
-save rotate log file by size when multiple process or multiple threads write
- to one same log file
+safely rotate log file by size when multiple process or multiple threads
+ write to one same log file
 \end_layout
 
 \begin_layout Itemize
@@ -128,8 +128,7 @@ self debugable, can output zlog's self debug&error log at runtime
 \end_layout
 
 \begin_layout Itemize
-low dependency, just depend on posix pthread library and fcntl(2), which
- are available on nearly all unix-like system
+Not depend on any other library
 \end_layout
 
 \begin_layout Chapter
@@ -386,7 +385,7 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-&simple                 "$m$n"
+&simple                 "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -427,7 +426,7 @@ Configure File Syntax
 \begin_layout Standard
 All actions of zlog library are dependent upon configure file: where to
  output the log, how log is rotate, the output format, etc...
- So let's see a configrue file.
+ Configure File is a special language tells how library work.
 \end_layout
 
 \begin_layout Section
@@ -445,9 +444,11 @@ Global setting begins with @.
 \end_layout
 
 \begin_layout Standard
-If ignore_error_format_rule is true, omit error syntax of formats and rules.
- Else zlog_init() will check sytnax of all formats and rules strictly, any
- error will cause zlog_init() failed and return -1.
+If ignore_error_format_rule is true, zlog_init() will omit error syntax
+ of formats and rules.
+ Else if ignore_error_format_rule is false, zlog_init() will check sytnax
+ of all formats and rules strictly, and any error will cause zlog_init()
+ failed and return -1.
  Default, ignore_error_format_rule is false.
 \end_layout
 
@@ -465,25 +466,10 @@ zlog allocates one log buffer in each thread.
  While loging, if log content size > buf_size, buffer will expand automaticly,
  till buf_size_max, and log conten is truncated.
  If buf_size_max is 0, means buf_size is unlimited, everytime buf_size =
- 2*buf_size, till process use up all it's memory.Size can append with unit
- KB, MB or GB, so 
-\begin_inset Quotes eld
-\end_inset
-
-@buf_size_min 1024
-\begin_inset Quotes erd
-\end_inset
-
- equals 
-\begin_inset Quotes eld
-\end_inset
-
-@buf_size_min 1KB
-\begin_inset Quotes erd
-\end_inset
-
-.
- Default, buf_size_min=1024, buf_size_max=0.
+ 2*buf_size, till process use up all it's memory.
+ Size can append with unit KB, MB or GB, so [@buf_size_min 1024] equals
+ [@buf_size_min 1KB].
+ Default, buf_size_min is 1K and buf_size_max is 2MB.
 \end_layout
 
 \begin_layout LyX-Code
@@ -491,13 +477,13 @@ zlog allocates one log buffer in each thread.
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_max           0
+@buf_size_max           2MB
 \end_layout
 
 \begin_layout Standard
 rotate_lock_file is a lock file for rotate a log safely between multi-process.
- zlog will create the file at zlog_init(), make sure your program has permission
- to create and read-write the file.
+ zlog will create the file at zlog_init().
+ Make sure your program has permission to create and read-write the file.
  If programs run by different users who need to write and rotater a same
  log file, make sure that each program has permission to create and read-write
  the same lock file.
@@ -577,7 +563,7 @@ And this is part of conf file:
 \end_layout
 
 \begin_layout LyX-Code
-&simple                 "$m$n"           
+&simple                 "%m%n"           
 \end_layout
 
 \begin_layout LyX-Code
@@ -712,7 +698,7 @@ The syntax of rule is:
 \end_layout
 
 \begin_layout LyX-Code
-[selector] = [category].[priority]
+[selector] = [category].[!=, optional][priority]
 \end_layout
 
 \begin_layout LyX-Code
@@ -1401,7 +1387,7 @@ Conversion pattern
 \begin_inset Quotes eld
 \end_inset
 
-$E(HOME)/log/out.log
+%E(HOME)/log/out.log
 \begin_inset Quotes erd
 \end_inset
 
@@ -1430,7 +1416,7 @@ reference "sec:Conversion-pattern"
 \begin_inset Quotes eld
 \end_inset
 
-$E(HOME)/log/out.log
+%E(HOME)/log/out.log
 \begin_inset Quotes erd
 \end_inset
 
@@ -1479,11 +1465,11 @@ So the oldest log has the biggest serial number.
 \end_layout
 
 \begin_layout LyX-Code
-&default "$d(%F %T) $P [$p:$F:$L] $m$n"
+&default "%d(%F %T) %P [%p:%F:%L] %m%n"
 \end_layout
 
 \begin_layout Standard
-every rule without format specified, would yield output:
+That cause each rule without format specified, would yield output like this:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1504,7 +1490,7 @@ default
 \end_layout
 
 \begin_layout LyX-Code
-&default "$m$n
+&default "%m%n
 \begin_inset Quotes erd
 \end_inset
 
@@ -1538,7 +1524,7 @@ The conversion pattern is closely related to the conversion pattern of the
 \end_layout
 
 \begin_layout Standard
-Conversion pattern is used both in filepath of rule, or pattern of format.
+Conversion pattern is used in both filepath of rule and pattern of format.
 \end_layout
 
 \begin_layout Standard
@@ -1546,10 +1532,10 @@ You are free to insert any literal text within the conversion pattern.
 \end_layout
 
 \begin_layout Standard
-Each conversion specifier starts with a dollar sign ($) and is followed
+Each conversion specifier starts with a percent sign (%) and is followed
  by optional format modifiers and a conversion character.
  The conversion character specifies the type of data, e.g.
- category, priority, date, thread name.
+ category, priority, date, thread id.
  The format modifiers control such things as field width, padding, left
  and right justification.
  The following is a simple example.
@@ -1560,7 +1546,7 @@ Let the conversion pattern be
 \end_layout
 
 \begin_layout LyX-Code
-"$d(%m-%d %T) $-5P [$p:$F:$L] $m$n".
+"%d(%m-%d %T) %-5P [%p:%F:%L] %m%n".
 \end_layout
 
 \begin_layout Standard
@@ -1583,15 +1569,23 @@ would yield the output
 Note that there is no explicit separator between text and conversion specifiers.
  The pattern parser knows when it has reached the end of a conversion specifier
  when it reads a conversion character.
- In the example above the conversion specifier $-5p means the priority of
+ In the example above the conversion specifier %-5p means the priority of
  the logging event should be left justified to a width of five characters.
- The recognized conversion characters are
+ 
+\end_layout
+
+\begin_layout Subsection
+Conversion Characters
+\end_layout
+
+\begin_layout Standard
+The recognized conversion characters are
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="16" columns="3">
-<features>
+<features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
 <column alignment="center" valignment="top" width="30text%">
@@ -1671,8 +1665,8 @@ d
 Used to output the date of the logging event.
  The date conversion specifier may be followed by a date format specifier
  enclosed between parenthesis.
- For example, $d(%F) or $d(%m-%d %T).
- If no date format specifier is given then $d(%F %T) format is assumed.
+ For example, %d(%F) or %d(%m-%d %T).
+ If no date format specifier is given then %d(%F %T) format is assumed.
  The date format specifier admits the same syntax as the strftime(3), but
  add %us and 
 \end_layout
@@ -1680,6 +1674,13 @@ Used to output the date of the logging event.
 \begin_layout Plain Layout
 %ms for millisecond and microsecond.
  see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Time-Character"
+
+\end_inset
+
+for more detail.
 \end_layout
 
 \end_inset
@@ -1688,19 +1689,19 @@ Used to output the date of the logging event.
 \begin_inset Text
 
 \begin_layout Plain Layout
-$d(%F) 2011-12-01
+%d(%F) 2011-12-01
 \end_layout
 
 \begin_layout Plain Layout
-$d(%m-%d %T) 12-01 17:17:42
+%d(%m-%d %T) 12-01 17:17:42
 \end_layout
 
 \begin_layout Plain Layout
-$d(%T.ms) 17:17:42.035
+%d(%T.ms) 17:17:42.035
 \end_layout
 
 \begin_layout Plain Layout
-$d 2012-02-14 17:03:12
+%d 2012-02-14 17:03:12
 \end_layout
 
 \end_inset
@@ -1729,7 +1730,7 @@ Used to output the environment variable, which is fixed at zlog_init()
 \begin_inset Text
 
 \begin_layout Plain Layout
-$E(HOME) /home/harry
+%E(HOME) /home/harry
 \end_layout
 
 \end_inset
@@ -1761,7 +1762,7 @@ Used to output the file name where the logging request was issued.
 \begin_inset Text
 
 \begin_layout Plain Layout
-/home/harry/test_hello.c
+test_hello.c
 \end_layout
 
 \end_inset
@@ -1904,7 +1905,14 @@ Used to output the MDC (mapped diagnostic context) associated with the thread
  that generated the logging event.
  The M conversion character must be followed by the key for the map placed
  between parenthesis, as in $M(clientNumber) where clientNumber is the key.
- The value in the MDC corresponding to the key will be output.
+ The value in the MDC corresponding to the key will be output.See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:MDC"
+
+\end_inset
+
+ for more detail.
 \end_layout
 
 \end_inset
@@ -1943,7 +1951,7 @@ n
 \begin_inset Quotes erd
 \end_inset
 
-, we do not support windows line separator now
+, we do not support windows line separator now.
 \end_layout
 
 \end_inset
@@ -1975,7 +1983,7 @@ p
 
 \begin_layout Plain Layout
 Used to output the id of the process that generated the logging event, which
- comes from getpid()
+ comes from getpid().
 \end_layout
 
 \end_inset
@@ -2034,7 +2042,7 @@ t
 
 \begin_layout Plain Layout
 Used to output the id of the process that generated the logging event, which
- comes from pthread_self()
+ comes from pthread_self().
 \end_layout
 
 \end_inset
@@ -2063,7 +2071,1214 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
+he sequence %% outputs a single percent sign.
+\end_layout
 
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%[other char]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+parse as a wrong syntax, will cause zlog_init() fail
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Format Modifier 
+\end_layout
+
+\begin_layout Standard
+By default the relevant information is output as is.
+ However, with the aid of format modifiers it is possible to change the
+ minimum field width, the maximum field width and justification.
+\end_layout
+
+\begin_layout Standard
+The optional format modifier is placed between the percent sign and the
+ conversion character.
+\end_layout
+
+\begin_layout Standard
+The first optional format modifier is the left justification flag which
+ is just the minus (-) character.
+ Then comes the optional minimum field width modifier.
+ This is a decimal constant that represents the minimum number of characters
+ to output.
+ If the data item requires fewer characters, it is padded on either the
+ left or the right until the minimum width is reached.
+ The default is to pad on the left (right justify) but you can specify right
+ padding with the left justification flag.
+ The padding character is space.
+ If the data item is larger than the minimum field width, the field is expanded
+ to accommodate the data.
+ The value is never truncated.
+\end_layout
+
+\begin_layout Standard
+This behavior can be changed using the maximum field width modifier which
+ is designated by a period followed by a decimal constant.
+ If the data item is longer than the maximum field, then the extra characters
+ are removed from the beginning of the data item and not from the end.
+ For example, it the maximum field width is eight and the data item is ten
+ characters long, then the first two characters of the data item are dropped.
+ This behavior deviates from the printf function in C where truncation is
+ done from the end.
+\end_layout
+
+\begin_layout Standard
+Below are various format modifier examples for the category conversion specifier.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="5">
+<features>
+<column alignment="center" valignment="top" width="15text%">
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="center" valignment="top" width="60text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Format modifier
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+left justify
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+minimum width
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+maximum width
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+comment
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%20c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+false
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Left pad with spaces if the category name is less than 20 characters long.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%-20c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+true
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Right pad with spaces if the category name is less than 20 characters long.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%.30c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Truncate from the beginning if the category name is longer than 30 characters.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%20.30c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+false
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Left pad with spaces if the category name is shorter than 20 characters.
+ However, if category name is longer than 30 characters, then truncate from
+ the beginning.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%-20.30c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+true
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Right pad with spaces if the category name is shorter than 20 characters.
+ However, if category name is longer than 30 characters, then truncate from
+ the beginning.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Time Character
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Time-Character"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here is the Time Character support by Conversion Character 
+\emph on
+d.
+
+\emph default
+ 
+\end_layout
+
+\begin_layout Standard
+There are 2 speical character support by zlog itself, which come from gettimeofd
+ay(2)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="3" columns="3">
+<features>
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="center" valignment="top" width="60text%">
+<column alignment="center" valignment="top" width="30text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Character
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Effect
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family roman
+\series medium
+\shape up
+\size normal
+\emph off
+\bar no
+\noun off
+\color none
+Example
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%ms
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The millisecond, 3-digit integer
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+013
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%us
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The microsecond, 6-digit integer
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+002323
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Most Character is supported by strftime(2) on system.
+ The Character support on my linux system are
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="43" columns="3">
+<features islongtable="true">
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="center" valignment="top" width="60text%">
+<column alignment="center" valignment="top" width="30text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Character
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Effect
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Example
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The abbreviated weekday name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wed
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The full weekday name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wednesday
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The abbreviated month name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mar
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The full month name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+March
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The preferred date and time representation for the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Thu Feb 16 14:16:35 2012
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The century number (year/100) as a 2-digit integer.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%d
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the month as a decimal number (range 01 to 31).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+06
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%D
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %m/%d/%y.
+ (Yecch — for Americans only.
+ Americans should note that in other countries %d/%m/%y is rather common.
+ This means that in international context this format is ambiguous and should
+ not be used.) (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02/16/12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%e
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like %d, the day of the month as a decimal number, but a leading zero is
+ replaced by a space.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%F
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %Y-%m-%d (the ISO 8601 date format).
+ (C99) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012-02-16
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%G
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The ISO 8601 week-based year (see NOTES) with century as a decimal number.
+ The 4-digit year corre‐ sponding to the ISO week number (see %V).
+ This has the same format and value as %Y, except that if the ISO week number
+ belongs to the previous or next year, that year is used instead.
+ (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%g
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like %G, but without century, that is, with a 2-digit year (00-99).
+ (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%h
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %b.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Feb
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%H
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour as a decimal number using a 24-hour clock (range 00 to 23).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%I
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour as a decimal number using a 12-hour clock (range 01 to 12).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%j
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the year as a decimal number (range 001 to 366).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+047
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%k
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour (24-hour clock) as a decimal number (range 0 to 23); single digits
+ are preceded by a blank.
+ (See also %H.) (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%l
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour (12-hour clock) as a decimal number (range 1 to 12); single digits
+ are preceded by a blank.
+ (See also %I.) (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%m
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The month as a decimal number (range 01 to 12).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%M
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The minute as a decimal number (range 00 to 59).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%n
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A newline character.
+ (SU) 
 \end_layout
 
 \end_inset
@@ -2073,6 +3288,617 @@ Used to output the id of the process that generated the logging event, which
 
 \begin_layout Plain Layout
 
+\backslash
+n
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%p
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Either "AM" or "PM" according to the given time value, or the corresponding
+ strings for the current locale.
+ Noon is treated as "PM" and midnight as "AM".
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PM
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like %p but in lowercase: "am" or "pm" or a corresponding string for the
+ current locale.
+ (GNU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pm
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%r
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time in a.m.
+ or p.m.
+ notation.
+ In the POSIX locale this is equivalent to %I:%M:%S %p.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+03:11:54 PM
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%R
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time in 24-hour notation (%H:%M).
+ (SU) For a version including the seconds, see %T below.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:11
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%s
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00
+ UTC.
+ (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1329376487
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%S
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The second as a decimal number (range 00 to 60).
+ (The range is up to 60 to allow for occasional leap seconds.)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+54
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A tab character.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%T
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time in 24-hour notation (%H:%M:%S).
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:14:47
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%u
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the week as a decimal, range 1 to 7, Monday being 1.
+ See also %w.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%U
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The week number of the current year as a decimal number, range 00 to 53,
+ starting with the first Sun‐ day as the first day of week 01.
+ See also %V and %W.
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+07
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%V
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The ISO 8601 week number (see NOTES) of the current year as a decimal number,
+ range 01 to 53, where week 1 is the first week that has at least 4 days
+ in the new year.
+ See also %U and %W.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+07
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%w
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the week as a decimal, range 0 to 6, Sunday being 0.
+ See also %u.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%W
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The week number of the current year as a decimal number, range 00 to 53,
+ starting with the first Mon‐ day as the first day of week 01.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+07
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%x
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The preferred date representation for the current locale without the time.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02/16/12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%X
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The preferred time representation for the current locale without the date.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:14:47
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%y
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The year as a decimal number without a century (range 00 to 99).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%Y
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The year as a decimal number including the century.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%z
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time-zone as hour offset from GMT.
+ Required to emit RFC 822-conformant dates (using "%a, %d %b %Y %H:%M:%S
+ %z").
+ (GNU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
++0800
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%Z
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The timezone or name or abbreviation.
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CST
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A literal '%' character.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%
 \end_layout
 
 \end_inset
@@ -2114,11 +3940,15 @@ Used to output the id of the process that generated the logging event, which
 
 \end_layout
 
-\begin_layout Subsection
-hex output
+\begin_layout Section
+Configure File Tools
 \end_layout
 
-\begin_layout Section
+\begin_layout Standard
+T
+\end_layout
+
+\begin_layout Chapter
 MDC
 \begin_inset CommandInset label
 LatexCommand label

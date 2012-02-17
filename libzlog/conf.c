@@ -273,7 +273,7 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 
 	/* set default configuration start */
 	a_conf->buf_size_min = 1024;
-	a_conf->buf_size_max = 0;
+	a_conf->buf_size_max = 2 * 1024 * 1024;
 	strcpy(a_conf->rotate_lock_file, "/tmp/zlog.lock");
 
 	a_format =

@@ -58,7 +58,7 @@ AC_CONFIG_FILES([
 zlog.pc
 Makefile
 libzlog/Makefile
-zlog-chk-conf/Makefile
+tools/Makefile
 test/Makefile
 ])
 

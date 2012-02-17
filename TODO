@@ -26,11 +26,13 @@
 [o] xlog要改名为zlog....
 [o] 取一次ZLOG_ERROR_LOG和ZLOG_DEBUG_LOG，避免多次getenv
 [o] zc_assert一般关闭，调试打开
+[o] 增加!.*, 匹配未被匹配的分类
 
 [p] 使用valgrind测试性能
 	[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 [p] 用某种自动编译器以及文档生成器
 	[ ] 增加man  age,  df, 案例, doxygen
+[ ] zlog-gen-conf
 [ ] 配置n个线程的内存，在一开始申请，减少开线程的时候的消耗
 [ ] 和rsyslog对接的问题
 [ ] 输出到管道
@@ -39,13 +41,11 @@
 [ ] 自动刷新配置....同上
 [ ] 测试多线程的效率
 [ ] 打印堆栈。。可能需要语言支持
-[ ] 增加获取当前使用文件名接口，供shell脚本用
 [ ] hzlog的可定制话
 [ ] 分类匹配的可定制化
 [ ] 兼容性问题
 [ ] zlog-input -c category -p priority -f conf
-[ ] zlog-gen-conf
-[ ] 增加!.*, 匹配未被匹配的分类
+[ ] ylog, 更简单的接口
 
 ==========
 编写文章:

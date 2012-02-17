@@ -392,8 +392,8 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 
 	/* check and set category */
 	for (p = category; *p != '\0'; p++) {
-		if ((!isalnum(*p)) && (*p != '_') && (*p != '*')) {
-			zc_error("category name[%s] is not alpha, digit or _",
+		if ((!isalnum(*p)) && (*p != '_') && (*p != '*') && (*p != '!')) {
+			zc_error("category name[%s] character is not in [a-Z][0-9][_!*]",
 				 category);
 			rc = -1;
 			goto zlog_rule_new_exit;
@@ -650,6 +650,18 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 	}
 
 	return a_rule->output(a_rule, a_thread);
+}
+
+/*******************************************************************************/
+int zlog_rule_is_wastebin(zlog_rule_t * a_rule)
+{
+	zc_assert_debug(a_rule, -1);
+	
+	if (STRCMP(a_rule->category, ==, "!")) {
+		return 1;
+	}
+
+	return 0;
 }
 
 /*******************************************************************************/
