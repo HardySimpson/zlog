@@ -78,7 +78,7 @@
 "# &default                \"%d(%F %T) %P [%p:%F:%L] %m%n\"\n"  \
 "# That cause each rule without format specified, would yield output like this:\n"   \
 "# 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog\n"   \
-"# Format name character must in [a-Z][0-9]\n"   \
+"# Format name character must be in [a-Z][0-9][_]\n"   \
 "\n"   \
 "########\n"   \
 "# Rule begins with nothing.\n"   \
@@ -86,9 +86,17 @@
 "# [selector][n tab or space][action]\n"   \
 "\n"   \
 "# *.*                     >stdout\n"   \
-"# [selector] = [category].[priority]\n"   \
+"# [selector] = [category].[!=, optional][priority]\n"   \
+"#     [category] should be\n"   \
+"#         *, matches all category\n"   \
+"#         !, matches category that has no rule matched yet\n"   \
+"#         normal category not end with '_', accurate match.\n"   \
+"#             eg. aa_bb matches zt = zlog_get_category(\"aa_bb\")\n"   \
+"#         super-category end with '_', match super-category and sub-categories\n"   \
+"#             eg. aa_ matches zt1 = zlog_get_category(\"aa\"), zt2 = zlog_get_category(\"aa_bb\"),\n"   \
+"#                             zt3 = zlog_get_category(\"aa_bb_cc\")...\n"   \
 "# [action] = [output], [file size limitation,optional]; [format name, optional]\n"   \
-"\n"   \
+"\n"
 
 #define CONF_STRING \
 "# @ignore_error_format_rule          false\n"  \
@@ -98,7 +106,8 @@
 "\n"  \
 "# &default                \"%d(%F %T) %P [%p:%F:%L] %m%n\"\n"  \
 "\n"  \
-"# *.*                     >stdout\n"
+"# *.*                     >stdout\n"  \
+"# !.*                     \"/var/log/zlog.nomatch.log\"\n" 
 
 int main(int argc, char *argv[])
 {
@@ -113,7 +122,7 @@ int main(int argc, char *argv[])
 	static const char *help = 
 		"Useage: zlog-gen-conf [conf filename]...\n"
 		"If no filename is specified, use zlog.conf as default\n"
-		"\t-c \tChinese comment\n"
+		"\t-c \tChinese comment(UTF-8, if envrionment is GBK, use iconv transform)\n"
 		"\t-e \tEnligsh comment\n"
 		"\t-h,\tshow help message\n";
 

@@ -274,12 +274,11 @@ static int zlog_spec_gen_priority(zlog_spec_t * a_spec,
 				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc;
-	char *priority_str;
+	zlog_priority_t *a_pri;
 
-	/* don't need to get tid again, as tmap_new_thread fetch it already */
-	priority_str = zlog_priority_itostr(a_thread->event->priority);
+	a_pri = zlog_priority_get(a_thread->event->priority);
 
-	rc = zlog_buf_append(a_buf, priority_str, strlen(priority_str));
+	rc = zlog_buf_append(a_buf, a_pri->str, a_pri->str_len);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -337,7 +336,7 @@ static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 		}
 
 		rc = zlog_buf_append(a_buf, zlog_hex_head,
-				     strlen(zlog_hex_head));
+				     sizeof(zlog_hex_head)-1);
 		if (rc) {
 			goto zlog_hex_exit;
 		}

@@ -17,71 +17,105 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+#include <ctype.h>
+
 #include "priority.h"
 #include "zc_defs.h"
 #include "syslog.h"
 
-static const char *const priorities[] = {
-	"UNKOWN",
-	"DEBUG",
-	"INFO",
-	"NOTICE",
-	"WARN",
-	"ERROR",
-	"FATAL",
+static zlog_priority_t zlog_env_priority[256] = {
+	[0] = {"*", sizeof("*")-1, LOG_INFO},
+	[20] = {"DEBUG", sizeof("DEBUG")-1, LOG_DEBUG},
+	[40] = {"INFO", sizeof("INFO")-1, LOG_INFO},
+	[60] = {"NOTICE", sizeof("NOTICE")-1, LOG_NOTICE},
+	[80] = {"WARN", sizeof("WARN")-1, LOG_WARNING},
+	[100] = {"ERROR", sizeof("ERROR")-1, LOG_ERR},
+	[120] = {"FATAL", sizeof("FATAL")-1, LOG_ALERT},
+	[254] = {"UNKOWN", sizeof("UNKOWN")-1, LOG_ERR},
+	[255] = {"0", sizeof("0")-1, LOG_INFO},
 };
 
-static size_t npriorities = sizeof(priorities) / sizeof(priorities[0]);
+static size_t npriorities = sizeof(zlog_env_priority) / sizeof(zlog_env_priority[0]);
 
-char *zlog_priority_itostr(int priority)
-{
-	if ((priority < 0) || (priority > 6))
-		priority = 0;
-
-	return (char *)priorities[priority];
-}
-
-int zlog_priority_strtoi(char *priority)
+int zlog_priority_atoi(char *str)
 {
 	int i;
 
-	if (!priority)
-		return 0;
+	if (str == NULL || *str == '\0') {
+		zc_error("str is [%s], can't find priority", str);
+		return -1;
+	}
 
 	for (i = 0; i < npriorities; i++) {
-		if (STRICMP(priority, ==, priorities[i]))
+		if (STRICMP(str, ==, (zlog_env_priority[i]).str)) {
 			return i;
+		}
+	}
+
+	zc_error("str[%s] can't found in priority map", str);
+	return -1;
+}
+
+zlog_priority_t *zlog_priority_get(int p)
+{
+	if ((p <= 0) || (p > 254)) {
+		/* illegal input from zlog() */
+		zc_error("p[%d] not in (0,254), set to UNKOWN", p);
+		p = 254;
+	}
+
+	if (((zlog_env_priority[p]).str)[0] == '\0') {
+		/* empty slot */
+		zc_error("p[%d] in (0,254), but not in map,"
+			"see configure file define, set ot UNKOWN", p);
+		p = 254;
+	}
+	return &(zlog_env_priority[p]);
+}
+
+int zlog_priority_set(char *str, int p, int sp)
+{
+	zlog_priority_t *a_pri;
+	int i;
+
+	zc_assert_debug(str, -1);
+
+	if ((p <= 0) || (p > 254)) {
+		zc_error("p[%d] not in (0,254), wrong", p);
+		return -1;
+	}
+
+	if (*str == '\0') {
+		zc_error("str[0] = 0");
+		return -1;
+	}
+
+	a_pri = &(zlog_env_priority[p]);
+	memset(a_pri->str, 0x00, sizeof(a_pri->str));
+
+	/* strcpy and toupper(str) to table */
+	for (i = 0; (i < sizeof(a_pri->str) - 1) && str[i] != '\0'; i++) {
+		(a_pri->str)[i] = toupper(str[i]);
+	}
+
+	if (str[i] != '\0') {
+		/* overflow */
+		zc_error("not enough space for str, str[%s] > %d", str, i);
+		memset(a_pri->str, 0x00, sizeof(a_pri->str));
+		return -1;
+	} else {
+		(a_pri->str)[i] = '\0';
+	}
+
+	a_pri->str_len = i;
+
+	if (sp == 0) {
+		a_pri->syslog_priority = LOG_DEBUG;
+	} else {
+		a_pri->syslog_priority = sp;
 	}
 
 	return 0;
 }
 
-int zlog_priority_to_syslog(int zlog_priority)
-{
-	switch (zlog_priority) {
-	case 0:
-		return LOG_INFO;
-		break;
-	case 1:
-		return LOG_DEBUG;
-		break;
-	case 2:
-		return LOG_INFO;
-		break;
-	case 3:
-		return LOG_NOTICE;
-		break;
-	case 4:
-		return LOG_WARNING;
-		break;
-	case 5:
-		return LOG_ERR;
-		break;
-	case 6:
-		return LOG_ALERT;
-		break;
-	default:
-		return LOG_INFO;
-		break;
-	}
-}

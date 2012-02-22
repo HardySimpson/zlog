@@ -45,8 +45,13 @@
 [ ] 分类匹配的可定制化
 [ ] 兼容性问题
 [ ] zlog-input -c category -p priority -f conf
+[ ] zlog-chk-conf -c
 [ ] ylog, 更简单的接口
-
+[ ] priority自定义, 控制范围
+[ ] priority->level
+[ ] 文件的权限设置
+[ ] rotate控制个数
+[ ] rule syslog open
 ==========
 编写文章:
 

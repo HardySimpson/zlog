@@ -153,7 +153,7 @@ extern "C" {
  * @param a_cat the output category pointer, shall not be NULL.
  * @param file C source file name, is always fill with __FILE__ macro.
  * @param line C source file name, is always fill with __LINE__ macro.
- * @param priority one priority from zlog_priority, if <1 or >6,
+ * @param priority one priority from zlog_priority, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN.
  * @param format C printf style format, if use a wrong format like "%l",
     nothing will be output, and record a log in ZLOG_ERROR_LOG.
@@ -170,7 +170,7 @@ extern "C" {
  * @param a_cat the output category pointer, shall not be NULL.
  * @param file C source file name, is always fill with __FILE__ macro.
  * @param line C source file name, is always fill with __LINE__ macro.
- * @param priority one priority from zlog_priority, if <1 or >6,
+ * @param priority one priority from zlog_priority, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN.
  * @param format C printf style format, if use a wrong format like "%l",
     nothing will be output, and record a log in ZLOG_ERROR_LOG.
@@ -195,7 +195,7 @@ extern "C" {
  * @param a_cat the output category pointer, shall not be NULL
  * @param file C source file name, is always fill with __FILE__ macro
  * @param line C source file name, is always fill with __LINE__ macro
- * @param priority one priority from zlog_priority, if <1 or >6,
+ * @param priority one priority from zlog_priority, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN
  * @param buf the buf start pointer
  * @param buf_len buf's length
@@ -203,14 +203,15 @@ extern "C" {
 	void hzlog(zlog_category_t * a_cat, char *file, long line, int priority,
 		   char *buf, unsigned long buf_len);
 
+/******* useful macros, can be redefined at user's .h file **********/
+
 	typedef enum {
-		ZLOG_UNKOWN = 0,/**< when priority < 1 or > 6 */
-		ZLOG_DEBUG = 1,	/**< debug-level message */
-		ZLOG_INFO = 2,	/**< informational message */
-		ZLOG_NOTICE = 3,/**< normal, but significant, condition */
-		ZLOG_WARN = 4,	/**< warning conditions, maybe application logic problem */
-		ZLOG_ERROR = 5,	/**< error conditions, maybe application fail */
-		ZLOG_FATAL = 6,	/**< system is unusable */
+		ZLOG_DEBUG = 20,	/**< debug-level message */
+		ZLOG_INFO = 40,	        /**< informational message */
+		ZLOG_NOTICE = 60,       /**< normal, but significant, condition */
+		ZLOG_WARN = 80,	        /**< warning conditions, maybe application logic problem */
+		ZLOG_ERROR = 100,	/**< error conditions, maybe application fail */
+		ZLOG_FATAL = 120,	/**< system is unusable */
 	} zlog_priority;
 
 #define ZLOG_FATAL(cat, format, args...) \

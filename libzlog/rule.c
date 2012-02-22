@@ -248,7 +248,8 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	syslog(zlog_priority_to_syslog(a_thread->event->priority), "%s", msg);
+	syslog((zlog_priority_get(a_thread->event->priority))->syslog_priority ,
+		"%s", msg);
 	return 0;
 }
 
@@ -305,9 +306,12 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 }
 
 /*******************************************************************************/
-static int syslog_facility_strtoi(char *facility)
+static int syslog_facility_atoi(char *facility)
 {
-	zc_assert_debug(facility, LOG_USER);
+	/* guess no unix system will choose -187
+	 * as its syslog facility, so it is a safe return value
+	 */
+	zc_assert_debug(facility, -187);
 
 	if (STRICMP(facility, ==, "LOG_LOCAL0"))
 		return LOG_LOCAL0;
@@ -325,8 +329,11 @@ static int syslog_facility_strtoi(char *facility)
 		return LOG_LOCAL6;
 	if (STRICMP(facility, ==, "LOG_LOCAL7"))
 		return LOG_LOCAL7;
+	if (STRICMP(facility, ==, "LOG_USER"))
+		return LOG_USER;
 
-	return LOG_USER;
+	zc_error("wrong syslog facility, must in LOG_LOCAL[0-7] or LOG_USER");
+	return -187;
 }
 
 zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
@@ -404,23 +411,18 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	strcpy(a_rule->category, category);
 
 	/* check and set priority */
-	switch (priority[1]) {
+	switch (priority[0]) {
 	case '=':
 	case '!':
-		a_rule->compare_char = priority[1];
-		p = priority + 2;
-		a_rule->priority = zlog_priority_strtoi(p);
-		break;
-	case '*':
-		a_rule->compare_char = priority[1];
-		a_rule->priority = 0;
+		a_rule->compare_char = priority[0];
+		p = priority + 1;
 		break;
 	default:
 		a_rule->compare_char = '.';
 		p = priority;
-		a_rule->priority = zlog_priority_strtoi(p);
 		break;
 	}
+	a_rule->priority = zlog_priority_atoi(p);
 
 	memset(output, 0x00, sizeof(output));
 	memset(format_name, 0x00, sizeof(format_name));
@@ -478,7 +480,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 
 	/* output               ["%E(HOME)/log/aa.log" , 20MB ]  [>syslog , LOG_LOCAL0 ]
 	 * file_path            ["%E(HOME)/log/aa.log" ]         [>syslog ]
-	 * file_maxsize         [20MB]                          [LOG_LOCAL0]
+	 * file_maxsize         [20MB]                           [LOG_LOCAL0]
 	 */
 
 	switch (file_path[0]) {
@@ -570,7 +572,12 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	case '>':
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility =
-			    syslog_facility_strtoi(file_maxsize);
+			    syslog_facility_atoi(file_maxsize);
+			if (a_rule->syslog_facility == -187) {
+				zc_error("-187 get");
+				rc = -1;
+				goto zlog_rule_new_exit;
+			}
 			a_rule->output = zlog_rule_output_syslog;
 			openlog(NULL, LOG_NDELAY | LOG_NOWAIT | LOG_PID,
 				a_rule->syslog_facility);
@@ -582,6 +589,8 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 			zc_error
 			    ("[%s]the string after is not syslog, stdout or stderr",
 			     output);
+			rc = -1;
+			goto zlog_rule_new_exit;
 		}
 		break;
 	default:

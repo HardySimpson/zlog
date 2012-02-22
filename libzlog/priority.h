@@ -25,10 +25,26 @@
  * @brief change priority between string, int or syslog int
  */
 
-char *zlog_priority_itostr(int priority);
+#include "zc_defs.h"
 
-int zlog_priority_strtoi(char *priority);
+typedef struct {
+	char str[PATH_MAX];
+	size_t str_len;
+	int syslog_priority;
+} zlog_priority_t;
 
-int zlog_priority_to_syslog(int zlog_priority);
+/* rule init use, slow */
+/* if not found, return -1 */
+int zlog_priority_atoi(char *str);
+
+/* spec ouput use, fast */
+/* rule output use, fast */
+/* if not found, return zlog_env_priority[254] */
+zlog_priority_t *zlog_priority_get(int p);
+
+/* conf int use, slow */
+/* if p is wrong or str=="", return -1 */
+int zlog_priority_set(char *str, int p, int sp);
+
 
 #endif

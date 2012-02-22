@@ -101,12 +101,17 @@ multiple output, include static file path, dynamic file path, stdout, stderr,
 \end_layout
 
 \begin_layout Itemize
-runtime change output flow or output format, just need to call one function
+runtime refreash configure to change output flow or output format, just
+ need to call one function
 \end_layout
 
 \begin_layout Itemize
 high efficieny, on my laptop, record 720'000 log per second, about 200 times
  faster than syslog(3) with rsyslogd
+\end_layout
+
+\begin_layout Itemize
+user can define his own log priority
 \end_layout
 
 \begin_layout Itemize
@@ -657,6 +662,8 @@ my_ca.debug >stdout; simple
 
 , nothing will be output to screen.
  Loose coupling are both fallible and flexible.
+ Still, zlog has a feature to make up this problem, see .
+ 
 \end_layout
 
 \begin_layout Standard
@@ -723,8 +730,8 @@ Priority matching
 \end_layout
 
 \begin_layout Standard
-There are six priority in zlog, "DEBUG", "INFO", "NOTICE", "WARN", "ERROR"
- and "FATAL".
+There are six default priority in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
+ "ERROR" and "FATAL".
  As all other log library, aa.DEBUG means all log of priority that is greater
  than or equals to DEBUG will be output.
  Still, there are more expression.
@@ -889,6 +896,10 @@ In zlog, all rules are independent.
 \end_layout
 
 \begin_layout LyX-Code
+#rule 1
+\end_layout
+
+\begin_layout LyX-Code
 aa_bb.DEBUG         
 \begin_inset Quotes eld
 \end_inset
@@ -898,6 +909,14 @@ aa_bb.DEBUG
 \end_inset
 
 
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+#rule 2
 \end_layout
 
 \begin_layout LyX-Code
@@ -913,6 +932,14 @@ aa_cc.INFO
 \end_layout
 
 \begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+#rule 3
+\end_layout
+
+\begin_layout LyX-Code
 aa_.ERROR           
 \begin_inset Quotes eld
 \end_inset
@@ -922,6 +949,14 @@ aa_.ERROR
 \end_inset
 
 
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+#rule 4
 \end_layout
 
 \begin_layout LyX-Code
@@ -937,7 +972,7 @@ aa.*
 \end_layout
 
 \begin_layout Standard
-There is no heirship here, just 3 sperate rules.
+There is no heirship here, just 4 sperate rules.
  
 \end_layout
 
@@ -1019,12 +1054,80 @@ aa
 \end_inset
 
 .
- So, Let's conclude with a table here.
+\end_layout
+
+\begin_layout Standard
+The compensation for category mismatching is the '!' character, that matches
+ category that doesn't has rules.
+ For example, when 
+\emph on
+zlog_get_category(
+\begin_inset Quotes eld
+\end_inset
+
+xx
+\begin_inset Quotes erd
+\end_inset
+
+) 
+\emph default
+goes through all rules, and find there is no rule matches 
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+xx
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph default
+, and there is a rule's category string is 
+\begin_inset Quotes eld
+\end_inset
+
+!
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Then it matches category 
+\emph on
+
+\begin_inset Quotes eld
+\end_inset
+
+xx
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\emph default
+and output it's log to a special file.
+ Then user can find his mistake at runtime.
+ The rule maybe write like this
+\end_layout
+
+\begin_layout LyX-Code
+!.*                
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/zlog.mismatch.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let's conclude with a table here.
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="4" columns="4">
+<lyxtabular version="3" rows="5" columns="4">
 <features>
 <column alignment="center" valignment="top" width="30text%">
 <column alignment="center" valignment="top" width="20col%">
@@ -1145,7 +1248,7 @@ xx, yy
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1154,7 +1257,7 @@ string not end with underline accurately matches category
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1163,7 +1266,7 @@ aa.*
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1172,11 +1275,49 @@ aa
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+! matches category that has no rule matched
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+!.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+xx
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa(as it matches rules above)
 \end_layout
 
 \end_inset

@@ -13,6 +13,7 @@ configure
 depcomp
 doc/*
 !doc/*.lyx
+!doc/*.conf
 .deps
 *.gcda
 *.gcno
