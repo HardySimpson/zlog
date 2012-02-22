@@ -1,7 +1,7 @@
 # use autotools and xlc on aix never success, so use this for test
 
 
-all_o = zlog.o event.o conf.o format.o rule.o priority.o buf.o \
+all_o = zlog.o event.o conf.o format.o rule.o level.o buf.o \
 	sd_rotate.o sd_error.o sd_list.o sd_xplatform.o sd_util.o
 
 all	:	libzlog.so

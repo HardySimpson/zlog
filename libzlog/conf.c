@@ -52,7 +52,7 @@ static int syslog_level_atoi(char *str)
 		return LOG_CRIT;
 
 
-	zc_error("wrong syslog priority, must in LOG_LOCAL[0-7] or LOG_USER");
+	zc_error("wrong syslog level, must in LOG_LOCAL[0-7] or LOG_USER");
 	return -187;
 }
 #endif
@@ -108,14 +108,14 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 			}
 			strcpy(a_conf->rotate_lock_file, value);
 			zc_debug("lock_file=[%s]", a_conf->rotate_lock_file);
-		} else if (STRCMP(name, ==, "priority")) {
+		} else if (STRCMP(name, ==, "level")) {
 			char str[MAXLEN_CFG_LINE + 1];
 			int p;
 			char sp[MAXLEN_CFG_LINE + 1];
-			nread = sscanf(line + sizeof("priority"), " %[^= ] = %d ,%s",
+			nread = sscanf(line + sizeof("level"), " %[^= ] = %d ,%s",
 				str, &p, sp);
 			if (nread < 2) {
-				zc_error("priority[%s] syntax wrong", line);
+				zc_error("level[%s] syntax wrong", line);
 				return -1;
 			}
 		} else {

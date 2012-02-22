@@ -13,8 +13,8 @@ libzlog_la_SOURCES =	\
 	format.h	\
 	mdc.c		\
 	mdc.h		\
-	priority.c	\
-	priority.h	\
+	level.c	\
+	level.h	\
 	thread.c	\
 	thread.h	\
 	rotater.c	\

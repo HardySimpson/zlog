@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 #include "spec.h"
-#include "priority.h"
+#include "level.h"
 #include "zc_defs.h"
 
 #define ZLOG_DEFAULT_TIME_FMT "%F %T"
@@ -270,13 +270,13 @@ static int zlog_spec_gen_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_gen_priority(zlog_spec_t * a_spec,
+static int zlog_spec_gen_level(zlog_spec_t * a_spec,
 				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc;
-	zlog_priority_t *a_pri;
+	zlog_level_t *a_pri;
 
-	a_pri = zlog_priority_get(a_thread->event->priority);
+	a_pri = zlog_level_get(a_thread->event->level);
 
 	rc = zlog_buf_append(a_buf, a_pri->str, a_pri->str_len);
 	if (rc) {
@@ -744,7 +744,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 			a_spec->gen_buf = zlog_spec_gen_pid;
 			break;
 		case 'P':
-			a_spec->gen_buf = zlog_spec_gen_priority;
+			a_spec->gen_buf = zlog_spec_gen_level;
 			break;
 		case 't':
 			a_spec->gen_buf = zlog_spec_gen_tid;

@@ -17,12 +17,12 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __zlog_priority_h
-#define __zlog_priority_h
+#ifndef __zlog_level_h
+#define __zlog_level_h
 
 /**
- * @file priority.h
- * @brief change priority between string, int or syslog int
+ * @file level.h
+ * @brief change level between string, int or syslog int
  */
 
 #include "zc_defs.h"
@@ -30,21 +30,21 @@
 typedef struct {
 	char str[PATH_MAX];
 	size_t str_len;
-	int syslog_priority;
-} zlog_priority_t;
+	int syslog_level;
+} zlog_level_t;
 
 /* rule init use, slow */
 /* if not found, return -1 */
-int zlog_priority_atoi(char *str);
+int zlog_level_atoi(char *str);
 
 /* spec ouput use, fast */
 /* rule output use, fast */
-/* if not found, return zlog_env_priority[254] */
-zlog_priority_t *zlog_priority_get(int p);
+/* if not found, return zlog_env_level[254] */
+zlog_level_t *zlog_level_get(int p);
 
 /* conf int use, slow */
 /* if p is wrong or str=="", return -1 */
-int zlog_priority_set(char *str, int p, int sp);
+int zlog_level_set(char *str, int p, int sp);
 
 
 #endif

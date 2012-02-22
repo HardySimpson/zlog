@@ -442,7 +442,7 @@ void zlog_clean_mdc(void)
 /*******************************************************************************/
 
 static int zlog_output(zlog_category_t * a_cat, char *file, long line,
-		       int priority, char *hex_buf, long hex_buf_len,
+		       int level, char *hex_buf, long hex_buf_len,
 		       char *str_format, va_list str_args, int generate_cmd)
 {
 	int rc = 0;
@@ -501,7 +501,7 @@ static int zlog_output(zlog_category_t * a_cat, char *file, long line,
 
 	zlog_event_refresh(a_thread->event,
 			   a_cat->name, &(a_cat->name_len),
-			   file, line, priority,
+			   file, line, level,
 			   hex_buf, hex_buf_len, str_format, str_args,
 			   generate_cmd);
 
@@ -523,33 +523,33 @@ static int zlog_output(zlog_category_t * a_cat, char *file, long line,
 }
 
 /*******************************************************************************/
-void zlog(zlog_category_t * a_cat, char *file, long line, int priority,
+void zlog(zlog_category_t * a_cat, char *file, long line, int level,
 	  char *format, ...)
 {
 	zc_assert_runtime(a_cat, );
 
 	va_list args;
 	va_start(args, format);
-	zlog_output(a_cat, file, line, priority, NULL, 0, format, args,
+	zlog_output(a_cat, file, line, level, NULL, 0, format, args,
 		    ZLOG_FMT);
 	va_end(args);
 }
 
-void vzlog(zlog_category_t * a_cat, char *file, long line, int priority,
+void vzlog(zlog_category_t * a_cat, char *file, long line, int level,
 	   char *format, va_list args)
 {
 	zc_assert_runtime(a_cat, );
 
-	zlog_output(a_cat, file, line, priority, NULL, 0, format, args,
+	zlog_output(a_cat, file, line, level, NULL, 0, format, args,
 		    ZLOG_FMT);
 }
 
-void hzlog(zlog_category_t * a_cat, char *file, long line, int priority,
+void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
 	   char *buf, unsigned long buf_len)
 {
 	zc_assert_runtime(a_cat, );
 
-	zlog_output(a_cat, file, line, priority, buf, buf_len, NULL, 0,
+	zlog_output(a_cat, file, line, level, buf, buf_len, NULL, 0,
 		    ZLOG_HEX);
 }
 

@@ -53,7 +53,7 @@ typedef struct {
 
 	char *file;			/**< source file name */
 	long line;			/**< source file line */
-	int priority;			/**< priority of the log this time */
+	int level;			/**< level of the log this time */
 
 	char *hex_buf;			/**< if use hzlog(), point to user's hex_buf */
 	long hex_buf_len;		/**< strlen(hex_buf) */
@@ -77,7 +77,7 @@ void zlog_event_del(zlog_event_t * a_event);
 
 void zlog_event_refresh(zlog_event_t * a_event,
 			char *category_name, size_t * category_name_len,
-			char *file, long line, int priority,
+			char *file, long line, int level,
 			char *hex_buf, long hex_buf_len, char *str_format,
 			va_list str_args, int generate_cmd);
 

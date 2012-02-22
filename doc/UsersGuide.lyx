@@ -111,7 +111,7 @@ high efficieny, on my laptop, record 720'000 log per second, about 200 times
 \end_layout
 
 \begin_layout Itemize
-user can define his own log priority
+user can define his own log level
 \end_layout
 
 \begin_layout Itemize
@@ -588,7 +588,7 @@ my_cat.DEBUG             >stdout; simple
 \end_layout
 
 \begin_layout LyX-Code
-# rule, all my_cat's log and priority bigger than debug
+# rule, all my_cat's log and level bigger than debug
 \end_layout
 
 \begin_layout LyX-Code
@@ -662,7 +662,14 @@ my_ca.debug >stdout; simple
 
 , nothing will be output to screen.
  Loose coupling are both fallible and flexible.
- Still, zlog has a feature to make up this problem, see .
+ Still, zlog has a feature to make up this problem, see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "category-mismatch"
+
+\end_inset
+
+.
  
 \end_layout
 
@@ -705,7 +712,7 @@ The syntax of rule is:
 \end_layout
 
 \begin_layout LyX-Code
-[selector] = [category].[!=, optional][priority]
+[selector] = [category].[!=, optional][level]
 \end_layout
 
 \begin_layout LyX-Code
@@ -717,22 +724,22 @@ Select Input
 \end_layout
 
 \begin_layout Standard
-Whether or not a log will be output, depend on category and priority in
- c source file match category and priority in rule or not.
+Whether or not a log will be output, depend on category and level in c source
+ file match category and level in rule or not.
 \end_layout
 
 \begin_layout LyX-Code
-[selector] = [category].[priority]
+[selector] = [category].[level]
 \end_layout
 
 \begin_layout Subsection
-Priority matching
+Level Matching
 \end_layout
 
 \begin_layout Standard
-There are six default priority in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
+There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
  "ERROR" and "FATAL".
- As all other log library, aa.DEBUG means all log of priority that is greater
+ As all other log library, aa.DEBUG means all log of level that is greater
  than or equals to DEBUG will be output.
  Still, there are more expression.
 \end_layout
@@ -777,7 +784,7 @@ meaning
 \begin_inset Text
 
 \begin_layout Plain Layout
-all [source priority]
+all [source level]
 \end_layout
 
 \end_inset
@@ -797,7 +804,7 @@ aa.DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source priority]>=DEBUG
+[source level]>=DEBUG
 \end_layout
 
 \end_inset
@@ -817,7 +824,7 @@ aa.=DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source priority]==DEBUG
+[source level]==DEBUG
 \end_layout
 
 \end_inset
@@ -837,7 +844,7 @@ aa.!DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source priority]!=DEBUG
+[source level]!=DEBUG
 \end_layout
 
 \end_inset
@@ -851,7 +858,7 @@ aa.!DEBUG
 \end_layout
 
 \begin_layout Subsection
-Category matching
+Category Matching
 \end_layout
 
 \begin_layout Standard
@@ -880,10 +887,10 @@ log4j.logger.aa.cc=INFO
 
 \begin_layout Standard
 aa is a father logger.
- aa.bb and aa.cc is the child of aa, aa.bb inherits aa's priority and appender,
+ aa.bb and aa.cc is the child of aa, aa.bb inherits aa's level and appender,
  which are DEBUG and A1.
- aa.cc inherits and overwrite aa's priority.
- So aa.cc has the priority of INFO and appender of A1.
+ aa.cc inherits and overwrite aa's level.
+ So aa.cc has the level of INFO and appender of A1.
  Then, what will happen if I want all aa's log output to a special file
  (and keep output of aa.bb and aa.cc not changed)? It is complicate to give
  expression here.
@@ -1057,8 +1064,14 @@ aa
 \end_layout
 
 \begin_layout Standard
-The compensation for category mismatching is the '!' character, that matches
- category that doesn't has rules.
+The compensation for category mismatching
+\begin_inset CommandInset label
+LatexCommand label
+name "category-mismatch"
+
+\end_inset
+
+ is the '!' character, that matches category that doesn't has rules.
  For example, when 
 \emph on
 zlog_get_category(
@@ -1676,7 +1689,7 @@ You are free to insert any literal text within the conversion pattern.
 Each conversion specifier starts with a percent sign (%) and is followed
  by optional format modifiers and a conversion character.
  The conversion character specifies the type of data, e.g.
- category, priority, date, thread id.
+ category, level, date, thread id.
  The format modifiers control such things as field width, padding, left
  and right justification.
  The following is a simple example.
@@ -1710,8 +1723,8 @@ would yield the output
 Note that there is no explicit separator between text and conversion specifiers.
  The pattern parser knows when it has reached the end of a conversion specifier
  when it reads a conversion character.
- In the example above the conversion specifier %-5p means the priority of
- the logging event should be left justified to a width of five characters.
+ In the example above the conversion specifier %-5p means the level of the
+ logging event should be left justified to a width of five characters.
  
 \end_layout
 
@@ -2153,7 +2166,7 @@ P
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the priority of the logging event.
+Used to output the level of the logging event.
 \end_layout
 
 \end_inset
@@ -4106,6 +4119,10 @@ zlog tools
 
 \begin_layout Section
 Debug zlog Itself
+\end_layout
+
+\begin_layout Standard
+Redefine Log Level
 \end_layout
 
 \begin_layout Standard

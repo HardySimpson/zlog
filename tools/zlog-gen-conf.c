@@ -86,7 +86,7 @@
 "# [selector][n tab or space][action]\n"   \
 "\n"   \
 "# *.*                     >stdout\n"   \
-"# [selector] = [category].[!=, optional][priority]\n"   \
+"# [selector] = [category].[!=, optional][level]\n"   \
 "#     [category] should be\n"   \
 "#         *, matches all category\n"   \
 "#         !, matches category that has no rule matched yet\n"   \

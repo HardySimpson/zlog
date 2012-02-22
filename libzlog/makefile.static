@@ -1,4 +1,4 @@
-all_o = zlog.o category.o rule.o format.o event.o conf.o priority.o buf.o rotater.o spec.o process.o \
+all_o = zlog.o category.o rule.o format.o event.o conf.o level.o buf.o rotater.o spec.o process.o \
 	zc_hashtable.o zc_error.o zc_arraylist.o zc_xplatform.o zc_util.o \
 
 all	:	libzlog.a zlog_chk_conf

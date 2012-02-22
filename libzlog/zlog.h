@@ -153,13 +153,13 @@ extern "C" {
  * @param a_cat the output category pointer, shall not be NULL.
  * @param file C source file name, is always fill with __FILE__ macro.
  * @param line C source file name, is always fill with __LINE__ macro.
- * @param priority one priority from zlog_priority, if <=0 or >=255,
+ * @param level one level from zlog_level, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN.
  * @param format C printf style format, if use a wrong format like "%l",
     nothing will be output, and record a log in ZLOG_ERROR_LOG.
  * @see vzlog(), hzlog()
  */
-	void zlog(zlog_category_t * a_cat, char *file, long line, int priority,
+	void zlog(zlog_category_t * a_cat, char *file, long line, int level,
 		  char *format, ...);
 
 /**
@@ -170,13 +170,13 @@ extern "C" {
  * @param a_cat the output category pointer, shall not be NULL.
  * @param file C source file name, is always fill with __FILE__ macro.
  * @param line C source file name, is always fill with __LINE__ macro.
- * @param priority one priority from zlog_priority, if <=0 or >=255,
+ * @param level one level from zlog_level, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN.
  * @param format C printf style format, if use a wrong format like "%l",
     nothing will be output, and record a log in ZLOG_ERROR_LOG.
  * @param args a va_list, will be va_copy() inner.
  */
-	void vzlog(zlog_category_t * a_cat, char *file, long line, int priority,
+	void vzlog(zlog_category_t * a_cat, char *file, long line, int level,
 		   char *format, va_list args);
 
 /**
@@ -195,12 +195,12 @@ extern "C" {
  * @param a_cat the output category pointer, shall not be NULL
  * @param file C source file name, is always fill with __FILE__ macro
  * @param line C source file name, is always fill with __LINE__ macro
- * @param priority one priority from zlog_priority, if <=0 or >=255,
+ * @param level one level from zlog_level, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN
  * @param buf the buf start pointer
  * @param buf_len buf's length
  */
-	void hzlog(zlog_category_t * a_cat, char *file, long line, int priority,
+	void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
 		   char *buf, unsigned long buf_len);
 
 /******* useful macros, can be redefined at user's .h file **********/
@@ -212,7 +212,7 @@ extern "C" {
 		ZLOG_WARN = 80,	        /**< warning conditions, maybe application logic problem */
 		ZLOG_ERROR = 100,	/**< error conditions, maybe application fail */
 		ZLOG_FATAL = 120,	/**< system is unusable */
-	} zlog_priority;
+	} zlog_level;
 
 #define ZLOG_FATAL(cat, format, args...) \
 	zlog(cat, __FILE__, __LINE__, ZLOG_FATAL, format, ##args)

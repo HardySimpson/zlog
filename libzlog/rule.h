@@ -19,7 +19,7 @@
 
 /**
  * @file rule.h
- * @brief rule decide to output in format by category & priority
+ * @brief rule decide to output in format by category & level
  */
 
 #ifndef __zlog_rule_h
@@ -36,12 +36,12 @@ typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule,
 struct zlog_rule_t {
 	char category[MAXLEN_CFG_LINE + 1];
 	char compare_char;
-	/* [*] log any priority 
-	 * [.] log priority >= rule priority, default
-	 * [=] log priority == rule priority 
-	 * [!] log priority != rule priority
+	/* [*] log any level 
+	 * [.] log level >= rule level, default
+	 * [=] log level == rule level 
+	 * [!] log level != rule level
 	 */
-	int priority;
+	int level;
 
 	char file_path[MAXLEN_PATH + 1];
 	FILE *static_file_stream;

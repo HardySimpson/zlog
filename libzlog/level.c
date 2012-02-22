@@ -20,11 +20,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "priority.h"
+#include "level.h"
 #include "zc_defs.h"
 #include "syslog.h"
 
-static zlog_priority_t zlog_env_priority[256] = {
+static zlog_level_t zlog_env_level[256] = {
 	[0] = {"*", sizeof("*")-1, LOG_INFO},
 	[20] = {"DEBUG", sizeof("DEBUG")-1, LOG_DEBUG},
 	[40] = {"INFO", sizeof("INFO")-1, LOG_INFO},
@@ -36,28 +36,28 @@ static zlog_priority_t zlog_env_priority[256] = {
 	[255] = {"0", sizeof("0")-1, LOG_INFO},
 };
 
-static size_t npriorities = sizeof(zlog_env_priority) / sizeof(zlog_env_priority[0]);
+static size_t npriorities = sizeof(zlog_env_level) / sizeof(zlog_env_level[0]);
 
-int zlog_priority_atoi(char *str)
+int zlog_level_atoi(char *str)
 {
 	int i;
 
 	if (str == NULL || *str == '\0') {
-		zc_error("str is [%s], can't find priority", str);
+		zc_error("str is [%s], can't find level", str);
 		return -1;
 	}
 
 	for (i = 0; i < npriorities; i++) {
-		if (STRICMP(str, ==, (zlog_env_priority[i]).str)) {
+		if (STRICMP(str, ==, (zlog_env_level[i]).str)) {
 			return i;
 		}
 	}
 
-	zc_error("str[%s] can't found in priority map", str);
+	zc_error("str[%s] can't found in level map", str);
 	return -1;
 }
 
-zlog_priority_t *zlog_priority_get(int p)
+zlog_level_t *zlog_level_get(int p)
 {
 	if ((p <= 0) || (p > 254)) {
 		/* illegal input from zlog() */
@@ -65,18 +65,18 @@ zlog_priority_t *zlog_priority_get(int p)
 		p = 254;
 	}
 
-	if (((zlog_env_priority[p]).str)[0] == '\0') {
+	if (((zlog_env_level[p]).str)[0] == '\0') {
 		/* empty slot */
 		zc_error("p[%d] in (0,254), but not in map,"
 			"see configure file define, set ot UNKOWN", p);
 		p = 254;
 	}
-	return &(zlog_env_priority[p]);
+	return &(zlog_env_level[p]);
 }
 
-int zlog_priority_set(char *str, int p, int sp)
+int zlog_level_set(char *str, int p, int sp)
 {
-	zlog_priority_t *a_pri;
+	zlog_level_t *a_pri;
 	int i;
 
 	zc_assert_debug(str, -1);
@@ -91,7 +91,7 @@ int zlog_priority_set(char *str, int p, int sp)
 		return -1;
 	}
 
-	a_pri = &(zlog_env_priority[p]);
+	a_pri = &(zlog_env_level[p]);
 	memset(a_pri->str, 0x00, sizeof(a_pri->str));
 
 	/* strcpy and toupper(str) to table */
@@ -111,9 +111,9 @@ int zlog_priority_set(char *str, int p, int sp)
 	a_pri->str_len = i;
 
 	if (sp == 0) {
-		a_pri->syslog_priority = LOG_DEBUG;
+		a_pri->syslog_level = LOG_DEBUG;
 	} else {
-		a_pri->syslog_priority = sp;
+		a_pri->syslog_level = sp;
 	}
 
 	return 0;

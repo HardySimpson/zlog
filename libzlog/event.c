@@ -78,7 +78,7 @@ void zlog_event_del(zlog_event_t * a_event)
 
 void zlog_event_refresh(zlog_event_t * a_event,
 			char *category_name, size_t * category_name_len,
-			char *file, long line, int priority,
+			char *file, long line, int level,
 			char *hex_buf, long hex_buf_len, char *str_format,
 			va_list str_args, int generate_cmd)
 {
@@ -94,7 +94,7 @@ void zlog_event_refresh(zlog_event_t * a_event,
 
 	a_event->file = file;
 	a_event->line = line;
-	a_event->priority = priority;
+	a_event->level = level;
 
 	a_event->generate_cmd = generate_cmd;
 	switch (generate_cmd) {

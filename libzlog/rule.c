@@ -30,7 +30,7 @@
 #include "format.h"
 #include "buf.h"
 #include "thread.h"
-#include "priority.h"
+#include "level.h"
 #include "rotater.h"
 #include "spec.h"
 
@@ -248,7 +248,7 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	syslog((zlog_priority_get(a_thread->event->priority))->syslog_priority ,
+	syslog((zlog_level_get(a_thread->event->level))->syslog_level ,
 		"%s", msg);
 	return 0;
 }
@@ -345,7 +345,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 
 	char selector[MAXLEN_CFG_LINE + 1];
 	char category[MAXLEN_CFG_LINE + 1];
-	char priority[MAXLEN_CFG_LINE + 1];
+	char level[MAXLEN_CFG_LINE + 1];
 
 	char *action;
 	char output[MAXLEN_CFG_LINE + 1];
@@ -382,10 +382,10 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	 */
 
 	memset(category, 0x00, sizeof(category));
-	memset(priority, 0x00, sizeof(priority));
-	nscan = sscanf(selector, " %[^.].%s", category, priority);
+	memset(level, 0x00, sizeof(level));
+	nscan = sscanf(selector, " %[^.].%s", category, level);
 	if (nscan != 2) {
-		zc_error("sscanf [%s] fail, category or priority is null",
+		zc_error("sscanf [%s] fail, category or level is null",
 			 selector);
 		rc = -1;
 		goto zlog_rule_new_exit;
@@ -394,7 +394,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	/*
 	 * selector     [f.INFO]
 	 * category     [f]
-	 * priority     [.INFO]
+	 * level     [.INFO]
 	 */
 
 	/* check and set category */
@@ -410,19 +410,19 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	/* as one line can't be longer than MAXLEN_CFG_LINE, same as category */
 	strcpy(a_rule->category, category);
 
-	/* check and set priority */
-	switch (priority[0]) {
+	/* check and set level */
+	switch (level[0]) {
 	case '=':
 	case '!':
-		a_rule->compare_char = priority[0];
-		p = priority + 1;
+		a_rule->compare_char = level[0];
+		p = level + 1;
 		break;
 	default:
 		a_rule->compare_char = '.';
-		p = priority;
+		p = level;
 		break;
 	}
-	a_rule->priority = zlog_priority_atoi(p);
+	a_rule->level = zlog_level_atoi(p);
 
 	memset(output, 0x00, sizeof(output));
 	memset(format_name, 0x00, sizeof(format_name));
@@ -639,19 +639,19 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 		case '*' :
 			break;
 		case '.' :
-			if (a_thread->event->priority >= a_rule->priority) {
+			if (a_thread->event->level >= a_rule->level) {
 				break;
 			} else {
 				return 0;
 			}
 		case '=' :
-			if (a_thread->event->priority == a_rule->priority) {
+			if (a_thread->event->level == a_rule->level) {
 				break;
 			} else {
 				return 0;
 			}
 		case '!' :
-			if (a_thread->event->priority != a_rule->priority) {
+			if (a_thread->event->level != a_rule->level) {
 				break;
 			} else {
 				return 0;
@@ -708,7 +708,7 @@ int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
 static void zlog_rule_debug(zlog_rule_t * a_rule)
 {
 	zc_debug("rule:[%p][%s%c%d]-[%s,%ld][%p]", a_rule,
-		 a_rule->category, a_rule->compare_char, a_rule->priority,
+		 a_rule->category, a_rule->compare_char, a_rule->level,
 		 a_rule->file_path, a_rule->file_maxsize, a_rule->format);
 	return;
 }
@@ -717,7 +717,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule)
 {
 	zc_assert_debug(a_rule,);
 	zc_error("rule:[%p][%s%c%d]-[%s,%ld][%p]", a_rule,
-		 a_rule->category, a_rule->compare_char, a_rule->priority,
+		 a_rule->category, a_rule->compare_char, a_rule->level,
 		 a_rule->file_path, a_rule->file_maxsize, a_rule->format);
 	return;
 }

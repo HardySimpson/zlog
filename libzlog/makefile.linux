@@ -5,7 +5,7 @@ all_o	=		\
 	event.o		\
 	format.o	\
 	mdc.o		\
-	priority.o	\
+	level.o	\
 	rotater.o	\
 	rule.o		\
 	spec.o		\
