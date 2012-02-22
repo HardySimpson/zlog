@@ -1475,6 +1475,10 @@ to syslog
 syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
 \end_layout
 
+\begin_layout Plain Layout
+This is not optional.
+\end_layout
+
 \end_inset
 </cell>
 </row>

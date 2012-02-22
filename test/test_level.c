@@ -18,19 +18,14 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
-
-#include "zlog.h"
+#include "test_level.h"
 
 int main(int argc, char** argv)
 {
 	int rc;
 	zlog_category_t *zc;
 
-	rc = zlog_init("test_mdc.conf");
+	rc = zlog_init("test_level.conf");
 	if (rc) {
 		printf("init failed\n");
 		return -1;
@@ -41,25 +36,9 @@ int main(int argc, char** argv)
 		printf("get cat fail\n");
 	}
 
-
-	ZLOG_INFO(zc, "hello, zlog");
-
-	zlog_put_mdc("myname", "zlog");
-	zlog_put_mdc("yourname", "ylog");
-
-	ZLOG_INFO(zc, "[myname:%s]", zlog_get_mdc("myname"));
-	ZLOG_INFO(zc, "[none:%s]", zlog_get_mdc("none"));
-	ZLOG_INFO(zc, "[yourname:%s]", zlog_get_mdc("yourname"));
-
-	zlog_remove_mdc("myname");
-	ZLOG_INFO(zc, "[myname:%s]", zlog_get_mdc("myname"));
-	zlog_put_mdc("yourname", "next");
-	ZLOG_INFO(zc, "[yourname:%s]", zlog_get_mdc("yourname"));
-
-	zlog_clean_mdc();
-	ZLOG_INFO(zc, "[yourname:%s]", zlog_get_mdc("myname"));
-
-	printf("log end\n");
+	ZLOG_TRACE(zc, "hello, zlog - trace");
+	ZLOG_DEBUG(zc, "hello, zlog - debug");
+	ZLOG_INFO(zc, "hello, zlog - info");
 
 	zlog_fini();
 	

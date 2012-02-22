@@ -28,7 +28,7 @@
 int main(int argc, char** argv)
 {
 	int rc;
-	zlog_category_t *my_cat;
+	zlog_category_t *zc;
 	
 
 	rc = zlog_init("test_conf.conf");
@@ -37,12 +37,12 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	my_cat = zlog_get_category("my_cat");
-	if (!my_cat) {
+	zc = zlog_get_category("my_cat");
+	if (!zc) {
 		printf("get cat fail\n");
 	}
 
-	ZLOG_INFO(my_cat, "hello, zlog");
+	ZLOG_INFO(zc, "hello, zlog");
 
 	zlog_fini();
 	printf("log end\n");

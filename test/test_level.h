@@ -17,28 +17,16 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
+#ifndef __test_level_h
+#define __test_level_h
+
 #include "zlog.h"
 
-int main(int argc, char** argv)
-{
-	int rc;
-	zlog_category_t *zc;
+enum {
+	ZLOG_LEVEL_TRACE = 30,
+};
 
-	rc = zlog_init("test_hello.conf");
-	if (rc) {
-		printf("init failed\n");
-		return -1;
-	}
+#define ZLOG_TRACE(cat, format, args...) \
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_TRACE, format, ##args)
 
-	zc = zlog_get_category("my_cat");
-	if (!zc) {
-		printf("get cat fail\n");
-	}
-
-	ZLOG_INFO(zc, "hello, zlog");
-
-	zlog_fini();
-	
-	return 0;
-}
+#endif

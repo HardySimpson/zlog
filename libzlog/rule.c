@@ -332,7 +332,8 @@ static int syslog_facility_atoi(char *facility)
 	if (STRICMP(facility, ==, "LOG_USER"))
 		return LOG_USER;
 
-	zc_error("wrong syslog facility, must in LOG_LOCAL[0-7] or LOG_USER");
+	zc_error("wrong syslog facility[%s],"
+		"must in LOG_LOCAL[0-7] or LOG_USER", facility);
 	return -187;
 }
 

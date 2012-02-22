@@ -74,15 +74,45 @@ zlog_level_t *zlog_level_get(int p)
 	return &(zlog_env_level[p]);
 }
 
-int zlog_level_set(char *str, int p, int sp)
+static int syslog_level_atoi(char *str)
 {
-	zlog_level_t *a_pri;
+	/* guess no unix system will choose -187
+	 * as its syslog level, so it is a safe return value
+	 */
+	zc_assert_debug(str, -187);
+
+	if (STRICMP(str, ==, "LOG_EMERG"))
+		return LOG_EMERG;
+	if (STRICMP(str, ==, "LOG_ALERT"))
+		return LOG_ALERT;
+	if (STRICMP(str, ==, "LOG_CRIT"))
+		return LOG_CRIT;
+	if (STRICMP(str, ==, "LOG_ERR"))
+		return LOG_ERR;
+	if (STRICMP(str, ==, "LOG_WARNING"))
+		return LOG_WARNING;
+	if (STRICMP(str, ==, "LOG_NOTICE"))
+		return LOG_NOTICE;
+	if (STRICMP(str, ==, "LOG_INFO"))
+		return LOG_INFO;
+	if (STRICMP(str, ==, "LOG_DEBUG"))
+		return LOG_DEBUG;
+
+	zc_error("wrong syslog level[%s]", str);
+	return -187;
+}
+
+int zlog_level_set(char *str, int l, char *sl)
+{
+	zlog_level_t a_level;
 	int i;
 
 	zc_assert_debug(str, -1);
+	zc_assert_debug(sl, -1);
 
-	if ((p <= 0) || (p > 254)) {
-		zc_error("p[%d] not in (0,254), wrong", p);
+	/* check level and str */
+	if ((l <= 0) || (l > 254)) {
+		zc_error("l[%d] not in (0,254), wrong", l);
 		return -1;
 	}
 
@@ -91,30 +121,36 @@ int zlog_level_set(char *str, int p, int sp)
 		return -1;
 	}
 
-	a_pri = &(zlog_env_level[p]);
-	memset(a_pri->str, 0x00, sizeof(a_pri->str));
+	memset(&a_level, 0x00, sizeof(a_level));
 
-	/* strcpy and toupper(str) to table */
-	for (i = 0; (i < sizeof(a_pri->str) - 1) && str[i] != '\0'; i++) {
-		(a_pri->str)[i] = toupper(str[i]);
+	/* fill syslog level */
+	if (*sl == '\0') {
+		a_level.syslog_level = LOG_DEBUG;
+	} else {
+		a_level.syslog_level = syslog_level_atoi(sl);
+		if (a_level.syslog_level == -187) {
+			zc_error("syslog_level_atoi fail");
+			return -1;
+		}
+	}
+
+	/* strncpy and toupper(str)  */
+	for (i = 0; (i < sizeof(a_level.str) - 1) && str[i] != '\0'; i++) {
+		(a_level.str)[i] = toupper(str[i]);
 	}
 
 	if (str[i] != '\0') {
 		/* overflow */
 		zc_error("not enough space for str, str[%s] > %d", str, i);
-		memset(a_pri->str, 0x00, sizeof(a_pri->str));
 		return -1;
 	} else {
-		(a_pri->str)[i] = '\0';
+		(a_level.str)[i] = '\0';
 	}
 
-	a_pri->str_len = i;
+	a_level.str_len = i;
 
-	if (sp == 0) {
-		a_pri->syslog_level = LOG_DEBUG;
-	} else {
-		a_pri->syslog_level = sp;
-	}
+	/* all success, then copy, keep consistency */
+	memcpy(&(zlog_env_level[l]), &a_level, sizeof(a_level));
 
 	return 0;
 }

@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 {
 	int rc;
 	
-	zlog_category_t *a_cat;
+	zlog_category_t *zc;
 
 	if (argc != 2) {
 		printf("test_init ntime\n");
@@ -42,13 +42,13 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	a_cat = zlog_get_category("my_cat");
-	if (!a_cat) {
+	zc = zlog_get_category("my_cat");
+	if (!zc) {
 		printf("zlog_get_category fail\n");
 		return -1;
 	}
 
-	ZLOG_INFO(a_cat, "before update");
+	ZLOG_INFO(zc, "before update");
 
 	sleep(10);
 
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 		printf("update fail\n");
 	}
 
-	ZLOG_INFO(a_cat, "after update");
+	ZLOG_INFO(zc, "after update");
 
 	zlog_fini();
 

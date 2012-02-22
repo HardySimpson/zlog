@@ -29,6 +29,7 @@
 #include "conf.h"
 #include "rule.h"
 #include "format.h"
+#include "level.h"
 #include "zc_defs.h"
 
 /*******************************************************************************/
@@ -36,27 +37,6 @@ static void zlog_conf_debug(zlog_conf_t * a_conf);
 #define ZLOG_DEFAULT_FORMAT "&default   \"%d(%F %T) %P [%p:%F:%L] %m%n\""
 #define ZLOG_DEFAULT_RULE "*.*        >stdout"
 /*******************************************************************************/
-#if 0
-static int syslog_level_atoi(char *str)
-{
-	/* guess no unix system will choose -187
-	 * as its syslog facility, so it is a safe return value
-	 */
-	zc_assert_debug(str, -187);
-
-	if (STRICMP(str, ==, "LOG_EMERG"))
-		return LOG_EMERG;
-	if (STRICMP(str, ==, "LOG_ALERT"))
-		return LOG_ALERT;
-	if (STRICMP(str, ==, "LOG_CRIT"))
-		return LOG_CRIT;
-
-
-	zc_error("wrong syslog level, must in LOG_LOCAL[0-7] or LOG_USER");
-	return -187;
-}
-#endif
-
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 {
 	int rc = 0;
@@ -110,12 +90,17 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 			zc_debug("lock_file=[%s]", a_conf->rotate_lock_file);
 		} else if (STRCMP(name, ==, "level")) {
 			char str[MAXLEN_CFG_LINE + 1];
-			int p;
-			char sp[MAXLEN_CFG_LINE + 1];
+			int level;
+			char syslog_level[MAXLEN_CFG_LINE + 1];
 			nread = sscanf(line + sizeof("level"), " %[^= ] = %d ,%s",
-				str, &p, sp);
+				str, &level, syslog_level);
 			if (nread < 2) {
 				zc_error("level[%s] syntax wrong", line);
+				return -1;
+			}
+			rc = zlog_level_set(str, level, syslog_level);
+			if (rc) {
+				zc_error("zlog_level_set fail");
 				return -1;
 			}
 		} else {

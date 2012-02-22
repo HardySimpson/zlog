@@ -25,12 +25,12 @@
 
 #include "zlog.h"
 
-static zlog_category_t *my_cat;
+static zlog_category_t *zc;
 
 int work(long loop_count)
 {
 	while(loop_count-- > 0) {
-		ZLOG_INFO(my_cat, "loglog");
+		ZLOG_INFO(zc, "loglog");
 	}
 	return 0;
 }
@@ -74,8 +74,8 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-	my_cat = zlog_get_category("my_cat");
-	if (!my_cat) {
+	zc = zlog_get_category("my_cat");
+	if (!zc) {
 		printf("get cat failed\n");
 		return 3;
 	}

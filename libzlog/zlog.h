@@ -203,73 +203,73 @@ extern "C" {
 	void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
 		   char *buf, unsigned long buf_len);
 
-/******* useful macros, can be redefined at user's .h file **********/
+/******* useful macros, can be redefined at user's h file **********/
 
 	typedef enum {
-		ZLOG_DEBUG = 20,	/**< debug-level message */
-		ZLOG_INFO = 40,	        /**< informational message */
-		ZLOG_NOTICE = 60,       /**< normal, but significant, condition */
-		ZLOG_WARN = 80,	        /**< warning conditions, maybe application logic problem */
-		ZLOG_ERROR = 100,	/**< error conditions, maybe application fail */
-		ZLOG_FATAL = 120,	/**< system is unusable */
+		ZLOG_LEVEL_DEBUG = 20,	/**< debug-level message */
+		ZLOG_LEVEL_INFO = 40,	        /**< informational message */
+		ZLOG_LEVEL_NOTICE = 60,       /**< normal, but significant, condition */
+		ZLOG_LEVEL_WARN = 80,	        /**< warning conditions, maybe application logic problem */
+		ZLOG_LEVEL_ERROR = 100,	/**< error conditions, maybe application fail */
+		ZLOG_LEVEL_FATAL = 120,	/**< system is unusable */
 	} zlog_level;
 
 #define ZLOG_FATAL(cat, format, args...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_FATAL, format, ##args)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ##args)
 
 #define ZLOG_ERROR(cat, format, args...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_ERROR, format, ##args)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, ##args)
 
 #define ZLOG_WARN(cat, format, args...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_WARN, format, ##args)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, ##args)
 
 #define ZLOG_NOTICE(cat, format, args...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_NOTICE, format, ##args)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, ##args)
 
 #define ZLOG_INFO(cat, format, args...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_INFO, format, ##args)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, ##args)
 
 #define ZLOG_DEBUG(cat, format, args...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_DEBUG, format, ##args)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ##args)
 
 /* vzlog macros */
 
 #define VZLOG_FATAL(cat, format, args) \
-	vzlog(cat, __FILE__, __LINE__, ZLOG_FATAL, format, args)
+	vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, args)
 
 #define VZLOG_ERROR(cat, format, args) \
-	vzlog(cat, __FILE__, __LINE__, ZLOG_ERROR, format, args)
+	vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, args)
 
 #define VZLOG_WARN(cat, format, args) \
-	vzlog(cat, __FILE__, __LINE__, ZLOG_WARN, format, args)
+	vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, args)
 
 #define VZLOG_NOTICE(cat, format, args) \
-	vzlog(cat, __FILE__, __LINE__, ZLOG_NOTICE, format, args)
+	vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, args)
 
 #define VZLOG_INFO(cat, format, args) \
-	vzlog(cat, __FILE__, __LINE__, ZLOG_INFO, format, args)
+	vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, args)
 
 #define VZLOG_DEBUG(cat, format, args) \
-	vzlog(cat, __FILE__, __LINE__, ZLOG_DEBUG, format, args)
+	vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, args)
 
 /* hzlog macros */
 #define HZLOG_FATAL(cat, buf, buf_len) \
-	hzlog(cat, __FILE__, __LINE__, ZLOG_FATAL, buf, buf_len)
+	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, buf, buf_len)
 
 #define HZLOG_ERROR(cat, buf, buf_len) \
-	hzlog(cat, __FILE__, __LINE__, ZLOG_ERROR, buf, buf_len)
+	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, buf, buf_len)
 
 #define HZLOG_WARN(cat, buf, buf_len) \
-	hzlog(cat, __FILE__, __LINE__, ZLOG_WARN, buf, buf_len)
+	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, buf, buf_len)
 
 #define HZLOG_NOTICE(cat, buf, buf_len) \
-	hzlog(cat, __FILE__, __LINE__, ZLOG_NOTICE, buf, buf_len)
+	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, buf, buf_len)
 
 #define HZLOG_INFO(cat, buf, buf_len) \
-	hzlog(cat, __FILE__, __LINE__, ZLOG_INFO, buf, buf_len)
+	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, buf, buf_len)
 
 #define HZLOG_DEBUG(cat, buf, buf_len) \
-	hzlog(cat, __FILE__, __LINE__, ZLOG_DEBUG, buf, buf_len)
+	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, buf, buf_len)
 
 /**
  * @}

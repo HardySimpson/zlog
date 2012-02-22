@@ -89,7 +89,7 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	
-	zlog_category_t *my_cat;
+	zlog_category_t *zc;
 
 	rc = zlog_init("test_hex.conf");
 	if (rc) {
@@ -97,15 +97,15 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	
-	my_cat = zlog_get_category("my_cat");
-	if (!my_cat) {
+	zc = zlog_get_category("my_cat");
+	if (!zc) {
 		printf("get category failed\n");
 	}
 
 
 	rc = ReadTotalFile(fp, &dmp, &dmp_len);
 
-	HZLOG_DEBUG(my_cat, dmp, dmp_len);
+	HZLOG_DEBUG(zc, dmp, dmp_len);
 	fclose(fp);
 	free(dmp);
 

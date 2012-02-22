@@ -40,11 +40,11 @@ int zlog_level_atoi(char *str);
 /* spec ouput use, fast */
 /* rule output use, fast */
 /* if not found, return zlog_env_level[254] */
-zlog_level_t *zlog_level_get(int p);
+zlog_level_t *zlog_level_get(int l);
 
 /* conf int use, slow */
-/* if p is wrong or str=="", return -1 */
-int zlog_level_set(char *str, int p, int sp);
+/* if l is wrong or str=="", return -1 */
+int zlog_level_set(char *str, int l, char *sl);
 
 
 #endif
