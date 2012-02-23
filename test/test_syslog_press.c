@@ -18,28 +18,56 @@
  */
 
 #include <stdio.h>
-#include "zlog.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <syslog.h>
+
+int work(long loop_count)
+{
+	while(loop_count-- > 0) {
+		syslog(LOG_INFO, "loglog");
+	}
+	return 0;
+}
+
+
+int test(long process_count, long loop_count)
+{
+	long i;
+	pid_t pid;
+
+	for (i = 0; i < process_count; i++) {
+		pid = fork();
+		if (pid < 0) {
+			printf("fork fail\n");
+		} else if(pid == 0) {
+			work(loop_count);
+			return 0;
+		}
+	}
+
+	for (i = 0; i < process_count; i++) {
+		pid = wait(NULL);
+	}
+
+	return 0;
+}
+
 
 int main(int argc, char** argv)
 {
-	int rc;
-	zlog_category_t *zc;
 
-	rc = zlog_init("test_syslog.conf");
-	if (rc) {
-		printf("init failed\n");
-		return -1;
+	if (argc != 3) {
+		fprintf(stderr, "test nprocess nloop");
+		exit(1);
 	}
 
-	zc = zlog_get_category("my_cat");
-	if (!zc) {
-		printf("get cat fail\n");
-	}
+	openlog(NULL, LOG_NDELAY|LOG_NOWAIT|LOG_PID, LOG_LOCAL0);
 
-	ZLOG_INFO(zc, "hello, zlog -- info");
-	ZLOG_ERROR(zc, "hello, zlog -- error");
+	test(atol(argv[1]), atol(argv[2]));
 
-	zlog_fini();
 	
 	return 0;
 }

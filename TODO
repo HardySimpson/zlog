@@ -28,16 +28,17 @@
 [o] zc_assert一般关闭，调试打开
 [o] 增加!.*, 匹配未被匹配的分类
 [o] priority->level
-[o] level自定义, 控制范围
+[o] level自定义
 
+[p] rule syslog open
 [p] 使用valgrind测试性能
 	[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 [p] 用某种自动编译器以及文档生成器
 	[ ] 增加man  age,  df, 案例, doxygen
-[ ] zlog-gen-conf
+[p] zlog-gen-conf
+[ ] 输出到管道
 [ ] 配置n个线程的内存，在一开始申请，减少开线程的时候的消耗
 [ ] 和rsyslog对接的问题
-[ ] 输出到管道
 [ ] 采用精细的reo en方法来建立用fo en来智能判断需不需要重开文件
 	[ ]需要建立全局FILE hashtable及计数器
 [ ] 自动刷新配置....同上
@@ -51,7 +52,6 @@
 [ ] ylog, 更简单的接口
 [ ] 文件的权限设置
 [ ] rotate控制个数
-[ ] rule syslog open
 ==========
 编写文章:
 

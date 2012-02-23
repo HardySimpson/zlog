@@ -14,6 +14,7 @@ noinst_PROGRAMS =	\
 	test_press	\
 	test_printf	\
 	test_syslog	\
+	test_syslog_press	\
 	test_conf	\
 	test_mdc	\
 	test_level
@@ -27,6 +28,7 @@ test_init_SOURCES = test_init.c
 test_press_SOURCES = test_press.c
 test_printf_SOURCES = test_printf.c
 test_syslog_SOURCES = test_syslog.c
+test_syslog_press_SOURCES = test_syslog_press.c
 test_mdc_SOURCES = test_mdc.c
 test_level_SOURCES = test_level.c
 
@@ -37,4 +39,5 @@ EXTRA_DIST =		\
 	test_init.conf	\
 	test_press.conf	\
 	test_mdc.conf	\
+	test_syslog.conf	\
 	test_level.conf

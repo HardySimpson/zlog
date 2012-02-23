@@ -133,7 +133,41 @@ self debugable, can output zlog's self debug&error log at runtime
 \end_layout
 
 \begin_layout Itemize
-Not depend on any other library
+Not depend on any other 3rd party library, just base on posix system.
+ 
+\end_layout
+
+\begin_layout Chapter
+What is not zlog
+\end_layout
+
+\begin_layout Standard
+The goal of zlog is becoming a simple, clear log library for application.
+ It will not support too much output like send log to other machine through
+ net or save it to database.
+ It will not parse content of log and filter them.
+\end_layout
+
+\begin_layout Standard
+The reason is obvious: library is part of application, all time log library
+ takes is part of application's time.
+ And database inserting or log content parsing takes a long time.
+ These operation should be done in a different process or on a different
+ machine.
+\end_layout
+
+\begin_layout Standard
+If you want all these features, I recommend rsyslog, a excellent syslog
+ daemon implementation.
+ It is a independent process receives logs from other process or machines,
+ and parse and store logs.
+ Still, it has a distance from user application.
+\end_layout
+
+\begin_layout Standard
+So I think about how to connect zlog and rsyslog, the tranditional syslog(3)
+ is one way, but maybe there is another way more efficient.
+ If you have a good idea, tell me!
 \end_layout
 
 \begin_layout Chapter
@@ -2161,7 +2195,7 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-P
+V
 \end_layout
 
 \end_inset
@@ -2199,7 +2233,7 @@ t
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the id of the process that generated the logging event, which
+Used to output the id of the thread that generated the logging event, which
  comes from pthread_self().
 \end_layout
 
@@ -2789,7 +2823,7 @@ Most Character is supported by strftime(2) on system.
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="43" columns="3">
+<lyxtabular version="3" rows="42" columns="3">
 <features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
@@ -4034,7 +4068,7 @@ CST
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4043,7 +4077,7 @@ CST
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4052,40 +4086,11 @@ A literal '%' character.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-%
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+%
 \end_layout
 
 \end_inset
@@ -4102,11 +4107,15 @@ A literal '%' character.
 Configure File Tools
 \end_layout
 
-\begin_layout Standard
-T
+\begin_layout Chapter
+Function Interface
 \end_layout
 
 \begin_layout Chapter
+Advance Using
+\end_layout
+
+\begin_layout Section
 MDC
 \begin_inset CommandInset label
 LatexCommand label

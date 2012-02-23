@@ -248,7 +248,8 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	syslog((zlog_level_get(a_thread->event->level))->syslog_level ,
+	syslog(a_rule->syslog_facility |
+		(zlog_level_get(a_thread->event->level))->syslog_level ,
 		"%s", msg);
 	return 0;
 }
@@ -581,7 +582,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 			}
 			a_rule->output = zlog_rule_output_syslog;
 			openlog(NULL, LOG_NDELAY | LOG_NOWAIT | LOG_PID,
-				a_rule->syslog_facility);
+				LOG_USER);
 		} else if (STRNCMP(file_path + 1, ==, "stdout", 6)) {
 			a_rule->output = zlog_rule_output_stdout;
 		} else if (STRNCMP(file_path + 1, ==, "stderr", 6)) {
