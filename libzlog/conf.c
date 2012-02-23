@@ -34,7 +34,7 @@
 
 /*******************************************************************************/
 static void zlog_conf_debug(zlog_conf_t * a_conf);
-#define ZLOG_DEFAULT_FORMAT "&default   \"%d(%F %T) %P [%p:%F:%L] %m%n\""
+#define ZLOG_DEFAULT_FORMAT "&default   \"%d(%F %T) %V [%p:%F:%L] %m%n\""
 #define ZLOG_DEFAULT_RULE "*.*        >stdout"
 /*******************************************************************************/
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)

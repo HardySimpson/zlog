@@ -54,9 +54,9 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 		return NULL;
 	}
 
-	/* line         &default                "%d(%F %X.%l) %-6P (%c:%F:%L) - %m%n"
+	/* line         &default                "%d(%F %X.%l) %-6V (%c:%F:%L) - %m%n"
 	 * name         default
-	 * pattern      %d(%F %X.%l) %-6P (%c:%F:%L) - %m%n
+	 * pattern      %d(%F %X.%l) %-6V (%c:%F:%L) - %m%n
 	 */
 
 	memset(a_format->name, 0x00, sizeof(a_format->name));

@@ -776,6 +776,8 @@ There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
  As all other log library, aa.DEBUG means all log of level that is greater
  than or equals to DEBUG will be output.
  Still, there are more expression.
+ The level write in configure file is case insensitive, both capital or
+ lowercase is accepted.
 \end_layout
 
 \begin_layout Standard
@@ -829,7 +831,7 @@ all [source level]
 \begin_inset Text
 
 \begin_layout Plain Layout
-aa.DEBUG
+aa.debug
 \end_layout
 
 \end_inset
@@ -838,7 +840,7 @@ aa.DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source level]>=DEBUG
+[source level]>=debug
 \end_layout
 
 \end_inset
@@ -849,7 +851,7 @@ aa.DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-aa.=DEBUG
+aa.=debug
 \end_layout
 
 \end_inset
@@ -858,7 +860,7 @@ aa.=DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source level]==DEBUG
+[source level]==debug
 \end_layout
 
 \end_inset
@@ -869,7 +871,7 @@ aa.=DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-aa.!DEBUG
+aa.!debug
 \end_layout
 
 \end_inset
@@ -878,7 +880,7 @@ aa.!DEBUG
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source level]!=DEBUG
+[source level]!=debug
 \end_layout
 
 \end_inset
@@ -889,6 +891,17 @@ aa.!DEBUG
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+User can define his own level, see
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Define-new-level"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Subsection
@@ -4134,8 +4147,19 @@ zlog tools
 Debug zlog Itself
 \end_layout
 
+\begin_layout Section
+Define new level
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Define-new-level"
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
-Redefine Log Level
+Set Defaul
 \end_layout
 
 \begin_layout Standard

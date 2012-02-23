@@ -75,7 +75,7 @@
 "#     &[name][n tab or space]\"[conversion pattern]\"\n"   \
 "\n"   \
 "# The default format is\n"   \
-"# &default                \"%d(%F %T) %P [%p:%F:%L] %m%n\"\n"  \
+"# &default                \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
 "# That cause each rule without format specified, would yield output like this:\n"   \
 "# 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog\n"   \
 "# Format name character must be in [a-Z][0-9][_]\n"   \
@@ -104,7 +104,7 @@
 "# @buf_size_max                      2MB\n"  \
 "# @rotate_lock_file                  /tmp/zlog.lock\n"  \
 "\n"  \
-"# &default                \"%d(%F %T) %P [%p:%F:%L] %m%n\"\n"  \
+"# &default                \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
 "\n"  \
 "# *.*                     >stdout\n"  \
 "# !.*                     \"/var/log/zlog.nomatch.log\"\n" 

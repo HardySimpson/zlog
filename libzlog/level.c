@@ -25,15 +25,15 @@
 #include "syslog.h"
 
 static zlog_level_t zlog_env_level[256] = {
-	[0] = {"*", sizeof("*")-1, LOG_INFO},
-	[20] = {"DEBUG", sizeof("DEBUG")-1, LOG_DEBUG},
-	[40] = {"INFO", sizeof("INFO")-1, LOG_INFO},
-	[60] = {"NOTICE", sizeof("NOTICE")-1, LOG_NOTICE},
-	[80] = {"WARN", sizeof("WARN")-1, LOG_WARNING},
-	[100] = {"ERROR", sizeof("ERROR")-1, LOG_ERR},
-	[120] = {"FATAL", sizeof("FATAL")-1, LOG_ALERT},
-	[254] = {"UNKOWN", sizeof("UNKOWN")-1, LOG_ERR},
-	[255] = {"0", sizeof("0")-1, LOG_INFO},
+	[0] = {"*", "*", sizeof("*")-1, LOG_INFO},
+	[20] = {"DEBUG", "debug", sizeof("DEBUG")-1, LOG_DEBUG},
+	[40] = {"INFO", "info", sizeof("INFO")-1, LOG_INFO},
+	[60] = {"NOTICE", "notice", sizeof("NOTICE")-1, LOG_NOTICE},
+	[80] = {"WARN", "warn", sizeof("WARN")-1, LOG_WARNING},
+	[100] = {"ERROR", "error", sizeof("ERROR")-1, LOG_ERR},
+	[120] = {"FATAL", "fatal", sizeof("FATAL")-1, LOG_ALERT},
+	[254] = {"UNKOWN", "unkown", sizeof("UNKOWN")-1, LOG_ERR},
+	[255] = {"0", "0", sizeof("0")-1, LOG_INFO},
 };
 
 static size_t npriorities = sizeof(zlog_env_level) / sizeof(zlog_env_level[0]);
@@ -48,7 +48,8 @@ int zlog_level_atoi(char *str)
 	}
 
 	for (i = 0; i < npriorities; i++) {
-		if (STRICMP(str, ==, (zlog_env_level[i]).str)) {
+		/* case insesitive */
+		if (STRICMP(str, ==, (zlog_env_level[i]).str_capital)) {
 			return i;
 		}
 	}
@@ -65,7 +66,7 @@ zlog_level_t *zlog_level_get(int p)
 		p = 254;
 	}
 
-	if (((zlog_env_level[p]).str)[0] == '\0') {
+	if (((zlog_env_level[p]).str_capital)[0] == '\0') {
 		/* empty slot */
 		zc_error("p[%d] in (0,254), but not in map,"
 			"see configure file define, set ot UNKOWN", p);
@@ -135,8 +136,9 @@ int zlog_level_set(char *str, int l, char *sl)
 	}
 
 	/* strncpy and toupper(str)  */
-	for (i = 0; (i < sizeof(a_level.str) - 1) && str[i] != '\0'; i++) {
-		(a_level.str)[i] = toupper(str[i]);
+	for (i = 0; (i < sizeof(a_level.str_capital) - 1) && str[i] != '\0'; i++) {
+		(a_level.str_capital)[i] = toupper(str[i]);
+		(a_level.str_lowercase)[i] = toupper(str[i]);
 	}
 
 	if (str[i] != '\0') {
@@ -144,7 +146,8 @@ int zlog_level_set(char *str, int l, char *sl)
 		zc_error("not enough space for str, str[%s] > %d", str, i);
 		return -1;
 	} else {
-		(a_level.str)[i] = '\0';
+		(a_level.str_capital)[i] = '\0';
+		(a_level.str_lowercase)[i] = '\0';
 	}
 
 	a_level.str_len = i;

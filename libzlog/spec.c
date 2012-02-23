@@ -270,15 +270,31 @@ static int zlog_spec_gen_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_gen_level(zlog_spec_t * a_spec,
+static int zlog_spec_gen_level_lowercase(zlog_spec_t * a_spec,
 				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc;
-	zlog_level_t *a_pri;
+	zlog_level_t *a_level;
 
-	a_pri = zlog_level_get(a_thread->event->level);
+	a_level = zlog_level_get(a_thread->event->level);
 
-	rc = zlog_buf_append(a_buf, a_pri->str, a_pri->str_len);
+	rc = zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
+	if (rc) {
+		zc_error("zlog_buf_append maybe fail or overflow");
+		return rc;
+	}
+	return 0;
+}
+
+static int zlog_spec_gen_level_capital(zlog_spec_t * a_spec,
+				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	int rc;
+	zlog_level_t *a_level;
+
+	a_level = zlog_level_get(a_thread->event->level);
+
+	rc = zlog_buf_append(a_buf, a_level->str_capital, a_level->str_len);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -743,8 +759,11 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 		case 'p':
 			a_spec->gen_buf = zlog_spec_gen_pid;
 			break;
-		case 'P':
-			a_spec->gen_buf = zlog_spec_gen_level;
+		case 'v':
+			a_spec->gen_buf = zlog_spec_gen_level_lowercase;
+			break;
+		case 'V':
+			a_spec->gen_buf = zlog_spec_gen_level_capital;
 			break;
 		case 't':
 			a_spec->gen_buf = zlog_spec_gen_tid;
