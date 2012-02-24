@@ -62,8 +62,7 @@ int zlog_init(char *conf_file)
 		goto zlog_init_exit;
 	}
 
-	rc = zlog_rotater_init(&zlog_env_rotater,
-			       zlog_env_conf.rotate_lock_file);
+	rc = zlog_rotater_init(zlog_env_conf.rotate_lock_file);
 	if (rc) {
 		zc_error("zlog_rotater_init fail");
 		goto zlog_init_exit;
@@ -99,7 +98,7 @@ int zlog_init(char *conf_file)
 	if (rc) {
 		zlog_tmap_fini(&zlog_env_tmap);
 		zlog_cmap_fini(&zlog_env_cmap);
-		zlog_rotater_fini(&zlog_env_rotater);
+		zlog_rotater_fini();
 		zlog_conf_fini(&zlog_env_conf);
 		zlog_env_init_flag = -1;
 	}
@@ -138,8 +137,7 @@ int zlog_update(char *conf_file)
 		goto zlog_update_exit;
 	}
 
-	rc = zlog_rotater_update(&zlog_env_rotater,
-				 zlog_env_conf.rotate_lock_file);
+	rc = zlog_rotater_update(zlog_env_conf.rotate_lock_file);
 	if (rc) {
 		zc_error("zlog_rotater_update fail");
 		goto zlog_update_exit;
@@ -164,7 +162,7 @@ int zlog_update(char *conf_file)
 	if (rc) {
 		zlog_tmap_fini(&zlog_env_tmap);
 		zlog_cmap_fini(&zlog_env_cmap);
-		zlog_rotater_fini(&zlog_env_rotater);
+		zlog_rotater_fini();
 		zlog_conf_fini(&zlog_env_conf);
 		zlog_env_init_flag = -1;
 	}
@@ -197,7 +195,7 @@ void zlog_fini(void)
 
 	zlog_tmap_fini(&zlog_env_tmap);
 	zlog_cmap_fini(&zlog_env_cmap);
-	zlog_rotater_fini(&zlog_env_rotater);
+	zlog_rotater_fini();
 	zlog_conf_fini(&zlog_env_conf);
 	zlog_env_init_flag = 0;
 

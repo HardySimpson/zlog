@@ -46,9 +46,9 @@
 		return rv; \
 	} 
 
-extern int zc_debug_inner(const char *file, const long line, const char *fmt,
+int zc_debug_inner(const char *file, const long line, const char *fmt,
 			  ...);
-extern int zc_error_inner(const char *file, const long line, const char *fmt,
+int zc_error_inner(const char *file, const long line, const char *fmt,
 			  ...);
 
 #endif

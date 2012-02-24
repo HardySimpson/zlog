@@ -98,8 +98,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule,
 	}
 	close(fd);
 
-	rc = zlog_rotater_rotate(&zlog_env_rotater, a_rule->file_path,
-				 a_rule->file_maxsize, msg_len);
+	rc = zlog_rotater_rotate(a_rule->file_path, a_rule->file_maxsize, msg_len);
 	if (rc) {
 		zc_error("zlog_rotater_rotate fail");
 		return -1;
@@ -222,8 +221,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule,
 	}
 	close(fd);
 
-	rc = zlog_rotater_rotate(&zlog_env_rotater, file_path,
-				 a_rule->file_maxsize, msg_len);
+	rc = zlog_rotater_rotate(file_path, a_rule->file_maxsize, msg_len);
 	if (rc) {
 		zc_error("zlog_rotater_rotate fail");
 		return -1;

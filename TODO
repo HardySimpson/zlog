@@ -29,8 +29,9 @@
 [o] 增加!.*, 匹配未被匹配的分类
 [o] priority->level
 [o] level自定义
-
 [p] rule syslog open
+
+[ ] default format移到全局配置
 [p] 使用valgrind测试性能
 	[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 [p] 用某种自动编译器以及文档生成器

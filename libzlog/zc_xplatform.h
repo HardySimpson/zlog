@@ -68,10 +68,10 @@
 
 #ifdef _WIN32
 #define SD_GETTIMEOFDAY(a,b) zc_gettimeofday(a,b)
-extern int zc_gettimeofday(LPFILETIME lpft, void *tzp);
+int zc_gettimeofday(LPFILETIME lpft, void *tzp);
 #else
 #define SD_GETTIMEOFDAY(a,b) gettimeofday(a,b)
-extern int zc_gettimeofday(struct timeval *tp, void *tzp);
+int zc_gettimeofday(struct timeval *tp, void *tzp);
 #endif
 
 #ifndef _WIN32

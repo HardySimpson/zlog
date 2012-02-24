@@ -28,40 +28,31 @@
 
 #include "zc_defs.h"
 
-typedef struct {
-	pthread_mutex_t mlock;	/**< thread lock */
-	int lock_fd;		/**< process lock */
-} zlog_rotater_t;
-
-extern zlog_rotater_t zlog_env_rotater;
-
 /**
  * Rotater initer
  *
- * @param a_rot zlog_rotater pointer
  * @param lock_file global lock file for rotate, zlog will create the file,
     make sure your program has permission to create and read-write the file.
     Besides, if programs run by different users who need to write and rotater the same log file,
     make sure that each program has permission to create and read-write the same lock file.
  * @returns 0 for success, -1 for fail
  */
-int zlog_rotater_init(zlog_rotater_t * a_rot, char *lock_file);
+int zlog_rotater_init(char *lock_file);
 
 /**
  * Rotater updater
  *
- * @param a_rot zlog_rotater pointer
  * @param lock_file the new lock_file, the previous lock file will be closed and open the new one
  * @returns 0 for success, -1 for fail
  */
-int zlog_rotater_update(zlog_rotater_t * a_rot, char *lock_file);
+int zlog_rotater_update(char *lock_file);
 
 /**
  * Rotater finisher
  *
  * @param a_rot zlog_rotater pointer
  */
-void zlog_rotater_fini(zlog_rotater_t * a_rot);
+void zlog_rotater_fini(void);
 
 /**
  * the rotate fuction
@@ -82,7 +73,7 @@ void zlog_rotater_fini(zlog_rotater_t * a_rot);
    If rotate success, return 0.
    If rotate fail, return -1.
  */
-int zlog_rotater_rotate(zlog_rotater_t * a_rot, char *file_path,
-			long file_maxsize, size_t msg_len);
+int zlog_rotater_rotate(char *file_path,
+	long file_maxsize, size_t msg_len);
 
 #endif
