@@ -69,15 +69,19 @@
 "#     to create and read-write the same lock file.\n"   \
 "# Default, rotate_lock_file is /tmp/zlog.lock\n"   \
 "\n"   \
+"# default_format is used by rules without format\n"  \
+"# The inner default format is\n"   \
+"# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
+"# That cause each rule without format specified, would yield output like this:\n"   \
+"# 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog\n"   \
+"# You can set it as whatever you want\n" \
+"\n"   \
+"\n"   \
 "########\n"   \
 "# Format begins with &.\n"   \
 "# The full sytanx is:\n"   \
 "#     &[name][n tab or space]\"[conversion pattern]\"\n"   \
 "\n"   \
-"# The default format is\n"   \
-"# &default                \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
-"# That cause each rule without format specified, would yield output like this:\n"   \
-"# 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog\n"   \
 "# Format name character must be in [a-Z][0-9][_]\n"   \
 "\n"   \
 "########\n"   \
@@ -103,8 +107,8 @@
 "# @buf_size_min                      1024\n"  \
 "# @buf_size_max                      2MB\n"  \
 "# @rotate_lock_file                  /tmp/zlog.lock\n"  \
+"# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
 "\n"  \
-"# &default                \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
 "\n"  \
 "# *.*                     >stdout\n"  \
 "# !.*                     \"/var/log/zlog.nomatch.log\"\n" 

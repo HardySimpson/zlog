@@ -28,8 +28,8 @@
 #include "zc_defs.h"
 
 typedef struct {
-	char str_capital[PATH_MAX];
-	char str_lowercase[PATH_MAX];
+	char str_capital[PATH_MAX + 1];
+	char str_lowercase[PATH_MAX + 1];
 	size_t str_len;
 	int syslog_level;
 } zlog_level_t;

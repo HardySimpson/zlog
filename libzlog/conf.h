@@ -26,6 +26,7 @@
  */
 
 #include "zc_defs.h"
+#include "format.h"
 
 typedef struct {
 	char file[MAXLEN_PATH + 1];	/**< configure file path */
@@ -44,6 +45,7 @@ typedef struct {
 					 *   make sure that each program has permission
 					 *   to create and read-write the file.
 					 */
+	zlog_format_t *default_format;
 	zc_arraylist_t *formats;	/**< list of all formats */
 	zc_arraylist_t *rules;		/**< list of all rules */
 } zlog_conf_t;

@@ -55,7 +55,8 @@ struct zlog_rule_t {
 	zlog_format_t *format;
 };
 
-zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len);
+zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
+		zc_arraylist_t * formats, char *line, long line_len);
 void zlog_rule_del(zlog_rule_t * a_rule);
 
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);

@@ -336,7 +336,8 @@ static int syslog_facility_atoi(char *facility)
 	return -187;
 }
 
-zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
+zlog_rule_t *zlog_rule_new(zlog_format_t *default_format, 
+		zc_arraylist_t * formats, char *line, long line_len)
 {
 	int rc = 0;
 	int nscan = 0;
@@ -357,6 +358,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	char *q;
 	int len;
 
+	zc_assert_debug(default_format, NULL);
 	zc_assert_debug(formats, NULL);
 	zc_assert_debug(line, NULL);
 	zc_assert_debug(line_len, NULL);
@@ -441,12 +443,7 @@ zlog_rule_t *zlog_rule_new(zc_arraylist_t * formats, char *line, long line_len)
 	/* check and get format */
 	if (STRCMP(format_name, ==, "")) {
 		zc_debug("no format specified, use default");
-		a_rule->format = zc_arraylist_get(formats, 0);
-		if (!a_rule->format) {
-			zc_error("zc_arraylist_get fail");
-			rc = -1;
-			goto zlog_rule_new_exit;
-		}
+		a_rule->format = default_format;
 	} else {
 		int i;
 		int find_flag = 0;

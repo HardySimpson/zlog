@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	}
 
 	setenv("ZLOG_ERROR_LOG", "/dev/stderr", 1);
-	setenv("ZLOG_ICC", "1", 1);
+	setenv("ZLOG_CHECK_FORMAT_RULE", "1", 1);
 
 	while (argc > 0) {
 		rc = zlog_init(*argv);
