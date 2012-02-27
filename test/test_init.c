@@ -50,9 +50,9 @@ int main(int argc, char** argv)
 
 	ZLOG_INFO(zc, "before update");
 
-	sleep(10);
+	sleep(3);
 
-	rc = zlog_update(NULL);
+	rc = zlog_update("test_init.2.conf");
 	if (rc) {
 		printf("update fail\n");
 	}

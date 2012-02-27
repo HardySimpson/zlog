@@ -62,7 +62,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 	case '@':
 		memset(name, 0x00, sizeof(name));
 		memset(value, 0x00, sizeof(value));
-		nread = sscanf(line + 1, "%s %n%s", name, &value_start, value);
+		nread = sscanf(line, "@%s %n%s", name, &value_start, value);
 		if (nread != 2) {
 			zc_error("sscanf [%s] fail, name or value is null",
 				 line);
@@ -425,11 +425,13 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 
 	rc = zlog_conf_build(&b_conf);
 	if (rc) {
+		/* not change the last conf */
 		zc_error("zlog_conf_build fail, use last conf setting");
 		return -1;
 	} else {
+		/* all success, then copy, keep consistency */
 		zlog_conf_fini(a_conf);
-		memcpy(a_conf, &b_conf, sizeof(a_conf));
+		memcpy(a_conf, &b_conf, sizeof(b_conf));
 		zc_debug("zlog_conf_update succ, use file[%s]", a_conf->file);
 	}
 
@@ -462,6 +464,9 @@ void zlog_conf_profile(zlog_conf_t * a_conf)
 	zc_error("buf_size_min:[%ld]", a_conf->buf_size_min);
 	zc_error("buf_size_max:[%ld]", a_conf->buf_size_max);
 	zc_error("rotate_lock_file:[%s]", a_conf->rotate_lock_file);
+
+	zc_error("default_format:");
+	zlog_format_profile(a_conf->default_format);
 
 	zc_error("---rules[%p]---", a_conf->rules);
 	zc_arraylist_foreach(a_conf->rules, i, a_rule) {

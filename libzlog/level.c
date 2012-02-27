@@ -138,7 +138,7 @@ int zlog_level_set(char *str, int l, char *sl)
 	/* strncpy and toupper(str)  */
 	for (i = 0; (i < sizeof(a_level.str_capital) - 1) && str[i] != '\0'; i++) {
 		(a_level.str_capital)[i] = toupper(str[i]);
-		(a_level.str_lowercase)[i] = toupper(str[i]);
+		(a_level.str_lowercase)[i] = tolower(str[i]);
 	}
 
 	if (str[i] != '\0') {
