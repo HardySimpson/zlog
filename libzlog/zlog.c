@@ -28,6 +28,7 @@
 #include "category.h"
 #include "thread.h"
 #include "zc_defs.h"
+#include "level.h"
 #include "mdc.h"
 
 /*******************************************************************************/
@@ -53,6 +54,12 @@ int zlog_init(char *conf_file)
 	if (zlog_env_init_flag > 0) {
 		zc_error("already init, use zlog_update pls");
 		rc = -1;
+		goto zlog_init_exit;
+	}
+
+	rc = zlog_levels_init();
+	if (rc) {
+		zc_error("zlog_levels_init fail");
 		goto zlog_init_exit;
 	}
 
@@ -100,6 +107,7 @@ int zlog_init(char *conf_file)
 		zlog_cmap_fini(&zlog_env_cmap);
 		zlog_rotater_fini();
 		zlog_conf_fini(&zlog_env_conf);
+		zlog_levels_fini();
 		zlog_env_init_flag = -1;
 	}
 
@@ -128,6 +136,12 @@ int zlog_update(char *conf_file)
 	if (zlog_env_init_flag <= 0) {
 		zc_error("not init, use zlog_update pls");
 		rc = -1;
+		goto zlog_update_exit;
+	}
+
+	rc = zlog_levels_reset();
+	if (rc) {
+		zc_error("zlog_levels_reset fail");
 		goto zlog_update_exit;
 	}
 
@@ -164,6 +178,7 @@ int zlog_update(char *conf_file)
 		zlog_cmap_fini(&zlog_env_cmap);
 		zlog_rotater_fini();
 		zlog_conf_fini(&zlog_env_conf);
+		zlog_levels_fini();
 		zlog_env_init_flag = -1;
 	}
 
@@ -197,6 +212,7 @@ void zlog_fini(void)
 	zlog_cmap_fini(&zlog_env_cmap);
 	zlog_rotater_fini();
 	zlog_conf_fini(&zlog_env_conf);
+	zlog_levels_fini();
 	zlog_env_init_flag = 0;
 
       zlog_fini_exit:
@@ -563,6 +579,7 @@ void zlog_profile(void)
 
 	zc_error("------zlog_profile start------ ");
 	zc_error("init_flag:[%d]", zlog_env_init_flag);
+	zlog_levels_profile();
 	zlog_conf_profile(&zlog_env_conf);
 	zlog_tmap_profile(&zlog_env_tmap);
 	zlog_cmap_profile(&zlog_env_cmap);

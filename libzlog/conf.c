@@ -116,16 +116,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, long line_len)
 
 			zc_debug("overwrite inner default_format, [%s]", format_string);
 		} else if (STRCMP(name, ==, "level")) {
-			char str[MAXLEN_CFG_LINE + 1];
-			int level;
-			char syslog_level[MAXLEN_CFG_LINE + 1];
-			nread = sscanf(line + value_start, " %[^= ] = %d ,%s",
-				str, &level, syslog_level);
-			if (nread < 2) {
-				zc_error("level[%s] syntax wrong", line);
-				return -1;
-			}
-			rc = zlog_level_set(str, level, syslog_level);
+			rc = zlog_level_set(line + value_start);
 			if (rc) {
 				zc_error("zlog_level_set fail");
 				return -1;
@@ -403,39 +394,29 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 {
 	int rc = 0;
 	int nwrite = 0;
-	zlog_conf_t b_conf;
 
 	zc_assert_debug(a_conf, -1);
 
-	memset(&b_conf, 0x00, sizeof(b_conf));
+	zlog_conf_fini(a_conf);
 
 	if (conf_file) {
-		nwrite = snprintf(b_conf.file, sizeof(b_conf.file), "%s",
+		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s",
 			     conf_file);
-	} else if (a_conf->file[0] != '\0') {
-		/* use last conf file */
-		nwrite = snprintf(b_conf.file, sizeof(b_conf.file), "%s",
-			     a_conf->file);
-	}
-	if (nwrite < 0 || nwrite >= sizeof(b_conf.file)) {
-		zc_error("not enough space for path name, nwrite=[%d]",
-			 nwrite);
-		return -1;
-	}
+		if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
+			zc_error("not enough space for path name, nwrite=[%d]",
+				 nwrite);
+			return -1;
+		}
+	} /* else use last conf file, if is \0, build will do default */
 
-	rc = zlog_conf_build(&b_conf);
+	rc = zlog_conf_build(a_conf);
 	if (rc) {
 		/* not change the last conf */
-		zc_error("zlog_conf_build fail, use last conf setting");
+		zc_error("zlog_conf_build fail");
 		return -1;
-	} else {
-		/* all success, then copy, keep consistency */
-		zlog_conf_fini(a_conf);
-		memcpy(a_conf, &b_conf, sizeof(b_conf));
-		zc_debug("zlog_conf_update succ, use file[%s]", a_conf->file);
 	}
 
-	return rc;
+	return 0;
 }
 
 /*******************************************************************************/

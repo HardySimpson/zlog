@@ -34,6 +34,11 @@ typedef struct {
 	int syslog_level;
 } zlog_level_t;
 
+int zlog_levels_init(void);
+void zlog_levels_fini(void);
+int zlog_levels_reset(void);
+void zlog_levels_profile(void);
+
 /* rule init use, slow */
 /* if not found, return -1 */
 int zlog_level_atoi(char *str);
@@ -43,9 +48,9 @@ int zlog_level_atoi(char *str);
 /* if not found, return zlog_env_level[254] */
 zlog_level_t *zlog_level_get(int l);
 
-/* conf int use, slow */
+/* conf init & update use, slow */
 /* if l is wrong or str=="", return -1 */
-int zlog_level_set(char *str, int l, char *sl);
+int zlog_level_set(char *line);
 
 
 #endif

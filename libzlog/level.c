@@ -19,37 +19,80 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <errno.h>
 
-#include "level.h"
 #include "zc_defs.h"
+#include "level.h"
 #include "syslog.h"
 
-static zlog_level_t zlog_env_level[256] = {
-	[0] = {"*", "*", sizeof("*")-1, LOG_INFO},
-	[20] = {"DEBUG", "debug", sizeof("DEBUG")-1, LOG_DEBUG},
-	[40] = {"INFO", "info", sizeof("INFO")-1, LOG_INFO},
-	[60] = {"NOTICE", "notice", sizeof("NOTICE")-1, LOG_NOTICE},
-	[80] = {"WARN", "warn", sizeof("WARN")-1, LOG_WARNING},
-	[100] = {"ERROR", "error", sizeof("ERROR")-1, LOG_ERR},
-	[120] = {"FATAL", "fatal", sizeof("FATAL")-1, LOG_ALERT},
-	[254] = {"UNKOWN", "unkown", sizeof("UNKOWN")-1, LOG_ERR},
-	[255] = {"0", "0", sizeof("0")-1, LOG_INFO},
-};
+static zc_arraylist_t *zlog_env_levels;
 
-static size_t npriorities = sizeof(zlog_env_level) / sizeof(zlog_env_level[0]);
+static int zlog_levels_set_default(void)
+{
+	return zlog_level_set("* = 0, LOG_INFO")
+	|| zlog_level_set("DEBUG = 20, LOG_DEBUG")
+	|| zlog_level_set("INFO = 40, LOG_INFO")
+	|| zlog_level_set("NOTICE = 60, LOG_NOTICE")
+	|| zlog_level_set("WARN = 80, LOG_WARNING")
+	|| zlog_level_set("ERROR = 100, LOG_ERR")
+	|| zlog_level_set("FATAL = 120, LOG_ALERT")
+	|| zlog_level_set("UNKNOWN = 254, LOG_ERR")
+	|| zlog_level_set("! = 255, LOG_INFO");
+}
+
+void zlog_levels_fini(void)
+{
+	if (zlog_env_levels) {
+		zc_arraylist_del(zlog_env_levels);
+	}
+	zlog_env_levels = NULL;
+	return;
+}
+
+int zlog_levels_init(void)
+{
+	int rc;
+
+	zlog_env_levels = zc_arraylist_new(free);
+	if (!zlog_env_levels) {
+		zc_error("zc_arraylist_new fail");
+		return -1;
+	}
+
+	rc = zlog_levels_set_default();
+	if (rc) {
+		zc_error("zlog_level_set_default fail");
+		rc = -1;
+		goto zlog_level_init_exit;
+	}
+
+      zlog_level_init_exit:
+	if (rc) {
+		zlog_levels_fini();
+		return -1;
+	} else {
+		return 0;
+	}
+}
+
+int zlog_levels_reset(void)
+{
+	zlog_levels_fini();
+	return zlog_levels_init();
+}
 
 int zlog_level_atoi(char *str)
 {
 	int i;
+	zlog_level_t *a_level;
 
 	if (str == NULL || *str == '\0') {
 		zc_error("str is [%s], can't find level", str);
 		return -1;
 	}
 
-	for (i = 0; i < npriorities; i++) {
-		/* case insesitive */
-		if (STRICMP(str, ==, (zlog_env_level[i]).str_capital)) {
+	zc_arraylist_foreach(zlog_env_levels, i, a_level) {
+		if (a_level && STRICMP(str, ==, a_level->str_capital)) {
 			return i;
 		}
 	}
@@ -60,19 +103,23 @@ int zlog_level_atoi(char *str)
 
 zlog_level_t *zlog_level_get(int p)
 {
+	zlog_level_t *a_level;
+
 	if ((p <= 0) || (p > 254)) {
 		/* illegal input from zlog() */
 		zc_error("p[%d] not in (0,254), set to UNKOWN", p);
 		p = 254;
 	}
 
-	if (((zlog_env_level[p]).str_capital)[0] == '\0') {
+	a_level = zc_arraylist_get(zlog_env_levels, p);
+	if (!a_level) {
 		/* empty slot */
 		zc_error("p[%d] in (0,254), but not in map,"
 			"see configure file define, set ot UNKOWN", p);
-		p = 254;
+		a_level = zc_arraylist_get(zlog_env_levels, 254);
 	}
-	return &(zlog_env_level[p]);
+
+	return a_level;
 }
 
 static int syslog_level_atoi(char *str)
@@ -103,17 +150,28 @@ static int syslog_level_atoi(char *str)
 	return -187;
 }
 
-int zlog_level_set(char *str, int l, char *sl)
+int zlog_level_set(char *line)
 {
-	zlog_level_t a_level;
+	int rc;
+	zlog_level_t *a_level;
 	int i;
+	int nread;
+	char str[MAXLEN_CFG_LINE + 1];
+	int l;
+	char sl[MAXLEN_CFG_LINE + 1];
 
-	zc_assert_debug(str, -1);
-	zc_assert_debug(sl, -1);
+	zc_assert_debug(line, -1);
+
+	nread = sscanf(line, " %[^= ] = %d ,%s",
+		str, &l, sl);
+	if (nread < 2) {
+		zc_error("level[%s] syntax wrong", line);
+		return -1;
+	}
 
 	/* check level and str */
-	if ((l <= 0) || (l > 254)) {
-		zc_error("l[%d] not in (0,254), wrong", l);
+	if ((l < 0) || (l > 255)) {
+		zc_error("l[%d] not in [0,255], wrong", l);
 		return -1;
 	}
 
@@ -122,39 +180,72 @@ int zlog_level_set(char *str, int l, char *sl)
 		return -1;
 	}
 
-	memset(&a_level, 0x00, sizeof(a_level));
+	a_level = calloc(1, sizeof(*a_level));
+	if (!a_level) {
+		zc_error("calloc fail, errno[%d]", errno);
+		return -1;
+	}
 
 	/* fill syslog level */
 	if (*sl == '\0') {
-		a_level.syslog_level = LOG_DEBUG;
+		a_level->syslog_level = LOG_DEBUG;
 	} else {
-		a_level.syslog_level = syslog_level_atoi(sl);
-		if (a_level.syslog_level == -187) {
+		a_level->syslog_level = syslog_level_atoi(sl);
+		if (a_level->syslog_level == -187) {
 			zc_error("syslog_level_atoi fail");
-			return -1;
+			rc = -1;
+			goto zlog_level_set_exit;
 		}
 	}
 
 	/* strncpy and toupper(str)  */
-	for (i = 0; (i < sizeof(a_level.str_capital) - 1) && str[i] != '\0'; i++) {
-		(a_level.str_capital)[i] = toupper(str[i]);
-		(a_level.str_lowercase)[i] = tolower(str[i]);
+	for (i = 0; (i < sizeof(a_level->str_capital) - 1) && str[i] != '\0'; i++) {
+		(a_level->str_capital)[i] = toupper(str[i]);
+		(a_level->str_lowercase)[i] = tolower(str[i]);
 	}
 
 	if (str[i] != '\0') {
 		/* overflow */
 		zc_error("not enough space for str, str[%s] > %d", str, i);
-		return -1;
+		rc = -1;
+		goto zlog_level_set_exit;
 	} else {
-		(a_level.str_capital)[i] = '\0';
-		(a_level.str_lowercase)[i] = '\0';
+		(a_level->str_capital)[i] = '\0';
+		(a_level->str_lowercase)[i] = '\0';
 	}
 
-	a_level.str_len = i;
+	a_level->str_len = i;
 
 	/* all success, then copy, keep consistency */
-	memcpy(&(zlog_env_level[l]), &a_level, sizeof(a_level));
+	rc = zc_arraylist_set(zlog_env_levels, l, a_level);
+	if (rc) {
+		zc_error("zc_arraylist_set fail");
+		rc = -1;
+		goto zlog_level_set_exit;
+	}
 
-	return 0;
+      zlog_level_set_exit:
+	if (rc) {
+		zc_error("line[%s]", line);
+		free(a_level);
+		return -1;
+	} else {
+		return 0;
+	}
 }
 
+void zlog_levels_profile(void)
+{
+	int i;
+	zlog_level_t *a_level;
+
+	zc_arraylist_foreach(zlog_env_levels, i, a_level) {
+		if (a_level) {
+			zc_error("level:%s = %d, %d",
+				a_level->str_capital, 
+				i, a_level->syslog_level);
+		}
+	}
+
+	return;
+}

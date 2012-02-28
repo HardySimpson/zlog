@@ -174,7 +174,6 @@ int zlog_rotater_update(char *lock_file)
 {
 	int rc = 0;
 	int fd = 0;
-	const char *lf;
 
 	zc_assert_debug(lock_file, -1);
 
@@ -185,16 +184,10 @@ int zlog_rotater_update(char *lock_file)
 		}
 	}
 
-	if (STRCMP(lock_file, ==, "")) {
-		lf = "/tmp/zlog.lock";
-	} else {
-		lf = lock_file;
-	}
-
-	fd = open(lf, O_RDWR | O_CREAT,
+	fd = open(lock_file, O_RDWR | O_CREAT,
 		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", lf, errno);
+		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
 		return -1;
 	}
 
@@ -208,16 +201,16 @@ void zlog_rotater_fini()
 {
 	int rc = 0;
 
-	rc = pthread_mutex_destroy(&(zlog_env_rotater.mlock));
-	if (rc) {
-		zc_error("pthread_mutex_destroy fail, errno[%d]", errno);
-	}
-
 	if (zlog_env_rotater.lock_fd) {
 		rc = close(zlog_env_rotater.lock_fd);
 		if (rc) {
 			zc_error("close fail, errno[%d]", errno);
 		}
+	}
+
+	rc = pthread_mutex_destroy(&(zlog_env_rotater.mlock));
+	if (rc) {
+		zc_error("pthread_mutex_destroy fail, errno[%d]", errno);
 	}
 
 	memset(&zlog_env_rotater, 0x00, sizeof(zlog_env_rotater));

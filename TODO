@@ -29,15 +29,19 @@
 [o] 增加!.*, 匹配未被匹配的分类
 [o] priority->level
 [o] level自定义
-[p] rule syslog open
+[o] rule syslog open
+[o] default format移到全局配置
+[o] reset level, 用arraylist来做试试看
 
-[ ] default format移到全局配置
-[ ] reset level
 [p] 使用valgrind测试性能
 	[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 [p] 用某种自动编译器以及文档生成器
 	[ ] 增加man  age,  df, 案例, doxygen
 [p] zlog-gen-conf
+[ ] 文件的权限设置
+[ ] rotate控制个数
+[ ] zlog-chk-conf -c
+[ ] zlog-input -c category -p priority -f conf
 [ ] 输出到管道
 [ ] 配置n个线程的内存，在一开始申请，减少开线程的时候的消耗
 [ ] 和rsyslog对接的问题
@@ -49,11 +53,7 @@
 [ ] hzlog的可定制话
 [ ] 分类匹配的可定制化
 [ ] 兼容性问题
-[ ] zlog-input -c category -p priority -f conf
-[ ] zlog-chk-conf -c
 [ ] ylog, 更简单的接口
-[ ] 文件的权限设置
-[ ] rotate控制个数
 ==========
 编写文章:
 
