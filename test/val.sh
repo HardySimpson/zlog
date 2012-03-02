@@ -1,8 +1,8 @@
-unset ZLOG_ERROR_LOG
-unset ZLOG_DEBUG_LOG
+unset ZLOG_PROFILE_ERROR
+unset ZLOG_PROFILE_DEBUG_LOG 
 
-#export ZLOG_DEBUG_LOG=err.log
-#export ZLOG_ERROR_LOG=err.log
+#export ZLOG_PROFILE_DEBUG=err.log
+#export ZLOG_PROFILE_ERROR=err.log
 
 make -f makefile.linux clean
 make -f makefile.linux

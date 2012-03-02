@@ -53,7 +53,7 @@ int zc_debug_inner(const char *file, const long line, const char *fmt, ...)
 		return 0;
 
 	if (debug_log == NULL) {
-		debug_log = getenv("ZLOG_DEBUG_LOG");
+		debug_log = getenv("ZLOG_PROFILE_DEBUG");
 		if (debug_log == NULL) {
 			need_debug = 0;
 			return 0;
@@ -91,7 +91,7 @@ int zc_error_inner(const char *file, const long line, const char *fmt, ...)
 		return 0;
 
 	if (error_log == NULL) {
-		error_log = getenv("ZLOG_ERROR_LOG");
+		error_log = getenv("ZLOG_PROFILE_ERROR");
 		if (error_log == NULL) {
 			need_error = 0;
 			return 0;

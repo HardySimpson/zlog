@@ -404,26 +404,6 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-@ignore_error_format_rule    false
-\end_layout
-
-\begin_layout LyX-Code
-@buf_size_min                1024
-\end_layout
-
-\begin_layout LyX-Code
-@buf_size_max                0
-\end_layout
-
-\begin_layout LyX-Code
-@rotate_lock_file            /tmp/zlog.lock
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
 &simple                 "%m%n"
 \end_layout
 
@@ -459,13 +439,13 @@ hello, zlog
 
 \end_deeper
 \begin_layout Chapter
-Configure File Syntax
+Configure File
 \end_layout
 
 \begin_layout Standard
 All actions of zlog library are dependent upon configure file: where to
  output the log, how log is rotate, the output format, etc...
- Configure File is a special language tells how library work.
+ Configure File is a special language tells how library works.
 \end_layout
 
 \begin_layout Section
@@ -535,6 +515,78 @@ rotate_lock_file is a lock file for rotate a log safely between multi-process.
 
 \begin_layout LyX-Code
 @rotate_lock_file       /tmp/zlog.lock
+\end_layout
+
+\begin_layout Standard
+default_format is used by rules without format.
+ That cause each rule without format specified, would yield output like
+ this:
+\end_layout
+
+\begin_layout LyX-Code
+2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
+\end_layout
+
+\begin_layout Standard
+You can set it to change the default behavior.The inner default format:
+\end_layout
+
+\begin_layout LyX-Code
+@default_format "%d(%F %T) %V [%p:%F:%L] %m%n"
+\end_layout
+
+\begin_layout Standard
+User can defined his own levels, and suggest to be used with user-defined
+ macros in source file.
+\end_layout
+
+\begin_layout Standard
+The inner default levels are
+\end_layout
+
+\begin_layout LyX-Code
+@level                             DEBUG = 20, LOG_DEBUG
+\end_layout
+
+\begin_layout LyX-Code
+@level                             INFO = 40, LOG_INFO
+\end_layout
+
+\begin_layout LyX-Code
+@level                             NOTICE = 60, LOG_NOTICE
+\end_layout
+
+\begin_layout LyX-Code
+@level                             WARN = 80, LOG_WARNING
+\end_layout
+
+\begin_layout LyX-Code
+@level                             ERROR = 100, LOG_ERR
+\end_layout
+
+\begin_layout LyX-Code
+@level                             FATAL = 120, LOG_ALERT
+\end_layout
+
+\begin_layout LyX-Code
+@level                             UNKNOWN = 254, LOG_ERR
+\end_layout
+
+\begin_layout Standard
+The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+@level[n tabs or spaces][level string] = [level int], [syslog level, optional]
+\end_layout
+
+\begin_layout Standard
+level int should in [1,253], more larger, more important.
+ syslog level is optional, if not set, use LOG_DEBUG
+\end_layout
+
+\begin_layout Standard
+see ~/test/test_level.c ~/test/test_level.h for example.
 \end_layout
 
 \begin_layout Section
@@ -1683,19 +1735,11 @@ That cause each rule without format specified, would yield output like this:
 
 \begin_layout Standard
 The inner default format can be overwritten.
- Just name a format which name is 
-\begin_inset Quotes eld
-\end_inset
-
-default
-\begin_inset Quotes erd
-\end_inset
-
- in configure file
+ Just use default_format global setting above:
 \end_layout
 
 \begin_layout LyX-Code
-&default "%m%n
+@default_format "%m%n
 \begin_inset Quotes erd
 \end_inset
 
@@ -1789,7 +1833,7 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="16" columns="3">
+<lyxtabular version="3" rows="17" columns="3">
 <features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
@@ -2217,7 +2261,7 @@ V
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the level of the logging event.
+Used to output the level of the logging event, capital.
 \end_layout
 
 \end_inset
@@ -2227,6 +2271,35 @@ Used to output the level of the logging event.
 
 \begin_layout Plain Layout
 INFO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+v
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the level of the logging event, lowercase.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+info
 \end_layout
 
 \end_inset
@@ -4121,7 +4194,46 @@ Configure File Tools
 \end_layout
 
 \begin_layout Chapter
-Function Interface
+zlog API
+\end_layout
+
+\begin_layout Standard
+All API of zlog is thread safe.
+\end_layout
+
+\begin_layout Section
+init and finish
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_init(char *conf_file);
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_update(char *conf_file);
+\end_layout
+
+\begin_layout LyX-Code
+void zlog_fini(void);
+\end_layout
+
+\begin_layout Standard
+zlog_init() read configuration from file.
+ If conf_file is NULL, all log will be output to stdout with inner format.Only
+ 1st time use zlog_init() is effective, other times will record a error
+ log in ZLOG_PROFILE_ERROR, and return -1.
+\end_layout
+
+\begin_layout Standard
+zlog_update() is designed to reload conf_file.
+ It can be use at any time configure file changed, and can be use unlimit
+ times.
+ If conf_file is NULL, use the last configure file zlog_init() or zlog_update()
+ specified.
+\end_layout
+
+\begin_layout Standard
+zlog_fini() use the last configure file zlog_init() or zlog_update() specified.
 \end_layout
 
 \begin_layout Chapter
@@ -4137,10 +4249,6 @@ name "sec:MDC"
 \end_inset
 
 
-\end_layout
-
-\begin_layout Section
-zlog tools
 \end_layout
 
 \begin_layout Section

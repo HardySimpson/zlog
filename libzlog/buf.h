@@ -114,7 +114,7 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 		      const struct tm *a_tm);
 
 /**
- * Output detail of zlog_buf_t to ZLOG_ERROR_LOG.
+ * Output detail of zlog_buf_t to ZLOG_PROFILE_ERROR.
  *
  * @param a_buf zlog_buf_t pointer, shall not be NULL.
  */

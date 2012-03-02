@@ -24,6 +24,7 @@
 
 enum {
 	ZLOG_LEVEL_TRACE = 30,
+	/* must equals conf file setting */
 };
 
 #define ZLOG_TRACE(cat, format, args...) \

@@ -37,15 +37,15 @@
 "# The full sytanx is:\n"   \
 "#     @[key][n space or tab][value]\n"   \
 "\n"   \
-"# If ignore_error_format_rule is true,\n"   \
+"### If ignore_error_format_rule is true,\n"   \
 "#    zlog_init() will omit error syntax of formats and rules.\n"   \
 "# Else if ignore_error_format_rule is false,\n"   \
 "#    zlog_init() will check sytnax of all formats and rules strictly,\n"   \
 "#    and any error will cause zlog_init() failed and return -1.\n"   \
-"# Default, ignore_error_format_rule is false.\n"   \
+"# Default:\n"   \
 "# @ignore_error_format_rule          false\n"  \
 "\n"   \
-"# zlog allocates one log buffer in each thread.\n"   \
+"### zlog allocates one log buffer in each thread.\n"   \
 "# buf_size_min indicates size of buffer malloced at init time.\n"   \
 "# While loging, if log content size > buf_size,\n"   \
 "#     buffer will expand automaticly, till buf_size_max,\n"   \
@@ -55,11 +55,11 @@
 "#     till process use up all it's memory.\n"   \
 "# Size can append with unit KB, MB or GB,\n"   \
 "#     so [@buf_size_min 1024] equals [@buf_size_min 1KB].\n"   \
-"# Default, buf_size_min is 1K and buf_size_max is 2MB.\n"   \
+"# Default:\n"   \
 "# @buf_size_min                      1024\n"  \
 "# @buf_size_max                      2MB\n"  \
 "\n"   \
-"# rotate_lock_file is a lock file for\n"   \
+"### rotate_lock_file is a lock file for\n"   \
 "#     rotate a log safely between multi-process.\n"   \
 "# zlog will create the file at zlog_init()\n"   \
 "# Make sure your program has permission to create and read-write the file.\n"   \
@@ -67,15 +67,32 @@
 "#     who need to write and rotater a same log file,\n"   \
 "#     make sure that each program has permission\n"   \
 "#     to create and read-write the same lock file.\n"   \
-"# Default, rotate_lock_file is /tmp/zlog.lock\n"   \
+"# Default:\n"   \
+"# @rotate_lock_file                  /tmp/zlog.lock\n"  \
 "\n"   \
-"# default_format is used by rules without format\n"  \
-"# The inner default format is\n"   \
-"# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
+"### default_format is used by rules without format\n"  \
 "# That cause each rule without format specified, would yield output like this:\n"   \
 "# 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog\n"   \
-"# You can set it as whatever you want\n" \
+"# You can set it to change the default behavior\n" \
+"# The inner default format:\n"   \
+"# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
 "\n"   \
+"### User defined levels here\n"   \
+"# The inner default levels are\n"   \
+"# @level                             DEBUG = 20, LOG_DEBUG\n"   \
+"# @level                             INFO = 40, LOG_INFO\n"   \
+"# @level                             NOTICE = 60, LOG_NOTICE\n"   \
+"# @level                             WARN = 80, LOG_WARNING\n"   \
+"# @level                             ERROR = 100, LOG_ERR\n"   \
+"# @level                             FATAL = 120, LOG_ALERT\n"   \
+"# @level                             UNKNOWN = 254, LOG_ERR\n"   \
+"# The syntax is\n"   \
+"# @level[n tabs or spaces][level string] = [level int], [syslog level, optional]\n"   \
+"# level int should in [1,253], more larger, more important\n"   \
+"# and suggest to be used with user-defined macros in source file\n"   \
+"# see ~/test/test_level.c ~/test/test_level.h for example\n"   \
+"# eg.\n"   \
+"# @level                             TEST = 50\n"   \
 "\n"   \
 "########\n"   \
 "# Format begins with &.\n"   \
@@ -94,13 +111,51 @@
 "#     [category] should be\n"   \
 "#         *, matches all category\n"   \
 "#         !, matches category that has no rule matched yet\n"   \
-"#         normal category not end with '_', accurate match.\n"   \
+"#         normal category, not end with '_', accurate match.\n"   \
 "#             eg. aa_bb matches zt = zlog_get_category(\"aa_bb\")\n"   \
-"#         super-category end with '_', match super-category and sub-categories\n"   \
+"#         super-category, end with '_', match super-category and sub-categories\n"   \
 "#             eg. aa_ matches zt1 = zlog_get_category(\"aa\"), zt2 = zlog_get_category(\"aa_bb\"),\n"   \
 "#                             zt3 = zlog_get_category(\"aa_bb_cc\")...\n"   \
+"#     [level] should be zlog inner default levels, or user-defined levels\n" \
+"#         aa.debug, soucre log action >= debug\n" \
+"#         aa.!debug, source log action != debug\n" \
+"#         aa.=debug, source log action == debug\n" \
 "# [action] = [output], [file size limitation,optional]; [format name, optional]\n"   \
-"\n"
+"#     [output] can be\n"   \
+"#         >stdout, to posix stranded output\n"   \
+"#         >stderr, to posix stranded error\n"   \
+"#         >syslog, to syslog, must flow syslog facility\n"   \
+"#         \"file path\", can be absolute file path\n"   \
+"#             or relative file path with conversion pattern.\n"    \
+"#     [file size limitation]\n"  \
+"#         if [output] is syslog, then here is syslog facility, \n"  \
+"#            must be LOG_LOCAL[0-7] or LOG_USER\n"   \
+"#         else it controls file size in bytes, and can be appended with kb,mb,gb \n"   \
+"#            eg. 2048K, 1M, 10mb\n"   \
+"#     [format name]\n"   \
+"#         the format mentioned above, or the default format if not set\n"  \
+"#\n"   \
+"######## Appendix, Conversion Character\n"   \
+"# c    category name                      aa_bb\n"  \
+"# d    data & time %d(strftime format)    12-01 17:17:42\n"   \
+"# E    environment variable %E(HOME)      /home/test\n"   \
+"# F    file name, __FILE__                test_hello.c\n"   \
+"# f    strip file name, __FILE__          test_hello.c\n"   \
+"# H    host name, gethostname()           zlog-dev\n"   \
+"# L    line number, __LINE__              123\n"   \
+"# m    user message                       hello, zlog\n"   \
+"# M    mdc, %M(key)                       value\n"   \
+"# n    newline                            \\n\n"   \
+"# p    process id, getpid()               13423\n"   \
+"# V    log level, capital                 INFO\n"   \
+"# v    log level, lowercase               info\n"   \
+"# t    thread id, pthread_self            12343\n"   \
+"# %%   a single percent sign              %\n"   \
+"# %[other char]   wrong syntax, will cause zlog_init() fail\n"  \
+"#\n"  \
+"######## Appendix, tools\n"   \
+"# zlog-chk-conf [conf file]\n"  \
+"# zlog-gen-conf [conf file]\n"
 
 #define CONF_STRING \
 "# @ignore_error_format_rule          false\n"  \
@@ -108,6 +163,7 @@
 "# @buf_size_max                      2MB\n"  \
 "# @rotate_lock_file                  /tmp/zlog.lock\n"  \
 "# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
+"# @level                             TRACE = 10, LOG_DEBUG\n"   \
 "\n"  \
 "\n"  \
 "# *.*                     >stdout\n"  \
@@ -144,8 +200,8 @@ int main(int argc, char *argv[])
 	argc -= optind;
 	argv += optind;
 
-	setenv("ZLOG_ERROR_LOG", "/dev/stderr", 1);
-	setenv("ZLOG_ICC", "1", 1);
+	setenv("ZLOG_PROFILE_ERROR", "/dev/stderr", 1);
+	setenv("ZLOG_CHECK_FORMAT_RULE", "1", 1);
 
 	rc = zlog_init(NULL);
 	if (rc) {

@@ -39,6 +39,7 @@
 	[ ] 增加man  age,  df, 案例, doxygen
 [p] zlog-gen-conf
 [ ] 文件的权限设置
+[ ] ylog, 更简单的接口
 [ ] rotate控制个数
 [ ] zlog-chk-conf -c
 [ ] zlog-input -c category -p priority -f conf
@@ -47,13 +48,12 @@
 [ ] 和rsyslog对接的问题
 [ ] 采用精细的reo en方法来建立用fo en来智能判断需不需要重开文件
 	[ ]需要建立全局FILE hashtable及计数器
-[ ] 自动刷新配置....同上
+	[ ] 自动刷新配置....同上
 [ ] 测试多线程的效率
 [ ] 打印堆栈。。可能需要语言支持
 [ ] hzlog的可定制话
 [ ] 分类匹配的可定制化
 [ ] 兼容性问题
-[ ] ylog, 更简单的接口
 ==========
 编写文章:
 

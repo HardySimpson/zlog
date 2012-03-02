@@ -44,15 +44,15 @@ extern "C" {
  * It will also create a category's table, a rotater for rotate too large log file,
    a threads buf table.
  * Only 1st time use zlog_init() is effective, other times will record a error log in
-   ZLOG_ERROR_LOG, and return -1.
- * Can use zlog_update() to reload configure file.
+   ZLOG_PROFILE_ERROR, and return -1.
+ * Use zlog_update() to reload configure file.
  * Before exit program, use zlog_fini() to release all memory zlog_init() applied.
  * 
  * @param conf_file configure file path, both relative path and absolute path is accept.
     If conf_file is NULL, use environment variable ZLOG_CONFPATH instead, else if
     ZLOG_CONF_PATH is NULL, output all logs to stdout.
- * @returns 0 for success, -1 for fail, detail will be record in ZLOG_ERROR_LOG.
- * @see zlog_update(), zlog_fini(), zlog.conf, ZLOG_ERROR_LOG
+ * @returns 0 for success, -1 for fail, detail will be record in ZLOG_PROFILE_ERROR.
+ * @see zlog_update(), zlog_fini(), zlog.conf, ZLOG_PROFILE_ERROR
  */
 	int zlog_init(char *conf_file);
 
@@ -66,24 +66,24 @@ extern "C" {
  *
  * @param conf_file configure file path, both relative path and absolute path is accept.
     If conf_file is NULL, use the last configure file zlog_init() or zlog_update() specified.
- * @returns 0 for success, -1 for fail, detail will be record in ZLOG_ERROR_LOG.
- * @see zlog_init(), zlog_fini(), zlog.conf, ZLOG_ERROR_LOG
+ * @returns 0 for success, -1 for fail, detail will be record in ZLOG_PROFILE_ERROR.
+ * @see zlog_init(), zlog_fini(), zlog.conf, ZLOG_PROFILE_ERROR
  */
 	int zlog_update(char *conf_file);
 
 /**
  * @brief Finish zlog, release all memory zlog_init() or zlog_update() applied.
  * 
- * @see zlog_init(), zlog_update(), zlog.conf, ZLOG_ERROR_LOG
+ * @see zlog_init(), zlog_update(), zlog.conf, ZLOG_PROFILE_ERROR
  */
 	void zlog_fini(void);
 
 /**
- * @brief Output detail of zlog's configure file to ZLOG_ERROR_LOG.
+ * @brief Output detail of zlog's configure file to ZLOG_PROFILE_ERROR.
  *
  * The function is always used when u are not sure what is zlog's conf now.
  *
- * @see ZLOG_ERROR_LOG
+ * @see ZLOG_PROFILE_ERROR
  */
 	void zlog_profile(void);
 
@@ -115,8 +115,8 @@ extern "C" {
     The length of category_name shall not be longer than PATH_MAX from limits.h,
     which is commonly 4096 on linux system.
  * @returns a zlog_category_t pointer for success,
-    NULL for fail, detail will be record in ZLOG_ERROR_LOG.
- * @see zlog_category_t, ZLOG_ERROR_LOG
+    NULL for fail, detail will be record in ZLOG_PROFILE_ERROR.
+ * @see zlog_category_t, ZLOG_PROFILE_ERROR
  */
 	zlog_category_t *zlog_get_category(char *category_name);
 
@@ -156,7 +156,7 @@ extern "C" {
  * @param level one level from zlog_level, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN.
  * @param format C printf style format, if use a wrong format like "%l",
-    nothing will be output, and record a log in ZLOG_ERROR_LOG.
+    nothing will be output, and record a log in ZLOG_PROFILE_ERROR.
  * @see vzlog(), hzlog()
  */
 	void zlog(zlog_category_t * a_cat, char *file, long line, int level,
@@ -173,7 +173,7 @@ extern "C" {
  * @param level one level from zlog_level, if <=0 or >=255,
     this message will be record as ZLOG_UNKOWN.
  * @param format C printf style format, if use a wrong format like "%l",
-    nothing will be output, and record a log in ZLOG_ERROR_LOG.
+    nothing will be output, and record a log in ZLOG_PROFILE_ERROR.
  * @param args a va_list, will be va_copy() inner.
  */
 	void vzlog(zlog_category_t * a_cat, char *file, long line, int level,

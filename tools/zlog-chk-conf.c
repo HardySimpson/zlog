@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	setenv("ZLOG_ERROR_LOG", "/dev/stderr", 1);
+	setenv("ZLOG_PROFILE_ERROR", "/dev/stderr", 1);
 	setenv("ZLOG_CHECK_FORMAT_RULE", "1", 1);
 
 	while (argc > 0) {
