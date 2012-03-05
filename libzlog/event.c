@@ -79,7 +79,7 @@ void zlog_event_del(zlog_event_t * a_event)
 void zlog_event_refresh(zlog_event_t * a_event,
 			char *category_name, size_t * category_name_len,
 			char *file, long line, int level,
-			char *hex_buf, long hex_buf_len, char *str_format,
+			void *hex_buf, size_t hex_buf_len, char *str_format,
 			va_list str_args, int generate_cmd)
 {
 	zc_assert_debug(a_event,);

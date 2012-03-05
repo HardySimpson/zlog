@@ -201,7 +201,7 @@ extern "C" {
  * @param buf_len buf's length
  */
 	void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
-		   char *buf, unsigned long buf_len);
+		   void *buf, size_t buf_len);
 
 /******* useful macros, can be redefined at user's h file **********/
 

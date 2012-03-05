@@ -456,7 +456,7 @@ void zlog_clean_mdc(void)
 /*******************************************************************************/
 
 static int zlog_output(zlog_category_t * a_cat, char *file, long line,
-		       int level, char *hex_buf, long hex_buf_len,
+		       int level, void *hex_buf, size_t hex_buf_len,
 		       char *str_format, va_list str_args, int generate_cmd)
 {
 	int rc = 0;
@@ -559,7 +559,7 @@ void vzlog(zlog_category_t * a_cat, char *file, long line, int level,
 }
 
 void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
-	   char *buf, unsigned long buf_len)
+	   void *buf, size_t buf_len)
 {
 	zc_assert_runtime(a_cat, );
 

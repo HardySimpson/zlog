@@ -32,6 +32,8 @@
 #include "zc_defs.h"
 
 #define ZLOG_DEFAULT_TIME_FMT "%F %T"
+#define	ZLOG_HEX_HEAD  \
+	"             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F    0123456789ABCDEF"
 
 /*******************************************************************************/
 static void zlog_spec_debug(zlog_spec_t * a_spec);
@@ -307,8 +309,6 @@ static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 {
 	int rc = 0;
 
-	static char zlog_hex_head[] =
-	    "             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F    0123456789ABCDEF";
 
 	if (a_thread->event->generate_cmd == ZLOG_FMT) {
 
@@ -341,18 +341,18 @@ static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 			goto zlog_hex_exit;
 		} else if (a_thread->event->hex_buf_len <= 0) {
 			rc = zlog_buf_printf(a_buf, "(hex_buf_len=%ld) <= 0",
-					     a_thread->event->hex_buf_len);
+					    (long) a_thread->event->hex_buf_len);
 			goto zlog_hex_exit;
 		}
 
 		rc = zlog_buf_printf(a_buf, "hex_buf_len=[%ld]\n",
-				     a_thread->event->hex_buf_len);
+				     (long) a_thread->event->hex_buf_len);
 		if (rc) {
 			goto zlog_hex_exit;
 		}
 
-		rc = zlog_buf_append(a_buf, zlog_hex_head,
-				     sizeof(zlog_hex_head)-1);
+		rc = zlog_buf_append(a_buf, ZLOG_HEX_HEAD,
+				     sizeof(ZLOG_HEX_HEAD)-1);
 		if (rc) {
 			goto zlog_hex_exit;
 		}

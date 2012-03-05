@@ -142,7 +142,7 @@ What is not zlog
 \end_layout
 
 \begin_layout Standard
-The goal of zlog is becoming a simple, clear log library for application.
+The goal of zlog is becoming a simple, fast log library for application.
  It will not support too much output like send log to other machine through
  net or save it to database.
  It will not parse content of log and filter them.
@@ -807,6 +807,13 @@ The syntax of rule is:
 
 \begin_layout Section
 Select Input
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Select-Input"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -4218,22 +4225,539 @@ void zlog_fini(void);
 \end_layout
 
 \begin_layout Standard
-zlog_init() read configuration from file.
- If conf_file is NULL, all log will be output to stdout with inner format.Only
- 1st time use zlog_init() is effective, other times will record a error
- log in ZLOG_PROFILE_ERROR, and return -1.
+
+\emph on
+zlog_init()
+\emph default
+ read configuration from file.
+ If 
+\emph on
+conf_file
+\emph default
+ is NULL, all log will be output to stdout with inner format.Only 1st time
+ use zlog_init() is effective, other times will record a error log in ZLOG_PROFI
+LE_ERROR(see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Profile-zlog-Itself"
+
+\end_inset
+
+), and return -1.
 \end_layout
 
 \begin_layout Standard
-zlog_update() is designed to reload conf_file.
+
+\emph on
+zlog_update()
+\emph default
+ is designed to reload 
+\emph on
+conf_file
+\emph default
+.
  It can be use at any time configure file changed, and can be use unlimit
  times.
- If conf_file is NULL, use the last configure file zlog_init() or zlog_update()
+ If conf_file is NULL, use the last configure file 
+\emph on
+zlog_init() 
+\emph default
+or 
+\emph on
+zlog_update()
+\emph default
  specified.
+ If failed, return -1 and zlog will be unuseable.
 \end_layout
 
 \begin_layout Standard
-zlog_fini() use the last configure file zlog_init() or zlog_update() specified.
+
+\emph on
+zlog_fini()
+\emph default
+ release all memory 
+\emph on
+zlog_init()
+\emph default
+ or 
+\emph on
+zlog_update() 
+\emph default
+applied.
+\end_layout
+
+\begin_layout Section
+category operation
+\end_layout
+
+\begin_layout LyX-Code
+typedef struct zlog_category_t zlog_category_t;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zlog_get_category(char *category_name);
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+zlog_get_category()
+\emph default
+ get a category from global table for future log, if none, create it.
+ If success, return the address of zlog_category_t, else return NULL.
+ 
+\emph on
+category_name
+\emph default
+ should correspond to configure setting, see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Select-Input"
+
+\end_inset
+
+.
+ No need to worry about category's memory release,
+\emph on
+ zlog_fini()
+\emph default
+ will clean up at last.
+\end_layout
+
+\begin_layout Section
+log functions
+\end_layout
+
+\begin_layout LyX-Code
+void zlog(zlog_category_t * a_cat, 
+\end_layout
+
+\begin_layout LyX-Code
+             char *file, long line, 
+\end_layout
+
+\begin_layout LyX-Code
+             int level,
+\end_layout
+
+\begin_layout LyX-Code
+             char *format, ...);
+\end_layout
+
+\begin_layout LyX-Code
+void vzlog(zlog_category_t * a_cat,
+\end_layout
+
+\begin_layout LyX-Code
+             char *file, long line,
+\end_layout
+
+\begin_layout LyX-Code
+             int level,
+\end_layout
+
+\begin_layout LyX-Code
+             char *format, va_list args); 
+\end_layout
+
+\begin_layout LyX-Code
+void hzlog(zlog_category_t * a_cat,
+\end_layout
+
+\begin_layout LyX-Code
+             char *file, long line,
+\end_layout
+
+\begin_layout LyX-Code
+             int level,
+\end_layout
+
+\begin_layout LyX-Code
+             void *buf, size_t buf_len); 
+\end_layout
+
+\begin_layout Standard
+These 3 functions are the real log function producing user message, which
+ corresponds to %m is configure file.
+ 
+\emph on
+a_cat
+\emph default
+ comes from 
+\emph on
+zlog_get_category()
+\emph default
+ described above.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+zlog()
+\emph default
+ and 
+\emph on
+vzlog() 
+\emph default
+produce output according to a 
+\emph on
+format
+\emph default
+ like 
+\emph on
+printf(3)
+\emph default
+ and 
+\emph on
+vprintf(3)
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+vzlog()
+\emph default
+ is equivalent to 
+\emph on
+zlog()
+\emph default
+, respectively, except that it is called with a va_list instead of a variable
+ number of arguments.
+ 
+\emph on
+vzlog()
+\emph default
+ do not call the va_end macro.
+ Because it invokes the va_arg macro, the value of 
+\emph on
+args
+\emph default
+ is undefined after the call.
+ See stdarg(3).
+ 
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+hzlog() 
+\emph default
+is a little different, it produce output like this, the hexadecimal representati
+on of 
+\emph on
+buf 
+\emph default
+and output len is 
+\emph on
+buf_len
+\end_layout
+
+\begin_layout LyX-Code
+hex_buf_len=[5365]  
+\end_layout
+
+\begin_layout LyX-Code
+             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F      0123456789ABCDE
+F
+\end_layout
+
+\begin_layout LyX-Code
+0000000001   23 21 20 2f 62 69 6e 2f 62 61 73 68 0a 0a 23 20   #! /bin/bash..#
+\end_layout
+
+\begin_layout LyX-Code
+0000000002   74 65 73 74 5f 68 65 78 20 2d 20 74 65 6d 70 6f   test_hex
+ - tempo
+\end_layout
+
+\begin_layout LyX-Code
+0000000003   72 61 72 79 20 77 72 61 70 70 65 72 20 73 63 72   rary wrapper
+ scr
+\end_layout
+
+\begin_layout Standard
+The parameter 
+\emph on
+file
+\emph default
+ and 
+\emph on
+line
+\emph default
+ are usually filled with __FILE__ and __LINE__ macro.
+ These indicate where log event happens.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+level 
+\emph default
+is a int, which usually is in
+\end_layout
+
+\begin_layout LyX-Code
+typedef enum {                 
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_DEBUG = 20,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_INFO = 40,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_NOTICE = 60,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_WARN = 80,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_ERROR = 100,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_FATAL = 120
+\end_layout
+
+\begin_layout LyX-Code
+} zlog_level;
+\end_layout
+
+\begin_layout Section
+log macros
+\end_layout
+
+\begin_layout Standard
+For easy writing, there are some log macros
+\end_layout
+
+\begin_layout Standard
+macros of zlog()
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_FATAL(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ##args)
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_ERROR(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, ##args)
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_WARN(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, ##args)
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_NOTICE(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, ##args)
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_INFO(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, ##args)
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_DEBUG(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ##args) 
+\end_layout
+
+\begin_layout Standard
+macros of vzlog()
+\end_layout
+
+\begin_layout LyX-Code
+#define VZLOG_FATAL(cat, format, args) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+#define VZLOG_ERROR(cat, format, args) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+#define VZLOG_WARN(cat, format, args) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+#define VZLOG_NOTICE(cat, format, args) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+#define VZLOG_INFO(cat, format, args) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+#define VZLOG_DEBUG(cat, format, args) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, args) 
+\end_layout
+
+\begin_layout Standard
+macros of hzlog()
+\end_layout
+
+\begin_layout LyX-Code
+#define HZLOG_FATAL(cat, buf, buf_len) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+#define HZLOG_ERROR(cat, buf, buf_len) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+#define HZLOG_WARN(cat, buf, buf_len) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+#define HZLOG_NOTICE(cat, buf, buf_len) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+#define HZLOG_INFO(cat, buf, buf_len) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+#define HZLOG_DEBUG(cat, buf, buf_len) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, buf, buf_len) 
+\end_layout
+
+\begin_layout Section
+MDC operation
+\end_layout
+
+\begin_layout Standard
+MDC is a thread key-value map, so it has nothing to do with category.
+ the fuctions are
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_put_mdc(char *key, char *value);
+\end_layout
+
+\begin_layout LyX-Code
+char *zlog_get_mdc(char *key);
+\end_layout
+
+\begin_layout LyX-Code
+void zlog_remove_mdc(char *key);
+\end_layout
+
+\begin_layout LyX-Code
+void zlog_clean_mdc(void);
+\end_layout
+
+\begin_layout Standard
+key and value are all strings, which are no longer than MAXLEN_PATH(typically
+ 1024).
 \end_layout
 
 \begin_layout Chapter
@@ -4252,11 +4776,18 @@ name "sec:MDC"
 \end_layout
 
 \begin_layout Section
-Debug zlog Itself
+Profile zlog Itself
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Profile-zlog-Itself"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
-Define new level
+User defines level
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Define-new-level"
