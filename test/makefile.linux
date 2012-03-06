@@ -10,7 +10,8 @@ exe = 		\
 	test_press	\
 	test_printf	\
 	test_syslog	\
-	test_syslog_press
+	test_syslog_press \
+	test_default
 
 .PHONY : clean all
 

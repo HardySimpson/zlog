@@ -470,7 +470,7 @@ int zlog_rotater_rotate(char *file_path, long file_maxsize, size_t msg_len)
 	/* begin list and move files */
 	rc = zlog_rotater_lsmv(file_path);
 	if (rc) {
-		zc_error("zlog_rotater_file_ls_mv fail, return");
+		zc_error("zlog_rotater_file_ls_mv [%s] fail, return", file_path);
 		rc = -1;
 		goto zlog_rotater_rotate_exit;
 	} else if (rc == 0) {

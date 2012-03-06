@@ -92,7 +92,7 @@ syslog style configure file, easy for understand and use
 \end_layout
 
 \begin_layout Itemize
-sub-category model, which is agiler than hierarchy model of log4j
+sub-category model, which is more flexible than hierarchy model of log4j
 \end_layout
 
 \begin_layout Itemize
@@ -282,6 +282,12 @@ $ cc -o xx xx.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
 Hello World Example
 \end_layout
 
+\begin_layout Standard
+This example can be found in 
+\emph on
+$(top_builddir)/test/test_hello.c, test_hello.conf
+\end_layout
+
 \begin_layout Enumerate
 create a new c source file:
 \end_layout
@@ -438,6 +444,94 @@ hello, zlog
 \end_layout
 
 \end_deeper
+\begin_layout Section
+A simpler Hello World Example
+\end_layout
+
+\begin_layout Standard
+This example can be found in 
+\emph on
+$(top_builddir)/test/test_default.c, test_default.conf
+\emph default
+.
+ The source code is 
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+rc = dzlog_init("test_default.conf", "my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_INFO("hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\begin_layout Standard
+The configure file test_default.conf equals 
+\emph on
+test_hello.conf
+\emph default
+, and the output of test_default equals test_hello.
+ The difference is, test_default use dzlog API, which has a default 
+\emph on
+zlog_cateogy_t
+\emph default
+ inside and easy for use.
+\end_layout
+
 \begin_layout Chapter
 Configure File
 \end_layout
@@ -4205,7 +4299,20 @@ zlog API
 \end_layout
 
 \begin_layout Standard
-All API of zlog is thread safe.
+All API of zlog are thread safe.
+ To use them, just need to
+\end_layout
+
+\begin_layout LyX-Code
+#include 
+\begin_inset Quotes eld
+\end_inset
+
+zlog.h
+\begin_inset Quotes erd
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -4429,13 +4536,16 @@ zlog()
 \emph on
 vzlog()
 \emph default
- do not call the va_end macro.
- Because it invokes the va_arg macro, the value of 
+ invokes the va_copy macro, the value of 
 \emph on
 args
 \emph default
- is undefined after the call.
- See stdarg(3).
+ remain unchanged after the call.
+ See 
+\emph on
+stdarg(3)
+\emph default
+.
  
 \end_layout
 
@@ -4758,6 +4868,175 @@ void zlog_clean_mdc(void);
 \begin_layout Standard
 key and value are all strings, which are no longer than MAXLEN_PATH(typically
  1024).
+ One thing should remeber is that the map bonds to a thread, thus in one
+ thread if you set a key-value pair will not affect other threads.
+\end_layout
+
+\begin_layout Section
+dzlog API
+\end_layout
+
+\begin_layout Standard
+dzlog consists of some simlple fuctions that omit 
+\emph on
+zlog_category_t
+\emph default
+.
+ It use a default category inside and put the category under the protect
+ of lock.
+ It is thread safe also.
+ Omit category means that users need not to create, save, tranfer 
+\emph on
+zlog_category_t
+\emph default
+ variables.
+ Still, user can get and use other category through normal API for flexibility.
+\end_layout
+
+\begin_layout LyX-Code
+int dzlog_init(char *conf_file, char *default_category_name);
+\end_layout
+
+\begin_layout LyX-Code
+int dzlog_set_category(char *default_category_name);
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+dzlog_init()
+\emph default
+ is just as 
+\emph on
+zlog_init()
+\emph default
+, but need a 
+\emph on
+default_category_name
+\emph default
+ for inner default_category.
+ 
+\emph on
+zlog_update()
+\emph default
+ and 
+\emph on
+zlog_fini()
+\emph default
+ can be used as before, to refresh conf_file, or release all.
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+dzlog_set_category() 
+\emph default
+is designed for change default category.
+ The last default category is instead by new one, and still don't worry
+ about memory releasing, all category will be clean up at 
+\emph on
+zlog_fini().
+\end_layout
+
+\begin_layout LyX-Code
+void dzlog(char *file, long line, int level, char *format, ...);
+\end_layout
+
+\begin_layout LyX-Code
+void vdzlog(char *file, long line, int level, char *format, va_list args);
+\end_layout
+
+\begin_layout LyX-Code
+void hdzlog(char *file, long line, int level, void *buf, size_t buf_len);
+\end_layout
+
+\begin_layout Standard
+These 3 are dzlog functions, which bind to the default category.
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_FATAL(format, args...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_ERROR(format, args...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_WARN(format, args...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_NOTICE(format, args...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_INFO(format, args...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_DEBUG(format, args...)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_FATAL(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_ERROR(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_WARN(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_NOTICE(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_INFO(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_DEBUG(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_FATAL(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_ERROR(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_WARN(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_NOTICE(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_INFO(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_DEBUG(buf, buf_len)
+\end_layout
+
+\begin_layout Standard
+Macros are defined in zlog.h also.
+ They are the general way in simple logging.
 \end_layout
 
 \begin_layout Chapter
