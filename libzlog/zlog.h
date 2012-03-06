@@ -56,6 +56,7 @@ extern "C" {
  */
 	int zlog_init(char *conf_file);
 
+	int dzlog_init(char *conf_file, char *default_category_name);
 /**
  * @brief Update buffers, rules, formats and reopen lock file according to configure file.
  *
@@ -120,6 +121,7 @@ extern "C" {
  */
 	zlog_category_t *zlog_get_category(char *category_name);
 
+	int dzlog_set_category(char *default_category_name);
 /**
  * @brief Put key-value into a map(one thread per map), can be show in log
  *
@@ -162,6 +164,7 @@ extern "C" {
 	void zlog(zlog_category_t * a_cat, char *file, long line, int level,
 		  char *format, ...);
 
+	void dzlog(char *file, long line, int level, char *format, ...);
 /**
  * @brief The real log fuction, va_list version.
  *
@@ -177,6 +180,8 @@ extern "C" {
  * @param args a va_list, will be va_copy() inner.
  */
 	void vzlog(zlog_category_t * a_cat, char *file, long line, int level,
+		   char *format, va_list args);
+	void vdzlog(char *file, long line, int level,
 		   char *format, va_list args);
 
 /**
@@ -202,17 +207,21 @@ extern "C" {
  */
 	void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
 		   void *buf, size_t buf_len);
+	void hdzlog(char *file, long line, int level,
+		   void *buf, size_t buf_len);
 
 /******* useful macros, can be redefined at user's h file **********/
 
 	typedef enum {
-		ZLOG_LEVEL_DEBUG = 20,	/**< debug-level message */
+		ZLOG_LEVEL_DEBUG = 20,		/**< debug-level message */
 		ZLOG_LEVEL_INFO = 40,	        /**< informational message */
-		ZLOG_LEVEL_NOTICE = 60,       /**< normal, but significant, condition */
-		ZLOG_LEVEL_WARN = 80,	        /**< warning conditions, maybe application logic problem */
-		ZLOG_LEVEL_ERROR = 100,	/**< error conditions, maybe application fail */
-		ZLOG_LEVEL_FATAL = 120,	/**< system is unusable */
+		ZLOG_LEVEL_NOTICE = 60,		/**< normal, but significant, condition */
+		ZLOG_LEVEL_WARN = 80,		/**< warning conditions, maybe application logic problem */
+		ZLOG_LEVEL_ERROR = 100,		/**< error conditions, maybe application fail */
+		ZLOG_LEVEL_FATAL = 120,		/**< system is unusable */
 	} zlog_level;
+
+/* zlog macros */
 
 #define ZLOG_FATAL(cat, format, args...) \
 	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ##args)
@@ -271,6 +280,64 @@ extern "C" {
 #define HZLOG_DEBUG(cat, buf, buf_len) \
 	hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, buf, buf_len)
 
+/* ddzlog macros */
+
+#define DZLOG_FATAL(format, args...) \
+	ddzlog(__FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ##args)
+
+#define DZLOG_ERROR(format, args...) \
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, ##args)
+
+#define DZLOG_WARN(format, args...) \
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_WARN, format, ##args)
+
+#define DZLOG_NOTICE(format, args...) \
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, ##args)
+
+#define DZLOG_INFO(format, args...) \
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_INFO, format, ##args)
+
+#define DZLOG_DEBUG(format, args...) \
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ##args)
+
+/* vdzlog macros */
+
+#define VDZLOG_FATAL(format, args) \
+	vdzlog(__FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, args)
+
+#define VDZLOG_ERROR(format, args) \
+	vdzlog(__FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, args)
+
+#define VDZLOG_WARN(format, args) \
+	vdzlog(__FILE__, __LINE__, ZLOG_LEVEL_WARN, format, args)
+
+#define VDZLOG_NOTICE(format, args) \
+	vdzlog(__FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, args)
+
+#define VDZLOG_INFO(format, args) \
+	vdzlog(__FILE__, __LINE__, ZLOG_LEVEL_INFO, format, args)
+
+#define VDZLOG_DEBUG(format, args) \
+	vdzlog(__FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, args)
+
+/* hdzlog macros */
+#define HDZLOG_FATAL(buf, buf_len) \
+	hdzlog(__FILE__, __LINE__, ZLOG_LEVEL_FATAL, buf, buf_len)
+
+#define HDZLOG_ERROR(buf, buf_len) \
+	hdzlog(__FILE__, __LINE__, ZLOG_LEVEL_ERROR, buf, buf_len)
+
+#define HDZLOG_WARN(buf, buf_len) \
+	hdzlog(__FILE__, __LINE__, ZLOG_LEVEL_WARN, buf, buf_len)
+
+#define HDZLOG_NOTICE(buf, buf_len) \
+	hdzlog(__FILE__, __LINE__, ZLOG_LEVEL_NOTICE, buf, buf_len)
+
+#define HDZLOG_INFO(buf, buf_len) \
+	hdzlog(__FILE__, __LINE__, ZLOG_LEVEL_INFO, buf, buf_len)
+
+#define HDZLOG_DEBUG(buf, buf_len) \
+	hdzlog(__FILE__, __LINE__, ZLOG_LEVEL_DEBUG, buf, buf_len)
 /**
  * @}
  */

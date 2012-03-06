@@ -4205,7 +4205,20 @@ zlog API
 \end_layout
 
 \begin_layout Standard
-All API of zlog is thread safe.
+All API of zlog are thread safe.
+ To use them, just need to
+\end_layout
+
+\begin_layout LyX-Code
+#include 
+\begin_inset Quotes eld
+\end_inset
+
+zlog.h
+\begin_inset Quotes erd
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -4429,13 +4442,16 @@ zlog()
 \emph on
 vzlog()
 \emph default
- do not call the va_end macro.
- Because it invokes the va_arg macro, the value of 
+ invokes the va_copy macro, the value of 
 \emph on
 args
 \emph default
- is undefined after the call.
- See stdarg(3).
+ remain unchanged after the call.
+ See 
+\emph on
+stdarg(3)
+\emph default
+.
  
 \end_layout
 
@@ -4758,6 +4774,8 @@ void zlog_clean_mdc(void);
 \begin_layout Standard
 key and value are all strings, which are no longer than MAXLEN_PATH(typically
  1024).
+ One thing should remeber is that the map bonds to a thread, thus in one
+ thread if you set a key-value pair will not affect other threads.
 \end_layout
 
 \begin_layout Chapter
