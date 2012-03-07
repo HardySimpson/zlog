@@ -4870,6 +4870,7 @@ key and value are all strings, which are no longer than MAXLEN_PATH(typically
  1024).
  One thing should remeber is that the map bonds to a thread, thus in one
  thread if you set a key-value pair will not affect other threads.
+<<<<<<< HEAD
 \end_layout
 
 \begin_layout Section
