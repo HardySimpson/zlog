@@ -45,6 +45,7 @@ int main(int argc, char** argv)
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
 		printf("zlog_get_category fail\n");
+		zlog_fini();
 		return -1;
 	}
 

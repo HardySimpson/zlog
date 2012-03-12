@@ -133,7 +133,7 @@ self debugable, can output zlog's self debug&error log at runtime
 \end_layout
 
 \begin_layout Itemize
-Not depend on any other 3rd party library, just base on posix system.
+Not depend on any other 3rd party library, just base on POSIX system.
  
 \end_layout
 
@@ -371,6 +371,14 @@ if (!my_cat) {
 printf("get cat fail
 \backslash
 n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
 \end_layout
 
 \end_deeper
@@ -792,8 +800,8 @@ hello, zlog
 \end_layout
 
 \begin_layout Standard
-Each logging action is bound to a category, which is a variable of zlog_category
-_t* type and matches one or many rules in configure file.
+Each logging action bonds to a category, which is a variable of zlog_category_t*
+ type and matches one or many rules in configure file.
  In this example, the name of category c is 
 \begin_inset Quotes eld
 \end_inset
@@ -823,7 +831,7 @@ my_cat.debug >stdout; simple
 
 \begin_layout Standard
 Category and rule are loose coupled.
- If there are 2 lines of rules above, using 
+ If there are 2 lines of same rules above, using 
 \emph on
 ZLOG_INFO(c, "hello, zlog")
 \emph default
@@ -5209,6 +5217,385 @@ name "sec:MDC"
 
 \end_inset
 
+
+\end_layout
+
+\begin_layout Standard
+What is MDC? In log4j it is short for Mapped Diagnostic Context.
+ That's a complicate terminology.
+ MDC is just a key-value map.
+ Once you set it by function, library will print it to file every time a
+ log event happens.
+ Let's see a example in ~/test/test_mdc.c.
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_mdc.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdlib.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <sys/types.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <unistd.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <string.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_layout LyX-Code
+rc = zlog_init("test_mdc.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) { 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "1.hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_put_mdc("myname", "Zhang");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "2.hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_put_mdc("myname", "Li");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "3.hello, zlog"); 
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini(); 
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\begin_layout Standard
+The configure file is
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_mdc.conf
+\end_layout
+
+\begin_layout LyX-Code
+&mdc_format    "%d(%F %X.%ms) %-6V (%c:%F:%L) [%M(myname)] - %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+*.*             >stdout; mdc_format
+\end_layout
+
+\begin_layout Standard
+And the output is
+\end_layout
+
+\begin_layout LyX-Code
+$ ./test_mdc
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) [] - 1.hello, zlog 2012-03-12
+ 09:26:37.740 INFO   (my_cat:test_mdc.c:51) [Zhang] - 2.hello, zlog 2012-03-12
+ 09:26:37.740 INFO   (my_cat:test_mdc.c:55) [Li] - 3.hello, zlog
+\end_layout
+
+\begin_layout Standard
+You can see 
+\emph on
+zlog_put_mdc()
+\emph default
+ function set the map with key 
+\begin_inset Quotes eld
+\end_inset
+
+myname
+\begin_inset Quotes erd
+\end_inset
+
+ and value 
+\begin_inset Quotes eld
+\end_inset
+
+Wang
+\begin_inset Quotes erd
+\end_inset
+
+, and in configure file 
+\emph on
+%M(myname) 
+\emph default
+indicates where the value shows in each log.
+ The second time, value of key 
+\begin_inset Quotes eld
+\end_inset
+
+myname
+\begin_inset Quotes erd
+\end_inset
+
+ is overwriteen to 
+\begin_inset Quotes eld
+\end_inset
+
+Five
+\begin_inset Quotes erd
+\end_inset
+
+, and the log changes also.
+\end_layout
+
+\begin_layout Standard
+When should MDC be used? That mainly depends on when user need to seprate
+ same log action with different scenes.
+ For example, in .c
+\end_layout
+
+\begin_layout LyX-Code
+zlog_put_mdc(
+\begin_inset Quotes eld
+\end_inset
+
+customer_name
+\begin_inset Quotes erd
+\end_inset
+
+, get_customer_name_from_db() );
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(
+\begin_inset Quotes eld
+\end_inset
+
+get in
+\begin_inset Quotes erd
+\end_inset
+
+); 
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(
+\begin_inset Quotes eld
+\end_inset
+
+pick product
+\begin_inset Quotes erd
+\end_inset
+
+); 
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(
+\begin_inset Quotes eld
+\end_inset
+
+pay
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(
+\begin_inset Quotes eld
+\end_inset
+
+get out
+\begin_inset Quotes erd
+\end_inset
+
+);
+\end_layout
+
+\begin_layout Standard
+in .conf
+\end_layout
+
+\begin_layout LyX-Code
+&format  
+\begin_inset Quotes eld
+\end_inset
+
+%M(customer_name) %m%n
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+When program process two customer at the same time, the output maybe:
+\end_layout
+
+\begin_layout LyX-Code
+Zhang get in
+\end_layout
+
+\begin_layout LyX-Code
+Li get in
+\end_layout
+
+\begin_layout LyX-Code
+Zhang pick product
+\end_layout
+
+\begin_layout LyX-Code
+Zhang pay
+\end_layout
+
+\begin_layout LyX-Code
+Li pick product
+\end_layout
+
+\begin_layout LyX-Code
+Li pay
+\end_layout
+
+\begin_layout LyX-Code
+Zhang get out
+\end_layout
+
+\begin_layout LyX-Code
+Li get out
+\end_layout
+
+\begin_layout Standard
+Now you can distinguish two one customer from another, by use grep afterwards
+\end_layout
+
+\begin_layout LyX-Code
+$ grep Zhang aa.log > Zhang.log
+\end_layout
+
+\begin_layout LyX-Code
+$ grep Li aa.log >Li.log
+\end_layout
+
+\begin_layout Standard
+Or, there is another way, sperate them to different log file when log action
+ is taken, in .conf
+\end_layout
+
+\begin_layout LyX-Code
+*.* "mdc_%M(myname).log";
+\end_layout
+
+\begin_layout Standard
+It will produce 3 log
+\end_layout
+
+\begin_layout LyX-Code
+mdc_.log mdc_Zhang.log mdc_Li.log
+\end_layout
+
+\begin_layout Standard
+About MDC, another thing is that map belongs to thread, each thread has
+ it's own map.
+ In one thread 
+\emph on
+zlog_mdc_put()
+\emph default
+ will not affect other thread's map.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
 
 \end_layout
 

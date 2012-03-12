@@ -100,6 +100,8 @@ int main(int argc, char** argv)
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
 		printf("get category failed\n");
+		zlog_fini();
+		return -2;
 	}
 
 

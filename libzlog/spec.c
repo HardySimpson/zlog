@@ -789,6 +789,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 		}
 		a_spec->gen_buf = zlog_spec_gen_str;
 		a_spec->gen_msg = zlog_spec_gen_msg_direct;
+		a_spec->gen_path = zlog_spec_gen_path_direct;
 	}
 
       zlog_spec_init_exit:

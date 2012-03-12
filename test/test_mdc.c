@@ -39,27 +39,20 @@ int main(int argc, char** argv)
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
 		printf("get cat fail\n");
+		zlog_fini();
+		return -2;
 	}
 
 
-	ZLOG_INFO(zc, "hello, zlog");
+	ZLOG_INFO(zc, "1.hello, zlog");
 
-	zlog_put_mdc("myname", "zlog");
-	zlog_put_mdc("yourname", "ylog");
+	zlog_put_mdc("myname", "Zhang");
 
-	ZLOG_INFO(zc, "[myname:%s]", zlog_get_mdc("myname"));
-	ZLOG_INFO(zc, "[none:%s]", zlog_get_mdc("none"));
-	ZLOG_INFO(zc, "[yourname:%s]", zlog_get_mdc("yourname"));
+	ZLOG_INFO(zc, "2.hello, zlog");
 
-	zlog_remove_mdc("myname");
-	ZLOG_INFO(zc, "[myname:%s]", zlog_get_mdc("myname"));
-	zlog_put_mdc("yourname", "next");
-	ZLOG_INFO(zc, "[yourname:%s]", zlog_get_mdc("yourname"));
+	zlog_put_mdc("myname", "Li");
 
-	zlog_clean_mdc();
-	ZLOG_INFO(zc, "[yourname:%s]", zlog_get_mdc("myname"));
-
-	printf("log end\n");
+	ZLOG_INFO(zc, "3.hello, zlog");
 
 	zlog_fini();
 	
