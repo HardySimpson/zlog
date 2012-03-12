@@ -28,7 +28,142 @@
 #include "zlog.h"
 
 #define CONF_STRING_CN \
-""
+"########\n"   \
+"# 全局设置以@开头\n"  \
+"# 全局设置可以不写，使用内置的默认值\n"  \
+"# 语法:\n"   \
+"#     @[键][n个空格或tab][值]\n"   \
+"\n"   \
+"### 如果 ignore_error_format_rule 是 true,\n"   \
+"#    zlog_init() 将会忽略错误的format和rule.\n"   \
+"#    否则zlog_init()将会严格的检查所有format和rule的语法\n"   \
+"#    碰到错误的就返回-1.\n"   \
+"# 默认值:\n"   \
+"# @ignore_error_format_rule          false\n"  \
+"\n"   \
+"### zlog 在堆上为每个线程申请缓存.\n"   \
+"# buf_size_min 是单个缓存的最小值.\n"   \
+"# 写日志的时候, 如果日志长度大于缓存,\n"   \
+"#     缓存会自动扩充到buf_size_max,\n"   \
+"#     日志再长超过buf_size_max就会截断.\n"   \
+"# 如果 buf_size_max 是 0, 意味着不限制缓存,\n"   \
+"#     每次扩充 buf_size = 2*buf_size,\n"   \
+"# 缓存大小可以加上 KB, MB 或 GB这些单位\n"   \
+"# 默认值:\n"   \
+"# @buf_size_min                      1024\n"  \
+"# @buf_size_max                      2MB\n"  \
+"\n"   \
+"### rotate_lock_file 是一个posix文件锁文件\n"   \
+"#     用来在多进程情况下，保证日志安全转档.\n"   \
+"# zlog 会在 zlog_init()时候创建这个文件\n"   \
+"# 确认你执行程序的用户有权限创建和读写这个文件.\n"   \
+"# 如果有多个用户需要转档同一个日志文件\n"   \
+"#     确认这个锁文件对于多个用户都可读写,\n"   \
+"# 默认值:\n"   \
+"# @rotate_lock_file                  /tmp/zlog.lock\n"  \
+"\n"   \
+"### default_format 是缺省的日志格式\n"  \
+"# 内置的缺省格式会产生类似这样的输出:\n"   \
+"# 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog\n"   \
+"# 可以把缺省格式设成你喜欢的样子\n" \
+"# 默认值:\n"   \
+"# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
+"\n"   \
+"### 用户自定义级别\n"   \
+"# zlog内置的级别是:\n"   \
+"# @level                             DEBUG = 20, LOG_DEBUG\n"   \
+"# @level                             INFO = 40, LOG_INFO\n"   \
+"# @level                             NOTICE = 60, LOG_NOTICE\n"   \
+"# @level                             WARN = 80, LOG_WARNING\n"   \
+"# @level                             ERROR = 100, LOG_ERR\n"   \
+"# @level                             FATAL = 120, LOG_ALERT\n"   \
+"# @level                             UNKNOWN = 254, LOG_ERR\n"   \
+"# 语法:\n"   \
+"# @level[n个空格或tab][级别的字符串] = [级别数值][syslog级别, 可选]\n"   \
+"# 级别数值要在 [1,253]内, 越大代表越重要\n"   \
+"# 定义自己的级别还需要在用户的.h内写相应的宏\n"   \
+"# 详见 ~/test/test_level.c ~/test/test_level.h\n"   \
+"# 例如:\n"   \
+"# @level                             TEST = 50\n"   \
+"\n"   \
+"########\n"   \
+"# Format(格式)以&开头.\n"   \
+"# 语法:\n"   \
+"#     &[格式名][n个空格或tab]\"[格式字符串]\"\n"   \
+"# 例如\n"  \
+"# &simple     \"%m%n\"\n"    \
+"\n"   \
+"# 合法的格式和分类名需要在[a-Z][0-9][_]内\n"   \
+"# 格式字符串可以是常量, 或者是转换字符(见最下面的附录)\n"   \
+"\n"   \
+"########\n"   \
+"# Rule(规则)没有开头字符.\n"   \
+"# 主语法为:\n"   \
+"# [选择器][n个空格或tab][输出器]\n"   \
+"\n"   \
+"# *.*                     >stdout\n"   \
+"# [选择器] = [分类名].[!=, 可选][级别]\n"   \
+"#     [分类名] 可以是\n"   \
+"#         *, 匹配所有分类\n"   \
+"#         !, 匹配那些还没有规则的分类\n"   \
+"#         普通分类名, 不以'_'结束, 精确匹配.\n"   \
+"#             例子. aa_bb 匹配 zt = zlog_get_category(\"aa_bb\")\n"   \
+"#         父分类名, 以'_'结束, 匹配父分类及子分类\n"   \
+"#             例子. aa_ 匹配 zt1 = zlog_get_category(\"aa\"), zt2 = zlog_get_category(\"aa_bb\"),\n"   \
+"#                             zt3 = zlog_get_category(\"aa_bb_cc\")...\n"   \
+"#     [级别] 可以是zlog内置的5个级别, 或者用户自定义的级别\n" \
+"#                 有下面的表达式\n" \
+"#         aa.debug, soucre log action >= debug\n" \
+"#         aa.!debug, source log action != debug\n" \
+"#         aa.=debug, source log action == debug\n" \
+"# [输出器] = [输出], [文件大小限制, 可选]; [format(格式)名, 可选]\n"   \
+"#     [输出] 可以是\n"   \
+"#         >stdout, 标准输出\n"   \
+"#         >stderr, 标准错误输出\n"   \
+"#         >syslog, syslog输出, 后面要跟syslog facility\n"   \
+"#         \"日志文件路径\", 相对路径或绝对路径\n"   \
+"#             可以内含转换字符(见下面的附录).\n"    \
+"#     [文件大小限制]\n"  \
+"#         如果 [输出] 是 syslog, 这个字段就是 syslog facility, \n"  \
+"#            必须在 LOG_LOCAL[0-7] 或 LOG_USER内\n"   \
+"#         如果输出是日志文件, 则是单个文件大小限制, 后面可以跟kb,Mb,G这种单位 \n"   \
+"#            例子. 2048K, 1M, 10mb\n"   \
+"#     [format(格式名)]\n"   \
+"#         不写的话使用一开始设置的缺省格式, 否则就需要是在format(格式)段定义好的格式名\n"  \
+"#\n"   \
+"######## 附录, 转换字符\n"   \
+"# c    源代码中的分类名                   aa_bb\n"  \
+"# d    时间日期 %d(strftime format)       12-01 17:17:42\n"   \
+"# E    环境变量的值 %E(HOME)              /home/test\n"   \
+"# F    源文件名, __FILE__                 test_hello.c\n"   \
+"# f    去掉路径的源文件名, __FILE__       test_hello.c\n"   \
+"# H    主机名, gethostname()              zlog-dev\n"   \
+"# L    源文件行数, __LINE__               123\n"   \
+"# m    用户消息                           hello, zlog\n"   \
+"# M    mdc, %M(key)                       value\n"   \
+"# n    换行符                             \\n\n"   \
+"# p    进程号, getpid()                   13423\n"   \
+"# V    日志等级, 大写                     INFO\n"   \
+"# v    日志等级, 小写                     info\n"   \
+"# t    线程号, pthread_self               12343\n"   \
+"# %%   百分号                             %\n"   \
+"# %[其他字符]   语法错误, 将会导致zlog_init()失败\n"  \
+"#\n"  \
+"######## 附录, 工具\n"   \
+"# zlog-chk-conf [conf file]\n"  \
+"# zlog-gen-conf [conf file]\n"
+
+#define CONF_STRING \
+"# @ignore_error_format_rule          false\n"  \
+"# @buf_size_min                      1024\n"  \
+"# @buf_size_max                      2MB\n"  \
+"# @rotate_lock_file                  /tmp/zlog.lock\n"  \
+"# @default_format                    \"%d(%F %T) %V [%p:%F:%L] %m%n\"\n"  \
+"# @level                             TRACE = 10, LOG_DEBUG\n"   \
+"\n"  \
+"\n"  \
+"# *.*                     >stdout\n"  \
+"# !.*                     \"/var/log/zlog.nomatch.log\"\n" 
 
 #define CONF_STRING_EN \
 "########\n"   \
@@ -107,7 +242,7 @@
 "# [selector][n tab or space][action]\n"   \
 "\n"   \
 "# *.*                     >stdout\n"   \
-"# [selector] = [category].[!=, optional][level]\n"   \
+"# [selector] = [category].[level]\n"   \
 "#     [category] should be\n"   \
 "#         *, matches all category\n"   \
 "#         !, matches category that has no rule matched yet\n"   \
@@ -117,6 +252,7 @@
 "#             eg. aa_ matches zt1 = zlog_get_category(\"aa\"), zt2 = zlog_get_category(\"aa_bb\"),\n"   \
 "#                             zt3 = zlog_get_category(\"aa_bb_cc\")...\n"   \
 "#     [level] should be zlog inner default levels, or user-defined levels\n" \
+"#                The level expresions are\n"   \
 "#         aa.debug, soucre log action >= debug\n" \
 "#         aa.!debug, source log action != debug\n" \
 "#         aa.=debug, source log action == debug\n" \
@@ -180,13 +316,16 @@ int main(int argc, char *argv[])
 	FILE *fp = NULL; 
 
 	static const char *help = 
-		"Useage: zlog-gen-conf [conf filename]...\n"
+		"Useage: zlog-gen-conf [conf file]\n"
 		"If no filename is specified, use zlog.conf as default\n"
-		"\t-c \tChinese comment(UTF-8, if envrionment is GBK, use iconv transform)\n"
+		"\t-c \tChinese comment(UTF-8)\n"
+		"\t\t\tif envrionment is GBK, use\n"
+		"\t\t\t$ iconv -f UTF-8 -t GBK xx.conf > yy.conf\n"
+		"\t\t\t$ mv yy.conf xx.conf\n"
 		"\t-e \tEnligsh comment\n"
 		"\t-h,\tshow help message\n";
 
-	while((op = getopt(argc, argv, "eh")) > 0) {
+	while((op = getopt(argc, argv, "ceh")) > 0) {
 		if (op == 'h') {
 			puts(help);
 			return 0;

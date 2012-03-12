@@ -102,7 +102,7 @@ multiple output, include static file path, dynamic file path, stdout, stderr,
 
 \begin_layout Itemize
 runtime refreash configure to change output flow or output format, just
- need to call one function
+ need to call one function -- zlog_update()
 \end_layout
 
 \begin_layout Itemize
@@ -165,7 +165,7 @@ If you want all these features, I recommend rsyslog, a excellent syslog
 \end_layout
 
 \begin_layout Standard
-So I think about how to connect zlog and rsyslog, the tranditional syslog(3)
+So now I think about how to connect zlog and rsyslog, the tranditional syslog(3)
  is one way, but maybe there is another way more efficient.
  If you have a good idea, tell me!
 \end_layout
@@ -530,6 +530,14 @@ test_hello.conf
 zlog_cateogy_t
 \emph default
  inside and easy for use.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:dzlog-API"
+
+\end_inset
+
+ for more details.
 \end_layout
 
 \begin_layout Chapter
@@ -4294,6 +4302,149 @@ A literal '%' character.
 Configure File Tools
 \end_layout
 
+\begin_layout LyX-Code
+$ zlog-chk-conf -h 
+\end_layout
+
+\begin_layout LyX-Code
+Useage: zlog-chk-conf [conf files]...
+ 	
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+-q,	suppress non-error message 	
+\end_layout
+
+\begin_layout LyX-Code
+-h,	show help message
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+zlog-chk-conf try to read conf files, and check their syntax, and output
+ to screen whether it is correct.
+ I suggest using this tools each time you create or change a configure file.
+ It will output like this
+\end_layout
+
+\begin_layout LyX-Code
+$ ./zlog-chk-conf zlog.conf
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:rule.c:391) sscanf [aaa] fail, category or level
+ is null 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:155) zlog_rule_new fail [aaa] 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:258) parse configure file[zlog.conf] line[126]
+ fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:306) zlog_conf_read_config fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:366) zlog_conf_build fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:zlog.c:66) conf_file[zlog.conf], init conf fail
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:zlog.c:131) zlog_init_inner[zlog.conf] fail
+\end_layout
+
+\begin_layout LyX-Code
+  
+\end_layout
+
+\begin_layout LyX-Code
+---[zlog.conf] syntax error, see error message above
+\end_layout
+
+\begin_layout Standard
+It tells you that line 126 in you configure file, zlog.conf, is wrong, and
+ the 1st line further tells you that [aaa] is not a right rule.
+\end_layout
+
+\begin_layout Standard
+zlog-chk-conf can read mutiple configure files at the same time.
+ For example
+\end_layout
+
+\begin_layout LyX-Code
+$ zlog-chk-conf zlog.conf ylog.conf 
+\end_layout
+
+\begin_layout LyX-Code
+--[zlog.conf] syntax right 
+\end_layout
+
+\begin_layout LyX-Code
+--[ylog.conf] syntax right 
+\end_layout
+
+\begin_layout Standard
+The other useful tool is
+\end_layout
+
+\begin_layout LyX-Code
+$ zlog-gen-conf -h 
+\end_layout
+
+\begin_layout LyX-Code
+Useage: zlog-gen-conf [conf file] 
+\end_layout
+
+\begin_layout LyX-Code
+If no filename is specified, use zlog.conf as default
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+-c 	Chinese comment(UTF-8)
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+         if envrionment is GBK, use
+\end_layout
+
+\begin_layout LyX-Code
+         $ iconv -f UTF-8 -t GBK xx.conf > yy.conf
+\end_layout
+
+\begin_layout LyX-Code
+         $ mv yy.conf xx.conf
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+-e 	Enligsh comment
+\end_layout
+
+\begin_layout LyX-Code
+-h,	show help message 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+It will generate a configure file template for you, with comment if needed.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
 \begin_layout Chapter
 zlog API
 \end_layout
@@ -4363,7 +4514,7 @@ zlog_update()
 conf_file
 \emph default
 .
- It can be use at any time configure file changed, and can be use unlimit
+ It can be use at runtime when configure file changed, and can be use unlimit
  times.
  If conf_file is NULL, use the last configure file 
 \emph on
@@ -4870,11 +5021,17 @@ key and value are all strings, which are no longer than MAXLEN_PATH(typically
  1024).
  One thing should remeber is that the map bonds to a thread, thus in one
  thread if you set a key-value pair will not affect other threads.
-<<<<<<< HEAD
 \end_layout
 
 \begin_layout Section
 dzlog API
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:dzlog-API"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
