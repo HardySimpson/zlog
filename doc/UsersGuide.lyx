@@ -915,7 +915,7 @@ The syntax of rule is:
 \end_layout
 
 \begin_layout LyX-Code
-[selector] = [category].[!=, optional][level]
+[selector] = [category].[level]
 \end_layout
 
 \begin_layout LyX-Code
@@ -1619,7 +1619,7 @@ file size limitation
 \begin_inset Text
 
 \begin_layout Plain Layout
-to stranded out
+to standard out
 \end_layout
 
 \end_inset
@@ -1648,7 +1648,7 @@ no meaning
 \begin_inset Text
 
 \begin_layout Plain Layout
-to strander error
+to standard error
 \end_layout
 
 \end_inset
@@ -6055,11 +6055,360 @@ name "sec:Define-new-level"
 \end_layout
 
 \begin_layout Standard
-Set Defaul
+Here I write down all steps of how user define own levels.
+\end_layout
+
+\begin_layout Enumerate
+define levels in configure file.
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat test_level.conf
+\end_layout
+
+\begin_layout LyX-Code
+@ignore_error_format_rule	false 
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_min			1024 
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_max			0 
+\end_layout
+
+\begin_layout LyX-Code
+@rotate_lock_file		/tmp/zlog.lock 
+\end_layout
+
+\begin_layout LyX-Code
+@default_format			"%V %v %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+  
+\end_layout
+
+\begin_layout LyX-Code
+@level				TRACE = 30, LOG_DEBUG
+\end_layout
+
+\begin_layout LyX-Code
+  
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.TRACE		>stdout; 
 \end_layout
 
 \begin_layout Standard
-environment variables
+The inner default levels are:
+\end_layout
+
+\begin_layout LyX-Code
+@level                             DEBUG = 20, LOG_DEBUG
+\end_layout
+
+\begin_layout LyX-Code
+@level                             INFO = 40, LOG_INFO
+\end_layout
+
+\begin_layout LyX-Code
+@level                             NOTICE = 60, LOG_NOTICE
+\end_layout
+
+\begin_layout LyX-Code
+@level                             WARN = 80, LOG_WARNING
+\end_layout
+
+\begin_layout LyX-Code
+@level                             ERROR = 100, LOG_ERR
+\end_layout
+
+\begin_layout LyX-Code
+@level                             FATAL = 120, LOG_ALERT
+\end_layout
+
+\begin_layout LyX-Code
+@level                             UNKNOWN = 254, LOG_ERR
+\end_layout
+
+\begin_layout Standard
+in zlog, a integer(30) and a level string(TRACE) represents a level.
+ More larger, more important.
+ After the definition, TRACE can be used in rule of configure file.
+ This sentence
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.TRACE		>stdout; 
+\end_layout
+
+\begin_layout Standard
+means that level >= TRACE, which is TRACE, INFO, NOTICE, WARN, ERROR, FATAL
+ will be written to standard output.
+\end_layout
+
+\begin_layout Standard
+The format string 
+\begin_inset Quotes eld
+\end_inset
+
+%V
+\begin_inset Quotes erd
+\end_inset
+
+ is captial of level string and 
+\begin_inset Quotes eld
+\end_inset
+
+%v
+\begin_inset Quotes erd
+\end_inset
+
+ is lowercase of level string.
+\end_layout
+
+\begin_layout Standard
+Besides, LOG_DEBUG means when use >syslog in rule, all TRACE log will output
+ as syslog' s LOG_DEBUG level.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Using the new log level in source file, the direct way is like this
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+zlog(cat, __FILE__, __LINE__, 30, 
+\begin_inset Quotes eld
+\end_inset
+
+test %d
+\begin_inset Quotes erd
+\end_inset
+
+, 1);
+\end_layout
+
+\begin_layout Standard
+For easy use, create a .h file 
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_level.h
+\end_layout
+
+\begin_layout LyX-Code
+#ifndef __test_level_h
+\end_layout
+
+\begin_layout LyX-Code
+#define __test_level_h
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+enum {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+ZLOG_LEVEL_TRACE = 30,
+\end_layout
+
+\begin_layout LyX-Code
+/* must equals conf file setting */ 
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+};
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_TRACE(cat, format, args...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+    zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_TRACE, format, ##args)
+\end_layout
+
+\begin_layout LyX-Code
+#endif
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Now, ZLOG_TRACE can be used int .c file
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat test_level.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h> 
+\end_layout
+
+\begin_layout LyX-Code
+#include "test_level.h"
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+rc = zlog_init("test_level.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_TRACE(zc, "hello, zlog - trace");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_DEBUG(zc, "hello, zlog - debug");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "hello, zlog - info");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini(); 
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Now we can see the output
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ ./test_level
+\end_layout
+
+\begin_layout LyX-Code
+TRACE trace hello, zlog - trace 
+\end_layout
+
+\begin_layout LyX-Code
+INFO info hello, zlog - info 
+\end_layout
+
+\begin_layout Standard
+That's just what we expect, the configure file only allows >=TRACE ouput
+ to screen.
+ Ans “%V
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+%v
+\begin_inset Quotes erd
+\end_inset
+
+ works well.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
 \end_layout
 
 \end_body
