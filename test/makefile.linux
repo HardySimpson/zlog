@@ -11,7 +11,8 @@ exe = 		\
 	test_printf	\
 	test_syslog	\
 	test_syslog_press \
-	test_default
+	test_default \
+	test_profile
 
 .PHONY : clean all
 

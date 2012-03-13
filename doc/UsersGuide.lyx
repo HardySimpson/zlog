@@ -280,6 +280,13 @@ $ cc -o xx xx.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
 
 \begin_layout Section
 Hello World Example
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Hello-World-Example"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -5201,7 +5208,7 @@ HDZLOG_DEBUG(buf, buf_len)
 \end_layout
 
 \begin_layout Standard
-Macros are defined in zlog.h also.
+Macros are defined in zlog.h.
  They are the general way in simple logging.
 \end_layout
 
@@ -5608,6 +5615,432 @@ name "sec:Profile-zlog-Itself"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+OK, till now, I suspect that zlog library never fails, it help user's applicatio
+n to write log and debug user's application.
+ But if zlog itself has some problem, how to find it out? Other program
+ debug through log library, and how can a log library debug itself? The
+ answer is the same, zlog library has its own log.
+ This profile log is usually shut down, and can be open by set environment
+ variables.
+\end_layout
+
+\begin_layout LyX-Code
+$ export ZLOG_PROFILE_DEBUG=/tmp/zlog.debug.log
+\end_layout
+
+\begin_layout LyX-Code
+$ export ZLOG_PROFILE_ERROR=/tmp/zlog.error.log
+\end_layout
+
+\begin_layout Standard
+profile log just has 2 levels, debug and error.
+ run test_hello program in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Hello-World-Example"
+
+\end_inset
+
+, then the debug log is
+\end_layout
+
+\begin_layout LyX-Code
+$ more zlog.debug.log 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:46:56 DEBUG (7503:zlog.c:115) ------zlog_init start, compile time[Mar
+ 13 2012 11:28:56]------ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:46:56 DEBUG (7503:spec.c:825) spec:[0x7fdf96b7c010][%d(%F %T)][%F
+ %T 29][] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:46:56 DEBUG (7503:spec.c:825) spec:[0x7fdf96b52010][ ][ 0][] 
+\end_layout
+
+\begin_layout LyX-Code
+......
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:52:40 DEBUG (8139:zlog.c:291) ------zlog_fini end------
+\end_layout
+
+\begin_layout Standard
+The error log is not created, as no error occurs.
+\end_layout
+
+\begin_layout Standard
+As you can see, debug log shows how zlog is inited and finished, but no
+ debug log is writen when ZLOG_INFO() is running.
+ That's for efficency.
+\end_layout
+
+\begin_layout Standard
+If there is anything wrong with zlog library, all will show in ZLOG_PROFILE_ERRO
+R log, for example, using a wrong printf syntax in zlog()
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "%l", 1);
+\end_layout
+
+\begin_layout Standard
+Then run the program, the ZLOG_PROFILE_ERROR log should be
+\end_layout
+
+\begin_layout LyX-Code
+$ cat zlog.error.log 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:buf.c:189) vsnprintf fail, errno[0] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:buf.c:191) nwrite[-1], size_left[1024], format[%l]
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:spec.c:329) zlog_buf_vprintf maybe fail or overflow
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:spec.c:467) a_spec->gen_buf fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:format.c:160) zlog_spec_gen_msg fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:rule.c:265) zlog_format_gen_msg fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:category.c:164) hzb_log_rule_output fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:zlog.c:632) zlog_output fail, srcfile[test_hello.c],
+ srcline[41]
+\end_layout
+
+\begin_layout Standard
+Now, user could find the reason why the expect log doesn't generate, and
+ fix the wrong printf syntax.
+\end_layout
+
+\begin_layout Standard
+Runtime profile will make efficency lost.
+ Normally, I keep ZLOG_PROFILE_ERROR on and ZLOG_PROFILE_DEBUG off at my
+ environment.
+ 
+\end_layout
+
+\begin_layout Standard
+There is still another way to profile zlog libraray.
+ As we all know, 
+\emph on
+zlog_init()
+\emph default
+ read configure file to memory .
+ Through all log actions, the configure structure memory keeps unchanged.
+ There is possibility that this memory is damaged by other fuctions in user's
+ application, or the memory doesn't equal what configure file describes.
+ So I design a zlog interface to show this memory at runtime, print it to
+ ZLOG_PROFILE_ERROR.
+\end_layout
+
+\begin_layout Standard
+see ~/test/test_profile.c
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_profile.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+rc = dzlog_init("test_profile.conf", "my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) { 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_INFO("hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_profile();
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini(); 
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\begin_layout Standard
+zlog_profile() is the function.
+ The configure file is simple
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_profile.conf 
+\end_layout
+
+\begin_layout LyX-Code
+@ignore_error_format_rule false 
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_min 1024 
+\end_layout
+
+\begin_layout LyX-Code
+@buf_size_max 0 
+\end_layout
+
+\begin_layout LyX-Code
+@rotate_lock_file /tmp/zlog.lock
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+&simple "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.* >stdout; simple
+\end_layout
+
+\begin_layout Standard
+The ZLOG_PROFILE_ERROR log is
+\end_layout
+
+\begin_layout LyX-Code
+$ cat /tmp/zlog.error.log
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:zlog.c:802) ------zlog_profile start------  
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:zlog.c:803) init_flag:[1] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:* = 0, 6 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:DEBUG = 20, 7 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:INFO = 40, 6 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:NOTICE = 60, 5 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:WARN = 80, 4 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:ERROR = 100, 3 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:FATAL = 120, 1 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:UNKNOWN = 254, 3 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:level.c:246) level:! = 255, 6 
+\end_layout
+
+\begin_layout Standard
+That shows the levels.
+ If user has defined levels, shows here also.
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:442) ---conf[0x7fbcbed14520]--- 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:443) file:[test_profile.conf],mtime:[2012-03-13
+ 10:45:30] 
+\end_layout
+
+\begin_layout Standard
+That shows which configure file is read, and what's it last modified time.
+ When you have doubt with conf file and conf memory not equals, check their
+ time and path first.
+ In this example, use ls -l test_profile.conf, and compare them.
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:444) ignore_error_format_rule:[0] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:445) buf_size_min:[1024] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:446) buf_size_max:[0] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:447) rotate_lock_file:[/tmp/zlog.lock]
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:449) default_format: 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:format.c:183) format:[0x14e82e0][default]-[%d(%F
+ %T) %V [%p:%F:%L] %m%n] 
+\end_layout
+
+\begin_layout Standard
+Here shows some global setting.
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:452) ---rules[0x14d5120]--- 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:rule.c:718) rule:[0x14f8320][my_cat.0]-[,0][0x14f0300]
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:conf.c:457) ---formats[0x14d5420]--- 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:format.c:183) format:[0x14f0300][simple]-[%m%n]
+ 
+\end_layout
+
+\begin_layout Standard
+rules and formats are not so distinct.
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:thread.c:260) ---tmap[0x7fbcbed16570]--- 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:thread.c:263) thread:[140448634054400] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:category.c:273) ---cmap[0x7fbcbed16578]--- 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:category.c:276) category:[my_cat] 
+\end_layout
+
+\begin_layout Standard
+tmap is thread map.
+ It has one thread.
+\end_layout
+
+\begin_layout Standard
+cmap is category map.
+ It has one category -- my_cat
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:zlog.c:810) default_category[my_cat] 
+\end_layout
+
+\begin_layout Standard
+default category is printed at last.
+\end_layout
+
+\begin_layout LyX-Code
+03-13 11:15:19 ERROR (25631:zlog.c:812) ------zlog_profile end------ 
 \end_layout
 
 \begin_layout Section

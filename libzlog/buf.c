@@ -189,7 +189,6 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 			zc_error("vsnprintf fail, errno[%d]", errno);
 			zc_error("nwrite[%d], size_left[%ld], format[%s]",
 				 nwrite, size_left, format);
-			zc_error(format, ap);
 			return -1;
 		} else if (nwrite >= size_left) {
 			zc_debug("nwrite[%d]>=size_left[%ld],format[%s],resize",

@@ -112,7 +112,8 @@ int zlog_init(char *conf_file)
 	int rc = 0;
 	int rd = 0;
 
-	zc_debug("------zlog_init start, compile time[%s]------", __TIME__);
+	zc_debug("------zlog_init start, compile time[%s %s]------", 
+		__DATE__, __TIME__);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
@@ -150,7 +151,8 @@ int dzlog_init(char *conf_file, char *default_category_name)
 	int rc = 0;
 	int rd = 0;
 
-	zc_debug("------dzlog_init start, compile time[%s]------", __TIME__);
+	zc_debug("------zlog_init start, compile time[%s %s]------", 
+		__DATE__, __TIME__);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);

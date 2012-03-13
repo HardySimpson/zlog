@@ -18,7 +18,8 @@ noinst_PROGRAMS =	\
 	test_conf	\
 	test_mdc	\
 	test_level	\
-	test_default
+	test_default	\
+	test_profile
 
 test_conf_SOURCES = test_conf.c
 test_filemv_SOURCES = test_filemv.c
@@ -33,6 +34,7 @@ test_syslog_press_SOURCES = test_syslog_press.c
 test_mdc_SOURCES = test_mdc.c
 test_level_SOURCES = test_level.c
 test_default_SOURCES = test_default.c
+test_profile_SOURCES = test_profile.c
 
 EXTRA_DIST =		\
 	test_conf.conf	\
@@ -42,5 +44,6 @@ EXTRA_DIST =		\
 	test_press.conf	\
 	test_mdc.conf	\
 	test_syslog.conf	\
-	test_level.conf	\
-	test_default.conf
+	test_level.conf		\
+	test_default.conf	\
+	test_profile.conf
