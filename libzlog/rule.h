@@ -47,7 +47,8 @@ struct zlog_rule_t {
 	FILE *static_file_stream;
 	zc_arraylist_t *dynamic_file_specs;
 
-	long file_maxsize;
+	long file_max_size;
+	int file_max_count;
 	int syslog_facility;
 
 	zlog_rule_output_fn output;

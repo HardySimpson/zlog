@@ -98,7 +98,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule,
 	}
 	close(fd);
 
-	rc = zlog_rotater_rotate(a_rule->file_path, a_rule->file_maxsize, msg_len);
+	rc = zlog_rotater_rotate(a_rule->file_path, a_rule->file_max_size, msg_len);
 	if (rc) {
 		zc_error("zlog_rotater_rotate fail");
 		return -1;
@@ -221,7 +221,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule,
 	}
 	close(fd);
 
-	rc = zlog_rotater_rotate(file_path, a_rule->file_maxsize, msg_len);
+	rc = zlog_rotater_rotate(file_path, a_rule->file_max_size, msg_len);
 	if (rc) {
 		zc_error("zlog_rotater_rotate fail");
 		return -1;
@@ -352,7 +352,7 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 	char output[MAXLEN_CFG_LINE + 1];
 	char format_name[MAXLEN_CFG_LINE + 1];
 	char file_path[MAXLEN_CFG_LINE + 1];
-	char file_maxsize[MAXLEN_CFG_LINE + 1];
+	char *file_limit;
 
 	char *p;
 	char *q;
@@ -369,6 +369,10 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 		return NULL;
 	}
 
+	/* line         [f.INFO "%H/log/aa.log", 20MB * 12; MyTemplate]
+	 * selector     [f.INFO]
+	 * *action      ["%H/log/aa.log", 20MB * 12; MyTemplate]
+	 */
 	memset(&selector, 0x00, sizeof(selector));
 	nscan = sscanf(line, "%s %n", selector, &nread);
 	if (nscan != 1) {
@@ -378,11 +382,11 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 	}
 	action = line + nread;
 
-	/* line         [f.INFO "%H/log/aa.log", 20MB; MyTemplate]
+	/*
 	 * selector     [f.INFO]
-	 * action       ["%H/log/aa.log", 20MB; MyTemplate]
+	 * category     [f]
+	 * level        [.INFO]
 	 */
-
 	memset(category, 0x00, sizeof(category));
 	memset(level, 0x00, sizeof(level));
 	nscan = sscanf(selector, " %[^.].%s", category, level);
@@ -393,11 +397,6 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 		goto zlog_rule_new_exit;
 	}
 
-	/*
-	 * selector     [f.INFO]
-	 * category     [f]
-	 * level     [.INFO]
-	 */
 
 	/* check and set category */
 	for (p = category; *p != '\0'; p++) {
@@ -426,6 +425,10 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 	}
 	a_rule->level = zlog_level_atoi(p);
 
+	/* action               ["%H/log/aa.log", 20MB * 12 ; MyTemplate]
+	 * output               ["%H/log/aa.log", 20MB * 12]
+	 * format               [MyTemplate]
+	 */
 	memset(output, 0x00, sizeof(output));
 	memset(format_name, 0x00, sizeof(format_name));
 	nscan = sscanf(action, " %[^;];%s", output, format_name);
@@ -434,11 +437,6 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 		rc = -1;
 		goto zlog_rule_new_exit;
 	}
-
-	/* action               ["%H/log/aa.log", 20MB ; MyTemplate]
-	 * output               ["%H/log/aa.log", 20MB ]
-	 * format               [MyTemplate]
-	 */
 
 	/* check and get format */
 	if (STRCMP(format_name, ==, "")) {
@@ -466,23 +464,27 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 		}
 	}
 
+	/* output               ["%E(HOME)/log/aa.log" , 20MB*12]  [>syslog , LOG_LOCAL0 ]
+	 * file_path            ["%E(HOME)/log/aa.log" ]           [>syslog ]
+	 * *file_limit          [20MB * 12]                        [LOG_LOCAL0]
+	 */
 	memset(file_path, 0x00, sizeof(file_path));
-	memset(file_maxsize, 0x00, sizeof(file_maxsize));
-	nscan = sscanf(output, " %[^,],%s", file_path, file_maxsize);
+	nscan = sscanf(output, " %[^,], %n", file_path, &nread);
 	if (nscan < 1) {
 		zc_error("sscanf [%s] fail", action);
 		rc = -1;
 		goto zlog_rule_new_exit;
 	}
+	file_limit = output + nread;
 
-	/* output               ["%E(HOME)/log/aa.log" , 20MB ]  [>syslog , LOG_LOCAL0 ]
-	 * file_path            ["%E(HOME)/log/aa.log" ]         [>syslog ]
-	 * file_maxsize         [20MB]                           [LOG_LOCAL0]
-	 */
+	if (file_path[0] == '"') {
+		char file_max_size[MAXLEN_CFG_LINE + 1];
 
-	switch (file_path[0]) {
-	case '"':
-		a_rule->file_maxsize = zc_parse_byte_size(file_maxsize);
+		memset(file_max_size, 0x00, sizeof(file_max_size));
+		nscan = sscanf(file_limit, " %[^*]*%d",
+				file_max_size, &(a_rule->file_max_count));
+
+		a_rule->file_max_size = zc_parse_byte_size(file_max_size);
 
 		p = strrchr(file_path + 1, '"');
 		if (!p) {
@@ -511,7 +513,7 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 
 		/* try to figure out if the log file path is dynamic or static */
 		if (strchr(a_rule->file_path, '%') == NULL) {
-			if (a_rule->file_maxsize <= 0) {
+			if (a_rule->file_max_size <= 0) {
 				a_rule->static_file_stream =
 				    fopen(a_rule->file_path, "a");
 				if (!a_rule->static_file_stream) {
@@ -540,7 +542,7 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 			}
 			for (p = a_rule->file_path; *p != '\0'; p = q) {
 				a_spec = zlog_spec_new(p, &q);
-				if (rc) {
+				if (!a_spec) {
 					zc_error("zlog_spec_new fail");
 					rc = -1;
 					goto zlog_rule_new_exit;
@@ -556,7 +558,7 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 				}
 			}
 
-			if (a_rule->file_maxsize <= 0) {
+			if (a_rule->file_max_size <= 0) {
 				a_rule->output =
 				    zlog_rule_output_dynamic_file_single;
 			} else {
@@ -564,12 +566,10 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 				    zlog_rule_output_dynamic_file_rotate;
 			}
 		}
-
-		break;
-	case '>':
+	} else if (file_path[0] == '>') {
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility =
-			    syslog_facility_atoi(file_maxsize);
+			    syslog_facility_atoi(file_limit);
 			if (a_rule->syslog_facility == -187) {
 				zc_error("-187 get");
 				rc = -1;
@@ -589,8 +589,7 @@ zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
-		break;
-	default:
+	} else {
 		printf("the 1st char[%c] of file_path[%s] is wrong",
 		       file_path[0], file_path);
 		rc = -1;
@@ -704,18 +703,20 @@ int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
 /*******************************************************************************/
 static void zlog_rule_debug(zlog_rule_t * a_rule)
 {
-	zc_debug("rule:[%p][%s%c%d]-[%s,%ld][%p]", a_rule,
+	zc_debug("rule:[%p][%s%c%d]-[%s,%ld*%d];[%p]", a_rule,
 		 a_rule->category, a_rule->compare_char, a_rule->level,
-		 a_rule->file_path, a_rule->file_maxsize, a_rule->format);
+		 a_rule->file_path, a_rule->file_max_size, a_rule->file_max_count,
+		 a_rule->format);
 	return;
 }
 
 void zlog_rule_profile(zlog_rule_t * a_rule)
 {
 	zc_assert_debug(a_rule,);
-	zc_error("rule:[%p][%s%c%d]-[%s,%ld][%p]", a_rule,
+	zc_error("rule:[%p][%s%c%d]-[%s,%ld*%d][%p]", a_rule,
 		 a_rule->category, a_rule->compare_char, a_rule->level,
-		 a_rule->file_path, a_rule->file_maxsize, a_rule->format);
+		 a_rule->file_path, a_rule->file_max_size, a_rule->file_max_count,
+		 a_rule->format);
 	return;
 }
 

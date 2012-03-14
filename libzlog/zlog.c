@@ -182,6 +182,8 @@ int dzlog_init(char *conf_file, char *default_category_name)
 		zlog_env_init_flag = -1;
 		zc_error("zlog_cmap_fetch_category[%s] fail",
 				default_category_name);
+		rc = -1;
+		zlog_fini_inner();
 		goto zlog_init_default_exit;
 	}
 

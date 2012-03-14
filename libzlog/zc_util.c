@@ -27,16 +27,29 @@
 #include "zc_error.h"
 #include "zc_xplatform.h"
 
-size_t zc_parse_byte_size(const char *astring)
+size_t zc_parse_byte_size(char *astring)
 {
 	/* Parse size in bytes depending on the suffix.   Valid suffixes are KB, MB and GB */
-	size_t sz = strlen(astring);
-	long res = strtol(astring, (char **)NULL, 10);
+	char *p;
+	char *q;
+	size_t sz;
+	long res;
 
-	if (!astring) {
-		zc_error("some arg is null");
-		return -1;
+	zc_assert_debug(astring, 0);
+
+	/* clear space */
+	for (p = q = astring; *p != '\0'; p++) {
+		if (isspace(*p)) {
+			continue;
+		} else {
+			*q = *p;
+			q++;
+		}
 	}
+	*q = '\0';
+
+	sz = strlen(astring);
+	res = strtol(astring, (char **)NULL, 10);
 
 	if (res <= 0)
 		return 0;
@@ -58,7 +71,7 @@ size_t zc_parse_byte_size(const char *astring)
 		default:
 			if (!isdigit(astring[sz - 1])) {
 				zc_error("Wrong suffix parsing "
-					 "size in bytes for string %s, ignoring suffix",
+					 "size in bytes for string [%s], ignoring suffix",
 					 astring);
 			}
 			break;
@@ -80,7 +93,7 @@ size_t zc_parse_byte_size(const char *astring)
 		default:
 			if (!isdigit(astring[sz - 1])) {
 				zc_error("Wrong suffix parsing "
-					 "size in bytes for string %s, ignoring suffix",
+					 "size in bytes for string [%s], ignoring suffix",
 					 astring);
 			}
 			break;
@@ -108,8 +121,9 @@ int zc_str_replace_env(char *str, size_t size)
 		int nscan;
 		int nread;
 
-		p = strchr(q, '$');
+		p = strchr(q, '%');
 		if (!p) {
+			/* can't find more % */
 			break;
 		}
 
