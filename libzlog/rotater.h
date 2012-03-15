@@ -74,6 +74,7 @@ void zlog_rotater_fini(void);
    If rotate fail, return -1.
  */
 int zlog_rotater_rotate(char *file_path,
-	long file_maxsize, size_t msg_len);
+		long file_max_size, int file_max_count,
+		size_t msg_len);
 
 #endif

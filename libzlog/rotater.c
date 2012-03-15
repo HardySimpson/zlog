@@ -316,7 +316,7 @@ static int zlog_rotater_one_file_mv_max(zlog_rotater_one_file * a_file,
 }
 #endif
 
-int zlog_rotater_lsmv(char *base_file_path)
+int zlog_rotater_lsmv(char *base_file_path, int file_max_count)
 {
 	int rc = 0;
 
@@ -396,6 +396,17 @@ int zlog_rotater_lsmv(char *base_file_path)
 			goto zlog_rotater_lsmv_exit;
 		}
 
+		if (file_max_count > 0 && i >= file_max_count - 1) {
+			/* remove file.3 >= 3*/
+			rc = unlink(a_file->path);
+			if (rc) {
+				zc_error("unlink fail, errno[%d]", errno);
+				rc = -1;
+				goto zlog_rotater_lsmv_exit;
+			}
+			continue;
+		}
+
 		memset(&tmp, 0x00, sizeof(tmp));
 		nwrite =
 		    snprintf(tmp, sizeof(tmp), "%s.%d", base_file_path,
@@ -423,7 +434,7 @@ int zlog_rotater_lsmv(char *base_file_path)
 	return rc;
 }
 
-int zlog_rotater_rotate(char *file_path, long file_maxsize, size_t msg_len)
+int zlog_rotater_rotate(char *file_path, long file_max_size, int file_max_count, size_t msg_len)
 {
 	int rc = 0;
 	int rd = 0;
@@ -431,9 +442,9 @@ int zlog_rotater_rotate(char *file_path, long file_maxsize, size_t msg_len)
 
 	zc_assert_debug(file_path, -1);
 
-	if (msg_len > file_maxsize) {
-		zc_debug("one msg's len[%ld] > file_maxsize[%ld], no rotate",
-			 (long)msg_len, file_maxsize);
+	if (msg_len > file_max_size) {
+		zc_debug("one msg's len[%ld] > file_max_size[%ld], no rotate",
+			 (long)msg_len, file_max_size);
 		return 0;
 	}
 
@@ -442,7 +453,7 @@ int zlog_rotater_rotate(char *file_path, long file_maxsize, size_t msg_len)
 		zc_error("stat [%s] fail, errno[%d]", file_path, errno);
 		return -1;
 	} else {
-		if (info.st_size + msg_len < file_maxsize) {
+		if (info.st_size + msg_len < file_max_size) {
 			/* file not so big, return */
 			return 0;
 		}
@@ -450,7 +461,7 @@ int zlog_rotater_rotate(char *file_path, long file_maxsize, size_t msg_len)
 
 	rd = zlog_rotater_trylock();
 	if (rd) {
-		zc_error("zlog_rotater_trylock fail");
+		zc_error("warn:zlog_rotater_trylock fail, maybe lock by other process or threads");
 		return 0;
 	}
 
@@ -461,14 +472,16 @@ int zlog_rotater_rotate(char *file_path, long file_maxsize, size_t msg_len)
 		goto zlog_rotater_rotate_exit;
 	}
 
-	if (info.st_size + msg_len <= file_maxsize) {
-		/* file not so big, return */
+	if (info.st_size + msg_len <= file_max_size) {
+		/* file not so big,
+		 * may alread rotate by oth process or thread,
+		 * return */
 		rc = 0;
 		goto zlog_rotater_rotate_exit;
 	}
 
 	/* begin list and move files */
-	rc = zlog_rotater_lsmv(file_path);
+	rc = zlog_rotater_lsmv(file_path, file_max_count);
 	if (rc) {
 		zc_error("zlog_rotater_file_ls_mv [%s] fail, return", file_path);
 		rc = -1;

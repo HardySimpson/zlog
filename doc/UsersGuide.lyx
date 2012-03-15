@@ -175,7 +175,7 @@ Hello World
 \end_layout
 
 \begin_layout Section
-Build and Installation
+Build and Installation zlog
 \end_layout
 
 \begin_layout Standard
@@ -197,7 +197,7 @@ $ ./configure --prefix=[where u wanna install it]
 \end_layout
 
 \begin_layout LyX-Code
-      --enable-test[compile test program] 
+      --enable-test 
 \end_layout
 
 \begin_layout LyX-Code
@@ -290,9 +290,7 @@ name "sec:Hello-World-Example"
 \end_layout
 
 \begin_layout Standard
-This example can be found in 
-\emph on
-$(top_builddir)/test/test_hello.c, test_hello.conf
+This example can be found in $(top_builddir)/test/test_hello.c, test_hello.conf
 \end_layout
 
 \begin_layout Enumerate
@@ -464,11 +462,8 @@ A simpler Hello World Example
 \end_layout
 
 \begin_layout Standard
-This example can be found in 
-\emph on
-$(top_builddir)/test/test_default.c, test_default.conf
-\emph default
-.
+This example can be found in $(top_builddir)/test/test_default.c, test_default.con
+f.
  The source code is 
 \end_layout
 
@@ -535,11 +530,8 @@ return 0;
 \end_layout
 
 \begin_layout Standard
-The configure file test_default.conf equals 
-\emph on
-test_hello.conf
-\emph default
-, and the output of test_default equals test_hello.
+The configure file test_default.conf equals test_hello.conf, and the output
+ of test_default equals test_hello.
  The difference is, test_default use dzlog API, which has a default 
 \emph on
 zlog_cateogy_t
@@ -603,8 +595,7 @@ zlog allocates one log buffer in each thread.
  till buf_size_max, and log conten is truncated.
  If buf_size_max is 0, means buf_size is unlimited, everytime buf_size =
  2*buf_size, till process use up all it's memory.
- Size can append with unit KB, MB or GB, so [@buf_size_min 1024] equals
- [@buf_size_min 1KB].
+ Size can append with unit KB, MB or GB suffix, so 1024 equals 1KB.
  Default, buf_size_min is 1K and buf_size_max is 2MB.
 \end_layout
 
@@ -703,7 +694,8 @@ level int should in [1,253], more larger, more important.
 \end_layout
 
 \begin_layout Standard
-see ~/test/test_level.c ~/test/test_level.h for example.
+see $(top_builddir)/test/test_level.c $(top_builddir)/test/test_level.h for
+ example.
 \end_layout
 
 \begin_layout Section
@@ -865,7 +857,7 @@ my_ca.debug >stdout; simple
 
 , nothing will be output to screen.
  Loose coupling are both fallible and flexible.
- Still, zlog has a feature to make up this problem, see 
+ Still, zlog has a feature to make up for this deficiency, see 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "category-mismatch"
@@ -919,7 +911,7 @@ The syntax of rule is:
 \end_layout
 
 \begin_layout LyX-Code
-[action] = [output], [file size limitation,optional]; [format name, optional]
+[action] = [output], [file limitation,optional]; [format name, optional]
 \end_layout
 
 \begin_layout Section
@@ -1121,8 +1113,8 @@ aa is a father logger.
 
 \begin_layout Standard
 In zlog, all rules are independent.
- Sub-category relationship is represent as a underline between words.
- For Example:
+ Sub-category relationship is express as a underline between words.
+ For example:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1575,7 +1567,7 @@ Now, zlog supports 4 ways of output, the syntax is
 \end_layout
 
 \begin_layout LyX-Code
-[action] = [output], [file size limitation,optional]; [format name, optional]
+[action] = [output], [file limitation,optional]; [format name, optional]
 \end_layout
 
 \begin_layout Standard
@@ -1608,7 +1600,7 @@ output
 \begin_inset Text
 
 \begin_layout Plain Layout
-file size limitation
+file limitation
 \end_layout
 
 \end_inset
@@ -1735,11 +1727,15 @@ to file
 \begin_inset Text
 
 \begin_layout Plain Layout
-file size limitation, can be:
+file limitation, can be:
 \end_layout
 
 \begin_layout Plain Layout
 1000, 1k, 2M, 1G...
+\end_layout
+
+\begin_layout Plain Layout
+3m*2, 4k*3...
 \end_layout
 
 \end_inset
@@ -1758,7 +1754,7 @@ file size limitation, can be:
 [file path]
 \emph default
  can be absolute file path or relative file path.
- It is quoted.
+ It is quoted by double quotation marks.
  
 \emph on
 Conversion pattern
@@ -1772,8 +1768,8 @@ Conversion pattern
 \begin_inset Quotes erd
 \end_inset
 
- and the program' environment $HOME is /home/harry, then the log file is
- /home/harry/log/output.log.
+ and the program' environment $HOME is /home/harry, then the log file will
+ be /home/harry/log/output.log at last.
  See 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1787,9 +1783,10 @@ reference "sec:Conversion-pattern"
 \begin_layout Standard
 
 \emph on
-[file size limitation]
+[file limitation]
 \emph default
- controls log file to rotate itself when the file is too large.
+ controls log file size and count.
+ It rotate log file when the file is too large.
  Let the action is
 \end_layout
 
@@ -1801,7 +1798,7 @@ reference "sec:Conversion-pattern"
 \begin_inset Quotes erd
 \end_inset
 
-,1M
+,1M*3
 \end_layout
 
 \begin_layout Standard
@@ -1818,6 +1815,27 @@ out.log(new create)
 
 \begin_layout Standard
 If the new log is full again, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log.1 -> out.log.2
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create)
+\end_layout
+
+\begin_layout Standard
+The next time rotation will delete the oldest log, as *3 means just allows
+ 3 file exist
+\end_layout
+
+\begin_layout LyX-Code
+unlink(out.log.2)
 \end_layout
 
 \begin_layout LyX-Code
@@ -1960,14 +1978,14 @@ The recognized conversion characters are
 <lyxtabular version="3" rows="17" columns="3">
 <features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
-<column alignment="center" valignment="top" width="60text%">
-<column alignment="center" valignment="top" width="30text%">
+<column alignment="center" valignment="top" width="50text%">
+<column alignment="center" valignment="top" width="40text%">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-Conversion Character
+conversion char
 \end_layout
 
 \end_inset
@@ -1976,7 +1994,7 @@ Conversion Character
 \begin_inset Text
 
 \begin_layout Plain Layout
-Effect
+effect
 \end_layout
 
 \end_inset
@@ -1985,7 +2003,7 @@ Effect
 \begin_inset Text
 
 \begin_layout Plain Layout
-Example
+example
 \end_layout
 
 \end_inset
@@ -1996,7 +2014,7 @@ Example
 \begin_inset Text
 
 \begin_layout Plain Layout
-c
+%c
 \end_layout
 
 \end_inset
@@ -2026,7 +2044,7 @@ aa_bb
 \begin_inset Text
 
 \begin_layout Plain Layout
-d
+%d
 \end_layout
 
 \end_inset
@@ -2085,7 +2103,7 @@ for more detail.
 \begin_inset Text
 
 \begin_layout Plain Layout
-E
+%E
 \end_layout
 
 \end_inset
@@ -2103,7 +2121,7 @@ Used to output the environment variable, which is fixed at zlog_init()
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E(HOME) /home/harry
+%E(HOME)/home/harry
 \end_layout
 
 \end_inset
@@ -2114,7 +2132,7 @@ Used to output the environment variable, which is fixed at zlog_init()
 \begin_inset Text
 
 \begin_layout Plain Layout
-F
+%F
 \end_layout
 
 \end_inset
@@ -2125,7 +2143,7 @@ F
 \begin_layout Plain Layout
 Used to output the file name where the logging request was issued.
  The file name comes from __FILE__ macro.
- In some unix system __FILE__ is the full source path.
+ In some UNIX system __FILE__ is the absolute path.
  Use $f to strip path and remain file name.
 \end_layout
 
@@ -2146,7 +2164,7 @@ test_hello.c
 \begin_inset Text
 
 \begin_layout Plain Layout
-f
+%f
 \end_layout
 
 \end_inset
@@ -2176,7 +2194,7 @@ test_hello.c
 \begin_inset Text
 
 \begin_layout Plain Layout
-H
+%H
 \end_layout
 
 \end_inset
@@ -2205,7 +2223,7 @@ zlog-dev
 \begin_inset Text
 
 \begin_layout Plain Layout
-L
+%L
 \end_layout
 
 \end_inset
@@ -2235,7 +2253,7 @@ Used to output the line number from where the logging request was issued,
 \begin_inset Text
 
 \begin_layout Plain Layout
-m
+%m
 \end_layout
 
 \end_inset
@@ -2265,7 +2283,7 @@ hello, zlog
 \begin_inset Text
 
 \begin_layout Plain Layout
-M
+%M
 \end_layout
 
 \end_inset
@@ -2277,7 +2295,7 @@ M
 Used to output the MDC (mapped diagnostic context) associated with the thread
  that generated the logging event.
  The M conversion character must be followed by the key for the map placed
- between parenthesis, as in $M(clientNumber) where clientNumber is the key.
+ between parenthesis, as in %M(clientNumber) where clientNumber is the key.
  The value in the MDC corresponding to the key will be output.See 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -2305,7 +2323,7 @@ reference "sec:MDC"
 \begin_inset Text
 
 \begin_layout Plain Layout
-n
+%n
 \end_layout
 
 \end_inset
@@ -2324,7 +2342,7 @@ n
 \begin_inset Quotes erd
 \end_inset
 
-, we do not support windows line separator now.
+, I do not support windows line separator now.
 \end_layout
 
 \end_inset
@@ -2346,7 +2364,7 @@ n
 \begin_inset Text
 
 \begin_layout Plain Layout
-p
+%p
 \end_layout
 
 \end_inset
@@ -2376,7 +2394,7 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-V
+%V
 \end_layout
 
 \end_inset
@@ -2405,7 +2423,7 @@ INFO
 \begin_inset Text
 
 \begin_layout Plain Layout
-v
+%v
 \end_layout
 
 \end_inset
@@ -2434,7 +2452,7 @@ info
 \begin_inset Text
 
 \begin_layout Plain Layout
-t
+%t
 \end_layout
 
 \end_inset
@@ -2473,7 +2491,7 @@ Used to output the id of the thread that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-he sequence %% outputs a single percent sign.
+the sequence %% outputs a single percent sign.
 \end_layout
 
 \end_inset
@@ -2584,7 +2602,7 @@ Below are various format modifier examples for the category conversion specifier
 \begin_inset Text
 
 \begin_layout Plain Layout
-Format modifier
+format modifier
 \end_layout
 
 \end_inset
@@ -2894,8 +2912,8 @@ d.
 \end_layout
 
 \begin_layout Standard
-There are 2 speical character support by zlog itself, which come from gettimeofd
-ay(2)
+There are 2 speical time words support by zlog itself.
+ Time is got from gettimeofday(2)
 \end_layout
 
 \begin_layout Standard
@@ -2910,16 +2928,7 @@ ay(2)
 \begin_inset Text
 
 \begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-Character
+word
 \end_layout
 
 \end_inset
@@ -2937,7 +2946,7 @@ Character
 \bar no
 \noun off
 \color none
-Effect
+effect
 \end_layout
 
 \end_inset
@@ -2955,7 +2964,7 @@ Effect
 \bar no
 \noun off
 \color none
-Example
+example
 \end_layout
 
 \end_inset
@@ -3043,7 +3052,7 @@ Most Character is supported by strftime(2) on system.
 \begin_inset Text
 
 \begin_layout Plain Layout
-Character
+character
 \end_layout
 
 \end_inset
@@ -3052,7 +3061,7 @@ Character
 \begin_inset Text
 
 \begin_layout Plain Layout
-Effect
+effect
 \end_layout
 
 \end_inset
@@ -3061,7 +3070,7 @@ Effect
 \begin_inset Text
 
 \begin_layout Plain Layout
-Example
+example
 \end_layout
 
 \end_inset
@@ -4529,7 +4538,7 @@ zlog_update()
 conf_file
 \emph default
 .
- It can be use at runtime when configure file changed, and can be use unlimit
+ It can be call at runtime when configure file changed, and can be use unlimit
  times.
  If conf_file is NULL, use the last configure file 
 \emph on
@@ -4557,6 +4566,7 @@ zlog_init()
 zlog_update() 
 \emph default
 applied.
+ It can be call unlimit times.
 \end_layout
 
 \begin_layout Section
@@ -5233,7 +5243,7 @@ What is MDC? In log4j it is short for Mapped Diagnostic Context.
  MDC is just a key-value map.
  Once you set it by function, library will print it to file every time a
  log event happens.
- Let's see a example in ~/test/test_mdc.c.
+ Let's see a example in $(top_builddir)/test/test_mdc.c.
 \end_layout
 
 \begin_layout LyX-Code
@@ -5762,7 +5772,7 @@ zlog_init()
 \end_layout
 
 \begin_layout Standard
-see ~/test/test_profile.c
+see $(top_builddir)/test/test_profile.c
 \end_layout
 
 \begin_layout LyX-Code
@@ -6064,7 +6074,7 @@ define levels in configure file.
 
 \begin_deeper
 \begin_layout LyX-Code
-$ cat test_level.conf
+$ cat $(top_builddir)/test/test_level.conf
 \end_layout
 
 \begin_layout LyX-Code
@@ -6199,7 +6209,7 @@ For easy use, create a .h file
 \end_layout
 
 \begin_layout LyX-Code
-$ cat test_level.h
+$ cat $(top_builddir)/test/test_level.h
 \end_layout
 
 \begin_layout LyX-Code
@@ -6261,7 +6271,7 @@ Now, ZLOG_TRACE can be used int .c file
 
 \begin_deeper
 \begin_layout LyX-Code
-$ cat test_level.c
+$ cat $(top_builddir)/test/test_level.c
 \end_layout
 
 \begin_layout LyX-Code
@@ -6391,7 +6401,7 @@ INFO info hello, zlog - info
 \begin_layout Standard
 That's just what we expect, the configure file only allows >=TRACE ouput
  to screen.
- Ans “%V
+ And “%V
 \begin_inset Quotes erd
 \end_inset
 

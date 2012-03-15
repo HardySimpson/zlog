@@ -116,36 +116,39 @@
 "#         aa.debug, soucre log action >= debug\n" \
 "#         aa.!debug, source log action != debug\n" \
 "#         aa.=debug, source log action == debug\n" \
-"# [输出器] = [输出], [文件大小限制, 可选]; [format(格式)名, 可选]\n"   \
+"# [输出器] = [输出], [文件大小个数限制, 可选]; [format(格式)名, 可选]\n"   \
 "#     [输出] 可以是\n"   \
 "#         >stdout, 标准输出\n"   \
 "#         >stderr, 标准错误输出\n"   \
 "#         >syslog, syslog输出, 后面要跟syslog facility\n"   \
 "#         \"日志文件路径\", 相对路径或绝对路径\n"   \
 "#             可以内含转换字符(见下面的附录).\n"    \
-"#     [文件大小限制]\n"  \
-"#         如果 [输出] 是 syslog, 这个字段就是 syslog facility, \n"  \
+"#     [文件大小个数限制]\n"  \
+"#         如果 [输出] 是>syslog, 这个字段就是 syslog facility, \n"  \
 "#            必须在 LOG_LOCAL[0-7] 或 LOG_USER内\n"   \
-"#         如果输出是日志文件, 则是单个文件大小限制, 后面可以跟kb,Mb,G这种单位 \n"   \
+"#         如果输出是日志文件, 则是单个文件大小限制 * 文件个数限制(可选),\n"  \
+"#            后面可以跟kb,Mb,G这种单位 \n"   \
 "#            例子. 2048K, 1M, 10mb\n"   \
+"#                  1M * 5, 10mb * 10\n"   \
 "#     [format(格式名)]\n"   \
 "#         不写的话使用一开始设置的缺省格式, 否则就需要是在format(格式)段定义好的格式名\n"  \
 "#\n"   \
 "######## 附录, 转换字符\n"   \
-"# c    源代码中的分类名                   aa_bb\n"  \
-"# d    时间日期 %d(strftime format)       12-01 17:17:42\n"   \
-"# E    环境变量的值 %E(HOME)              /home/test\n"   \
-"# F    源文件名, __FILE__                 test_hello.c\n"   \
-"# f    去掉路径的源文件名, __FILE__       test_hello.c\n"   \
-"# H    主机名, gethostname()              zlog-dev\n"   \
-"# L    源文件行数, __LINE__               123\n"   \
-"# m    用户消息                           hello, zlog\n"   \
-"# M    mdc, %M(key)                       value\n"   \
-"# n    换行符                             \\n\n"   \
-"# p    进程号, getpid()                   13423\n"   \
-"# V    日志等级, 大写                     INFO\n"   \
-"# v    日志等级, 小写                     info\n"   \
-"# t    线程号, pthread_self               12343\n"   \
+"# %c    源代码中的分类名                   aa_bb\n"  \
+"# %d    时间日期 %d(strftime format)       12-01 17:17:42\n"   \
+"#       详见man 3 strftime, zlog 增加了 %ms 毫秒 %us 微秒\n"   \
+"# %E    环境变量的值 %E(HOME)              /home/test\n"   \
+"# %F    源文件名, __FILE__                 test_hello.c\n"   \
+"# %f    去掉路径的源文件名, __FILE__       test_hello.c\n"   \
+"# %H    主机名, gethostname()              zlog-dev\n"   \
+"# %L    源文件行数, __LINE__               123\n"   \
+"# %m    用户消息                           hello, zlog\n"   \
+"# %M    mdc, %M(key)                       value\n"   \
+"# %n    换行符                             \\n\n"   \
+"# %p    进程号, getpid()                   13423\n"   \
+"# %V    日志等级, 大写                     INFO\n"   \
+"# %v    日志等级, 小写                     info\n"   \
+"# %t    线程号, pthread_self               12343\n"   \
 "# %%   百分号                             %\n"   \
 "# %[其他字符]   语法错误, 将会导致zlog_init()失败\n"  \
 "#\n"  \
@@ -256,36 +259,39 @@
 "#         aa.debug, soucre log action >= debug\n" \
 "#         aa.!debug, source log action != debug\n" \
 "#         aa.=debug, source log action == debug\n" \
-"# [action] = [output], [file size limitation,optional]; [format name, optional]\n"   \
+"# [action] = [output], [file limitation,optional]; [format name, optional]\n"   \
 "#     [output] can be\n"   \
 "#         >stdout, to posix stranded output\n"   \
 "#         >stderr, to posix stranded error\n"   \
 "#         >syslog, to syslog, must flow syslog facility\n"   \
 "#         \"file path\", can be absolute file path\n"   \
 "#             or relative file path with conversion pattern.\n"    \
-"#     [file size limitation]\n"  \
-"#         if [output] is syslog, then here is syslog facility, \n"  \
+"#     [file limitation]\n"  \
+"#         if [output] is >syslog, then here is syslog facility, \n"  \
 "#            must be LOG_LOCAL[0-7] or LOG_USER\n"   \
-"#         else it controls file size in bytes, and can be appended with kb,mb,gb \n"   \
+"#         else it controls file size in bytes * file count(optional),\n"   \
+"#            and can be appended with kb,mb,gb \n"   \
 "#            eg. 2048K, 1M, 10mb\n"   \
+"#                1M * 5, 10mb * 10\n"   \
 "#     [format name]\n"   \
 "#         the format mentioned above, or the default format if not set\n"  \
 "#\n"   \
 "######## Appendix, Conversion Character\n"   \
-"# c    category name                      aa_bb\n"  \
-"# d    data & time %d(strftime format)    12-01 17:17:42\n"   \
-"# E    environment variable %E(HOME)      /home/test\n"   \
-"# F    file name, __FILE__                test_hello.c\n"   \
-"# f    strip file name, __FILE__          test_hello.c\n"   \
-"# H    host name, gethostname()           zlog-dev\n"   \
-"# L    line number, __LINE__              123\n"   \
-"# m    user message                       hello, zlog\n"   \
-"# M    mdc, %M(key)                       value\n"   \
-"# n    newline                            \\n\n"   \
-"# p    process id, getpid()               13423\n"   \
-"# V    log level, capital                 INFO\n"   \
-"# v    log level, lowercase               info\n"   \
-"# t    thread id, pthread_self            12343\n"   \
+"# %c    category name                      aa_bb\n"  \
+"# %d    data & time %d(strftime format)    %d(%F %T) 2012-01 17:17:42\n"   \
+"#       see man 3 strftime, zlog add %ms for millisecond and %us for microsend\n"   \
+"# %E    environment variable %E(HOME)      /home/test\n"   \
+"# %F    file name, __FILE__                test_hello.c\n"   \
+"# %f    strip file name, __FILE__          test_hello.c\n"   \
+"# %H    host name, gethostname()           zlog-dev\n"   \
+"# %L    line number, __LINE__              123\n"   \
+"# %m    user message                       hello, zlog\n"   \
+"# %M    mdc, %M(key)                       value\n"   \
+"# %n    newline                            \\n\n"   \
+"# %p    process id, getpid()               13423\n"   \
+"# %V    log level, capital                 INFO\n"   \
+"# %v    log level, lowercase               info\n"   \
+"# %t    thread id, pthread_self            12343\n"   \
 "# %%   a single percent sign              %\n"   \
 "# %[other char]   wrong syntax, will cause zlog_init() fail\n"  \
 "#\n"  \
