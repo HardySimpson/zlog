@@ -37,4 +37,5 @@ libzlog_la_SOURCES =	\
 	zc_defs.h	
 
 libzlog_la_LIBADD = $(PTREADLIB)
+#libzlog_la_LDFLAGS = -version-info 1:1:0
 include_HEADERS = zlog.h

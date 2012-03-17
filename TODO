@@ -34,8 +34,9 @@
 [o] reset level, 用arraylist来做试试看
 [o] ylog, 更简单的接口, 改名为dzlog的一堆接口来解决
 [o] zlog-gen-conf
+[o] rotate控制个数
 
-[p] rotate控制个数
+[ ] 输出函数自定义
 [p] 使用valgrind测试性能
 	[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 [p] 用某种自动编译器以及文档生成器

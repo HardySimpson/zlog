@@ -81,6 +81,7 @@
 "# 语法:\n"   \
 "# @level[n个空格或tab][级别的字符串] = [级别数值][syslog级别, 可选]\n"   \
 "# 级别数值要在 [1,253]内, 越大代表越重要\n"   \
+"# yslog级别是可选，不设的话默认是LOG_DEBUG\n"   \
 "# 定义自己的级别还需要在用户的.h内写相应的宏\n"   \
 "# 详见 ~/test/test_level.c ~/test/test_level.h\n"   \
 "# 例如:\n"   \
@@ -227,6 +228,7 @@
 "# The syntax is\n"   \
 "# @level[n tabs or spaces][level string] = [level int], [syslog level, optional]\n"   \
 "# level int should in [1,253], more larger, more important\n"   \
+"# syslog level is optional, if not set, is LOG_DEBUG\n"   \
 "# and suggest to be used with user-defined macros in source file\n"   \
 "# see ~/test/test_level.c ~/test/test_level.h for example\n"   \
 "# eg.\n"   \

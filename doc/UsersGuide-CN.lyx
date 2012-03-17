@@ -2,10 +2,34 @@
 \lyxformat 345
 \begin_document
 \begin_header
-\textclass scrbook
+\textclass book
+\begin_preamble
+\usepackage[cm-default]{fontspec}
+\usepackage{xunicode}
+\usepackage{xltxtra}
+\setmainfont[ItalicFont=KaiTi]{YaHei Consolas Hybrid}
+%\setmainfont[BoldFont=KaiTi,ItalicFont=KaiTi]{SimSun}
+%\setsansfont[BoldFont=KaiTi]{KaiTi}
+%\setmonofont{KaiTi}
+
+%其他中文设置%
+\XeTeXlinebreaklocale “zh”%中文断行
+\XeTeXlinebreakskip = 0pt plus 1pt minus 0.1pt%左右弹性间距
+\usepackage{indentfirst}%段落首行缩进
+\setlength{\parindent}{2em}%缩进两个字符
+
+%编号语言、样式设置%
+\numberwithin{equation}{section}%设置公式按章节进行编号
+\numberwithin{figure}{section}% 按章节编号
+\end_preamble
 \use_default_options true
+\begin_modules
+theorems-ams
+eqs-within-sections
+figs-within-sections
+\end_modules
 \language english
-\inputencoding auto
+\inputencoding utf8-plain
 \font_roman default
 \font_sans default
 \font_typewriter default
@@ -18,7 +42,19 @@
 \graphics default
 \paperfontsize 12
 \spacing single
-\use_hyperref false
+\use_hyperref true
+\pdf_title "zlog使用攻略"
+\pdf_author "难易"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen true
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\pdf_quoted_options "unicode=false"
 \papersize default
 \use_geometry false
 \use_amsmath 1
@@ -43,15 +79,40 @@
 \begin_body
 
 \begin_layout Title
-Zlog User's Guide
+zlog使用攻略
 \end_layout
 
 \begin_layout Author
-by Hardy Simpson
+难易 著
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+适用于 zlog v0.9.
 \end_layout
 
-\begin_layout Author
-Version 0.9
+\end_inset
+
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+有问题，写邮件到
+\begin_inset CommandInset href
+LatexCommand href
+name "HardySimpson1984@gmail.com"
+target "HardySimpson1984@gmail.com"
+type "mailto:"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -64,110 +125,127 @@ LatexCommand tableofcontents
 \end_layout
 
 \begin_layout Chapter
-What is zlog?
+zlog是什么？
 \end_layout
 
 \begin_layout Standard
-zlog is a high efficent, thread safe, flexsible, pure c logging library
+zlog是一个高性能、线程安全、灵活的纯C日志函数库。
 \end_layout
 
 \begin_layout Standard
-Actually, in the c world there is NO good logging library for application
- like logback in java or log4cxx in c++.
- printf can work, but can not be easily redirected or reformat, syslog is
- slow and is designed for system use.
+事实上，在C的世界里面没有特别好的日志函数库（就像JAVA里面的的log4j，或者C++的log4cxx）。C程序员都喜欢用自己的轮子。printf就是个挺好的
+轮子，但没办法通过配置改变日志的格式或者输出文件。syslog是个系统级别的轮子，不过速度慢，而且功能比较单调。
 \end_layout
 
 \begin_layout Standard
-So I write zlog.
- 
+所以我写了zlog。 
 \end_layout
 
 \begin_layout Standard
-zlog has feartures below:
+zlog有这些特性：
 \end_layout
 
 \begin_layout Itemize
-syslog style configure file, easy for understand and use
+syslog风格的配置文件，易学易用
 \end_layout
 
 \begin_layout Itemize
-sub-category model, which is more flexible than hierarchy model of log4j
+子分类模型，比log4j系列的继承模型更加清晰
 \end_layout
 
 \begin_layout Itemize
-multiple output, include static file path, dynamic file path, stdout, stderr,
- syslog
+多种输出，包括动态文件、静态文件、stdout、stderr、syslog
 \end_layout
 
 \begin_layout Itemize
-runtime refreash configure to change output flow or output format, just
- need to call one function -- zlog_update()
+可以在运行时动态刷性配置，只需要调用函数zlog_update()
 \end_layout
 
 \begin_layout Itemize
-high efficieny, on my laptop, record 720'000 log per second, about 200 times
- faster than syslog(3) with rsyslogd
+高性能，在我的笔记本上达到72'000条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
 \end_layout
 
 \begin_layout Itemize
-user can define his own log level
+用户可以自定义等级，无需改变库代码
 \end_layout
 
 \begin_layout Itemize
-safely rotate log file by size when multiple process or multiple threads
- write to one same log file
+多线程和多进程写同一个日志的情况下，安全转档（转档就是把太大的日志重命名）
 \end_layout
 
 \begin_layout Itemize
-accurate to microseconds
+可以精确到微秒
 \end_layout
 
 \begin_layout Itemize
-MDC, a log4j style key-value map, expand user defined field in dynamic log
- file path or log format, is also useful in multi-thread programming
+MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字段
 \end_layout
 
 \begin_layout Itemize
-self debugable, can output zlog's self debug&error log at runtime
+自诊断，可以在运行时输出zlog自己的日志和配置状态
 \end_layout
 
 \begin_layout Itemize
-Not depend on any other 3rd party library, just base on POSIX system.
- 
+不依赖其他库，只要是个POSIX系统就成
+\end_layout
+
+\begin_layout Standard
+主页：
+\begin_inset CommandInset href
+LatexCommand href
+name "https://github.com/HardySimpson/zlog"
+target "https://github.com/HardySimpson/zlog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+作者博客：
+\begin_inset CommandInset href
+LatexCommand href
+name "http://my.oschina.net/HardySimpson/blog"
+target "http://my.oschina.net/HardySimpson/blog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+邮箱：
+\begin_inset CommandInset href
+LatexCommand href
+name "HardySimpson1984@gmail.com"
+target "HardySimpson1984@gmail.com"
+type "mailto:"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Chapter
-What is not zlog
+zlog不是什么？
 \end_layout
 
 \begin_layout Standard
-The goal of zlog is becoming a simple, fast log library for application.
- It will not support too much output like send log to other machine through
- net or save it to database.
- It will not parse content of log and filter them.
+zlog的目标是成为一个简而精的日志函数库，她不会直接支持网络输出或者写入数据库，她不会直接支持日志内容的过滤和解析。
 \end_layout
 
 \begin_layout Standard
-The reason is obvious: library is part of application, all time log library
- takes is part of application's time.
- And database inserting or log content parsing takes a long time.
- These operation should be done in a different process or on a different
- machine.
+原因很明显，日志库是被应用程序调用的，所有花在日志库上的时间都是应用程序运行时间的一部分，而上面说的这些操作都很费时间，会拖慢应用程序的速度。这些事儿应该在别的
+进程或者别的机器上做。
 \end_layout
 
 \begin_layout Standard
-If you want all these features, I recommend rsyslog, a excellent syslog
- daemon implementation.
- It is a independent process receives logs from other process or machines,
- and parse and store logs.
- Still, it has a distance from user application.
+如果你需要这些特性，我建议使用rsyslog，一个系统级别的日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。
 \end_layout
 
 \begin_layout Standard
-So now I think about how to connect zlog and rsyslog, the tranditional syslog(3)
- is one way, but maybe there is another way more efficient.
- If you have a good idea, tell me!
+目前我正在考虑怎么让zlog和rsyslog合适的对接，传统的syslog(3)行，但不够优雅。当然我也考虑让应用程序挂一些输出函数到zlog上。有什么好想法，
+告诉我！
 \end_layout
 
 \begin_layout Chapter
@@ -175,11 +253,11 @@ Hello World
 \end_layout
 
 \begin_layout Section
-Build and Installation zlog
+编译和安装zlog
 \end_layout
 
 \begin_layout Standard
-If checking out from Git (https://github.com/HardySimpson/zlog):
+如果是从Git上拉下来的话 (https://github.com/HardySimpson/zlog):
 \end_layout
 
 \begin_layout LyX-Code
@@ -187,7 +265,7 @@ $ sh autogen.sh
 \end_layout
 
 \begin_layout Standard
-Then (if not checking from git, begin here)
+一般来说
 \end_layout
 
 \begin_layout LyX-Code
@@ -209,12 +287,7 @@ $ make install
 \end_layout
 
 \begin_layout Standard
-If --enable-test is used, then all the test program under test directory
- will be built.
- These are also good example codes which show how to use zlog.
- If zlog is built in other path other than source path, you need to copy
- all configure file to build path by hand, to run test program successfully,
- for example:
+如果--enable-test用了的话，测试程序会被编译。这些程序是很好的使用zlog的例子，如果你在别的目录编译，编译完之后要把测试目录的配置复制过来，例如：
 \end_layout
 
 \begin_layout LyX-Code
@@ -234,11 +307,11 @@ hello, zlog
 \end_layout
 
 \begin_layout Section
-Compile and Link
+应用程序调用和链接zlog
 \end_layout
 
 \begin_layout Standard
-To use zlog, only add one line below in source c file or cpp file.
+应用程序使用zlog很简单，只要在C文件里面加一行。
 \end_layout
 
 \begin_layout LyX-Code
@@ -254,7 +327,7 @@ zlog.h
 \end_layout
 
 \begin_layout Standard
-If your system has pkgconfig then you can just add this to your makefile
+如果你的系统有pkgconfig，可以在makefile里面这么写
 \end_layout
 
 \begin_layout LyX-Code
@@ -266,7 +339,7 @@ LDFLAGS += $(shell pkg-config --libs zlog)
 \end_layout
 
 \begin_layout Standard
-If has not
+如果没有的话，手工链接的命令是
 \end_layout
 
 \begin_layout LyX-Code
@@ -279,7 +352,7 @@ $ cc -o xx xx.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
 \end_layout
 
 \begin_layout Section
-Hello World Example
+Hello World 代码
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Hello-World-Example"
@@ -290,11 +363,11 @@ name "sec:Hello-World-Example"
 \end_layout
 
 \begin_layout Standard
-This example can be found in $(top_builddir)/test/test_hello.c, test_hello.conf
+这些代码在$(top_builddir)/test/test_hello.c, test_hello.conf
 \end_layout
 
 \begin_layout Enumerate
-create a new c source file:
+写一个C文件：
 \end_layout
 
 \begin_deeper
@@ -371,13 +444,13 @@ c = zlog_get_category("my_cat");
 if (!my_cat) {
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 printf("get cat fail
 \backslash
 n");
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 zlog_fini();
 \end_layout
@@ -414,7 +487,7 @@ return 0;
 
 \end_deeper
 \begin_layout Enumerate
-create a configure file in the same path as test_hello.c:
+写一个配置文件，放在和test_hello.c同样的目录下:
 \end_layout
 
 \begin_deeper
@@ -436,7 +509,7 @@ my_cat.DEBUG            >stdout; simple
 
 \end_deeper
 \begin_layout Enumerate
-compile and run it!
+编译、然后运行!
 \end_layout
 
 \begin_deeper
@@ -458,13 +531,12 @@ hello, zlog
 
 \end_deeper
 \begin_layout Section
-A simpler Hello World Example
+更简单的Hello World
 \end_layout
 
 \begin_layout Standard
-This example can be found in $(top_builddir)/test/test_default.c, test_default.con
-f.
- The source code is 
+这个例子在$(top_builddir)/test/test_default.c, test_default.conf.
+ 源代码是： 
 \end_layout
 
 \begin_layout LyX-Code
@@ -530,54 +602,40 @@ return 0;
 \end_layout
 
 \begin_layout Standard
-The configure file test_default.conf equals test_hello.conf, and the output
- of test_default equals test_hello.
- The difference is, test_default use dzlog API, which has a default 
-\emph on
-zlog_cateogy_t
-\emph default
- inside and easy for use.
- See 
+配置文件是test_default.conf，和test_hello.conf一模一样，最后执行程序的输出也一样。区别在于这里用了dzlog API，内含一个默认的
+zlog_category_t。详见
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:dzlog-API"
 
 \end_inset
 
- for more details.
+。
 \end_layout
 
 \begin_layout Chapter
-Configure File
+配置文件
 \end_layout
 
 \begin_layout Standard
-All actions of zlog library are dependent upon configure file: where to
- output the log, how log is rotate, the output format, etc...
- Configure File is a special language tells how library works.
+大部分的zlog的行为取决于配置文件：把日志打到哪里去，用什么格式，怎么转档。配置文件是zlog的黑话，我尽量把这个黑话设计的简单明了。
 \end_layout
 
 \begin_layout Section
-Global Setting
+全局设置
 \end_layout
 
 \begin_layout Standard
-Global setting begins with @.
- All global setting could be not written, for use default value.
- The full sytanx is:
-\end_layout
-
-\begin_layout LyX-Code
-@[key][n space or tab][value]
+# 全局设置以@开头。全局设置可以不写，使用内置的默认值。语法：
 \end_layout
 
 \begin_layout Standard
-If ignore_error_format_rule is true, zlog_init() will omit error syntax
- of formats and rules.
- Else if ignore_error_format_rule is false, zlog_init() will check sytnax
- of all formats and rules strictly, and any error will cause zlog_init()
- failed and return -1.
- Default, ignore_error_format_rule is false.
+@[键][n个空格或tab][值]
+\end_layout
+
+\begin_layout Standard
+# 如果ignore_error_format_rule是true，zlog_init()将会忽略错误的format和rule。否则zlog_init()将会严
+格的检查所有format和rule的语法 ，碰到错误的就返回-1。默认值：
 \end_layout
 
 \begin_layout LyX-Code
@@ -589,14 +647,9 @@ If ignore_error_format_rule is true, zlog_init() will omit error syntax
 \end_layout
 
 \begin_layout Standard
-zlog allocates one log buffer in each thread.
- buf_size_min indicates size of buffer malloced at init time.
- While loging, if log content size > buf_size, buffer will expand automaticly,
- till buf_size_max, and log conten is truncated.
- If buf_size_max is 0, means buf_size is unlimited, everytime buf_size =
- 2*buf_size, till process use up all it's memory.
- Size can append with unit KB, MB or GB suffix, so 1024 equals 1KB.
- Default, buf_size_min is 1K and buf_size_max is 2MB.
+# zlog在堆上为每个线程申请缓存。buf_size_min是单个缓存的最小值。写日志的时候，如果日志长度大于缓存，缓存会自动扩充到buf_size_max，
+ 日志再长超过buf_size_max就会截断。如果 buf_size_max 是 0，意味着不限制缓存，每次扩充buf_size=2*buf_size。缓存大
+小可以加上 KB, MB 或 GB这些单位。默认值：
 \end_layout
 
 \begin_layout LyX-Code
@@ -608,13 +661,8 @@ zlog allocates one log buffer in each thread.
 \end_layout
 
 \begin_layout Standard
-rotate_lock_file is a lock file for rotate a log safely between multi-process.
- zlog will create the file at zlog_init().
- Make sure your program has permission to create and read-write the file.
- If programs run by different users who need to write and rotater a same
- log file, make sure that each program has permission to create and read-write
- the same lock file.
- Default, rotate_lock_file is /tmp/zlog.lock
+# rotate_lock_file是一个posix文件锁文件。用来在多进程情况下，保证日志安全转档。zlog会在zlog_init()时候创建这个文件。确认你
+执行程序的用户有权限创建和读写这个文件。如果有多个用户需要转档同一个日志文件，确认这个锁文件对于多个用户都可读写。默认值：
 \end_layout
 
 \begin_layout LyX-Code
@@ -626,9 +674,7 @@ rotate_lock_file is a lock file for rotate a log safely between multi-process.
 \end_layout
 
 \begin_layout Standard
-default_format is used by rules without format.
- That cause each rule without format specified, would yield output like
- this:
+# default_format是缺省的日志格式。内置的缺省格式会产生类似这样的输出：
 \end_layout
 
 \begin_layout LyX-Code
@@ -636,7 +682,7 @@ default_format is used by rules without format.
 \end_layout
 
 \begin_layout Standard
-You can set it to change the default behavior.The inner default format:
+可以把缺省格式设成你喜欢的样子，默认值：
 \end_layout
 
 \begin_layout LyX-Code
@@ -644,12 +690,11 @@ You can set it to change the default behavior.The inner default format:
 \end_layout
 
 \begin_layout Standard
-User can defined his own levels, and suggest to be used with user-defined
- macros in source file.
+# 用户自定义级别
 \end_layout
 
 \begin_layout Standard
-The inner default levels are
+zlog内置的级别是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -681,29 +726,30 @@ The inner default levels are
 \end_layout
 
 \begin_layout Standard
-The syntax is
-\end_layout
-
-\begin_layout LyX-Code
-@level[n tabs or spaces][level string] = [level int], [syslog level, optional]
+语法：
 \end_layout
 
 \begin_layout Standard
-level int should in [1,253], more larger, more important.
- syslog level is optional, if not set, use LOG_DEBUG
+@level[n个空格或tab][级别的字符串] = [级别数值][syslog级别, 可选]
 \end_layout
 
 \begin_layout Standard
-see $(top_builddir)/test/test_level.c $(top_builddir)/test/test_level.h for
- example.
+级别数值要在 [1,253]内, 越大代表越重要。syslog级别是可选，不设的话默认是LOG_DEBUG。详见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Define-new-level"
+
+\end_inset
+
+。
 \end_layout
 
 \begin_layout Section
-Category, Rule and Format
+分类(Category)、规则(Rule)和格式(Format)
 \end_layout
 
 \begin_layout Standard
-This is c source file:
+一段C代码是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -739,10 +785,6 @@ my_cat
 \end_layout
 
 \begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
 ZLOG_INFO(c, "hello, zlog");
 \end_layout
 
@@ -759,7 +801,7 @@ hello, zlog
 \end_layout
 
 \begin_layout Standard
-And this is part of conf file:
+以及配置文件是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -768,10 +810,6 @@ And this is part of conf file:
 
 \begin_layout LyX-Code
 # format, begein with a &
-\end_layout
-
-\begin_layout LyX-Code
-
 \end_layout
 
 \begin_layout LyX-Code
@@ -791,7 +829,7 @@ my_cat.DEBUG             >stdout; simple
 \end_layout
 
 \begin_layout Standard
-And this is the output
+最后的输出是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -4335,7 +4373,6 @@ Useage: zlog-chk-conf [conf files]...
  	
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 -q,	suppress non-error message 	
 \end_layout
@@ -4344,7 +4381,6 @@ Useage: zlog-chk-conf [conf files]...
 -h,	show help message
 \end_layout
 
-\end_deeper
 \begin_layout Standard
 zlog-chk-conf try to read conf files, and check their syntax, and output
  to screen whether it is correct.
@@ -4433,12 +4469,10 @@ Useage: zlog-gen-conf [conf file]
 If no filename is specified, use zlog.conf as default
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 -c 	Chinese comment(UTF-8)
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
          if envrionment is GBK, use
 \end_layout
@@ -4451,7 +4485,6 @@ If no filename is specified, use zlog.conf as default
          $ mv yy.conf xx.conf
 \end_layout
 
-\end_deeper
 \begin_layout LyX-Code
 -e 	Enligsh comment
 \end_layout
@@ -4460,7 +4493,6 @@ If no filename is specified, use zlog.conf as default
 -h,	show help message 
 \end_layout
 
-\end_deeper
 \begin_layout Standard
 It will generate a configure file template for you, with comment if needed.
 \end_layout
@@ -5282,7 +5314,6 @@ int main(int argc, char** argv)
 {
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 int rc;
 \end_layout
@@ -5299,7 +5330,6 @@ rc = zlog_init("test_mdc.conf");
 if (rc) { 
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 printf("init failed
 \backslash
@@ -5310,7 +5340,6 @@ n");
 return -1;
 \end_layout
 
-\end_deeper
 \begin_layout LyX-Code
 }
 \end_layout
@@ -5323,7 +5352,6 @@ zc = zlog_get_category("my_cat");
 if (!zc) {
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 printf("get cat fail
 \backslash
@@ -5338,7 +5366,6 @@ zlog_fini();
 return -2;
 \end_layout
 
-\end_deeper
 \begin_layout LyX-Code
 }
 \end_layout
@@ -5371,7 +5398,6 @@ zlog_fini();
 return 0;
 \end_layout
 
-\end_deeper
 \begin_layout LyX-Code
 } 
 \end_layout
@@ -5689,7 +5715,7 @@ The error log is not created, as no error occurs.
 
 \begin_layout Standard
 As you can see, debug log shows how zlog is inited and finished, but no
- debug log is writen when ZLOG_INFO() is running.
+ debug log is writen when ZLOG_INFO() is executed.
  That's for efficency.
 \end_layout
 
@@ -6236,7 +6262,6 @@ $ cat $(top_builddir)/test/test_level.h
 enum {
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 ZLOG_LEVEL_TRACE = 30,
 \end_layout
@@ -6245,7 +6270,6 @@ ZLOG_LEVEL_TRACE = 30,
 /* must equals conf file setting */ 
 \end_layout
 
-\end_deeper
 \begin_layout LyX-Code
 };
 \end_layout
