@@ -21,6 +21,7 @@ So I write *zlog*.
   * Not depend on any other 3rd party library, just base on POSIX system.
 
 Links:
+<<<<<<< HEAD
 
 [Users Guide in English](https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf)
 
@@ -29,3 +30,12 @@ Links:
 [Author's Blog](http://my.oschina.net/HardySimpson/blog)
 
 [Author's Email](HardySimpson1984@gmail.com)
+=======
+[Users Guide](https://github.com/HardySimpson/zlog.wiki.git/raw/master/ZlogUsersGuide-EN-0.9rc1.pdf)
+
+Homepage: [https://github.com/HardySimpson/zlog||https://github.com/HardySimpson/zlog]
+
+Author's Blog(in Chinese): [http://my.oschina.net/HardySimpson/blog||http://my.oschina.net/HardySimpson/blog]
+
+Author's Email: [HardySimpson1984@gmail.com||HardySimpson1984@gmail.com]
+>>>>>>> origin/master
