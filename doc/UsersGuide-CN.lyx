@@ -43,15 +43,15 @@ figs-within-sections
 \paperfontsize 12
 \spacing single
 \use_hyperref true
-\pdf_title "zlog使用攻略"
-\pdf_author "难易"
+\pdf_title "zlog Users Guide CN"
+\pdf_author "Hardy Simpson"
 \pdf_bookmarks true
 \pdf_bookmarksnumbered true
 \pdf_bookmarksopen true
 \pdf_bookmarksopenlevel 1
 \pdf_breaklinks true
 \pdf_pdfborder true
-\pdf_colorlinks false
+\pdf_colorlinks true
 \pdf_backref false
 \pdf_pdfusetitle true
 \pdf_quoted_options "unicode=false"
@@ -129,7 +129,7 @@ zlog是什么？
 \end_layout
 
 \begin_layout Standard
-zlog是一个高性能、线程安全、灵活的纯C日志函数库。
+zlog是一个高性能、线程安全、灵活、概念清晰的纯C日志函数库。
 \end_layout
 
 \begin_layout Standard
@@ -150,7 +150,7 @@ syslog风格的配置文件，易学易用
 \end_layout
 
 \begin_layout Itemize
-子分类模型，比log4j系列的继承模型更加清晰
+纲目分类模型，比log4j系列的继承模型更加清晰
 \end_layout
 
 \begin_layout Itemize
@@ -167,6 +167,13 @@ syslog风格的配置文件，易学易用
 
 \begin_layout Itemize
 用户可以自定义等级，无需改变库代码
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Define-new-level"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Itemize
@@ -187,6 +194,10 @@ MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字�
 
 \begin_layout Itemize
 不依赖其他库，只要是个POSIX系统就成
+\end_layout
+
+\begin_layout Standard
+相关链接：
 \end_layout
 
 \begin_layout Standard
@@ -257,7 +268,7 @@ Hello World
 \end_layout
 
 \begin_layout Standard
-如果是从Git上拉下来的话 (https://github.com/HardySimpson/zlog):
+如果是从Git上拉下来，而且你想试试自己环境的auto tools的话 (https://github.com/HardySimpson/zlog):
 \end_layout
 
 \begin_layout LyX-Code
@@ -287,7 +298,7 @@ $ make install
 \end_layout
 
 \begin_layout Standard
-如果--enable-test用了的话，测试程序会被编译。这些程序是很好的使用zlog的例子，如果你在别的目录编译，编译完之后要把测试目录的配置复制过来，例如：
+如果--enable-test用了的话，测试程序会被编译。这些程序是很好的zlog的使用案例，如果你在别的目录编译，编译完之后要把测试目录的配置复制过来，例如：
 \end_layout
 
 \begin_layout LyX-Code
@@ -343,11 +354,11 @@ LDFLAGS += $(shell pkg-config --libs zlog)
 \end_layout
 
 \begin_layout LyX-Code
-$ cc -c -o xx.o xx.c -I[where zlog.h is put, commonly /usr/local/include]
+$ cc -c -o app.o app.c -I[where zlog.h is put, commonly /usr/local/include]
 \end_layout
 
 \begin_layout LyX-Code
-$ cc -o xx xx.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
+$ cc -o app app.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
  
 \end_layout
 
@@ -749,7 +760,7 @@ reference "sec:Define-new-level"
 \end_layout
 
 \begin_layout Standard
-一段C代码是：
+C代码片段是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -797,7 +808,7 @@ hello, zlog
 \begin_inset Quotes erd
 \end_inset
 
- which is bound to c */
+ which bonds to c */
 \end_layout
 
 \begin_layout Standard
@@ -837,55 +848,55 @@ hello, zlog
 \end_layout
 
 \begin_layout Standard
-Each logging action bonds to a category, which is a variable of zlog_category_t*
- type and matches one or many rules in configure file.
- In this example, the name of category c is 
+每一条记录日志的动作都是绑定在一个
+\emph on
+分类变量
+\emph default
+上的，这个变量是zlog_category_t*类型的。
+\emph on
+分类变量
+\emph default
+和配置文件中的一条或者多条规则(rule)的
+\emph on
+分类字符串
+\emph default
+匹配。在这个例子中，
+\emph on
+分类变量
+\emph default
+名是
 \begin_inset Quotes eld
 \end_inset
 
-
-\emph on
 my_cat
-\emph default
-
 \begin_inset Quotes erd
 \end_inset
 
-, and match
+，匹配的规则是
 \begin_inset Quotes eld
 \end_inset
 
-
-\emph on
 my_cat.debug >stdout; simple
-\emph default
-
 \begin_inset Quotes erd
 \end_inset
 
- rule.
+。
 \end_layout
 
 \begin_layout Standard
-Category and rule are loose coupled.
- If there are 2 lines of same rules above, using 
+
 \emph on
-ZLOG_INFO(c, "hello, zlog")
+分类变量
 \emph default
- will cause to lines of output 
+和规则(rule)是松耦合的。如果有两条上面的规则，则ZLOG_INFO(c, "hello, zlog")会打印出两条
 \begin_inset Quotes eld
 \end_inset
 
-
-\emph on
 hello, zlog
-\emph default
-
 \begin_inset Quotes erd
 \end_inset
 
-.
- If the rule is written as 
+。如果规则被误写为
 \begin_inset Quotes eld
 \end_inset
 
@@ -893,23 +904,18 @@ my_ca.debug >stdout; simple
 \begin_inset Quotes erd
 \end_inset
 
-, nothing will be output to screen.
- Loose coupling are both fallible and flexible.
- Still, zlog has a feature to make up for this deficiency, see 
+，没有东西会被输出。 松耦合是同时易错并灵活的。当然，zlog有办法弥补这一点，见
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "category-mismatch"
+reference "category-nomatch"
 
 \end_inset
 
-.
- 
+。
 \end_layout
 
 \begin_layout Standard
-Rule and format are tightly coupled.
- If a rule using a format that is not mentioned before, zlog_init() will
- be failed, unless 
+规则(rule)和格式(format)是紧耦合的，如果规则(rule)使用了一条不存在的格式(format)，zlog_init()会失败，除非在配置文件中设置
 \begin_inset Quotes eld
 \end_inset
 
@@ -917,43 +923,35 @@ Rule and format are tightly coupled.
 \begin_inset Quotes erd
 \end_inset
 
- is set at the beginning of configure file, and using inner default format.
+。
 \end_layout
 
 \begin_layout Standard
-The syntax of format is:
-\end_layout
-
-\begin_layout LyX-Code
-&[name][n tab or space]
-\begin_inset Quotes eld
-\end_inset
-
-[conversion pattern]
-\begin_inset Quotes erd
-\end_inset
-
-
+格式(format)的语法是：
 \end_layout
 
 \begin_layout Standard
-The syntax of rule is:
+&[格式名][n个空格或tab]"[转换格式串]"
 \end_layout
 
-\begin_layout LyX-Code
-[selector][n tab or space][action]
+\begin_layout Standard
+规则的语法是：
 \end_layout
 
-\begin_layout LyX-Code
-[selector] = [category].[level]
+\begin_layout Standard
+[选择器][n个空格或tab][输出器]
 \end_layout
 
-\begin_layout LyX-Code
-[action] = [output], [file limitation,optional]; [format name, optional]
+\begin_layout Standard
+[选择器] = [分类字符串].[级别]
+\end_layout
+
+\begin_layout Standard
+[输出器] = [输出], [文件大小个数限制, 可选]; [format(格式)名, 可选]
 \end_layout
 
 \begin_layout Section
-Select Input
+选择输入
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Select-Input"
@@ -964,26 +962,28 @@ name "sec:Select-Input"
 \end_layout
 
 \begin_layout Standard
-Whether or not a log will be output, depend on category and level in c source
- file match category and level in rule or not.
-\end_layout
-
-\begin_layout LyX-Code
-[selector] = [category].[level]
-\end_layout
-
-\begin_layout Subsection
-Level Matching
+一条日志最终会不会被zlog打印，取决于源代码中的
+\emph on
+分类变量
+\emph default
+、级别和配置文件中的
+\emph on
+分类字符串
+\emph default
+、级别是否匹配。
 \end_layout
 
 \begin_layout Standard
-There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
- "ERROR" and "FATAL".
- As all other log library, aa.DEBUG means all log of level that is greater
- than or equals to DEBUG will be output.
- Still, there are more expression.
- The level write in configure file is case insensitive, both capital or
- lowercase is accepted.
+[选择器] = [分类名].[级别]
+\end_layout
+
+\begin_layout Subsection
+级别匹配
+\end_layout
+
+\begin_layout Standard
+zlog有6个默认的级别："DEBUG", "INFO", "NOTICE", "WARN", "ERROR"和"FATAL"。就像其他的日志函数库那样，
+ aa.DEBUG意味着任何大于等于DEBUG级别的日志会被输出。当然还有其他的表达式。配置文件中的级别是大小写不敏感的。
 \end_layout
 
 \begin_layout Standard
@@ -997,7 +997,7 @@ There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
 \begin_inset Text
 
 \begin_layout Plain Layout
-example
+表达式
 \end_layout
 
 \end_inset
@@ -1006,7 +1006,7 @@ example
 \begin_inset Text
 
 \begin_layout Plain Layout
-meaning
+含义
 \end_layout
 
 \end_inset
@@ -1026,7 +1026,7 @@ meaning
 \begin_inset Text
 
 \begin_layout Plain Layout
-all [source level]
+所有等级
 \end_layout
 
 \end_inset
@@ -1046,7 +1046,7 @@ aa.debug
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source level]>=debug
+代码内等级>=debug
 \end_layout
 
 \end_inset
@@ -1066,7 +1066,7 @@ aa.=debug
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source level]==debug
+代码内等级==debug
 \end_layout
 
 \end_inset
@@ -1086,7 +1086,7 @@ aa.!debug
 \begin_inset Text
 
 \begin_layout Plain Layout
-[source level]!=debug
+代码内等级!=debug
 \end_layout
 
 \end_inset
@@ -1100,30 +1100,34 @@ aa.!debug
 \end_layout
 
 \begin_layout Standard
-User can define his own level, see
+用户可以自定义等级，详见
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Define-new-level"
 
 \end_inset
 
-.
+。
 \end_layout
 
 \begin_layout Subsection
-Category Matching
+分类匹配
 \end_layout
 
 \begin_layout Standard
-Finally, We arrive at here.
- The matching between category and rule of zlog is quite different from
- other logging library like log4j.
- I call it sub-category model.
+终于到这里了，zlog的代码
+\emph on
+分类变量
+\emph default
+和配置文件中规则的
+\emph on
+分类字符串
+\emph default
+的匹配是比较特殊的。表面看起来和log4j差不多，但内涵不一样。我称之为纲目分类模型。
 \end_layout
 
 \begin_layout Standard
-In log4j, there are father logger and child logger.
- For Example, if the configure file is like this:
+在log4j里面有父logger和子logger。比如说一个log4j的配置文件是这样。
 \end_layout
 
 \begin_layout LyX-Code
@@ -1139,20 +1143,17 @@ log4j.logger.aa.cc=INFO
 \end_layout
 
 \begin_layout Standard
-aa is a father logger.
- aa.bb and aa.cc is the child of aa, aa.bb inherits aa's level and appender,
- which are DEBUG and A1.
- aa.cc inherits and overwrite aa's level.
- So aa.cc has the level of INFO and appender of A1.
- Then, what will happen if I want all aa's log output to a special file
- (and keep output of aa.bb and aa.cc not changed)? It is complicate to give
- expression here.
+aa是一个父logger。aa.bb和aa.cc是aa，aa.bb继承了aa's等级和输出(appender)，等级是DEBUG输出是A1。aa.cc继承并覆盖了aa的
+级别。所以aa.cc的等级是INFO输出还是A1。那么，如果我现在想把所有的aa的日志输出到一个特别的文件里面去，并保持原来的aa.bb、aa.cc的输出不变呢？lo
+g4j的表达式就会很复杂，还要引入阈值(threshold)，把阈值设到输出上去……
 \end_layout
 
 \begin_layout Standard
-In zlog, all rules are independent.
- Sub-category relationship is express as a underline between words.
- For example:
+在zlog里面，所有的规则之间都是独立的，没有父子关系。纲目分类的关系表现在
+\emph on
+分类字符串
+\emph default
+中间的下划线。举例：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1232,25 +1233,19 @@ aa.*
 \end_layout
 
 \begin_layout Standard
-There is no heirship here, just 4 sperate rules.
- 
+没有继承，只有4条独立的规则
 \end_layout
 
 \begin_layout Standard
-If the name of category is 
+如果代码里面的分类名是
 \begin_inset Quotes eld
 \end_inset
 
-
-\emph on
 aa_bb
-\emph default
-
 \begin_inset Quotes erd
 \end_inset
 
-.
- The c source file is like this.
+。代码就像这样：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1294,18 +1289,71 @@ ab's error
 \end_layout
 
 \begin_layout Standard
-Then rule 1 and rule 3 match the category.
- That make aa_bb's >DEBUG log output to 
+配置中，rule 1的
 \emph on
-aa_bb.log
+分类字符串
 \emph default
- and aa_bb's >ERROR log output to 
+
+\begin_inset Quotes erd
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+和rule 3的
 \emph on
-aa_error.log
+分类字符串
 \emph default
-.
- But rule 4 doesn't match the category.
- It accurately matches the category 
+
+\begin_inset Quotes erd
+\end_inset
+
+aa_
+\begin_inset Quotes erd
+\end_inset
+
+，与代码中的名字为
+\begin_inset Quotes erd
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+的
+\emph on
+分类变量
+\emph default
+是匹配的。于是代码中属于aa_bb
+\emph on
+分类变量
+\emph default
+、>=DEBUG日志输出到aa_bb.log，属于aa_bb
+\emph on
+分类变量
+\emph default
+、>=ERROR会被输出到 aa_error.log。ERROR等级的日志会被同时写在两个文件里面。不过rule 4的变量字符串是
+\begin_inset Quotes erd
+\end_inset
+
+aa
+\begin_inset Quotes erd
+\end_inset
+
+，它不匹配
+\emph on
+分类变量
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+，它精确匹配拥有
 \begin_inset Quotes eld
 \end_inset
 
@@ -1313,21 +1361,86 @@ aa
 \begin_inset Quotes erd
 \end_inset
 
-.
+名字的
+\emph on
+分类变量
+\emph default
+。
 \end_layout
 
 \begin_layout Standard
-The compensation for category mismatching
+这就是纲目分类模型。规则和规则之间是分开的。一个代码
+\emph on
+分类变量
+\emph default
+可以匹配多个规则
+\emph on
+分类字符串
+\emph default
+，一个规则可以属于多个代码
+\emph on
+分类变量
+\emph default
+。规则中的纲
+\emph on
+分类字符串
+\emph default
+(以下划线结尾的)匹配代码中的目
+\emph on
+分类变量
+\emph default
+，纲
+\emph on
+分类字符串
+\emph default
+的范围包括了了目
+\emph on
+分类字符串
+\emph default
+。这样，用户可以选择任意范围的纲目
+\emph on
+分类字符串
+\emph default
+来输出，而不影响其他规则的行为。
+\end_layout
+
+\begin_layout Standard
+事实上，在zlog_get_category()被调用的时候，
+\emph on
+并不
+\emph default
+保证代码
+\emph on
+分类变量
+\emph default
+一定有相匹配的规则
+\emph on
+分类字符串
+\emph default
+。分类变量可以有很多与之匹配的规则，也有可能一条都没有，这取决于配置文件是怎么写的。当配置文件改变并调用zlog_update()后，代码
+\emph on
+分类变量
+\emph default
+和规则
+\emph on
+分类字符串
+\emph default
+的匹配会被重新计算。根据上面所说的匹配方式，每个
+\emph on
+分类变量
+\emph default
+都会从新的配置文件里面找到自己的新规则。
+\end_layout
+
+\begin_layout Standard
+分类误写
 \begin_inset CommandInset label
 LatexCommand label
-name "category-mismatch"
+name "category-nomatch"
 
 \end_inset
 
- is the '!' character, that matches category that doesn't has rules.
- For example, when 
-\emph on
-zlog_get_category(
+的问题，可以通过垃圾箱规则来弥补。规则的分类名为"!"的就是垃圾箱规则，匹配那些找不到规则的代码分类。例如zlog_get_category(
 \begin_inset Quotes eld
 \end_inset
 
@@ -1335,44 +1448,8 @@ xx
 \begin_inset Quotes erd
 \end_inset
 
-) 
-\emph default
-goes through all rules, and find there is no rule matches 
-\emph on
-
-\begin_inset Quotes eld
-\end_inset
-
-xx
-\begin_inset Quotes erd
-\end_inset
-
-
-\emph default
-, and there is a rule's category string is 
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-.
- Then it matches category 
-\emph on
-
-\begin_inset Quotes eld
-\end_inset
-
-xx
-\begin_inset Quotes erd
-\end_inset
-
- 
-\emph default
-and output it's log to a special file.
- Then user can find his mistake at runtime.
- The rule maybe write like this
+)遍历所有规则，但没有发现匹配的规则，然后有一个规则的分类名是'!'，于是匹配这条垃圾箱规则。垃圾箱规则是唯一的，只有最后一条带"!"的规则才是有用的。用户可用
+这个表达式，在运行的时候把误写的都找出来。这个规则可以这么写：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1388,7 +1465,7 @@ and output it's log to a special file.
 \end_layout
 
 \begin_layout Standard
-Let's conclude with a table here.
+用表格来总结分类匹配
 \end_layout
 
 \begin_layout Standard
@@ -1404,7 +1481,7 @@ Let's conclude with a table here.
 \begin_inset Text
 
 \begin_layout Plain Layout
-summarize
+总结
 \end_layout
 
 \end_inset
@@ -1413,7 +1490,7 @@ summarize
 \begin_inset Text
 
 \begin_layout Plain Layout
-category string from configure file
+配置文件规则分类
 \end_layout
 
 \end_inset
@@ -1422,7 +1499,7 @@ category string from configure file
 \begin_inset Text
 
 \begin_layout Plain Layout
-matched category
+匹配的代码分类
 \end_layout
 
 \end_inset
@@ -1431,7 +1508,7 @@ matched category
 \begin_inset Text
 
 \begin_layout Plain Layout
-no matched category
+不匹配的代码分类
 \end_layout
 
 \end_inset
@@ -1442,7 +1519,7 @@ no matched category
 \begin_inset Text
 
 \begin_layout Plain Layout
-* matches all
+*匹配所有
 \end_layout
 
 \end_inset
@@ -1480,7 +1557,7 @@ NONE
 \begin_inset Text
 
 \begin_layout Plain Layout
-string end with underline matches super-category and sub-categories 
+以_结尾的分类匹配纲、目分类
 \end_layout
 
 \end_inset
@@ -1518,7 +1595,7 @@ xx, yy
 \begin_inset Text
 
 \begin_layout Plain Layout
-string not end with underline accurately matches category 
+不以_结尾的匹配目分类
 \end_layout
 
 \end_inset
@@ -1556,7 +1633,7 @@ aa_bb, aa_cc, aa_bb_cc
 \begin_inset Text
 
 \begin_layout Plain Layout
-! matches category that has no rule matched
+!匹配那些没有找到规则的分类
 \end_layout
 
 \end_inset
@@ -1597,15 +1674,15 @@ aa(as it matches rules above)
 \end_layout
 
 \begin_layout Section
-Output Action
+输出动作
 \end_layout
 
 \begin_layout Standard
-Now, zlog supports 4 ways of output, the syntax is
+目前zlog支持4种输出，语法是：
 \end_layout
 
-\begin_layout LyX-Code
-[action] = [output], [file limitation,optional]; [format name, optional]
+\begin_layout Standard
+[输出器] = [输出], [文件大小个数限制, 可选]; [format(格式)名, 可选]
 \end_layout
 
 \begin_layout Standard
@@ -1620,7 +1697,7 @@ Now, zlog supports 4 ways of output, the syntax is
 \begin_inset Text
 
 \begin_layout Plain Layout
-output action
+动作
 \end_layout
 
 \end_inset
@@ -1629,7 +1706,7 @@ output action
 \begin_inset Text
 
 \begin_layout Plain Layout
-output
+输出字段
 \end_layout
 
 \end_inset
@@ -1638,7 +1715,7 @@ output
 \begin_inset Text
 
 \begin_layout Plain Layout
-file limitation
+文件限制字段
 \end_layout
 
 \end_inset
@@ -1649,7 +1726,7 @@ file limitation
 \begin_inset Text
 
 \begin_layout Plain Layout
-to standard out
+标准输出
 \end_layout
 
 \end_inset
@@ -1667,7 +1744,7 @@ to standard out
 \begin_inset Text
 
 \begin_layout Plain Layout
-no meaning
+无意义
 \end_layout
 
 \end_inset
@@ -1678,7 +1755,7 @@ no meaning
 \begin_inset Text
 
 \begin_layout Plain Layout
-to standard error
+标准错误输出
 \end_layout
 
 \end_inset
@@ -1696,7 +1773,7 @@ to standard error
 \begin_inset Text
 
 \begin_layout Plain Layout
-no meaning
+无意义
 \end_layout
 
 \end_inset
@@ -1707,7 +1784,7 @@ no meaning
 \begin_inset Text
 
 \begin_layout Plain Layout
-to syslog
+输出到syslog
 \end_layout
 
 \end_inset
@@ -1725,11 +1802,15 @@ to syslog
 \begin_inset Text
 
 \begin_layout Plain Layout
-syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
+syslog设施(facilitiy)：
 \end_layout
 
 \begin_layout Plain Layout
-This is not optional.
+LOG_USER(default), LOG_LOCAL[0-7]
+\end_layout
+
+\begin_layout Plain Layout
+必填
 \end_layout
 
 \end_inset
@@ -1740,7 +1821,7 @@ This is not optional.
 \begin_inset Text
 
 \begin_layout Plain Layout
-to file
+文件
 \end_layout
 
 \end_inset
@@ -1752,7 +1833,7 @@ to file
 \begin_inset Quotes eld
 \end_inset
 
-[file path]
+文件路径
 \begin_inset Quotes erd
 \end_inset
 
@@ -1765,7 +1846,7 @@ to file
 \begin_inset Text
 
 \begin_layout Plain Layout
-file limitation, can be:
+文件大小个数限制 
 \end_layout
 
 \begin_layout Plain Layout
@@ -1789,16 +1870,13 @@ file limitation, can be:
 \begin_layout Standard
 
 \emph on
-[file path]
+文件路径 
 \emph default
- can be absolute file path or relative file path.
- It is quoted by double quotation marks.
- 
+可以是相对路径或者绝对路径，被双引号"包含。
 \emph on
-Conversion pattern
+转换格式串
 \emph default
- can be used in file path.
- If the file path is 
+可以用在文件路径上。例如文件路径是 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1806,26 +1884,26 @@ Conversion pattern
 \begin_inset Quotes erd
 \end_inset
 
- and the program' environment $HOME is /home/harry, then the log file will
- be /home/harry/log/output.log at last.
- See 
+，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。
+\emph on
+转换格式串
+\emph default
+详见 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Conversion-pattern"
 
 \end_inset
 
- for more details.
+。
 \end_layout
 
 \begin_layout Standard
 
 \emph on
-[file limitation]
+文件限制
 \emph default
- controls log file size and count.
- It rotate log file when the file is too large.
- Let the action is
+ 控制文件的大小和个数。zlog根据这个字段来转档，当日志文件太大的时候。例如
 \end_layout
 
 \begin_layout LyX-Code
@@ -1840,7 +1918,7 @@ reference "sec:Conversion-pattern"
 \end_layout
 
 \begin_layout Standard
-After a out.log is filled by programs to 1M, the rotation is
+如果out.log被写到1M大，转档动作为：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1852,7 +1930,7 @@ out.log(new create)
 \end_layout
 
 \begin_layout Standard
-If the new log is full again, the rotation is
+如果新的日志文件再次被写满，转档动作为：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1868,8 +1946,7 @@ out.log(new create)
 \end_layout
 
 \begin_layout Standard
-The next time rotation will delete the oldest log, as *3 means just allows
- 3 file exist
+下一次的转档会把最旧的日志文件删除掉， *3意味着zlog会保留3个文件：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1889,16 +1966,15 @@ out.log(new create)
 \end_layout
 
 \begin_layout Standard
-So the oldest log has the biggest serial number.
+最旧的文件有最大的序列号
 \end_layout
 
 \begin_layout Standard
 
 \emph on
-[format name]
+格式名
 \emph default
- is optional.
- If not set, use zlog inner default format, which is:
+ 是可选的，如果不写，用全局配置里面的默认格式：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1906,7 +1982,7 @@ So the oldest log has the biggest serial number.
 \end_layout
 
 \begin_layout Standard
-That cause each rule without format specified, would yield output like this:
+这种格式会输出类似这样的日志：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1914,28 +1990,39 @@ That cause each rule without format specified, would yield output like this:
 \end_layout
 
 \begin_layout Standard
-The inner default format can be overwritten.
- Just use default_format global setting above:
+规则可以用自己的格式，一个格式可以被多条规则使用。如果在某条规则前写这样的格式：
 \end_layout
 
 \begin_layout LyX-Code
-@default_format "%m%n
+&simple "%m%n
 \begin_inset Quotes erd
 \end_inset
 
 
 \end_layout
 
+\begin_layout LyX-Code
+my_cat.*    >stdout; simple
+\end_layout
+
 \begin_layout Standard
-Then every rule without format specified, would yield output:
+最后的输出是：
 \end_layout
 
 \begin_layout LyX-Code
 hello, zlog
 \end_layout
 
+\begin_layout Standard
+格式(format)的语法是：
+\end_layout
+
+\begin_layout Standard
+&[格式名][n个空格或tab]"[转换格式串]"
+\end_layout
+
 \begin_layout Section
-Conversion pattern
+转换格式串
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Conversion-pattern"
@@ -1946,32 +2033,24 @@ name "sec:Conversion-pattern"
 \end_layout
 
 \begin_layout Standard
-The conversion pattern is closely related to the conversion pattern of the
- printf function in C.
- A conversion pattern is composed of literal text and format control expressions
- called conversion specifiers.
+转换格式串的设计是从C的printf函数里面抄来的。一个转换格式串由文本字符和转换说明组成。
 \end_layout
 
 \begin_layout Standard
-Conversion pattern is used in both filepath of rule and pattern of format.
+转换格式串用在规则的日志文件路径和输出格式(format)中。
 \end_layout
 
 \begin_layout Standard
-You are free to insert any literal text within the conversion pattern.
+你可以把任意的文本字符放到转换格式串里面。
 \end_layout
 
 \begin_layout Standard
-Each conversion specifier starts with a percent sign (%) and is followed
- by optional format modifiers and a conversion character.
- The conversion character specifies the type of data, e.g.
- category, level, date, thread id.
- The format modifiers control such things as field width, padding, left
- and right justification.
- The following is a simple example.
+每个转换说明都是以百分号(%)打头的，后面跟可选的宽度修饰符，最后以转换字符结尾。转换字符决定了输出什么数据，例如分类名、级别、时间日期、进程号等等。宽度修饰符
+控制了这个字段的最大最小宽度、左右对齐。下面是简单的例子。
 \end_layout
 
 \begin_layout Standard
-Let the conversion pattern be
+如果转换格式串是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1979,7 +2058,7 @@ Let the conversion pattern be
 \end_layout
 
 \begin_layout Standard
-Then the statements
+源代码中的写日志语句是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1987,7 +2066,7 @@ ZLOG_INFO(c, "hello, zlog");
 \end_layout
 
 \begin_layout Standard
-would yield the output
+将会输出：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1995,20 +2074,16 @@ would yield the output
 \end_layout
 
 \begin_layout Standard
-Note that there is no explicit separator between text and conversion specifiers.
- The pattern parser knows when it has reached the end of a conversion specifier
- when it reads a conversion character.
- In the example above the conversion specifier %-5p means the level of the
- logging event should be left justified to a width of five characters.
- 
+可以注意到，在文本字符和转换说明之间没有显式的分隔符。zlog解析的时候知道哪里是转换说明的开头和结尾。在这个例子里面%-5p这个转换说明决定了日志级别要被左对
+齐，占5个字符宽。 
 \end_layout
 
 \begin_layout Subsection
-Conversion Characters
+转换字符
 \end_layout
 
 \begin_layout Standard
-The recognized conversion characters are
+可以被辨认的转换字符是
 \end_layout
 
 \begin_layout Standard
@@ -2023,7 +2098,7 @@ The recognized conversion characters are
 \begin_inset Text
 
 \begin_layout Plain Layout
-conversion char
+字符
 \end_layout
 
 \end_inset
@@ -2032,7 +2107,7 @@ conversion char
 \begin_inset Text
 
 \begin_layout Plain Layout
-effect
+效果
 \end_layout
 
 \end_inset
@@ -2041,7 +2116,7 @@ effect
 \begin_inset Text
 
 \begin_layout Plain Layout
-example
+例子
 \end_layout
 
 \end_inset
@@ -2061,8 +2136,7 @@ example
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the category of the logging event.
- 
+分类名 
 \end_layout
 
 \end_inset
@@ -2091,25 +2165,19 @@ aa_bb
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the date of the logging event.
- The date conversion specifier may be followed by a date format specifier
- enclosed between parenthesis.
- For example, %d(%F) or %d(%m-%d %T).
- If no date format specifier is given then %d(%F %T) format is assumed.
- The date format specifier admits the same syntax as the strftime(3), but
- add %us and 
+打日志的时间。这个后面要跟一对小括号()内含说明具体的日期格式。就像%d(%F)或者%d(%m-%d %T)。如果不跟小括号，默认是%d(%F
+ %T)。括号内的格式和 strftime(3)的格式一致，就是增加了%us表示微秒，还有
 \end_layout
 
 \begin_layout Plain Layout
-%ms for millisecond and microsecond.
- see 
+%ms表示毫秒。详见
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Time-Character"
 
 \end_inset
 
-for more detail.
+
 \end_layout
 
 \end_inset
@@ -2150,7 +2218,7 @@ for more detail.
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the environment variable, which is fixed at zlog_init()
+环境变量，后面也要跟小括号，内涵环境变量的键。变量的值在zlog_init()的时候就求出来了
 \end_layout
 
 \end_inset
@@ -2159,7 +2227,7 @@ Used to output the environment variable, which is fixed at zlog_init()
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E(HOME)/home/harry
+%E(HOME) /home/harry
 \end_layout
 
 \end_inset
@@ -2179,10 +2247,7 @@ Used to output the environment variable, which is fixed at zlog_init()
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the file name where the logging request was issued.
- The file name comes from __FILE__ macro.
- In some UNIX system __FILE__ is the absolute path.
- Use $f to strip path and remain file name.
+源代码文件名，来源于__FILE__宏。在某些编译器下 __FILE__是绝对路径。用$f来去掉目录只保留文件名，或者编译器有选项可以调节
 \end_layout
 
 \end_inset
@@ -2211,8 +2276,7 @@ test_hello.c
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the source file name, the string after the last '/' of $F.
- It will cause a little performance loss in each log event.
+源代码文件名，输出$F最后一个'/'后面的部分。当然这会有一定的性能损失
 \end_layout
 
 \end_inset
@@ -2241,7 +2305,7 @@ test_hello.c
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the hostname of system, which is from gethostname(2)
+主机名，来源于 gethostname(2)
 \end_layout
 
 \end_inset
@@ -2270,8 +2334,7 @@ zlog-dev
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the line number from where the logging request was issued,
- which comes from __LINE__ macro
+源代码行数，来源于__LINE__宏
 \end_layout
 
 \end_inset
@@ -2300,8 +2363,7 @@ Used to output the line number from where the logging request was issued,
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the application supplied message associated with the logging
- event.
+用户日志，用户从zlog函数输入的日志。
 \end_layout
 
 \end_inset
@@ -2330,18 +2392,15 @@ hello, zlog
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the MDC (mapped diagnostic context) associated with the thread
- that generated the logging event.
- The M conversion character must be followed by the key for the map placed
- between parenthesis, as in %M(clientNumber) where clientNumber is the key.
- The value in the MDC corresponding to the key will be output.See 
+MDC (mapped diagnostic context)，每个线程一张键值对表，输出键相对应的值。后面必需跟跟一对小括号()内含键。例如
+ %M(clientNumber) ，clientNumbe是键。 详见 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:MDC"
 
 \end_inset
 
- for more detail.
+ 
 \end_layout
 
 \end_inset
@@ -2350,7 +2409,7 @@ reference "sec:MDC"
 \begin_inset Text
 
 \begin_layout Plain Layout
-12345
+%M(clientNumber) 12345
 \end_layout
 
 \end_inset
@@ -2370,17 +2429,7 @@ reference "sec:MDC"
 \begin_inset Text
 
 \begin_layout Plain Layout
-Outputs 
-\begin_inset Quotes eld
-\end_inset
-
-
-\backslash
-n
-\begin_inset Quotes erd
-\end_inset
-
-, I do not support windows line separator now.
+换行符，目前还不支持windows换行符
 \end_layout
 
 \end_inset
@@ -2411,8 +2460,7 @@ n
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the id of the process that generated the logging event, which
- comes from getpid().
+进程ID，来源于getpid()
 \end_layout
 
 \end_inset
@@ -2441,7 +2489,7 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the level of the logging event, capital.
+日志级别，大写
 \end_layout
 
 \end_inset
@@ -2470,7 +2518,7 @@ INFO
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the level of the logging event, lowercase.
+日志级别，小写
 \end_layout
 
 \end_inset
@@ -2499,8 +2547,7 @@ info
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the id of the thread that generated the logging event, which
- comes from pthread_self().
+线程ID，来源于pthread_self().
 \end_layout
 
 \end_inset
@@ -2529,7 +2576,7 @@ Used to output the id of the thread that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-the sequence %% outputs a single percent sign.
+一个百分号
 \end_layout
 
 \end_inset
@@ -2549,7 +2596,7 @@ the sequence %% outputs a single percent sign.
 \begin_inset Text
 
 \begin_layout Plain Layout
-%[other char]
+%[其他字符]
 \end_layout
 
 \end_inset
@@ -2558,7 +2605,7 @@ the sequence %% outputs a single percent sign.
 \begin_inset Text
 
 \begin_layout Plain Layout
-parse as a wrong syntax, will cause zlog_init() fail
+解析为错误，zlog_init()将会失败
 \end_layout
 
 \end_inset
@@ -2581,49 +2628,30 @@ parse as a wrong syntax, will cause zlog_init() fail
 \end_layout
 
 \begin_layout Subsection
-Format Modifier 
+宽度修饰符 
 \end_layout
 
 \begin_layout Standard
-By default the relevant information is output as is.
- However, with the aid of format modifiers it is possible to change the
- minimum field width, the maximum field width and justification.
+一般来说数据按原样输出。不过，有了宽度修饰符，就能够控制最小字段宽度、最大字段宽度和左右对齐。当然这要付出一定的性能代价。
 \end_layout
 
 \begin_layout Standard
-The optional format modifier is placed between the percent sign and the
- conversion character.
+可选的宽度修饰符放在百分号和转换字符之间。
 \end_layout
 
 \begin_layout Standard
-The first optional format modifier is the left justification flag which
- is just the minus (-) character.
- Then comes the optional minimum field width modifier.
- This is a decimal constant that represents the minimum number of characters
- to output.
- If the data item requires fewer characters, it is padded on either the
- left or the right until the minimum width is reached.
- The default is to pad on the left (right justify) but you can specify right
- padding with the left justification flag.
- The padding character is space.
- If the data item is larger than the minimum field width, the field is expanded
- to accommodate the data.
- The value is never truncated.
+第一个可选的宽度修饰符是左对齐标识，减号(-)。然后是可选的最小字段宽度，这是一个十进制数字常量，表示最少有几个字符会被输出。如果数据本来没有那么多字符，将会填
+充空格（左对齐或者右对齐）直到最小字段宽度为止。默认是填充在左边也就是右对齐。当然你也可以使用左对齐标志，指定为填充在右边来左对齐。填充字符为空格(space)
+。如果数据的宽度超过最小字段宽度，则按照数据的宽度输出，永远不会截断数据。
 \end_layout
 
 \begin_layout Standard
-This behavior can be changed using the maximum field width modifier which
- is designated by a period followed by a decimal constant.
- If the data item is longer than the maximum field, then the extra characters
- are removed from the beginning of the data item and not from the end.
- For example, it the maximum field width is eight and the data item is ten
- characters long, then the first two characters of the data item are dropped.
- This behavior deviates from the printf function in C where truncation is
- done from the end.
+这种行为可以用最大字段宽度来改变。最大字段宽度是放在一个句点号(.)后面的十进制数字常量。如果数据的宽度超过了最大字段宽度，则尾部多余的字符（超过最大字段宽度的部
+分）将会被截去。 最大字段宽度是8，数据的宽度是10，则最后两个字符会被丢弃。假如这种行为和C的printf是一样的，把后面的部分截断。
 \end_layout
 
 \begin_layout Standard
-Below are various format modifier examples for the category conversion specifier.
+下面是各种宽度修饰符和分类转换字符配合一起用的例子。
 \end_layout
 
 \begin_layout Standard
@@ -2640,7 +2668,7 @@ Below are various format modifier examples for the category conversion specifier
 \begin_inset Text
 
 \begin_layout Plain Layout
-format modifier
+宽度修饰符
 \end_layout
 
 \end_inset
@@ -2649,7 +2677,7 @@ format modifier
 \begin_inset Text
 
 \begin_layout Plain Layout
-left justify
+左对齐
 \end_layout
 
 \end_inset
@@ -2658,7 +2686,7 @@ left justify
 \begin_inset Text
 
 \begin_layout Plain Layout
-minimum width
+最小字段宽度
 \end_layout
 
 \end_inset
@@ -2667,7 +2695,7 @@ minimum width
 \begin_inset Text
 
 \begin_layout Plain Layout
-maximum width
+最大字段宽度
 \end_layout
 
 \end_inset
@@ -2676,7 +2704,7 @@ maximum width
 \begin_inset Text
 
 \begin_layout Plain Layout
-comment
+附注
 \end_layout
 
 \end_inset
@@ -2696,7 +2724,7 @@ comment
 \begin_inset Text
 
 \begin_layout Plain Layout
-false
+否
 \end_layout
 
 \end_inset
@@ -2714,7 +2742,7 @@ false
 \begin_inset Text
 
 \begin_layout Plain Layout
-none
+无
 \end_layout
 
 \end_inset
@@ -2723,7 +2751,7 @@ none
 \begin_inset Text
 
 \begin_layout Plain Layout
-Left pad with spaces if the category name is less than 20 characters long.
+左补充空格，如果分类名小于20个字符长。
 \end_layout
 
 \end_inset
@@ -2743,7 +2771,7 @@ Left pad with spaces if the category name is less than 20 characters long.
 \begin_inset Text
 
 \begin_layout Plain Layout
-true
+是
 \end_layout
 
 \end_inset
@@ -2761,7 +2789,7 @@ true
 \begin_inset Text
 
 \begin_layout Plain Layout
-none
+无
 \end_layout
 
 \end_inset
@@ -2770,8 +2798,7 @@ none
 \begin_inset Text
 
 \begin_layout Plain Layout
-Right pad with spaces if the category name is less than 20 characters long.
- 
+右补充空格，如果分类名小于20个字符长。
 \end_layout
 
 \end_inset
@@ -2791,7 +2818,7 @@ Right pad with spaces if the category name is less than 20 characters long.
 \begin_inset Text
 
 \begin_layout Plain Layout
-NA
+无
 \end_layout
 
 \end_inset
@@ -2800,7 +2827,7 @@ NA
 \begin_inset Text
 
 \begin_layout Plain Layout
-none
+无
 \end_layout
 
 \end_inset
@@ -2818,7 +2845,7 @@ none
 \begin_inset Text
 
 \begin_layout Plain Layout
-Truncate from the beginning if the category name is longer than 30 characters.
+如果分类名大于30个字符长，取前30个字符，去掉后面的。
 \end_layout
 
 \end_inset
@@ -2838,7 +2865,7 @@ Truncate from the beginning if the category name is longer than 30 characters.
 \begin_inset Text
 
 \begin_layout Plain Layout
-false
+否
 \end_layout
 
 \end_inset
@@ -2865,9 +2892,7 @@ false
 \begin_inset Text
 
 \begin_layout Plain Layout
-Left pad with spaces if the category name is shorter than 20 characters.
- However, if category name is longer than 30 characters, then truncate from
- the beginning.
+如果分类名小于20个字符长，左补充空格。如果在20-30之间，按照原样输出。如果大于30个字符长，取前30个字符，去掉后面的。
 \end_layout
 
 \end_inset
@@ -2887,7 +2912,7 @@ Left pad with spaces if the category name is shorter than 20 characters.
 \begin_inset Text
 
 \begin_layout Plain Layout
-true
+是
 \end_layout
 
 \end_inset
@@ -2914,9 +2939,7 @@ true
 \begin_inset Text
 
 \begin_layout Plain Layout
-Right pad with spaces if the category name is shorter than 20 characters.
- However, if category name is longer than 30 characters, then truncate from
- the beginning.
+如果分类名小于20个字符长，右补充空格。如果在20-30之间，按照原样输出。如果大于30个字符长，取前30个字符，去掉后面的。
 \end_layout
 
 \end_inset
@@ -2930,7 +2953,7 @@ Right pad with spaces if the category name is shorter than 20 characters.
 \end_layout
 
 \begin_layout Subsection
-Time Character
+时间字符
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Time-Character"
@@ -2941,17 +2964,11 @@ name "sub:Time-Character"
 \end_layout
 
 \begin_layout Standard
-Here is the Time Character support by Conversion Character 
-\emph on
-d.
-
-\emph default
- 
+这里是转换字符d支持的时间字符。
 \end_layout
 
 \begin_layout Standard
-There are 2 speical time words support by zlog itself.
- Time is got from gettimeofday(2)
+其中2个是zlog特有的，取自gettimeofday(2)
 \end_layout
 
 \begin_layout Standard
@@ -2966,7 +2983,7 @@ There are 2 speical time words support by zlog itself.
 \begin_inset Text
 
 \begin_layout Plain Layout
-word
+词
 \end_layout
 
 \end_inset
@@ -2975,16 +2992,7 @@ word
 \begin_inset Text
 
 \begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-effect
+效果
 \end_layout
 
 \end_inset
@@ -3002,7 +3010,7 @@ effect
 \bar no
 \noun off
 \color none
-example
+例子
 \end_layout
 
 \end_inset
@@ -3022,7 +3030,7 @@ example
 \begin_inset Text
 
 \begin_layout Plain Layout
-The millisecond, 3-digit integer
+毫秒，3位数字字符串
 \end_layout
 
 \end_inset
@@ -3051,7 +3059,7 @@ The millisecond, 3-digit integer
 \begin_inset Text
 
 \begin_layout Plain Layout
-The microsecond, 6-digit integer
+微秒，6位数字字符串
 \end_layout
 
 \end_inset
@@ -3074,8 +3082,7 @@ The microsecond, 6-digit integer
 \end_layout
 
 \begin_layout Standard
-Most Character is supported by strftime(2) on system.
- The Character support on my linux system are
+其他的字符都是由strftime(2)生成的，在我的linux操作系统上支持的是：
 \end_layout
 
 \begin_layout Standard
@@ -3090,7 +3097,7 @@ Most Character is supported by strftime(2) on system.
 \begin_inset Text
 
 \begin_layout Plain Layout
-character
+字符
 \end_layout
 
 \end_inset
@@ -3099,7 +3106,7 @@ character
 \begin_inset Text
 
 \begin_layout Plain Layout
-effect
+效果
 \end_layout
 
 \end_inset
@@ -3108,7 +3115,7 @@ effect
 \begin_inset Text
 
 \begin_layout Plain Layout
-example
+例子
 \end_layout
 
 \end_inset
@@ -3128,7 +3135,7 @@ example
 \begin_inset Text
 
 \begin_layout Plain Layout
-The abbreviated weekday name according to the current locale.
+一星期中各天的缩写名，根据locale显示
 \end_layout
 
 \end_inset
@@ -3157,7 +3164,7 @@ Wed
 \begin_inset Text
 
 \begin_layout Plain Layout
-The full weekday name according to the current locale.
+一星期中各天的全名，根据locale显示
 \end_layout
 
 \end_inset
@@ -3186,7 +3193,7 @@ Wednesday
 \begin_inset Text
 
 \begin_layout Plain Layout
-The abbreviated month name according to the current locale.
+缩写的月份名，根据locale显示
 \end_layout
 
 \end_inset
@@ -3215,7 +3222,7 @@ Mar
 \begin_inset Text
 
 \begin_layout Plain Layout
-The full month name according to the current locale.
+月份全名，根据locale显示
 \end_layout
 
 \end_inset
@@ -3244,7 +3251,7 @@ March
 \begin_inset Text
 
 \begin_layout Plain Layout
-The preferred date and time representation for the current locale.
+当地时间和日期的全表示， 根据locale显示
 \end_layout
 
 \end_inset
@@ -3273,8 +3280,7 @@ Thu Feb 16 14:16:35 2012
 \begin_inset Text
 
 \begin_layout Plain Layout
-The century number (year/100) as a 2-digit integer.
- (SU)
+世纪 (年/100)，2位的数字(SU)
 \end_layout
 
 \end_inset
@@ -3303,7 +3309,7 @@ The century number (year/100) as a 2-digit integer.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The day of the month as a decimal number (range 01 to 31).
+一个月中的某一天 (01-31)
 \end_layout
 
 \end_inset
@@ -3332,11 +3338,8 @@ The day of the month as a decimal number (range 01 to 31).
 \begin_inset Text
 
 \begin_layout Plain Layout
-Equivalent to %m/%d/%y.
- (Yecch — for Americans only.
- Americans should note that in other countries %d/%m/%y is rather common.
- This means that in international context this format is ambiguous and should
- not be used.) (SU)
+相当于%m/%d/%y.
+ (呃，美国人专用，美国人要知道在别的国家%d/%m/%y 才是主流。也就是说在国际环境下这个格式容易造成误解，要少用) (SU)
 \end_layout
 
 \end_inset
@@ -3365,9 +3368,7 @@ Equivalent to %m/%d/%y.
 \begin_inset Text
 
 \begin_layout Plain Layout
-Like %d, the day of the month as a decimal number, but a leading zero is
- replaced by a space.
- (SU)
+就像%d，一个月中的某一天，但是头上的0被替换成空格(SU)
 \end_layout
 
 \end_inset
@@ -3396,8 +3397,7 @@ Like %d, the day of the month as a decimal number, but a leading zero is
 \begin_inset Text
 
 \begin_layout Plain Layout
-Equivalent to %Y-%m-%d (the ISO 8601 date format).
- (C99) 
+相当于%Y-%m-%d (ISO 8601日期格式)(C99) 
 \end_layout
 
 \end_inset
@@ -3433,6 +3433,10 @@ The ISO 8601 week-based year (see NOTES) with century as a decimal number.
  (TZ)
 \end_layout
 
+\begin_layout Plain Layout
+大意是采用%V定义的年，如果那年的前几天不算新年的第一周，就算上一年
+\end_layout
+
 \end_inset
 </cell>
 <cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
@@ -3459,7 +3463,7 @@ The ISO 8601 week-based year (see NOTES) with century as a decimal number.
 \begin_inset Text
 
 \begin_layout Plain Layout
-Like %G, but without century, that is, with a 2-digit year (00-99).
+相当于%G，就是不带世纪 (00-99).
  (TZ)
 \end_layout
 
@@ -3489,8 +3493,7 @@ Like %G, but without century, that is, with a 2-digit year (00-99).
 \begin_inset Text
 
 \begin_layout Plain Layout
-Equivalent to %b.
- (SU)
+相当于%b(SU)
 \end_layout
 
 \end_inset
@@ -3519,7 +3522,7 @@ Feb
 \begin_inset Text
 
 \begin_layout Plain Layout
-The hour as a decimal number using a 24-hour clock (range 00 to 23).
+小时，24小时表示(00-23)
 \end_layout
 
 \end_inset
@@ -3548,7 +3551,7 @@ The hour as a decimal number using a 24-hour clock (range 00 to 23).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The hour as a decimal number using a 12-hour clock (range 01 to 12).
+小时，12小时表示(01-12)
 \end_layout
 
 \end_inset
@@ -3577,7 +3580,7 @@ The hour as a decimal number using a 12-hour clock (range 01 to 12).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The day of the year as a decimal number (range 001 to 366).
+一年中的各天(001-366)
 \end_layout
 
 \end_inset
@@ -3606,9 +3609,7 @@ The day of the year as a decimal number (range 001 to 366).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The hour (24-hour clock) as a decimal number (range 0 to 23); single digits
- are preceded by a blank.
- (See also %H.) (TZ)
+小时，24小时表示( 0-23)； 一位的前面为空格 (可和%H比较) (TZ)
 \end_layout
 
 \end_inset
@@ -3637,9 +3638,7 @@ The hour (24-hour clock) as a decimal number (range 0 to 23); single digits
 \begin_inset Text
 
 \begin_layout Plain Layout
-The hour (12-hour clock) as a decimal number (range 1 to 12); single digits
- are preceded by a blank.
- (See also %I.) (TZ)
+小时，12小时表示( 0-12)； 一位的前面为空格 (可和%比较)(TZ)
 \end_layout
 
 \end_inset
@@ -3668,7 +3667,7 @@ The hour (12-hour clock) as a decimal number (range 1 to 12); single digits
 \begin_inset Text
 
 \begin_layout Plain Layout
-The month as a decimal number (range 01 to 12).
+月份(01-12)
 \end_layout
 
 \end_inset
@@ -3697,7 +3696,7 @@ The month as a decimal number (range 01 to 12).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The minute as a decimal number (range 00 to 59).
+分钟(00-59)
 \end_layout
 
 \end_inset
@@ -3726,8 +3725,7 @@ The minute as a decimal number (range 00 to 59).
 \begin_inset Text
 
 \begin_layout Plain Layout
-A newline character.
- (SU) 
+换行符 (SU) 
 \end_layout
 
 \end_inset
@@ -3758,9 +3756,11 @@ n
 \begin_inset Text
 
 \begin_layout Plain Layout
-Either "AM" or "PM" according to the given time value, or the corresponding
- strings for the current locale.
- Noon is treated as "PM" and midnight as "AM".
+"AM" 或 "PM"，根据当时的时间，根据locale显示相应的值，例如
+\begin_inset Quotes erd
+\end_inset
+
+上午“、”下午“ 。 中午是"PM"，凌晨是"AM"
 \end_layout
 
 \end_inset
@@ -3789,9 +3789,7 @@ PM
 \begin_inset Text
 
 \begin_layout Plain Layout
-Like %p but in lowercase: "am" or "pm" or a corresponding string for the
- current locale.
- (GNU)
+相当于%p不过是小写，根据locale显示相应的值 (GNU)
 \end_layout
 
 \end_inset
@@ -3820,10 +3818,7 @@ pm
 \begin_inset Text
 
 \begin_layout Plain Layout
-The time in a.m.
- or p.m.
- notation.
- In the POSIX locale this is equivalent to %I:%M:%S %p.
+时间+后缀AM或PM。在POSIX locale下相当于%I:%M:%S %p.
  (SU)
 \end_layout
 
@@ -3853,8 +3848,7 @@ The time in a.m.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The time in 24-hour notation (%H:%M).
- (SU) For a version including the seconds, see %T below.
+小时(24小时制):分钟 (%H:%M) (SU) 如果要带秒的，见%T
 \end_layout
 
 \end_inset
@@ -3883,8 +3877,7 @@ The time in 24-hour notation (%H:%M).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00
- UTC.
+Epoch以来的秒数，也就是从1970-01-01 00:00:00 UTC.
  (TZ)
 \end_layout
 
@@ -3914,8 +3907,8 @@ The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00
 \begin_inset Text
 
 \begin_layout Plain Layout
-The second as a decimal number (range 00 to 60).
- (The range is up to 60 to allow for occasional leap seconds.)
+秒(00-60).
+ (允许60是为了闰秒)
 \end_layout
 
 \end_inset
@@ -3944,8 +3937,7 @@ The second as a decimal number (range 00 to 60).
 \begin_inset Text
 
 \begin_layout Plain Layout
-A tab character.
- (SU)
+制表符tab(SU)
 \end_layout
 
 \end_inset
@@ -3974,8 +3966,7 @@ A tab character.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The time in 24-hour notation (%H:%M:%S).
- (SU)
+小时(24小时制):分钟:秒 (%H:%M:%S) (SU)
 \end_layout
 
 \end_inset
@@ -4004,9 +3995,7 @@ The time in 24-hour notation (%H:%M:%S).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The day of the week as a decimal, range 1 to 7, Monday being 1.
- See also %w.
- (SU)
+一周的天序号(1-7)，周一是1，另见%w (SU)
 \end_layout
 
 \end_inset
@@ -4035,10 +4024,7 @@ The day of the week as a decimal, range 1 to 7, Monday being 1.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The week number of the current year as a decimal number, range 00 to 53,
- starting with the first Sun‐ day as the first day of week 01.
- See also %V and %W.
- 
+一年中的星期序号(00-53)，周日是一周的开始，一年中第一个周日所在的周是第01周。另见%V和%W
 \end_layout
 
 \end_inset
@@ -4067,11 +4053,7 @@ The week number of the current year as a decimal number, range 00 to 53,
 \begin_inset Text
 
 \begin_layout Plain Layout
-The ISO 8601 week number (see NOTES) of the current year as a decimal number,
- range 01 to 53, where week 1 is the first week that has at least 4 days
- in the new year.
- See also %U and %W.
- (SU)
+ISO 8601星期序号(01-53)，01周是第一个至少有4天在新年的周。另见%U 和%W(SU)
 \end_layout
 
 \end_inset
@@ -4100,8 +4082,7 @@ The ISO 8601 week number (see NOTES) of the current year as a decimal number,
 \begin_inset Text
 
 \begin_layout Plain Layout
-The day of the week as a decimal, range 0 to 6, Sunday being 0.
- See also %u.
+一周的天序号(0-6)，周日是0。另见%u
 \end_layout
 
 \end_inset
@@ -4130,8 +4111,7 @@ The day of the week as a decimal, range 0 to 6, Sunday being 0.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The week number of the current year as a decimal number, range 00 to 53,
- starting with the first Mon‐ day as the first day of week 01.
+一年中的星期序号(00-53)，周一是一周的开始，一年中第一个周一所在的周是第01周。另见%V和%W
 \end_layout
 
 \end_inset
@@ -4160,7 +4140,7 @@ The week number of the current year as a decimal number, range 00 to 53,
 \begin_inset Text
 
 \begin_layout Plain Layout
-The preferred date representation for the current locale without the time.
+当前locale下的偏好日期
 \end_layout
 
 \end_inset
@@ -4189,7 +4169,7 @@ The preferred date representation for the current locale without the time.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The preferred time representation for the current locale without the date.
+当前locale下的偏好时间
 \end_layout
 
 \end_inset
@@ -4218,7 +4198,7 @@ The preferred time representation for the current locale without the date.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The year as a decimal number without a century (range 00 to 99).
+不带世纪数目的年份(00-99)
 \end_layout
 
 \end_inset
@@ -4247,7 +4227,7 @@ The year as a decimal number without a century (range 00 to 99).
 \begin_inset Text
 
 \begin_layout Plain Layout
-The year as a decimal number including the century.
+带世纪数目的年份
 \end_layout
 
 \end_inset
@@ -4276,9 +4256,8 @@ The year as a decimal number including the century.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The time-zone as hour offset from GMT.
- Required to emit RFC 822-conformant dates (using "%a, %d %b %Y %H:%M:%S
- %z").
+当前时区相对于GMT时间的偏移量。采用RFC 822-conformant来计算(话说我也不知道是啥) (using "%a, %d %b %Y
+ %H:%M:%S %z").
  (GNU)
 \end_layout
 
@@ -4308,8 +4287,7 @@ The time-zone as hour offset from GMT.
 \begin_inset Text
 
 \begin_layout Plain Layout
-The timezone or name or abbreviation.
- 
+时区名(如果有的话)
 \end_layout
 
 \end_inset
@@ -4338,7 +4316,7 @@ CST
 \begin_inset Text
 
 \begin_layout Plain Layout
-A literal '%' character.
+一个百分号
 \end_layout
 
 \end_inset
@@ -4361,7 +4339,7 @@ A literal '%' character.
 \end_layout
 
 \begin_layout Section
-Configure File Tools
+配置文件工具
 \end_layout
 
 \begin_layout LyX-Code
@@ -4382,10 +4360,8 @@ Useage: zlog-chk-conf [conf files]...
 \end_layout
 
 \begin_layout Standard
-zlog-chk-conf try to read conf files, and check their syntax, and output
- to screen whether it is correct.
- I suggest using this tools each time you create or change a configure file.
- It will output like this
+zlog-chk-conf 尝试读取配置文件，检查语法，然后往屏幕上输出这些配置文件是否正确。我建议每次创建或者改动一个配置文件之后都用一下这个工具。输出可能是
+这样：
 \end_layout
 
 \begin_layout LyX-Code
@@ -4432,13 +4408,11 @@ $ ./zlog-chk-conf zlog.conf
 \end_layout
 
 \begin_layout Standard
-It tells you that line 126 in you configure file, zlog.conf, is wrong, and
- the 1st line further tells you that [aaa] is not a right rule.
+这个告诉你配置文件zlog.conf的126行，是错的。第一行进一步告诉你[aaa]不是一条正确的规则。
 \end_layout
 
 \begin_layout Standard
-zlog-chk-conf can read mutiple configure files at the same time.
- For example
+zlog-chk-conf可以同时分析多个配置文件，举例：
 \end_layout
 
 \begin_layout LyX-Code
@@ -4454,7 +4428,7 @@ $ zlog-chk-conf zlog.conf ylog.conf
 \end_layout
 
 \begin_layout Standard
-The other useful tool is
+还有一个有用的工具是
 \end_layout
 
 \begin_layout LyX-Code
@@ -4494,7 +4468,7 @@ If no filename is specified, use zlog.conf as default
 \end_layout
 
 \begin_layout Standard
-It will generate a configure file template for you, with comment if needed.
+这个工具会产生一个模板配置文件，可以带中文或者英文的注释，注释是这一章内容的浓缩总结。
 \end_layout
 
 \begin_layout LyX-Code
@@ -4502,12 +4476,11 @@ It will generate a configure file template for you, with comment if needed.
 \end_layout
 
 \begin_layout Chapter
-zlog API
+zlog应用编程接口(API)
 \end_layout
 
 \begin_layout Standard
-All API of zlog are thread safe.
- To use them, just need to
+zlog的所有函数都是线程安全的，使用的时候只需要
 \end_layout
 
 \begin_layout LyX-Code
@@ -4523,7 +4496,7 @@ zlog.h
 \end_layout
 
 \begin_layout Section
-init and finish
+初始化和清理
 \end_layout
 
 \begin_layout LyX-Code
@@ -4539,70 +4512,29 @@ void zlog_fini(void);
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog_init()
-\emph default
- read configuration from file.
- If 
-\emph on
-conf_file
-\emph default
- is NULL, all log will be output to stdout with inner format.Only 1st time
- use zlog_init() is effective, other times will record a error log in ZLOG_PROFI
-LE_ERROR(see 
+zlog_init() 从配置文件中读取配置信息到内存。如果conf_file为NULL，所有日志以内置格式写到标准输出上。如果zlog_init()失败，详细
+错误会被记录在ZLOG_PROFILE_ERROR(see 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Profile-zlog-Itself"
 
 \end_inset
 
-), and return -1.
+)，并且返回-1。每个进程只有第一次调用zlog_init()是有效的，后面的多余调用都会失败。 
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog_update()
-\emph default
- is designed to reload 
-\emph on
-conf_file
-\emph default
-.
- It can be call at runtime when configure file changed, and can be use unlimit
- times.
- If conf_file is NULL, use the last configure file 
-\emph on
-zlog_init() 
-\emph default
-or 
-\emph on
-zlog_update()
-\emph default
- specified.
- If failed, return -1 and zlog will be unuseable.
+zlog_update()是用来重载配置，并根据这个配置文件来重计算内部的分类规则匹配、重建每个线程的缓存。可以在配置文件发生改变后调用这个函数。这个函数使用次
+数不限。如果conf_file 为NULL，会重载上一次zlog_init()或者zlog_update()使用的配置文件。如果失败，返回-1，同时zlog后续
+无法使用。
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog_fini()
-\emph default
- release all memory 
-\emph on
-zlog_init()
-\emph default
- or 
-\emph on
-zlog_update() 
-\emph default
-applied.
- It can be call unlimit times.
+zlog_fini()清理所有zlog API申请的内存，关闭它们打开的文件。
 \end_layout
 
 \begin_layout Section
-category operation
+分类(Category)操作
 \end_layout
 
 \begin_layout LyX-Code
@@ -4614,33 +4546,19 @@ zlog_category_t *zlog_get_category(char *category_name);
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog_get_category()
-\emph default
- get a category from global table for future log, if none, create it.
- If success, return the address of zlog_category_t, else return NULL.
- 
-\emph on
-category_name
-\emph default
- should correspond to configure setting, see 
+zlog_get_category()从全局的分类表里面取得一个分类，如果没有的话，创建一个。成功返回分类的指针，失败则返回NULL。category_name
+ 需要和配置文件的规则想对应，详见
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Select-Input"
 
 \end_inset
 
-.
- No need to worry about category's memory release,
-\emph on
- zlog_fini()
-\emph default
- will clean up at last.
+。不用担心内存释放，zlog_fini()最后会进行清理。
 \end_layout
 
 \begin_layout Section
-log functions
+写日志函数
 \end_layout
 
 \begin_layout LyX-Code
@@ -4692,84 +4610,22 @@ void hzlog(zlog_category_t * a_cat,
 \end_layout
 
 \begin_layout Standard
-These 3 functions are the real log function producing user message, which
- corresponds to %m is configure file.
- 
-\emph on
-a_cat
-\emph default
- comes from 
-\emph on
-zlog_get_category()
-\emph default
- described above.
+这3个函数是用户写日志的函数，输入的数据对应于配置文件中的%m。a_cat来自于调用zlog_get_category()。
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog()
-\emph default
- and 
-\emph on
-vzlog() 
-\emph default
-produce output according to a 
-\emph on
-format
-\emph default
- like 
-\emph on
-printf(3)
-\emph default
- and 
-\emph on
-vprintf(3)
-\emph default
-.
+zlog()和vzlog()根据format输出，就像printf(3)和vprintf(3)。
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-vzlog()
-\emph default
- is equivalent to 
-\emph on
-zlog()
-\emph default
-, respectively, except that it is called with a va_list instead of a variable
- number of arguments.
- 
-\emph on
-vzlog()
-\emph default
- invokes the va_copy macro, the value of 
-\emph on
-args
-\emph default
- remain unchanged after the call.
- See 
-\emph on
-stdarg(3)
-\emph default
-.
- 
+vzlog()相当于zlog()，只是它用一个va_list类型的参数args，而不是一堆类型不同的参数。vzlog() 内部使用了 va_copy
+ 宏，args的内容在vzlog()后保持不变，可以参考stdarg(3)。
 \end_layout
 
 \begin_layout Standard
-
+hzlog()有点不一样，它产生下面这样的输出，长度为buf_len的内存buf以16进制的形式表示出来
 \emph on
-hzlog() 
-\emph default
-is a little different, it produce output like this, the hexadecimal representati
-on of 
-\emph on
-buf 
-\emph default
-and output len is 
-\emph on
-buf_len
+。
 \end_layout
 
 \begin_layout LyX-Code
@@ -4796,30 +4652,18 @@ F
 \end_layout
 
 \begin_layout Standard
-The parameter 
-\emph on
-file
-\emph default
- and 
-\emph on
-line
-\emph default
- are usually filled with __FILE__ and __LINE__ macro.
- These indicate where log event happens.
+参数file、line一般填写为__FILE__，__LINE__宏。这两个参数表明了日志是在哪里记录的。
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-level 
-\emph default
-is a int, which usually is in
+level 是一个int型变量，默认在zlog.h里面定义为
 \end_layout
 
 \begin_layout LyX-Code
 typedef enum {                 
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 ZLOG_LEVEL_DEBUG = 20,
 \end_layout
@@ -4844,20 +4688,21 @@ ZLOG_LEVEL_ERROR = 100,
 ZLOG_LEVEL_FATAL = 120
 \end_layout
 
+\end_deeper
 \begin_layout LyX-Code
 } zlog_level;
 \end_layout
 
 \begin_layout Section
-log macros
+写日志宏
 \end_layout
 
 \begin_layout Standard
-For easy writing, there are some log macros
+为了简单使用，在zlog.h内定义了如下宏
 \end_layout
 
 \begin_layout Standard
-macros of zlog()
+zlog()的宏
 \end_layout
 
 \begin_layout LyX-Code
@@ -4921,7 +4766,7 @@ zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ##args)
 \end_layout
 
 \begin_layout Standard
-macros of vzlog()
+vzlog()的宏
 \end_layout
 
 \begin_layout LyX-Code
@@ -4985,7 +4830,7 @@ vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, args)
 \end_layout
 
 \begin_layout Standard
-macros of hzlog()
+hzlog()的宏
 \end_layout
 
 \begin_layout LyX-Code
@@ -5049,12 +4894,11 @@ hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, buf, buf_len)
 \end_layout
 
 \begin_layout Section
-MDC operation
+MDC操作
 \end_layout
 
 \begin_layout Standard
-MDC is a thread key-value map, so it has nothing to do with category.
- the fuctions are
+MDC(Mapped Diagnostic Context)是一个每线程拥有的键-值表，所以和分类没啥关系。操作函数为
 \end_layout
 
 \begin_layout LyX-Code
@@ -5074,14 +4918,16 @@ void zlog_clean_mdc(void);
 \end_layout
 
 \begin_layout Standard
-key and value are all strings, which are no longer than MAXLEN_PATH(typically
- 1024).
- One thing should remeber is that the map bonds to a thread, thus in one
- thread if you set a key-value pair will not affect other threads.
+键和值都是字符串，长度不能超过MAXLEN_PATH(一般来说是1024)。记住这个表是和线程绑定的，每个线程有自己的表，所以在一个线程内的操作不会影响其他线程
+。
+\end_layout
+
+\begin_layout Standard
+zlog_put_mdc()成功返回0，失败返回-1。zlog_get_mdc()成功返回value的指针，失败或者没有相应的key返回NULL。
 \end_layout
 
 \begin_layout Section
-dzlog API
+dzlog应用编程接口(API)
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:dzlog-API"
@@ -5092,20 +4938,14 @@ name "sec:dzlog-API"
 \end_layout
 
 \begin_layout Standard
-dzlog consists of some simlple fuctions that omit 
+dzlog是忽略分类(zlog_category_t)的一组zlog接口。它采用内置的一个默认分类，这个分类置于锁的保护下。这些接口也是线程安全的。忽略了分类，
+意味着用户不需要操心创建、存储、传输zlog_category_t类型的变量
 \emph on
-zlog_category_t
+\noun on
+。当然也可以在用
 \emph default
-.
- It use a default category inside and put the category under the protect
- of lock.
- It is thread safe also.
- Omit category means that users need not to create, save, tranfer 
-\emph on
-zlog_category_t
-\emph default
- variables.
- Still, user can get and use other category through normal API for flexibility.
+\noun default
+dzlog接口的同时用一般的zlog接口函数。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5117,40 +4957,12 @@ int dzlog_set_category(char *default_category_name);
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-dzlog_init()
-\emph default
- is just as 
-\emph on
-zlog_init()
-\emph default
-, but need a 
-\emph on
-default_category_name
-\emph default
- for inner default_category.
- 
-\emph on
-zlog_update()
-\emph default
- and 
-\emph on
-zlog_fini()
-\emph default
- can be used as before, to refresh conf_file, or release all.
+dzlog_init()和zlog_init()一样做初始化，就是多需要一个默认分类名(default_category_name)的参数。zlog_updat
+e()、 zlog_fini() 可以和以前一样使用，用来刷新配置，或者清理。
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-dzlog_set_category() 
-\emph default
-is designed for change default category.
- The last default category is instead by new one, and still don't worry
- about memory releasing, all category will be clean up at 
-\emph on
-zlog_fini().
+dzlog_set_category()是用来改变默认分类用的。上一个分类会被替换成新的。同样不用担心内存释放的问题，zlog_fini()最后会清理。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5166,7 +4978,7 @@ void hdzlog(char *file, long line, int level, void *buf, size_t buf_len);
 \end_layout
 
 \begin_layout Standard
-These 3 are dzlog functions, which bind to the default category.
+这是dzlog相应的3个写日志的函数。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5250,12 +5062,11 @@ HDZLOG_DEBUG(buf, buf_len)
 \end_layout
 
 \begin_layout Standard
-Macros are defined in zlog.h.
- They are the general way in simple logging.
+同样也有相应的宏，一般都用这组来写。
 \end_layout
 
 \begin_layout Chapter
-Advance Using
+高阶使用
 \end_layout
 
 \begin_layout Section
@@ -5270,12 +5081,8 @@ name "sec:MDC"
 \end_layout
 
 \begin_layout Standard
-What is MDC? In log4j it is short for Mapped Diagnostic Context.
- That's a complicate terminology.
- MDC is just a key-value map.
- Once you set it by function, library will print it to file every time a
- log event happens.
- Let's see a example in $(top_builddir)/test/test_mdc.c.
+MDC是什么？在log4j里面解释为Mapped Diagnostic Context。听起来是个很复杂的技术，其实MDC就是一个键-值对表。一旦某次你设置了，
+后面库可以帮你自动打印出来，或者成为文件名的一部分。让我们看一个例子，来自于$(top_builddir)/test/test_mdc.c.
 \end_layout
 
 \begin_layout LyX-Code
@@ -5314,6 +5121,7 @@ int main(int argc, char** argv)
 {
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 int rc;
 \end_layout
@@ -5326,6 +5134,7 @@ zlog_category_t *zc;
 rc = zlog_init("test_mdc.conf");
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 if (rc) { 
 \end_layout
@@ -5340,6 +5149,7 @@ n");
 return -1;
 \end_layout
 
+\end_deeper
 \begin_layout LyX-Code
 }
 \end_layout
@@ -5352,6 +5162,7 @@ zc = zlog_get_category("my_cat");
 if (!zc) {
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 printf("get cat fail
 \backslash
@@ -5366,6 +5177,7 @@ zlog_fini();
 return -2;
 \end_layout
 
+\end_deeper
 \begin_layout LyX-Code
 }
 \end_layout
@@ -5398,12 +5210,13 @@ zlog_fini();
 return 0;
 \end_layout
 
+\end_deeper
 \begin_layout LyX-Code
 } 
 \end_layout
 
 \begin_layout Standard
-The configure file is
+配置文件
 \end_layout
 
 \begin_layout LyX-Code
@@ -5419,7 +5232,7 @@ $ cat test_mdc.conf
 \end_layout
 
 \begin_layout Standard
-And the output is
+输出
 \end_layout
 
 \begin_layout LyX-Code
@@ -5433,11 +5246,7 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout Standard
-You can see 
-\emph on
-zlog_put_mdc()
-\emph default
- function set the map with key 
+你可以看到zlog_put_mdc()在表里面设置键
 \begin_inset Quotes eld
 \end_inset
 
@@ -5445,20 +5254,15 @@ myname
 \begin_inset Quotes erd
 \end_inset
 
- and value 
+对应值
 \begin_inset Quotes eld
 \end_inset
 
-Wang
+Zhang
 \begin_inset Quotes erd
 \end_inset
 
-, and in configure file 
-\emph on
-%M(myname) 
-\emph default
-indicates where the value shows in each log.
- The second time, value of key 
+，然后在配置文件里面%M(myname)指出了在日志的哪个位置需要把值打出来。第二次，键
 \begin_inset Quotes eld
 \end_inset
 
@@ -5466,21 +5270,19 @@ myname
 \begin_inset Quotes erd
 \end_inset
 
- is overwriteen to 
+的值被覆盖写成
 \begin_inset Quotes eld
 \end_inset
 
-Five
+Li
 \begin_inset Quotes erd
 \end_inset
 
-, and the log changes also.
+，然后日志里面也有相应的变化。
 \end_layout
 
 \begin_layout Standard
-When should MDC be used? That mainly depends on when user need to seprate
- same log action with different scenes.
- For example, in .c
+MDC什么时候有用呢？往往在用户需要在同样的日志行为区分不同的业务数据的时候。比如说，c源代码是
 \end_layout
 
 \begin_layout LyX-Code
@@ -5544,7 +5346,7 @@ get out
 \end_layout
 
 \begin_layout Standard
-in .conf
+在配置文件里面是
 \end_layout
 
 \begin_layout LyX-Code
@@ -5560,7 +5362,7 @@ in .conf
 \end_layout
 
 \begin_layout Standard
-When program process two customer at the same time, the output maybe:
+当程序同时处理两个用户的时候，打出来的日志可能是
 \end_layout
 
 \begin_layout LyX-Code
@@ -5596,7 +5398,7 @@ Li get out
 \end_layout
 
 \begin_layout Standard
-Now you can distinguish two one customer from another, by use grep afterwards
+这样，你就可以用grep命令把这两个用户的日志分开来了
 \end_layout
 
 \begin_layout LyX-Code
@@ -5608,16 +5410,15 @@ $ grep Li aa.log >Li.log
 \end_layout
 
 \begin_layout Standard
-Or, there is another way, sperate them to different log file when log action
- is taken, in .conf
+或者，还有另外一条路，一开始在文件名里面做区分，看配置文件：
 \end_layout
 
 \begin_layout LyX-Code
-*.* "mdc_%M(myname).log";
+*.* "mdc_%M(customer_name).log";
 \end_layout
 
 \begin_layout Standard
-It will produce 3 log
+这就会产生3个日志文件。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5625,13 +5426,11 @@ mdc_.log mdc_Zhang.log mdc_Li.log
 \end_layout
 
 \begin_layout Standard
-About MDC, another thing is that map belongs to thread, each thread has
- it's own map.
- In one thread 
-\emph on
-zlog_mdc_put()
-\emph default
- will not affect other thread's map.
+这是一条近路，如果用户知道自己在干什么。
+\end_layout
+
+\begin_layout Standard
+MDC是每个线程独有的，所以可以把一些线程专有的变量设置进去。如果单单为了区分线程，可以用转换字符里面的%t来搞定。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5643,7 +5442,7 @@ zlog_mdc_put()
 \end_layout
 
 \begin_layout Section
-Profile zlog Itself
+诊断zlog本身
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Profile-zlog-Itself"
@@ -5654,13 +5453,8 @@ name "sec:Profile-zlog-Itself"
 \end_layout
 
 \begin_layout Standard
-OK, till now, I suspect that zlog library never fails, it help user's applicatio
-n to write log and debug user's application.
- But if zlog itself has some problem, how to find it out? Other program
- debug through log library, and how can a log library debug itself? The
- answer is the same, zlog library has its own log.
- This profile log is usually shut down, and can be open by set environment
- variables.
+OK，至今为止，我假定zlog库本身是不出毛病的。zlog帮助用户程序写日志，帮助程序员debug程序。但是如果zlog内部出错了呢？怎么知道错在哪里呢？其他的
+程序可以用日志库来debug，但日志库自己怎么debug？答案很简单，zlog有自己的日志——诊断日志。这个日志通常是关闭的，可以通过环境变量来打开。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5672,15 +5466,15 @@ $ export ZLOG_PROFILE_ERROR=/tmp/zlog.error.log
 \end_layout
 
 \begin_layout Standard
-profile log just has 2 levels, debug and error.
- run test_hello program in 
+诊断日志只有两个级别debug和error。设置好环境变量后.
+ 再跑test_hello程序
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Hello-World-Example"
 
 \end_inset
 
-, then the debug log is
+，然后debug日志为
 \end_layout
 
 \begin_layout LyX-Code
@@ -5710,18 +5504,15 @@ $ more zlog.debug.log
 \end_layout
 
 \begin_layout Standard
-The error log is not created, as no error occurs.
+zlog.error.log日志没产生，因为没有错误发生。
 \end_layout
 
 \begin_layout Standard
-As you can see, debug log shows how zlog is inited and finished, but no
- debug log is writen when ZLOG_INFO() is executed.
- That's for efficency.
+你可以看出来，debug日志展示了zlog是怎么初始化还有清理的。不过在ZLOG_INFO()执行的时候没有日志打出来，这是从效率出发。
 \end_layout
 
 \begin_layout Standard
-If there is anything wrong with zlog library, all will show in ZLOG_PROFILE_ERRO
-R log, for example, using a wrong printf syntax in zlog()
+如果zlog库有任何问题，都会打日志到ZLOG_PROFILE_ERROR所指向的错误日志。比如说，在ZLOG_INFO()上用一个错误的printf的语法：
 \end_layout
 
 \begin_layout LyX-Code
@@ -5729,7 +5520,7 @@ ZLOG_INFO(zc, "%l", 1);
 \end_layout
 
 \begin_layout Standard
-Then run the program, the ZLOG_PROFILE_ERROR log should be
+然后编译执行程序，ZLOG_PROFILE_ERROR的日志会是
 \end_layout
 
 \begin_layout LyX-Code
@@ -5772,33 +5563,21 @@ $ cat zlog.error.log
 \end_layout
 
 \begin_layout Standard
-Now, user could find the reason why the expect log doesn't generate, and
- fix the wrong printf syntax.
+这样，用户就能知道为啥期待的输出没有产生，然后搞定这个问题。
 \end_layout
 
 \begin_layout Standard
-Runtime profile will make efficency lost.
- Normally, I keep ZLOG_PROFILE_ERROR on and ZLOG_PROFILE_DEBUG off at my
- environment.
- 
+运行时诊断会带来一定的性能损失。一般来说，我在生产环境把ZLOG_PROFILE_ERROR打开，ZLOG_PROFILE_DEBUG关闭。
 \end_layout
 
 \begin_layout Standard
-There is still another way to profile zlog libraray.
- As we all know, 
-\emph on
-zlog_init()
-\emph default
- read configure file to memory .
- Through all log actions, the configure structure memory keeps unchanged.
- There is possibility that this memory is damaged by other fuctions in user's
- application, or the memory doesn't equal what configure file describes.
- So I design a zlog interface to show this memory at runtime, print it to
- ZLOG_PROFILE_ERROR.
+还有另外一个办法来诊断zlog。我们都知道，zlog_init()会把配置信息读入内存。在整个写日志的过程中，这块内存保持不变。如果用户程序因为某种原因损坏了这
+块内存，那么就会造成问题。还有可能是内存中的信息和配置文件的信息不匹配。所以我设计了一个函数，把内存的信息展现到ZLOG_PROFILE_ERROR指向的错误日
+志。
 \end_layout
 
 \begin_layout Standard
-see $(top_builddir)/test/test_profile.c
+代码见$(top_builddir)/test/test_profile.c
 \end_layout
 
 \begin_layout LyX-Code
@@ -5876,8 +5655,7 @@ return 0;
 \end_layout
 
 \begin_layout Standard
-zlog_profile() is the function.
- The configure file is simple
+zlog_profile()就是这个函数。配置文件很简单。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5917,7 +5695,7 @@ my_cat.* >stdout; simple
 \end_layout
 
 \begin_layout Standard
-The ZLOG_PROFILE_ERROR log is
+然后zlog.error.log会是
 \end_layout
 
 \begin_layout LyX-Code
@@ -5969,8 +5747,7 @@ $ cat /tmp/zlog.error.log
 \end_layout
 
 \begin_layout Standard
-That shows the levels.
- If user has defined levels, shows here also.
+这里显示了所有的等级，如果用户有自定义等级，也会在这里展示。
 \end_layout
 
 \begin_layout LyX-Code
@@ -5983,10 +5760,8 @@ That shows the levels.
 \end_layout
 
 \begin_layout Standard
-That shows which configure file is read, and what's it last modified time.
- When you have doubt with conf file and conf memory not equals, check their
- time and path first.
- In this example, use ls -l test_profile.conf, and compare them.
+这里显示了哪一个配置文件会被读进来，以及这个文件最后修改时间。如果你对配置文件和内存中的配置信息是否一致有疑问，先比较修改时间和文件路径。在这里例子里面，ls
+ -l test_profile.conf，然后和上面的数据比较。
 \end_layout
 
 \begin_layout LyX-Code
@@ -6016,7 +5791,7 @@ That shows which configure file is read, and what's it last modified time.
 \end_layout
 
 \begin_layout Standard
-Here shows some global setting.
+这里显示一些全局配置
 \end_layout
 
 \begin_layout LyX-Code
@@ -6038,7 +5813,7 @@ Here shows some global setting.
 \end_layout
 
 \begin_layout Standard
-rules and formats are not so distinct.
+规则和格式不是那么明显
 \end_layout
 
 \begin_layout LyX-Code
@@ -6058,13 +5833,11 @@ rules and formats are not so distinct.
 \end_layout
 
 \begin_layout Standard
-tmap is thread map.
- It has one thread.
+tmap是线程表，目前看来有一个线程。
 \end_layout
 
 \begin_layout Standard
-cmap is category map.
- It has one category -- my_cat
+cmap是分类表，有一个分类 -- my_cat
 \end_layout
 
 \begin_layout LyX-Code
@@ -6072,7 +5845,7 @@ cmap is category map.
 \end_layout
 
 \begin_layout Standard
-default category is printed at last.
+最后把dzlog默认的分类打印出来
 \end_layout
 
 \begin_layout LyX-Code
@@ -6080,7 +5853,7 @@ default category is printed at last.
 \end_layout
 
 \begin_layout Section
-User defines level
+用户自定义等级
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Define-new-level"
@@ -6091,11 +5864,11 @@ name "sec:Define-new-level"
 \end_layout
 
 \begin_layout Standard
-Here I write down all steps of how user define own levels.
+这里我把用户自定义等级的几个步骤写下来。
 \end_layout
 
 \begin_layout Enumerate
-define levels in configure file.
+在配置文件中定义新的等级
 \end_layout
 
 \begin_deeper
@@ -6140,7 +5913,7 @@ my_cat.TRACE		>stdout;
 \end_layout
 
 \begin_layout Standard
-The inner default levels are:
+内置的默认等级是(这些不需要写在配置文件里面)
 \end_layout
 
 \begin_layout LyX-Code
@@ -6172,10 +5945,8 @@ The inner default levels are:
 \end_layout
 
 \begin_layout Standard
-in zlog, a integer(30) and a level string(TRACE) represents a level.
- More larger, more important.
- After the definition, TRACE can be used in rule of configure file.
- This sentence
+这样在zlog看来，一个整数(30)还有一个等级字符串(TRACE)代表了等级。这个整数必须位于[1,253]之间，其他数字是非法的。数字越大代表越重要。现在T
+RACE比DEBUG重要(30>20)，比INFO等级低(30<40)。在这样的定义后，TRACE就可以在下面的配置文件里面用了。例如这句话：
 \end_layout
 
 \begin_layout LyX-Code
@@ -6183,12 +5954,11 @@ my_cat.TRACE		>stdout;
 \end_layout
 
 \begin_layout Standard
-means that level >= TRACE, which is TRACE, INFO, NOTICE, WARN, ERROR, FATAL
- will be written to standard output.
+意味着等级>=TRACE的，包括INFO, NOTICE, WARN, ERROR, FATAL会被写到标准输出。
 \end_layout
 
 \begin_layout Standard
-The format string 
+格式里面的转换字符
 \begin_inset Quotes eld
 \end_inset
 
@@ -6196,7 +5966,7 @@ The format string
 \begin_inset Quotes erd
 \end_inset
 
- is captial of level string and 
+会产生等级字符串的大写输出，
 \begin_inset Quotes eld
 \end_inset
 
@@ -6204,17 +5974,16 @@ The format string
 \begin_inset Quotes erd
 \end_inset
 
- is lowercase of level string.
+会产生小写的等级字符串输出。
 \end_layout
 
 \begin_layout Standard
-Besides, LOG_DEBUG means when use >syslog in rule, all TRACE log will output
- as syslog' s LOG_DEBUG level.
+另外，在等级的定义里面，LOG_DEBUG是指当需要输出到syslog的时候，自定义的TRACE等级会以LOG_DEBUG输出到syslog。
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
-Using the new log level in source file, the direct way is like this
+在源代码里面直接用新的等级是这么搞的
 \end_layout
 
 \begin_deeper
@@ -6231,7 +6000,7 @@ test %d
 \end_layout
 
 \begin_layout Standard
-For easy use, create a .h file 
+为了简单使用，创建一个.h头文件
 \end_layout
 
 \begin_layout LyX-Code
@@ -6290,7 +6059,7 @@ ZLOG_LEVEL_TRACE = 30,
 
 \end_deeper
 \begin_layout Enumerate
-Now, ZLOG_TRACE can be used int .c file
+这样ZLOG_TRACE就能在.c文件里面用了
 \end_layout
 
 \begin_deeper
@@ -6406,7 +6175,7 @@ return 0;
 
 \end_deeper
 \begin_layout Enumerate
-Now we can see the output
+最后我们能看到输出
 \end_layout
 
 \begin_deeper
@@ -6423,13 +6192,11 @@ INFO info hello, zlog - info
 \end_layout
 
 \begin_layout Standard
-That's just what we expect, the configure file only allows >=TRACE ouput
- to screen.
- And “%V
+正是我们所期待的，配置文件只允许>=TRACE等级的日志输出到屏幕上。%V
 \begin_inset Quotes erd
 \end_inset
 
- and 
+和
 \begin_inset Quotes eld
 \end_inset
 
@@ -6437,7 +6204,7 @@ That's just what we expect, the configure file only allows >=TRACE ouput
 \begin_inset Quotes erd
 \end_inset
 
- works well.
+也显示了正确的结果。
 \end_layout
 
 \end_deeper
