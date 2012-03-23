@@ -28,4 +28,4 @@ Links:
 
 [Author's Blog](http://my.oschina.net/HardySimpson/blog)
 
-[Author's Email](HardySimpson1984@gmail.com)
+[Author's Email](mailto:HardySimpson1984@gmail.com)
