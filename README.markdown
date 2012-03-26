@@ -22,9 +22,9 @@ So I write *zlog*.
 
 Links:
 
-[Users Guide in English](https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf)
+[Users Guide(PDF)](https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf)
 
-[Users Guide in Chiniese](https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-CN-0.9rc1.pdf)
+[使用攻略(PDF)](https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-CN-0.9rc1.pdf)
 
 [Author's Blog](http://my.oschina.net/HardySimpson/blog)
 
