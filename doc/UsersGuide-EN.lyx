@@ -134,6 +134,10 @@ syslog style configure file, easy for understand and use
 \end_layout
 
 \begin_layout Itemize
+log format Customization, like pattern layout in log4j
+\end_layout
+
+\begin_layout Itemize
 range-category model, which is more flexible and more clear than hierarchy
  model of log4j
 \end_layout
@@ -174,6 +178,10 @@ accurate to microseconds
 \end_layout
 
 \begin_layout Itemize
+dzlog, a default category log API for easy use
+\end_layout
+
+\begin_layout Itemize
 MDC, a log4j style key-value map, expand user defined field in dynamic log
  file path or log format, is also useful in multi-thread programming
 \end_layout
@@ -188,6 +196,28 @@ Not depend on any other 3rd party library, just base on POSIX system.
 
 \begin_layout Standard
 Links:
+\end_layout
+
+\begin_layout Standard
+Download: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/HardySimpson/zlog/zipball/master"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+UsersGuide: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -891,30 +921,72 @@ hello, zlog
 \end_layout
 
 \begin_layout Standard
-Each logging action bonds to a category variable, which is a variable of
- zlog_category_t* type and matches one or many rules in configure file.
- In this example, the name of category variable c is 
+Category is designed for different input.
+ In source code name of category variable is a charactor string.
+ In program, get different category for log will distinguish them from each
+ other.
+\end_layout
+
+\begin_layout Standard
+Format describes log pattern, like with or without time stamp, source file,
+ source line.
+\end_layout
+
+\begin_layout Standard
+Rule consists of category, level, output file(or other channel) and format.
+ In brief, if category string in rule of configure file equals name of category
+ variable in source, they match.
+\end_layout
+
+\begin_layout Standard
+So when excute this sentence in source file
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout Standard
+zlog library will find the name of c is 
 \begin_inset Quotes eld
 \end_inset
 
-
-\emph on
-my_cat
-\emph default
-
-\begin_inset Quotes erd
-\end_inset
-
-.
- Variable c matches category string 
-\begin_inset Quotes eld
-\end_inset
-
 my_cat
 \begin_inset Quotes erd
 \end_inset
 
- in rule.
+, which has one rule.
+ That is
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG             >stdout; simple
+\end_layout
+
+\begin_layout Standard
+Then library will check if level is right to decide whether the log will
+ be output or not.
+ As INFO>=DEBUG.
+ So log will be output, and as the rule said, it will be output to stdout(standa
+rd output) in the format of simple, which described above
+\end_layout
+
+\begin_layout LyX-Code
+&simple                 "%m%n" 
+\end_layout
+
+\begin_layout Standard
+At last show in screen
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout Standard
+That's the whole story.
+ The only thing user need to do is writing message.
+ Where the log will be output, or in which format, is done by zlog library.
 \end_layout
 
 \begin_layout Standard
@@ -1164,6 +1236,13 @@ reference "sec:Define-new-level"
 
 \begin_layout Subsection
 Category Matching
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Category-Matching"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard

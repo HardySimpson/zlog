@@ -36,6 +36,7 @@ err.log
 doc/*
 !doc/*.lyx
 !doc/*.conf
+!doc/*.txt
 test_*
 !test_*.c
 !test_*.conf

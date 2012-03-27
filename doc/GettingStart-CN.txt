@@ -1,0 +1,94 @@
+zlog是个概念清晰的日志函数库，在效率、功能、安全性上大大超过了log4c，并且是用c写成的，具有比较好的通用性
+
+1.安装
+
+下载 HardySimpson-zlog-c7ae17b.zip https://github.com/HardySimpson/zlog/zipball/master
+
+# 解压, 安装
+$ unzip HardySimpson-zlog-c7ae17b.zip
+$ cd HardySimpson-zlog-c7ae17b/
+$ ./configure --enable-test # 把测试程序和案例也编译下，反正不安装 
+$ make
+$ make install
+# 默认安装在/usr/local/下，包括libzlog.so和zlog.h
+
+
+2.介绍一下配置文件，zlog里面有三个重要的概念,category,format，rule
+
+分类(Category)用于区分不同的输入，代码中的分类变量的名字是一个字符串，在一个程序里面可以通过获取不同的分类名的category用来后面输出不同分类的日志，用于不同的目的。
+
+格式(Format)是用来描述输出日志的格式，比如是否有带有时间戳， 是否包含文件位置信息等，上面的例子里面的格式simple就配置成简单的用户输入的信息+换行符。
+
+规则(Rule)则是把分类、级别、输出文件、格式组合起来，决定一条代码中的日志是否输出，输出到哪里，以什么格式输出。简单而言，规则里面的分类字符串和代码里面的分类变量的名字一样就匹配，当然还有更高级的纲目分类匹配。规则彻底解耦了各个元素之间的强绑定，例如log4j就必须为每个分类指定一个级别（或者从父分类那里继承），这在多层系统需要每一层都有自己的级别要求的时候非常不方便。
+
+现在试着写配置文件，配置文件名无所谓，放在哪里也无所谓，反正在zlog_init()的时候可以指定
+$ cat /etc/zlog.conf
+
+&simple                 "%m%n"
+my_cat.DEBUG            >stdout; simple
+
+在目前的配置文件的例子里面，可以看到my_cat分类，>=debug等级的日志会被输出到stdout(标准输出)，并且输出的格式是simple这个格式，也就是用户输入信息+换行符。如果要输出到文件并控制文件大小为1兆，规则的配置应该是
+my_cat.DEBUG            "/var/log/aa.log", 1M; simple
+
+3.在代码中使用
+$ vi test_hello.c
+
+#include <stdio.h> 
+
+#include "zlog.h"
+
+int main(int argc, char** argv)
+{
+	int rc;
+	zlog_category_t *c;
+
+	rc = zlog_init("/etc/zlog.conf");
+	if (rc) {
+		printf("init failed\n");
+		return -1;
+	}
+
+	c = zlog_get_category("my_cat");
+	if (!my_cat) {
+		printf("get cat fail\n");
+		zlog_fini();
+		return -2;
+	}
+
+	ZLOG_INFO(c, "hello, zlog");
+
+	zlog_fini();
+
+	return 0;
+} 
+
+4.编译、然后运行!
+
+$ cc -c -o test_hello.o test_hello.c -I/usr/local/include
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+$ ./test_hello
+hello, zlog
+
+5.高级使用
+• syslog风格的配置文件，易学易用
+• 可以灵活配置日志输出的格式，类似于log4j的pattern layout
+• 纲目分类模型，比log4j系列的继承模型更加清晰
+• 多种输出，包括动态文件、静态文件、stdout、stderr、syslog
+• 可以在运行时动态刷新配置，只需要调用函数zlog_update()
+• 高性能，在我的笔记本上达到72'000条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
+• 用户可以自定义等级，无需改变库代码[sec:Define-new-level]
+• 多线程和多进程写同一个日志的情况下，安全转档（转档就是把太大的日志重命名）
+• 可以精确到微秒
+• 如果一个程序默认只用一个分类输出，zlog提供了简单的调用包装dzlog
+• MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字段
+• 自诊断，可以在运行时输出zlog自己的日志和配置状态
+• 不依赖其他库，只要是个POSIX系统就成
+
+详见
+相关链接：
+
+软件下载：https://github.com/HardySimpson/zlog/zipball/master
+详细使用攻略：https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-CN-0.9rc1.pdf
+主页：https://github.com/HardySimpson/zlog
+作者博客：http://my.oschina.net/HardySimpson/blog
+邮箱：HardySimpson1984@gmail.com
