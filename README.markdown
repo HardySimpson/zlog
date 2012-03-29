@@ -29,3 +29,5 @@ Links:
 [Author's Blog](http://my.oschina.net/HardySimpson/blog)
 
 [Author's Email](mailto:HardySimpson1984@gmail.com)
+
+[zlog中文交流地点,开源中国](http://www.oschina.net/p/zlog)

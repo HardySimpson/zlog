@@ -13,7 +13,9 @@ $ make install
 # 默认安装在/usr/local/下，包括libzlog.so和zlog.h
 
 
-2.介绍一下配置文件，zlog里面有三个重要的概念,category,format，rule
+2.介绍一下配置文件
+
+zlog里面有三个重要的概念,category,format，rule
 
 分类(Category)用于区分不同的输入，代码中的分类变量的名字是一个字符串，在一个程序里面可以通过获取不同的分类名的category用来后面输出不同分类的日志，用于不同的目的。
 

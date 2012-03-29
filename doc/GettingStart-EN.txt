@@ -1,0 +1,98 @@
+zlog is a clear-modeled pure c logging library. It is faster, safer and more powerful than log4c. So it can be widely used. 
+
+
+1. Install
+
+Download HardySimpson-zlog-c7ae17b.zip https://github.com/HardySimpson/zlog/zipball/master
+
+# uncompress, install 
+$ unzip HardySimpson-zlog-c7ae17b.zip
+$ cd HardySimpson-zlog-c7ae17b/
+$ ./configure --enable-test # complie test program
+$ make
+$ make install
+# default install in /usr/local/, include libzlog.so and zlog.h
+
+
+2. Introduce configure file
+
+There are 3 important conception in zlog: category,format，rule
+
+Category is designed for different input. In source code name of category variable is a charactor string. In program, get different category for log will distinguish them from each other.
+
+Format describes log pattern, like with or without time stamp, source file, source line.
+
+Rule consists of category, level, output file(or other channel) and format. In brief, if category string in rule of configure file equals name of category variable in source, they match. Still there is complex match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger output at the level of debug, when father logger output at the level of error)
+
+Now write configure file. No matter what's the file name is or where it locates, zlog_init() will read file from agruments.
+$ cat /etc/zlog.conf
+
+&simple                 "%m%n"
+my_cat.DEBUG            >stdout; simple
+
+In configure file now, you can see, logs, whose category of "my_cat", >= debug level, will be output to standard output, with the format of simple(%m - usermessage %n - newline).If you want output to a file and control its size, write like this
+
+my_cat.DEBUG            "/var/log/aa.log", 1M; simple
+
+3. Using zlog API in C source file
+$ vi test_hello.c
+
+#include <stdio.h> 
+
+#include "zlog.h"
+
+int main(int argc, char** argv)
+{
+	int rc;
+	zlog_category_t *c;
+
+	rc = zlog_init("/etc/zlog.conf");
+	if (rc) {
+		printf("init failed\n");
+		return -1;
+	}
+
+	c = zlog_get_category("my_cat");
+	if (!my_cat) {
+		printf("get cat fail\n");
+		zlog_fini();
+		return -2;
+	}
+
+	ZLOG_INFO(c, "hello, zlog");
+
+	zlog_fini();
+
+	return 0;
+} 
+
+4. Complie, and run it!s
+
+$ cc -c -o test_hello.o test_hello.c -I/usr/local/include
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+$ ./test_hello
+hello, zlog
+
+5. Advance Using
+• syslog style configure file, easy for understand and use
+• log format Customization, like pattern layout in log4j
+• range-category model, which is more flexible and more clear than hierarchy model of log4j
+• multiple output, include static file path, dynamic file path, stdout, stderr, syslog
+• runtime refreash configure to change output flow or output format, just need to call one function -- zlog_update()
+• high efficieny, on my laptop, record 720'000 log per second, about 200 times faster than syslog(3) with rsyslogd
+• user can define his own log level without change and rebuild library[sec:Define-new-level]
+• safely rotate log file by size when multiple process or multiple threads write to one same log file
+• accurate to microseconds
+• dzlog, a default category log API for easy use
+• MDC, a log4j style key-value map, expand user defined field in dynamic log file path or log format, is also useful in multi-thread programming
+• self debugable, can output zlog's self debug&error log at runtime
+• Not depend on any other 3rd party library, just base on POSIX system.
+
+
+6. Links:
+
+Download: https://github.com/HardySimpson/zlog/zipball/master
+UsersGuide：https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf
+Homepage：https://github.com/HardySimpson/zlog
+Author's Blog(in Chinese)：http://my.oschina.net/HardySimpson/blog
+Author's Email：HardySimpson1984@gmail.com
