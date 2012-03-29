@@ -88,7 +88,7 @@ zlog使用攻略
 status collapsed
 
 \begin_layout Plain Layout
-适用于 zlog v0.9.
+适用于 zlog v0.9
 \end_layout
 
 \end_inset
@@ -212,7 +212,7 @@ MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字�
 软件下载：
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/HardySimpson/zlog/zipball/master"
+target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
 
 \end_inset
 

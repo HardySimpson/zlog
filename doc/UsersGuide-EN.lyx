@@ -202,7 +202,7 @@ Links:
 Download: 
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/HardySimpson/zlog/zipball/master"
+target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
 
 \end_inset
 
