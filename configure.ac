@@ -1,6 +1,6 @@
 AC_PREREQ(2.59)
 AC_INIT([zlog], [0.9.0], [HardySimpson1984@gmail.com])
-AM_INIT_AUTOMAKE([gnu -Wall -Werror])
+AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([libzlog/zlog.h])
 AC_CONFIG_HEADER([config.h])
 AC_GNU_SOURCE
@@ -44,9 +44,9 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([gethostname gettimeofday localtime_r memmove memset setenv strchr strrchr strstr strtol])
 
-if test "x$GCC" = "xyes"; then
-  CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -Werror -pthread"
-fi
+#if test "x$GCC" = "xyes"; then
+#  CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -Werror -pthread"
+#fi
 
 AC_ARG_ENABLE(test,
 	[AC_HELP_STRING([--enable-test], [Compile tests])],

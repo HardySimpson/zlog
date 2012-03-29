@@ -239,7 +239,7 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
 {
 	int rc = 0;
 	char *msg;
-	size_t msg_len;
+	//size_t msg_len;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
@@ -248,11 +248,13 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
 	}
 
 	msg = a_thread->msg_buf->start;
+	/*
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
+	 */
 
 	syslog(a_rule->syslog_facility |
 		(zlog_level_get(a_thread->event->level))->syslog_level ,
-		"%s", msg);
+		"%.s", msg);
 	return 0;
 }
 
