@@ -32,7 +32,7 @@ test_printf_SOURCES = test_printf.c
 test_syslog_SOURCES = test_syslog.c
 test_syslog_press_SOURCES = test_syslog_press.c
 test_mdc_SOURCES = test_mdc.c
-test_level_SOURCES = test_level.c
+test_level_SOURCES = test_level.c test_level.h
 test_default_SOURCES = test_default.c
 test_profile_SOURCES = test_profile.c
 

@@ -315,7 +315,7 @@ $ make
 \end_layout
 
 \begin_layout LyX-Code
-$ make install
+$ sudo make install
 \end_layout
 
 \begin_layout Standard

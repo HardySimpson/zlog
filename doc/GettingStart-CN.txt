@@ -2,14 +2,14 @@ zlog是个概念清晰的日志函数库，在效率、功能、安全性上大�
 
 1.安装
 
-下载 HardySimpson-zlog-c7ae17b.zip https://github.com/HardySimpson/zlog/zipball/master
+下载 https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz
 
 # 解压, 安装
-$ unzip HardySimpson-zlog-c7ae17b.zip
-$ cd HardySimpson-zlog-c7ae17b/
+$ tar -zxvf zlog-0.9.0.tar.gz
+$ cd zlog-0.9.0/
 $ ./configure --enable-test # 把测试程序和案例也编译下，反正不安装 
 $ make
-$ make install
+$ sudo make install
 # 默认安装在/usr/local/下，包括libzlog.so和zlog.h
 
 
@@ -89,7 +89,7 @@ hello, zlog
 详见
 相关链接：
 
-软件下载：https://github.com/HardySimpson/zlog/zipball/master
+软件下载：https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz
 详细使用攻略：https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-CN-0.9rc1.pdf
 主页：https://github.com/HardySimpson/zlog
 作者博客：http://my.oschina.net/HardySimpson/blog
