@@ -300,19 +300,6 @@ Hello World
 Build and Installation zlog
 \end_layout
 
-\begin_layout Standard
-If checking out from Git(https://github.com/HardySimpson/zlog) and you want
- to try auto tools in your environment to re-generate configure shell.
-\end_layout
-
-\begin_layout LyX-Code
-$ sh autogen.sh
-\end_layout
-
-\begin_layout Standard
-Then (Normally, begin here)
-\end_layout
-
 \begin_layout LyX-Code
 $ ./configure --prefix=[where u wanna install it] 
 \backslash

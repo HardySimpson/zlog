@@ -297,18 +297,6 @@ Hello World
 编译和安装zlog
 \end_layout
 
-\begin_layout Standard
-如果是从Git上拉下来，而且你想试试自己环境的auto tools的话 (https://github.com/HardySimpson/zlog):
-\end_layout
-
-\begin_layout LyX-Code
-$ sh autogen.sh
-\end_layout
-
-\begin_layout Standard
-一般来说
-\end_layout
-
 \begin_layout LyX-Code
 $ ./configure --prefix=[where u wanna install it] 
 \backslash
