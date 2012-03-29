@@ -44,9 +44,9 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([gethostname gettimeofday localtime_r memmove memset setenv strchr strrchr strstr strtol])
 
-#if test "x$GCC" = "xyes"; then
-#  CFLAGS="$CFLAGS -D_GNU_SOURCE -Wall -Werror -pthread"
-#fi
+if test "x$GCC" = "xyes"; then
+  CFLAGS="$CFLAGS -D_GNU_SOURCE -pthread"
+fi
 
 AC_ARG_ENABLE(test,
 	[AC_HELP_STRING([--enable-test], [Compile tests])],
