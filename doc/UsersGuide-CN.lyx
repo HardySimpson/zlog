@@ -297,6 +297,27 @@ Hello World
 编译和安装zlog
 \end_layout
 
+\begin_layout Standard
+下载
+\begin_inset CommandInset href
+LatexCommand href
+name "zlog-0.9.0.tar.gz"
+target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
+type "file:"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+$ tar -zxvf zlog-0.9.0.tar.gz
+\end_layout
+
+\begin_layout LyX-Code
+$ cd zlog-0.9.0/
+\end_layout
+
 \begin_layout LyX-Code
 $ ./configure --prefix=[where u wanna install it] 
 \backslash
@@ -316,15 +337,38 @@ $ sudo make install
 \end_layout
 
 \begin_layout Standard
-如果--enable-test用了的话，测试程序会被编译。这些程序是很好的zlog的使用案例，如果你在别的目录编译，编译完之后要把测试目录的配置复制过来，例如：
+--enable-test用了的话，测试程序会被编译。这些程序是很好的zlog的使用案例。
+\end_layout
+
+\begin_layout Itemize
+对于开发者，如果你在别的目录而不是在源代码目录编译(平行编译，parallel building)，编译完之后要把源代码测试目录的配置文件复制过来。否则运行测试
+程序会报错，找不到配置文件。
 \end_layout
 
 \begin_layout LyX-Code
-$ cp $(top_srcdir)/test/*.conf $(top_builddir)/test/
+$ tar -zxvf zlog-0.9.0.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd $(top_builddir)/test/
+$ mkdir build && cd build
+\end_layout
+
+\begin_layout LyX-Code
+$ ../zlog-0.9.0/configure --prefix=[where u wanna install it] 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+      --enable-test 
+\end_layout
+
+\begin_layout LyX-Code
+$ cp ../zlog-0.9.0/test/*.conf ./test/
+\end_layout
+
+\begin_layout LyX-Code
+$ cd test
 \end_layout
 
 \begin_layout LyX-Code
@@ -333,6 +377,43 @@ $ ./test_hello
 
 \begin_layout LyX-Code
 hello, zlog
+\end_layout
+
+\begin_layout Itemize
+对于开发者，如果是从github上直接下载，那就不会有configure这个脚本，因为这个脚本是由auto tools从configure.ac等源文件生成的。这
+时候你的环境上就需要有automake, autoconf等工具来生成configure
+\end_layout
+
+\begin_layout LyX-Code
+$ git clone git@github.com:HardySimpson/zlog.git
+\end_layout
+
+\begin_layout Standard
+或者从这个地址下载zip包 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/HardySimpson/zlog/zipball/master"
+type "file:"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+解压后，执行命令来生成configure
+\end_layout
+
+\begin_layout LyX-Code
+$ cd zlog
+\end_layout
+
+\begin_layout LyX-Code
+$ ./autogen.sh
+\end_layout
+
+\begin_layout Standard
+后面的步骤就和本节一开始描述的一样了。
 \end_layout
 
 \begin_layout Section
@@ -377,7 +458,7 @@ $ cc -c -o app.o app.c -I[where zlog.h is put, commonly /usr/local/include]
 
 \begin_layout LyX-Code
 $ cc -o app app.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
- 
+ -lpthread
 \end_layout
 
 \begin_layout Section

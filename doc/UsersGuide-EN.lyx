@@ -300,6 +300,27 @@ Hello World
 Build and Installation zlog
 \end_layout
 
+\begin_layout Standard
+Download:
+\begin_inset CommandInset href
+LatexCommand href
+name "zlog-0.9.0.tar.gz"
+target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
+type "file:"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+$ tar -zxvf zlog-0.9.0.tar.gz
+\end_layout
+
+\begin_layout LyX-Code
+$ cd zlog-0.9.0/
+\end_layout
+
 \begin_layout LyX-Code
 $ ./configure --prefix=[where u wanna install it] 
 \backslash
@@ -322,9 +343,14 @@ $ sudo make install
 If --enable-test is used, then all the test program under test directory
  will be built.
  These are also good example codes which show how to use zlog.
- If zlog is built in other path other than source path, you need to copy
- all configure file to build path by hand, to run test program successfully,
- for example:
+\end_layout
+
+\begin_layout Itemize
+For developer.
+ If zlog is built in other path other than source path(parallel building),
+ you need to copy all configure file to build path by hand, to run test
+ program successfully.
+ Otherwise, test program can not find its configure file.
 \end_layout
 
 \begin_layout LyX-Code
@@ -341,6 +367,34 @@ $ ./test_hello
 
 \begin_layout LyX-Code
 hello, zlog
+\end_layout
+
+\begin_layout Itemize
+For developer.
+ If zlog is downloaded from github, there will be no configure shell.
+ It is generated from configure.ac by auto tools.
+ You need autoconf, automake in your environment.
+\end_layout
+
+\begin_layout LyX-Code
+$ git clone git@github.com:HardySimpson/zlog.git
+\end_layout
+
+\begin_layout LyX-Code
+unzip it..
+\end_layout
+
+\begin_layout LyX-Code
+$ cd zlog
+\end_layout
+
+\begin_layout LyX-Code
+$ ./autogen.sh
+\end_layout
+
+\begin_layout Standard
+Then configure is generated and next steps is the same as begin of this
+ section.
 \end_layout
 
 \begin_layout Section
@@ -385,7 +439,7 @@ $ cc -c -o app.o app.c -I[where zlog.h is put, commonly /usr/local/include]
 
 \begin_layout LyX-Code
 $ cc -o app app.o -L[where libzlog.so is put, commonly /usr/local/lib] -lzlog
- 
+ -lpthread
 \end_layout
 
 \begin_layout Section

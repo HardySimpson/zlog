@@ -7,5 +7,5 @@ Name: zlog
 Description: A high efficent, thread safe, flexsible, pure c logging library
 Version: @VERSION@
 Requires: 
-Libs:  -L${libdir} -lzlog
+Libs:  -L${libdir} -lzlog -lpthread
 Cflags: -I${includedir}

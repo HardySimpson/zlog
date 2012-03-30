@@ -16,7 +16,7 @@ $ sudo make install
 
 2. Introduce configure file
 
-There are 3 important conception in zlog: category,format，rule
+There are 3 important conception in zlog: category,format,rule
 
 Category is designed for different input. In source code name of category variable is a charactor string. In program, get different category for log will distinguish them from each other.
 
@@ -80,7 +80,7 @@ hello, zlog
 • multiple output, include static file path, dynamic file path, stdout, stderr, syslog
 • runtime refreash configure to change output flow or output format, just need to call one function -- zlog_update()
 • high efficieny, on my laptop, record 720'000 log per second, about 200 times faster than syslog(3) with rsyslogd
-• user can define his own log level without change and rebuild library[sec:Define-new-level]
+• user can define his own log level without change and rebuild library
 • safely rotate log file by size when multiple process or multiple threads write to one same log file
 • accurate to microseconds
 • dzlog, a default category log API for easy use
