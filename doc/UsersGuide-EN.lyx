@@ -122,7 +122,11 @@ Actually, in the c world there is NO good logging library for application
 
 \begin_layout Standard
 So I write zlog.
- 
+\end_layout
+
+\begin_layout Standard
+It is faster, safer and more powerful than log4c.
+ So it can be widely used.
 \end_layout
 
 \begin_layout Standard
@@ -202,7 +206,7 @@ Links:
 Download: 
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
+target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
 
 \end_inset
 
@@ -210,10 +214,20 @@ target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.
 \end_layout
 
 \begin_layout Standard
-UsersGuide: 
+GettingStart: in doc directory of zlog-0.9.0.tar.gz, GettingStart-CN.txt GettingStart
+-EN.txt 
+\end_layout
+
+\begin_layout Standard
+UsersGuide: in doc directory of zlog-0.9.0.tar.gz, UsersGuide-CN.pdf UsersGuide-EN.pdf
+\end_layout
+
+\begin_layout Standard
+SourceCode: 
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf"
+name "git@github.com:HardySimpson/zlog.git"
+target "git@github.com:HardySimpson/zlog.git"
 
 \end_inset
 
@@ -221,11 +235,21 @@ target "https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-
 \end_layout
 
 \begin_layout Standard
-Homepage: 
+Homepage(in English): 
 \begin_inset CommandInset href
 LatexCommand href
-name "https://github.com/HardySimpson/zlog"
-target "https://github.com/HardySimpson/zlog"
+target "http://hardysimpson.github.com/zlog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Homepage(in Chinese): 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.oschina.net/p/zlog"
 
 \end_inset
 
@@ -304,9 +328,7 @@ Build and Installation zlog
 Download:
 \begin_inset CommandInset href
 LatexCommand href
-name "zlog-0.9.0.tar.gz"
-target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
-type "file:"
+target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
 
 \end_inset
 
@@ -314,7 +336,7 @@ type "file:"
 \end_layout
 
 \begin_layout LyX-Code
-$ tar -zxvf zlog-0.9.0.tar.gz
+$ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code

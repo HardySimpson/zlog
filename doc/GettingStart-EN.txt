@@ -1,17 +1,23 @@
-zlog is a clear-modeled pure c logging library. It is faster, safer and more powerful than log4c. So it can be widely used. 
+0. What is zlog?
+
+zlog is a high efficent, thread safe, flexsible, clear model, pure c logging library.
+
+  Actually, in the c world there is NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be easily redirected or reformat, syslog is slow and is designed for system use. 
+  So I write zlog. 
+  It is faster, safer and more powerful than log4c. So it can be widely used. 
 
 
 1. Install
 
-Download https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz
+Download https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 
-# uncompress, install 
-$ tar -zxvf zlog-0.9.0.tar.gz
+uncompress, install 
+$ tar -zxvf zlog-latest-stable.tar.gz
 $ cd zlog-0.9.0/
 $ ./configure --enable-test # complie test program
 $ make
 $ sudo make install
-# default install in /usr/local/, include libzlog.so and zlog.h
+default install in /usr/local/, include libzlog.so and zlog.h
 
 
 2. Introduce configure file
@@ -74,25 +80,27 @@ $ ./test_hello
 hello, zlog
 
 5. Advance Using
-• syslog style configure file, easy for understand and use
-• log format Customization, like pattern layout in log4j
-• range-category model, which is more flexible and more clear than hierarchy model of log4j
-• multiple output, include static file path, dynamic file path, stdout, stderr, syslog
-• runtime refreash configure to change output flow or output format, just need to call one function -- zlog_update()
-• high efficieny, on my laptop, record 720'000 log per second, about 200 times faster than syslog(3) with rsyslogd
-• user can define his own log level without change and rebuild library
-• safely rotate log file by size when multiple process or multiple threads write to one same log file
-• accurate to microseconds
-• dzlog, a default category log API for easy use
-• MDC, a log4j style key-value map, expand user defined field in dynamic log file path or log format, is also useful in multi-thread programming
-• self debugable, can output zlog's self debug&error log at runtime
-• Not depend on any other 3rd party library, just base on POSIX system.
+ * syslog style configure file, easy for understand and use
+ * log format Customization, like pattern layout in log4j
+ * range-category model, which is more flexible and more clear than hierarchy model of log4j
+ * multiple output, include static file path, dynamic file path, stdout, stderr, syslog
+ * runtime refreash configure to change output flow or output format, just need to call one function -- zlog_update()
+ * high efficieny, on my laptop, record 720'000 log per second, about 200 times faster than syslog(3) with rsyslogd
+ * user can define his own log level without change and rebuild library
+ * safely rotate log file by size when multiple process or multiple threads write to one same log file
+ * accurate to microseconds
+ * dzlog, a default category log API for easy use
+ * MDC, a log4j style key-value map, expand user defined field in dynamic log file path or log format, is also useful in multi-thread programming
+ * self debugable, can output zlog's self debug&error log at runtime
+ * Not depend on any other 3rd party library, just base on POSIX system.
 
 
 6. Links:
 
-Download: https://github.com/HardySimpson/zlog/zipball/master
-UsersGuide：https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-EN-0.9rc1.pdf
-Homepage：https://github.com/HardySimpson/zlog
-Author's Blog(in Chinese)：http://my.oschina.net/HardySimpson/blog
-Author's Email：HardySimpson1984@gmail.com
+Download: https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
+GettingStart: in doc directory of zlog-0.9.0.tar.gz, GettingStart-CN.txt GettingStart-EN.txt
+UsersGuide: in doc directory of zlog-0.9.0.tar.gz, UsersGuide-CN.pdf UsersGuide-EN.pdf
+Homepage(in English): http://hardysimpson.github.com/zlog
+Homepage(in Chinese): http://www.oschina.net/p/zlog
+Author's Blog(in Chinese): http://my.oschina.net/HardySimpson/blog
+Author's Email: HardySimpson1984@gmail.com

@@ -9,4 +9,10 @@ endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = zlog.pc
 
-EXTRA_DIST = autogen.sh zlog.pc.in
+EXTRA_DIST =	\
+	autogen.sh	\
+	zlog.pc.in	\
+	doc/UsersGuide-CN.pdf	\
+	doc/UsersGuide-EN.pdf	\
+	doc/GettingStart-CN.txt	\
+	doc/GettingStart-EN.txt	

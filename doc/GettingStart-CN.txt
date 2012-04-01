@@ -1,11 +1,17 @@
-zlog是个概念清晰的日志函数库，在效率、功能、安全性上大大超过了log4c，并且是用c写成的，具有比较好的通用性
+0. zlog是什么？
+
+zlog是一个高性能、线程安全、灵活、概念清晰的纯C日志函数库。
+
+    事实上，在C的世界里面没有特别好的日志函数库（就像JAVA里面的的log4j，或者C++的log4cxx）。C程序员都喜欢用自己的轮子。printf就是个挺好的轮子，但没办法通过配置改变日志的格式或者输出文件。syslog是个系统级别的轮子，不过速度慢，而且功能比较单调。
+    所以我写了zlog。
+    zlog在效率、功能、安全性上大大超过了log4c，并且是用c写成的，具有比较好的通用性。
 
 1.安装
 
-下载 https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz
+下载 https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 
 # 解压, 安装
-$ tar -zxvf zlog-0.9.0.tar.gz
+$ tar -zxvf zlog-latest-stable.tar.gz
 $ cd zlog-0.9.0/
 $ ./configure --enable-test # 把测试程序和案例也编译下，反正不安装 
 $ make
@@ -41,27 +47,27 @@ $ vi test_hello.c
 
 int main(int argc, char** argv)
 {
-	int rc;
-	zlog_category_t *c;
+        int rc;
+        zlog_category_t *c;
 
-	rc = zlog_init("/etc/zlog.conf");
-	if (rc) {
-		printf("init failed\n");
-		return -1;
-	}
+        rc = zlog_init("/etc/zlog.conf");
+        if (rc) {
+                printf("init failed\n");
+                return -1;
+        }
 
-	c = zlog_get_category("my_cat");
-	if (!my_cat) {
-		printf("get cat fail\n");
-		zlog_fini();
-		return -2;
-	}
+        c = zlog_get_category("my_cat");
+        if (!my_cat) {
+                printf("get cat fail\n");
+                zlog_fini();
+                return -2;
+        }
 
-	ZLOG_INFO(c, "hello, zlog");
+        ZLOG_INFO(c, "hello, zlog");
 
-	zlog_fini();
+        zlog_fini();
 
-	return 0;
+        return 0;
 } 
 
 4.编译、然后运行!
@@ -72,25 +78,26 @@ $ ./test_hello
 hello, zlog
 
 5.高级使用
-• syslog风格的配置文件，易学易用
-• 可以灵活配置日志输出的格式，类似于log4j的pattern layout
-• 纲目分类模型，比log4j系列的继承模型更加清晰
-• 多种输出，包括动态文件、静态文件、stdout、stderr、syslog
-• 可以在运行时动态刷新配置，只需要调用函数zlog_update()
-• 高性能，在我的笔记本上达到72'000条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
-• 用户可以自定义等级，无需改变库代码
-• 多线程和多进程写同一个日志的情况下，安全转档（转档就是把太大的日志重命名）
-• 可以精确到微秒
-• 如果一个程序默认只用一个分类输出，zlog提供了简单的调用包装dzlog
-• MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字段
-• 自诊断，可以在运行时输出zlog自己的日志和配置状态
-• 不依赖其他库，只要是个POSIX系统就成
+ * syslog风格的配置文件，易学易用
+ * 可以灵活配置日志输出的格式，类似于log4j的pattern layout
+ * 纲目分类模型，比log4j系列的继承模型更加清晰
+ * 多种输出，包括动态文件、静态文件、stdout、stderr、syslog
+ * 可以在运行时动态刷新配置，只需要调用函数zlog_update()
+ * 高性能，在我的笔记本上达到72'000条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
+ * 用户可以自定义等级，无需改变库代码
+ * 多线程和多进程写同一个日志的情况下，安全转档（转档就是把太大的日志重命名）
+ * 可以精确到微秒
+ * 如果一个程序默认只用一个分类输出，zlog提供了简单的调用包装dzlog
+ * MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字段
+ * 自诊断，可以在运行时输出zlog自己的日志和配置状态
+ * 不依赖其他库，只要是个POSIX系统就成
 
-详见
-相关链接：
-
-软件下载：https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz
-详细使用攻略：https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-CN-0.9rc1.pdf
-主页：https://github.com/HardySimpson/zlog
+6.相关链接
+软件下载：https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
+上手指南：zlog-latest-stable.tar.gz包内doc目录下 GettingStart-CN.txt GettingStart-EN.txt
+使用攻略：zlog-latest-stable.tar.gz包内doc目录下 UsersGuide-CN.pdf UsersGuide-EN.pdf
+源代码：git@github.com:HardySimpson/zlog.git
+英文主页：http://hardysimpson.github.com/zlog
+中文主页：http://www.oschina.net/p/zlog
 作者博客：http://my.oschina.net/HardySimpson/blog
 邮箱：HardySimpson1984@gmail.com

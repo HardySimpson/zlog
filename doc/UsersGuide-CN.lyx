@@ -138,7 +138,11 @@ zlog是一个高性能、线程安全、灵活、概念清晰的纯C日志函数
 \end_layout
 
 \begin_layout Standard
-所以我写了zlog。 
+所以我写了zlog。
+\end_layout
+
+\begin_layout Standard
+zlog在效率、功能、安全性上大大超过了log4c，并且是用c写成的，具有比较好的通用性。
 \end_layout
 
 \begin_layout Standard
@@ -212,7 +216,7 @@ MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字�
 软件下载：
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
+target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
 
 \end_inset
 
@@ -220,10 +224,19 @@ target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.
 \end_layout
 
 \begin_layout Standard
-详细使用攻略：
+上手指南：zlog-latest-stable.tar.gz包内doc目录下 GettingStart-CN.txt GettingStart-EN.txt
+\end_layout
+
+\begin_layout Standard
+使用攻略：zlog-latest-stable.tar.gz包内doc目录下 UsersGuide-CN.pdf UsersGuide-EN.pdf
+\end_layout
+
+\begin_layout Standard
+源代码：
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-CN-0.9rc1.pdf"
+name "git@github.com:HardySimpson/zlog.git"
+target "git@github.com:HardySimpson/zlog.git"
 
 \end_inset
 
@@ -231,11 +244,22 @@ target "https://github.com/HardySimpson/zlog/raw/master/download/ZlogUsersGuide-
 \end_layout
 
 \begin_layout Standard
-主页：
+英文主页：
 \begin_inset CommandInset href
 LatexCommand href
-name "https://github.com/HardySimpson/zlog"
-target "https://github.com/HardySimpson/zlog"
+target "http://hardysimpson.github.com/zlog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+中文主页：
+\begin_inset CommandInset href
+LatexCommand href
+name "http://www.oschina.net/p/zlog"
+target "http://www.oschina.net/p/zlog"
 
 \end_inset
 
@@ -301,8 +325,8 @@ Hello World
 下载
 \begin_inset CommandInset href
 LatexCommand href
-name "zlog-0.9.0.tar.gz"
-target "https://github.com/HardySimpson/zlog/raw/master/download/zlog-0.9.0.tar.gz"
+name "zlog-latest-stable.tar.gz"
+target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
 type "file:"
 
 \end_inset
@@ -311,7 +335,7 @@ type "file:"
 \end_layout
 
 \begin_layout LyX-Code
-$ tar -zxvf zlog-0.9.0.tar.gz
+$ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
