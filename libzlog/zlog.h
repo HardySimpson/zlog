@@ -70,7 +70,7 @@ extern "C" {
  * @returns 0 for success, -1 for fail, detail will be record in ZLOG_PROFILE_ERROR.
  * @see zlog_init(), zlog_fini(), zlog.conf, ZLOG_PROFILE_ERROR
  */
-	int zlog_update(char *conf_file);
+	int zlog_reload(char *conf_file);
 
 /**
  * @brief Finish zlog, release all memory zlog_init() or zlog_update() applied.
