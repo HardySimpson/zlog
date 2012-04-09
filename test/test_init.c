@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 
 	sleep(3);
 
-	rc = zlog_update("test_init.2.conf");
+	rc = zlog_reload("test_init.2.conf");
 	if (rc) {
 		printf("update fail\n");
 	}
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 			printf("init\n");
 			break;
 		case 1:
-			rc = zlog_update(NULL);
+			rc = zlog_reload(NULL);
 			printf("update\n");
 			break;
 		case 2:

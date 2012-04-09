@@ -45,14 +45,14 @@ extern "C" {
    a threads buf table.
  * Only 1st time use zlog_init() is effective, other times will record a error log in
    ZLOG_PROFILE_ERROR, and return -1.
- * Use zlog_update() to reload configure file.
+ * Use zlog_reload() to reload configure file.
  * Before exit program, use zlog_fini() to release all memory zlog_init() applied.
  * 
  * @param conf_file configure file path, both relative path and absolute path is accept.
     If conf_file is NULL, use environment variable ZLOG_CONFPATH instead, else if
     ZLOG_CONF_PATH is NULL, output all logs to stdout.
  * @returns 0 for success, -1 for fail, detail will be record in ZLOG_PROFILE_ERROR.
- * @see zlog_update(), zlog_fini(), zlog.conf, ZLOG_PROFILE_ERROR
+ * @see zlog_reload(), zlog_fini(), zlog.conf, ZLOG_PROFILE_ERROR
  */
 	int zlog_init(char *conf_file);
 
@@ -60,22 +60,22 @@ extern "C" {
 /**
  * @brief Update buffers, rules, formats and reopen lock file according to configure file.
  *
- * After zlog_init(), zlog_update() shall reread configure file.
+ * After zlog_init(), zlog_reload() shall reread configure file.
  * Can be use at any time configure file changed, and can be use unlimit times.
  * It shall recaculate output rules of all categories, rebuild buffer of each thread,
    reopen the new lock file for rotater.
  *
  * @param conf_file configure file path, both relative path and absolute path is accept.
-    If conf_file is NULL, use the last configure file zlog_init() or zlog_update() specified.
+    If conf_file is NULL, use the last configure file zlog_init() or zlog_reload() specified.
  * @returns 0 for success, -1 for fail, detail will be record in ZLOG_PROFILE_ERROR.
  * @see zlog_init(), zlog_fini(), zlog.conf, ZLOG_PROFILE_ERROR
  */
-	int zlog_update(char *conf_file);
+	int zlog_reload(char *conf_file);
 
 /**
- * @brief Finish zlog, release all memory zlog_init() or zlog_update() applied.
+ * @brief Finish zlog, release all memory zlog_init() or zlog_reload() applied.
  * 
- * @see zlog_init(), zlog_update(), zlog.conf, ZLOG_PROFILE_ERROR
+ * @see zlog_init(), zlog_reload(), zlog.conf, ZLOG_PROFILE_ERROR
  */
 	void zlog_fini(void);
 

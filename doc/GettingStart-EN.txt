@@ -84,7 +84,7 @@ hello, zlog
  * log format Customization, like pattern layout in log4j
  * range-category model, which is more flexible and more clear than hierarchy model of log4j
  * multiple output, include static file path, dynamic file path, stdout, stderr, syslog
- * runtime refreash configure to change output flow or output format, just need to call one function -- zlog_update()
+ * runtime refreash configure to change output flow or output format, just need to call one function -- zlog_reload()
  * high efficieny, on my laptop, record 720'000 log per second, about 200 times faster than syslog(3) with rsyslogd
  * user can define his own log level without change and rebuild library
  * safely rotate log file by size when multiple process or multiple threads write to one same log file

@@ -166,7 +166,7 @@ syslog风格的配置文件，易学易用
 \end_layout
 
 \begin_layout Itemize
-可以在运行时动态刷新配置，只需要调用函数zlog_update()
+可以在运行时动态刷新配置，只需要调用函数zlog_reload()
 \end_layout
 
 \begin_layout Itemize
@@ -1579,7 +1579,7 @@ aa
 \emph on
 分类字符串
 \emph default
-。分类变量可以有很多与之匹配的规则，也有可能一条都没有，这取决于配置文件是怎么写的。当配置文件改变并调用zlog_update()后，代码
+。分类变量可以有很多与之匹配的规则，也有可能一条都没有，这取决于配置文件是怎么写的。当配置文件改变并调用zlog_reload()后，代码
 \emph on
 分类变量
 \emph default
@@ -4666,7 +4666,7 @@ int zlog_init(char *conf_file);
 \end_layout
 
 \begin_layout LyX-Code
-int zlog_update(char *conf_file);
+int zlog_reload(char *conf_file);
 \end_layout
 
 \begin_layout LyX-Code
@@ -4686,8 +4686,8 @@ reference "sec:Profile-zlog-Itself"
 \end_layout
 
 \begin_layout Standard
-zlog_update()是用来重载配置，并根据这个配置文件来重计算内部的分类规则匹配、重建每个线程的缓存。可以在配置文件发生改变后调用这个函数。这个函数使用次
-数不限。如果conf_file 为NULL，会重载上一次zlog_init()或者zlog_update()使用的配置文件。如果失败，返回-1，同时zlog后续
+zlog_reload()是用来重载配置，并根据这个配置文件来重计算内部的分类规则匹配、重建每个线程的缓存。可以在配置文件发生改变后调用这个函数。这个函数使用次
+数不限。如果conf_file 为NULL，会重载上一次zlog_init()或者zlog_reload()使用的配置文件。如果失败，返回-1，同时zlog后续
 无法使用。
 \end_layout
 
@@ -5119,8 +5119,8 @@ int dzlog_set_category(char *default_category_name);
 \end_layout
 
 \begin_layout Standard
-dzlog_init()和zlog_init()一样做初始化，就是多需要一个默认分类名(default_category_name)的参数。zlog_updat
-e()、 zlog_fini() 可以和以前一样使用，用来刷新配置，或者清理。
+dzlog_init()和zlog_init()一样做初始化，就是多需要一个默认分类名(default_category_name)的参数。zlog_reloa
+d()、 zlog_fini() 可以和以前一样使用，用来刷新配置，或者清理。
 \end_layout
 
 \begin_layout Standard
@@ -6354,7 +6354,11 @@ INFO info hello, zlog - info
 \end_layout
 
 \begin_layout Standard
-正是我们所期待的，配置文件只允许>=TRACE等级的日志输出到屏幕上。%V
+正是我们所期待的，配置文件只允许>=TRACE等级的日志输出到屏幕上。
+\begin_inset Quotes erd
+\end_inset
+
+%V
 \begin_inset Quotes erd
 \end_inset
 

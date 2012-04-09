@@ -153,7 +153,7 @@ multiple output, include static file path, dynamic file path, stdout, stderr,
 
 \begin_layout Itemize
 runtime refreash configure to change output flow or output format, just
- need to call one function -- zlog_update()
+ need to call one function -- zlog_reload()
 \end_layout
 
 \begin_layout Itemize
@@ -1566,7 +1566,7 @@ zlog_get_category()
  That depends on how configure file is written.
  After the configure file is changed and 
 \emph on
-zlog_update()
+zlog_reload()
 \emph default
  is called, the relationship between categories and rules will be re-calculated.
  Each Category will get its new matching rules, in the way described above.
@@ -4832,7 +4832,7 @@ int zlog_init(char *conf_file);
 \end_layout
 
 \begin_layout LyX-Code
-int zlog_update(char *conf_file);
+int zlog_reload(char *conf_file);
 \end_layout
 
 \begin_layout LyX-Code
@@ -4872,7 +4872,7 @@ zlog_init()
 \begin_layout Standard
 
 \emph on
-zlog_update()
+zlog_reload()
 \emph default
  is designed to reload 
 \emph on
@@ -4889,12 +4889,12 @@ zlog_init()
 \emph default
 or 
 \emph on
-zlog_update()
+zlog_reload()
 \emph default
  specified.
  If 
 \emph on
-zlog_update()
+zlog_reload()
 \emph default
  failed, return -1 and zlog will be unuseable.
 \end_layout
@@ -5452,7 +5452,7 @@ default_category_name
  for inner default_category.
  
 \emph on
-zlog_update()
+zlog_reload()
 \emph default
  and 
 \emph on

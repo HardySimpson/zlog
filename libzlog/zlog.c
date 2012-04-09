@@ -121,7 +121,7 @@ int zlog_init(char *conf_file)
 	}
 
 	if (zlog_env_init_flag > 0) {
-		zc_error("already init, use zlog_update pls");
+		zc_error("already init, use zlog_reload pls");
 		rc = -1;
 		goto zlog_init_exit;
 	}
@@ -160,7 +160,7 @@ int dzlog_init(char *conf_file, char *default_category_name)
 	}
 
 	if (zlog_env_init_flag > 0) {
-		zc_error("already init, use zlog_update pls");
+		zc_error("already init, use zlog_reload pls");
 		rc = -1;
 		goto zlog_init_default_exit;
 	}
@@ -198,12 +198,12 @@ int dzlog_init(char *conf_file, char *default_category_name)
 	return rc;
 }
 
-int zlog_update(char *conf_file)
+int zlog_reload(char *conf_file)
 {
 	int rc = 0;
 	int rd = 0;
 
-	zc_debug("------zlog_update start------");
+	zc_debug("------zlog_reload start------");
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
@@ -211,45 +211,45 @@ int zlog_update(char *conf_file)
 	}
 
 	if (zlog_env_init_flag <= 0) {
-		zc_error("not init, use zlog_update pls");
+		zc_error("not init, use zlog_reload pls");
 		rc = -1;
-		goto zlog_update_exit;
+		goto zlog_reload_exit;
 	}
 
 	rc = zlog_levels_reset();
 	if (rc) {
 		zc_error("zlog_levels_reset fail");
-		goto zlog_update_exit;
+		goto zlog_reload_exit;
 	}
 
 	rc = zlog_conf_update(&zlog_env_conf, conf_file);
 	if (rc) {
 		zc_error("update from conf file[%s] fail", conf_file);
-		goto zlog_update_exit;
+		goto zlog_reload_exit;
 	}
 
 	rc = zlog_rotater_update(zlog_env_conf.rotate_lock_file);
 	if (rc) {
 		zc_error("zlog_rotater_update fail");
-		goto zlog_update_exit;
+		goto zlog_reload_exit;
 	}
 
 	rc = zlog_cmap_update(&zlog_env_cmap, zlog_env_conf.rules);
 	if (rc) {
 		zc_error("zlog_cmap_update fail");
-		goto zlog_update_exit;
+		goto zlog_reload_exit;
 	}
 
 	rc = zlog_tmap_update(&zlog_env_tmap, zlog_env_conf.buf_size_min,
 			      zlog_env_conf.buf_size_max);
 	if (rc) {
 		zc_error("zlog_tmap_update fail");
-		goto zlog_update_exit;
+		goto zlog_reload_exit;
 	}
 
 	zlog_env_init_flag++;
 
-      zlog_update_exit:
+      zlog_reload_exit:
 	if (rc) {
 		zlog_fini_inner();
 		zlog_env_init_flag = -1;
@@ -261,7 +261,7 @@ int zlog_update(char *conf_file)
 		return -1;
 	}
 
-	zc_debug("------zlog_update end------ , rc[%d]", rc);
+	zc_debug("------zlog_reload end------ , rc[%d]", rc);
 	return rc;
 }
 
