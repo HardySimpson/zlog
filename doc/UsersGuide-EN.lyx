@@ -2,7 +2,7 @@
 \lyxformat 345
 \begin_document
 \begin_header
-\textclass book
+\textclass extbook
 \use_default_options true
 \begin_modules
 theorems-ams
@@ -36,7 +36,7 @@ figs-within-sections
 \pdf_backref false
 \pdf_pdfusetitle true
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_amsmath 1
 \use_esint 1
 \cite_engine basic
@@ -420,7 +420,7 @@ Then configure is generated and next steps is the same as begin of this
 \end_layout
 
 \begin_layout Section
-In User's application Call and Link zlog
+Call and Link zlog in User's application 
 \end_layout
 
 \begin_layout Standard
@@ -840,31 +840,31 @@ The inner default levels are
 \end_layout
 
 \begin_layout LyX-Code
-@level                             DEBUG = 20, LOG_DEBUG
+@level               DEBUG = 20, LOG_DEBUG
 \end_layout
 
 \begin_layout LyX-Code
-@level                             INFO = 40, LOG_INFO
+@level               INFO = 40, LOG_INFO
 \end_layout
 
 \begin_layout LyX-Code
-@level                             NOTICE = 60, LOG_NOTICE
+@level               NOTICE = 60, LOG_NOTICE
 \end_layout
 
 \begin_layout LyX-Code
-@level                             WARN = 80, LOG_WARNING
+@level               WARN = 80, LOG_WARNING
 \end_layout
 
 \begin_layout LyX-Code
-@level                             ERROR = 100, LOG_ERR
+@level               ERROR = 100, LOG_ERR
 \end_layout
 
 \begin_layout LyX-Code
-@level                             FATAL = 120, LOG_ALERT
+@level               FATAL = 120, LOG_ALERT
 \end_layout
 
 \begin_layout LyX-Code
-@level                             UNKNOWN = 254, LOG_ERR
+@level               UNKNOWN = 254, LOG_ERR
 \end_layout
 
 \begin_layout Standard
@@ -1322,7 +1322,7 @@ In log4j, there are father logger and child logger.
 \end_layout
 
 \begin_layout LyX-Code
-log4j.logger.aa=DEBUG, A1
+log4j.logger.aa=ERROR, A1
 \end_layout
 
 \begin_layout LyX-Code
@@ -1335,17 +1335,78 @@ log4j.logger.aa.cc=INFO
 
 \begin_layout Standard
 aa is a father logger.
- aa.bb and aa.cc is the child of aa, aa.bb inherits aa's level and appender,
- which are DEBUG and A1.
- aa.cc inherits and overwrite aa's level.
- So aa.cc has the level of INFO and appender of A1.
- Then, what will happen if I want all aa's log output to a special file
- (and keep output of aa.bb and aa.cc not changed)? It is complicate to give
- expression here, maybe need set threshold, bonds it to appender...
+ aa.bb and aa.cc is the child of aa.
 \end_layout
 
 \begin_layout Standard
-In zlog, all rules are independent, NO heritage.
+aa.bb inherits aa's level and appender, which are ERROR and A1.
+\end_layout
+
+\begin_layout Standard
+aa.cc inherits and overwrite aa's level.
+ So aa.cc has the level of INFO and appender of A1.
+\end_layout
+
+\begin_layout Standard
+Two demand here.
+\end_layout
+
+\begin_layout Standard
+1st, If I want all aa's log output to a special file (and keep output of
+ aa.bb and aa.cc not changed)? 
+\end_layout
+
+\begin_layout Standard
+2rd, If I change aa.bb's code, I want all aa.bb's log above DEBUG level direct
+ to aa.bb.debug.log, and watches it carefully for a period.
+ But at the same time, keep aa's ERROR log not changed to fit operating
+ personnel's habbits.
+\end_layout
+
+\begin_layout Standard
+How can log4j do that job? Very hard, maybe need set threshold, maybe set
+ aa.bb's additivity to false.
+ That's really hard, because in log4j, each logger must have a level, maybe
+ decide itself, or inherit from its parent.
+ But in the end, there can be only one level for each logger, no more.
+\end_layout
+
+\begin_layout Standard
+How can zlog do that job? First, zlog allows each category could have multiple
+ levels.
+ For example
+\end_layout
+
+\begin_layout LyX-Code
+aa.debug         
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/aa.debug.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+aa.=notice       
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/aa.notice.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Is that make you ease?
+\end_layout
+
+\begin_layout Standard
+Second, in zlog, all rules are independent, NO heritage.
  Range-category relationship is express as a underline in category string.
  For example:
 \end_layout
@@ -1573,14 +1634,36 @@ zlog_reload()
 \end_layout
 
 \begin_layout Standard
-The compensation for category nomatching
+In zlog, multiple output is done by multiple rules, not by multiple appender
+ as log4j does.
+ One rule represents a programmer's intention of output for identified category
+ with identified level.
+ No need to assign constant level to each category.
+ Category, level, Output can be combined free.
+ That takes flexible.
+\end_layout
+
+\begin_layout Standard
+Here I should thank to designer of syslog.
+ zlog just make a small step(string category, sub-category) behind syslog,
+ but is far more flexible than log4j.
+ Maybe log4j is written by java and the author are fascinated by inheritance,
+ think it the answer to everything...
+\end_layout
+
+\begin_layout Subsection
+Category nomatch rules
 \begin_inset CommandInset label
 LatexCommand label
 name "category-nomatch"
 
 \end_inset
 
- is the wastebin rule.
+
+\end_layout
+
+\begin_layout Standard
+The compensation for category nomatching is the wastebin rule.
  Category name of wastebin rule is 
 \begin_inset Quotes eld
 \end_inset
@@ -6476,31 +6559,31 @@ The inner default levels are(no need to write them in conf file):
 \end_layout
 
 \begin_layout LyX-Code
-@level                             DEBUG = 20, LOG_DEBUG
+@level              DEBUG = 20, LOG_DEBUG
 \end_layout
 
 \begin_layout LyX-Code
-@level                             INFO = 40, LOG_INFO
+@level              INFO = 40, LOG_INFO
 \end_layout
 
 \begin_layout LyX-Code
-@level                             NOTICE = 60, LOG_NOTICE
+@level              NOTICE = 60, LOG_NOTICE
 \end_layout
 
 \begin_layout LyX-Code
-@level                             WARN = 80, LOG_WARNING
+@level              WARN = 80, LOG_WARNING
 \end_layout
 
 \begin_layout LyX-Code
-@level                             ERROR = 100, LOG_ERR
+@level              ERROR = 100, LOG_ERR
 \end_layout
 
 \begin_layout LyX-Code
-@level                             FATAL = 120, LOG_ALERT
+@level              FATAL = 120, LOG_ALERT
 \end_layout
 
 \begin_layout LyX-Code
-@level                             UNKNOWN = 254, LOG_ERR
+@level              UNKNOWN = 254, LOG_ERR
 \end_layout
 
 \begin_layout Standard
@@ -6596,6 +6679,7 @@ $ cat $(top_builddir)/test/test_level.h
 enum {
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 ZLOG_LEVEL_TRACE = 30,
 \end_layout
@@ -6604,6 +6688,7 @@ ZLOG_LEVEL_TRACE = 30,
 /* must equals conf file setting */ 
 \end_layout
 
+\end_deeper
 \begin_layout LyX-Code
 };
 \end_layout

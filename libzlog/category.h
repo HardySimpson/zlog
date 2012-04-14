@@ -22,43 +22,26 @@
 
 #include "zc_defs.h"
 
-/**
- * @file category.h
- * @brief category and cmap(process global hashtable of categories)
- */
-
 typedef struct {
-	zc_hashtable_t *tab;	/**< the table */
+	zc_hashtable_t *tab;
 } zlog_cmap_t;
 
 int zlog_cmap_init(zlog_cmap_t * a_cmap);
-
 int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t * rules);
-
 void zlog_cmap_fini(zlog_cmap_t * a_cmap);
-
 void zlog_cmap_profile(zlog_cmap_t * a_cmap);
 
 typedef struct zlog_category_t {
-	char name[MAXLEN_PATH + 1];	/**< name, must consist of alpha, digits or _ */
-	size_t name_len;		/**< strlen(name) */
-	zc_arraylist_t *match_rules;	/**< list of rules which match this category */
+	char name[MAXLEN_PATH + 1];
+	size_t name_len;
+	zc_arraylist_t *match_rules;
 } zlog_category_t;
 
-/**
- * @brief Get a zlog_category_t from hashtable, if not found, use rules to create one.
- *
- */
 zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t * a_cmap,
 					  char *category_name,
 					  zc_arraylist_t * rules);
 
 #include "thread.h"
-
-/**
- * @brief Output one message to several rules.
- *
- */
 int zlog_category_output(zlog_category_t * a_cat, zlog_thread_t * a_thread);
 
 #endif

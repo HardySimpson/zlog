@@ -20,11 +20,6 @@
 #ifndef __zlog_mdc_h
 #define __zlog_mdc_h
 
-/**
- * @file mdc.h
- * @brief mapped diagnostic contexts, actually a string key-value map per thread
- */
-
 #include "zc_defs.h"
 
 typedef struct {
@@ -32,15 +27,10 @@ typedef struct {
 } zlog_mdc_t;
 
 zlog_mdc_t *zlog_mdc_new(void);
-
 void zlog_mdc_del(zlog_mdc_t * a_mdc);
-
 void zlog_mdc_clean(zlog_mdc_t * a_mdc);
-
 int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value);
-
 char *zlog_mdc_get(zlog_mdc_t * a_mdc, char *key);
-
 void zlog_mdc_remove(zlog_mdc_t * a_mdc, char *key);
 
 typedef struct zlog_mdc_kv_t {

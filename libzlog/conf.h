@@ -18,7 +18,7 @@
  */
 
 #ifndef __zlog_conf_h
-#define  __zlog_conf_h
+#define __zlog_conf_h
 
 /**
  * @file conf.h
@@ -29,33 +29,21 @@
 #include "format.h"
 
 typedef struct {
-	char file[MAXLEN_PATH + 1];	/**< configure file path */
-	char mtime[20 + 1];		/**< the last modified time of configure file */
+	char file[MAXLEN_PATH + 1];
+	char mtime[20 + 1];
 
-	int ignore_error_format_rule;	/**< if format or rule syntax is error, omit it, default 0 */
-	size_t buf_size_min;		/**< each buffer size min */
-	size_t buf_size_max;		/**< each buffer size max */
+	int ignore_error_format_rule;
+	size_t buf_size_min;
+	size_t buf_size_max;
 	char rotate_lock_file[MAXLEN_PATH + 1];
-					/**< global lock file for rotate,
-					 *   zlog will create the file,
-					 *   make sure your program has permission
-					 *   to create and read-write the file.
-					 *   Besides, if programs run by different users
-					 *   who need to write and rotate the same log file,
-					 *   make sure that each program has permission
-					 *   to create and read-write the file.
-					 */
 	zlog_format_t *default_format;
-	zc_arraylist_t *formats;	/**< list of all formats */
-	zc_arraylist_t *rules;		/**< list of all rules */
+	zc_arraylist_t *formats;
+	zc_arraylist_t *rules;
 } zlog_conf_t;
 
 int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file);
-
 void zlog_conf_fini(zlog_conf_t * a_conf);
-
 int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file);
-
 void zlog_conf_profile(zlog_conf_t * a_conf);
 
 #endif

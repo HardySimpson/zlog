@@ -53,18 +53,12 @@ zc_hashtable_t *zc_hashtable_new(size_t a_size,
 				 zc_hashtable_del_fn value_del_fn);
 
 void zc_hashtable_del(zc_hashtable_t * a_table);
-
 void zc_hashtable_clean(zc_hashtable_t * a_table);
-
 int zc_hashtable_put(zc_hashtable_t * a_table, void *a_key, void *a_value);
-
 zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table,
 					     void *a_key);
-
 void *zc_hashtable_get(zc_hashtable_t * a_table, void *a_key);
-
 void zc_hashtable_remove(zc_hashtable_t * a_table, void *a_key);
-
 zc_hashtable_entry_t *zc_hashtable_begin(zc_hashtable_t * a_table);
 zc_hashtable_entry_t *zc_hashtable_next(zc_hashtable_t * a_table,
 					zc_hashtable_entry_t * a_entry);

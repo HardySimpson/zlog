@@ -20,26 +20,18 @@
 #ifndef __zlog_format_h
 #define __zlog_format_h
 
-/**
- * @file format.h
- * @brief control ouput patterns of log
- */
-
 #include "thread.h"
 #include "zc_defs.h"
 
 typedef struct {
-	char name[MAXLEN_CFG_LINE + 1];		/**< name of format */
-	char pattern[MAXLEN_CFG_LINE + 1];	/**< pattern of format */
-	zc_arraylist_t *pattern_specs;		/**< list of pattern's specifiers */
+	char name[MAXLEN_CFG_LINE + 1];	
+	char pattern[MAXLEN_CFG_LINE + 1];
+	zc_arraylist_t *pattern_specs;
 } zlog_format_t;
 
 zlog_format_t *zlog_format_new(const char *line, long line_len);
-
 void zlog_format_del(zlog_format_t * a_format);
-
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread);
-
 void zlog_format_profile(zlog_format_t * a_format);
 
 #endif

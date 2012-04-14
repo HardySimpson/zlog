@@ -20,11 +20,6 @@
 #ifndef __zlog_level_h
 #define __zlog_level_h
 
-/**
- * @file level.h
- * @brief change level between string, int or syslog int
- */
-
 #include "zc_defs.h"
 
 typedef struct {

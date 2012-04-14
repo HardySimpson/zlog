@@ -832,31 +832,31 @@ zlog内置的级别是：
 \end_layout
 
 \begin_layout LyX-Code
-@level                             DEBUG = 20, LOG_DEBUG
+@level               DEBUG = 20, LOG_DEBUG
 \end_layout
 
 \begin_layout LyX-Code
-@level                             INFO = 40, LOG_INFO
+@level               INFO = 40, LOG_INFO
 \end_layout
 
 \begin_layout LyX-Code
-@level                             NOTICE = 60, LOG_NOTICE
+@level               NOTICE = 60, LOG_NOTICE
 \end_layout
 
 \begin_layout LyX-Code
-@level                             WARN = 80, LOG_WARNING
+@level               WARN = 80, LOG_WARNING
 \end_layout
 
 \begin_layout LyX-Code
-@level                             ERROR = 100, LOG_ERR
+@level               ERROR = 100, LOG_ERR
 \end_layout
 
 \begin_layout LyX-Code
-@level                             FATAL = 120, LOG_ALERT
+@level               FATAL = 120, LOG_ALERT
 \end_layout
 
 \begin_layout LyX-Code
-@level                             UNKNOWN = 254, LOG_ERR
+@level               UNKNOWN = 254, LOG_ERR
 \end_layout
 
 \begin_layout Standard
@@ -1293,7 +1293,7 @@ name "sub:category-match"
 \end_layout
 
 \begin_layout LyX-Code
-log4j.logger.aa=DEBUG, A1
+log4j.logger.aa=ERROR, A1
 \end_layout
 
 \begin_layout LyX-Code
@@ -1305,13 +1305,66 @@ log4j.logger.aa.cc=INFO
 \end_layout
 
 \begin_layout Standard
-aa是一个父logger。aa.bb和aa.cc是aa，aa.bb继承了aa's等级和输出(appender)，等级是DEBUG输出是A1。aa.cc继承并覆盖了aa的
-级别。所以aa.cc的等级是INFO输出还是A1。那么，如果我现在想把所有的aa的日志输出到一个特别的文件里面去，并保持原来的aa.bb、aa.cc的输出不变呢？lo
-g4j的表达式就会很复杂，还要引入阈值(threshold)，把阈值设到输出上去……
+aa是一个父logger。aa.bb和aa.cc是aa的子logger。
 \end_layout
 
 \begin_layout Standard
-在zlog里面，所有的规则之间都是独立的，没有父子关系。纲目分类的关系表现在
+aa.bb继承了aa's等级和输出(appender)，等级是ERROR输出是A1。
+\end_layout
+
+\begin_layout Standard
+aa.cc继承并覆盖了aa的级别。所以aa.cc的等级是INFO输出还是A1。
+\end_layout
+
+\begin_layout Standard
+需求1：如果我现在想把所有的aa的日志，所有的级别，输出到一个特别的文件里面去，并保持原来的aa.bb、aa.cc的输出不变，如何实现？
+\end_layout
+
+\begin_layout Standard
+需求2：假设我动了aa.bb的代码，想在生产上把aa.bb的所有日志，从DEBUG级别开始输出到某个aa.bb.debug.log，而保持aa的ERROR以上级别的日志不
+动（方便运维人员不改变他们的习惯，直接看原来的日志）
+\end_layout
+
+\begin_layout Standard
+log4j将会如何实现这些需求？很困难，也许要在appender上引入阈值(threshold)，或者引入子logger不继承父logger的选项。子logge
+r可以自己指定一个等级，或者从父logger那里继承一个。但说到底，log4j的logger必须有且只能有一个等级，等级和logger是绑定的。
+\end_layout
+
+\begin_layout Standard
+zlog将会如何实现这些需求？首先，zlog继承了syslog配置文件的思想，一个分类的不同等级可以同时存在不同的规则内。这就让过滤同一分类的不同等级的日志到不
+同日志文件成为可能。
+\end_layout
+
+\begin_layout LyX-Code
+aa.debug         
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/aa.debug.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+aa.=notice       
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/aa.notice.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+是不是觉得自由了很多？
+\end_layout
+
+\begin_layout Standard
+其次，在zlog里面，所有的规则之间都是独立的，没有父子关系。纲目分类的关系表现在
 \emph on
 分类字符串
 \emph default
@@ -1595,14 +1648,28 @@ aa
 \end_layout
 
 \begin_layout Standard
-分类误写
+也就是说，在zlog里面，多输出是由多条规则来实现的，而不是log4j的多个appender。一条规则代表程序员对于某种分类和等级的日志的输出需求。没有必要指定
+某个分类必须为什么等级。分类、等级、输出这3者可以自由搭配，完全解耦，这样就带来了极大的灵活性。
+\end_layout
+
+\begin_layout Standard
+必须感谢unix系统syslog的设计者。从思想上来说，zlog只是在他们的基础上增加了一点点的改动来匹配纲目分类，但灵活性远超java系列的绑定思想。也许lo
+g4j的设计者被继承这两个字晃花了眼，以为继承就是解决一切问题的灵丹妙药……
+\end_layout
+
+\begin_layout Subsection
+分类没有匹配规则的问题
 \begin_inset CommandInset label
 LatexCommand label
 name "category-nomatch"
 
 \end_inset
 
-的问题，可以通过垃圾箱规则来弥补。规则的分类名为"!"的就是垃圾箱规则，匹配那些找不到规则的代码分类。例如zlog_get_category(
+
+\end_layout
+
+\begin_layout Standard
+分类没有匹配规则的问题，可以通过垃圾箱规则来弥补。规则的分类名为"!"的就是垃圾箱规则，匹配那些找不到规则的代码分类。例如zlog_get_category(
 \begin_inset Quotes eld
 \end_inset
 
@@ -6079,31 +6146,31 @@ my_cat.TRACE		>stdout;
 \end_layout
 
 \begin_layout LyX-Code
-@level                             DEBUG = 20, LOG_DEBUG
+@level                DEBUG = 20, LOG_DEBUG
 \end_layout
 
 \begin_layout LyX-Code
-@level                             INFO = 40, LOG_INFO
+@level                INFO = 40, LOG_INFO
 \end_layout
 
 \begin_layout LyX-Code
-@level                             NOTICE = 60, LOG_NOTICE
+@level                NOTICE = 60, LOG_NOTICE
 \end_layout
 
 \begin_layout LyX-Code
-@level                             WARN = 80, LOG_WARNING
+@level                WARN = 80, LOG_WARNING
 \end_layout
 
 \begin_layout LyX-Code
-@level                             ERROR = 100, LOG_ERR
+@level                ERROR = 100, LOG_ERR
 \end_layout
 
 \begin_layout LyX-Code
-@level                             FATAL = 120, LOG_ALERT
+@level                FATAL = 120, LOG_ALERT
 \end_layout
 
 \begin_layout LyX-Code
-@level                             UNKNOWN = 254, LOG_ERR
+@level                UNKNOWN = 254, LOG_ERR
 \end_layout
 
 \begin_layout Standard
@@ -6193,6 +6260,7 @@ $ cat $(top_builddir)/test/test_level.h
 enum {
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 ZLOG_LEVEL_TRACE = 30,
 \end_layout
@@ -6201,6 +6269,7 @@ ZLOG_LEVEL_TRACE = 30,
 /* must equals conf file setting */ 
 \end_layout
 
+\end_deeper
 \begin_layout LyX-Code
 };
 \end_layout
