@@ -23,6 +23,7 @@
 #include "zc_defs.h"
 
 typedef struct {
+	int int_level;
 	char str_capital[PATH_MAX + 1];
 	char str_lowercase[PATH_MAX + 1];
 	size_t str_len;
@@ -31,6 +32,8 @@ typedef struct {
 
 int zlog_levels_init(void);
 void zlog_levels_fini(void);
+
+/* if fail, keep old not change */
 int zlog_levels_reset(void);
 void zlog_levels_profile(void);
 
