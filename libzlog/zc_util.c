@@ -24,8 +24,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-#include "zc_error.h"
-#include "zc_xplatform.h"
+#include "zc_defs.h"
 
 size_t zc_parse_byte_size(char *astring)
 {

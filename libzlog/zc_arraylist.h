@@ -25,6 +25,7 @@
 typedef void (*zc_arraylist_del_fn) (void *data);
 typedef int (*zc_arraylist_cmp_fn) (void *data1, void *data2);
 
+/* make zc_arraylist_foreach speed up, so keep struct defination here */
 typedef struct {
 	void **array;
 	int len;

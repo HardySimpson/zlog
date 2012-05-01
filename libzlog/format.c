@@ -17,24 +17,55 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
-#include <time.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 
-#include "format.h"
-#include "buf.h"
-#include "spec.h"
 #include "zc_defs.h"
+#include "thread.h"
+#include "spec.h"
+#include "format.h"
+
+struct zlog_format_s {
+	char name[MAXLEN_CFG_LINE + 1];	
+	char pattern[MAXLEN_CFG_LINE + 1];
+	zc_arraylist_t *pattern_specs;
+};
+
+void zlog_format_profile(zlog_format_t * a_format, int flag)
+{
+	int i;
+	zlog_spec_t *a_spec;
+
+	zc_assert(a_format,);
+	zc_profile(flag, "---format[%p][%s = %s(%p)]---",
+		a_format,
+		a_format->name,
+		a_format->pattern,
+		a_format->pattern_specs);
+
+	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
+		zlog_spec_profile(a_spec, flag);
+	}
+
+	return;
+}
 
 /*******************************************************************************/
-static void zlog_format_debug(zlog_format_t * a_format);
-/*******************************************************************************/
-zlog_format_t *zlog_format_new(const char *line, long line_len)
+void zlog_format_del(zlog_format_t * a_format)
+{
+	zc_assert(a_format,);
+	if (a_format->pattern_specs) {
+		zc_arraylist_del(a_format->pattern_specs);
+	}
+	free(a_format);
+	zc_debug("zlog_format_del[%p]", a_format);
+	return;
+}
+
+zlog_format_t *zlog_format_new(const char *line, zc_arraylist_t *levels)
 {
 	int rc = 0;
 	int nscan = 0;
@@ -46,23 +77,20 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 	char *q;
 	zlog_spec_t *a_spec;
 
-	zc_assert_debug(line, NULL);
-
 	a_format = calloc(1, sizeof(zlog_format_t));
 	if (!a_format) {
 		zc_error("calloc fail, errno[%d]", errno);
 		return NULL;
 	}
 
-	/* line         &default                "%d(%F %X.%l) %-6V (%c:%F:%L) - %m%n"
+	/* line         default = "%d(%F %X.%l) %-6V (%c:%F:%L) - %m%n"
 	 * name         default
 	 * pattern      %d(%F %X.%l) %-6V (%c:%F:%L) - %m%n
 	 */
-
 	memset(a_format->name, 0x00, sizeof(a_format->name));
-	nscan = sscanf(line, "&%s %n", a_format->name, &nread);
+	nscan = sscanf(line, " %[^= ] = %n", a_format->name, &nread);
 	if (nscan != 1) {
-		zc_error("sscanf [%s] error", line);
+		zc_error("format[%s], syntax wrong", line);
 		rc = -1;
 		goto zlog_format_new_exit;
 	}
@@ -122,35 +150,20 @@ zlog_format_t *zlog_format_new(const char *line, long line_len)
 		zlog_format_del(a_format);
 		return NULL;
 	} else {
-		zlog_format_debug(a_format);
+		zlog_format_profile(a_format, ZC_DEBUG);
 		return a_format;
 	}
 }
 
-void zlog_format_del(zlog_format_t * a_format)
-{
-	zc_assert_debug(a_format,);
-
-	if (a_format->pattern_specs) {
-		zc_arraylist_del(a_format->pattern_specs);
-	}
-	zc_debug("free a_format at [%p]", a_format);
-	free(a_format);
-	return;
-}
-
 /*******************************************************************************/
-/* return 0	success
- * return !0	fail
+/* return 0	success, or buf is full
+ * return -1	fail
  */
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	int i;
 	zlog_spec_t *a_spec;
-
-	zc_assert_debug(a_format, -1);
-	zc_assert_debug(a_thread, -1);
 
 	zlog_buf_restart(a_thread->msg_buf);
 
@@ -168,20 +181,3 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 	return 0;
 }
 
-/*******************************************************************************/
-static void zlog_format_debug(zlog_format_t * a_format)
-{
-	zc_debug("format:[%p][%s]-[%s]", a_format,
-		 a_format->name, a_format->pattern);
-	return;
-}
-
-void zlog_format_profile(zlog_format_t * a_format)
-{
-	zc_assert_debug(a_format,);
-	zc_error("format:[%p][%s]-[%s]", a_format,
-		 a_format->name, a_format->pattern);
-	return;
-}
-
-/*******************************************************************************/

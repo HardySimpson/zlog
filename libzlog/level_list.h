@@ -17,38 +17,28 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __zc_error_h
-#define __zc_error_h
+#ifndef __zlog_level_list_h
+#define __zlog_level_list_h
 
-#include <stdarg.h>
+#include "zc_defs.h"
+#include "level.h"
 
-#define zc_debug(fmt, args...) \
-	zc_debug_inner(__FILE__, __LINE__, fmt, ## args)
+zc_arraylist_t *zlog_level_list_new(void);
+void zlog_level_list_del(zc_arraylist_t *levels);
+void zlog_level_list_profile(zc_arraylist_t *levels, int flag);
 
-#define zc_error(fmt, args...) \
-	zc_error_inner(__FILE__, __LINE__, fmt, ## args)
+/* conf init use, slow */
+/* if l is wrong or str=="", return -1 */
+int zlog_level_list_set(zc_arraylist_t *levels, char *line);
 
-#ifdef DEBUG
-	/* for debug , in real world  turn off*/
-	#define zc_assert_debug(expr,rv) \
-		if(!(expr)) { \
-			zc_error(#expr" is null"); \
-			return rv; \
-		} 
-#else 
-	#define zc_assert_debug(expr,rv)
-#endif
+/* spec ouput use, fast */
+/* rule output use, fast */
+/* if not found, return levels[254] */
+zlog_level_t *zlog_level_list_get(zc_arraylist_t *levels, int l);
 
-/* for runtime */
-#define zc_assert_runtime(expr,rv) \
-	if(!(expr)) { \
-		zc_error(#expr" is null"); \
-		return rv; \
-	} 
+/* rule init use, slow */
+/* if not found, return -1 */
+int zlog_level_list_atoi(zc_arraylist_t *levels, char *str);
 
-int zc_debug_inner(const char *file, const long line, const char *fmt,
-			  ...);
-int zc_error_inner(const char *file, const long line, const char *fmt,
-			  ...);
 
 #endif

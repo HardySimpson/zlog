@@ -20,11 +20,6 @@
 #ifndef __zlog_conf_h
 #define __zlog_conf_h
 
-/**
- * @file conf.h
- * @brief configure file representation
- */
-
 #include "zc_defs.h"
 #include "format.h"
 

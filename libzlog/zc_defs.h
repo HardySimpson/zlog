@@ -20,7 +20,7 @@
 #ifndef __zc_defs_h
 #define __zc_defs_h
 
-#include "zc_error.h"
+#include "zc_profile.h"
 #include "zc_arraylist.h"
 #include "zc_hashtable.h"
 #include "zc_xplatform.h"

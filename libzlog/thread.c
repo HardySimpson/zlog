@@ -157,8 +157,6 @@ int zlog_tmap_init(zlog_tmap_t * a_tmap)
 {
 	zc_hashtable_t *a_tab;
 
-	zc_assert_debug(a_tmap, -1);
-
 	a_tab = zc_hashtable_new(20,
 				 (zc_hashtable_hash_fn) zc_hashtable_tid_hash,
 				 (zc_hashtable_equal_fn) zc_hashtable_tid_equal,
@@ -179,7 +177,6 @@ int zlog_tmap_update(zlog_tmap_t * a_tmap, size_t buf_size_min,
 	zc_hashtable_entry_t *a_entry;
 	zlog_thread_t *a_thread;
 
-	zc_assert_debug(a_tmap, -1);
 	zc_hashtable_foreach(a_tmap->tab, a_entry) {
 		a_thread = (zlog_thread_t *) a_entry->value;
 		rc = zlog_thread_update(a_thread, buf_size_min, buf_size_max);
@@ -194,8 +191,6 @@ int zlog_tmap_update(zlog_tmap_t * a_tmap, size_t buf_size_min,
 
 void zlog_tmap_fini(zlog_tmap_t * a_tmap)
 {
-	zc_assert_debug(a_tmap,);
-
 	if (a_tmap->tab)
 		zc_hashtable_del(a_tmap->tab);
 	memset(a_tmap, 0x00, sizeof(zlog_tmap_t));
@@ -208,8 +203,6 @@ zlog_thread_t *zlog_tmap_get_thread(zlog_tmap_t * a_tmap)
 {
 	pthread_t tid;
 	zlog_thread_t *a_thread;
-
-	zc_assert_debug(a_tmap, NULL);
 
 	tid = pthread_self();
 	a_thread = zc_hashtable_get(a_tmap->tab, (void *)&tid);
@@ -226,8 +219,6 @@ zlog_thread_t *zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min,
 {
 	int rc = 0;
 	zlog_thread_t *a_thread;
-
-	zc_assert_debug(a_tmap, NULL);
 
 	a_thread = zlog_thread_new(buf_size_min, buf_size_max);
 	if (!a_thread) {
@@ -256,7 +247,6 @@ void zlog_tmap_profile(zlog_tmap_t * a_tmap)
 	zc_hashtable_entry_t *a_entry;
 	zlog_thread_t *a_thread;
 
-	zc_assert_debug(a_tmap,);
 	zc_error("---tmap[%p]---", a_tmap);
 	zc_hashtable_foreach(a_tmap->tab, a_entry) {
 		a_thread = (zlog_thread_t *) a_entry->value;

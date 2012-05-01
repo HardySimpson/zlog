@@ -371,8 +371,6 @@ int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file)
 
 void zlog_conf_fini(zlog_conf_t * a_conf)
 {
-	zc_assert_debug(a_conf,);
-
 	if (a_conf->default_format) {
 		zlog_format_del(a_conf->default_format);
 		a_conf->default_format = NULL;
@@ -394,8 +392,6 @@ int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file)
 {
 	int rc = 0;
 	int nwrite = 0;
-
-	zc_assert_debug(a_conf, -1);
 
 	zlog_conf_fini(a_conf);
 

@@ -24,36 +24,19 @@
 #include "buf.h"
 #include "thread.h"
 
-typedef struct zlog_spec_t zlog_spec_t;
+typedef struct zlog_spec_s zlog_spec_t;
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, zc_arraylist_t *levels);
+void zlog_spec_del(zlog_spec_t * a_spec);
+void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
+
+
 typedef int (*zlog_spec_gen_buf_fn) (zlog_spec_t * a_spec,
 				     zlog_thread_t * a_thread,
 				     zlog_buf_t * a_buf);
 typedef int (*zlog_spec_cook_thread_fn) (zlog_spec_t * a_spec,
 					 zlog_thread_t * a_thread);
-struct zlog_spec_t {
-	char *str;
-	int len;
-
-	char time_fmt[MAXLEN_CFG_LINE + 1];
-
-	int ms_count;
-	size_t ms_offset[MAXLEN_CFG_LINE / 2 + 2];
-	int us_count;
-	size_t us_offset[MAXLEN_CFG_LINE / 2 + 2];
-	size_t time_len;
-
-	char mdc_key[MAXLEN_PATH + 1];
-
-	char print_fmt[MAXLEN_CFG_LINE + 1];
-	zlog_spec_gen_buf_fn gen_buf;
-	zlog_spec_cook_thread_fn gen_msg;
-	zlog_spec_cook_thread_fn gen_path;
-};
 
 int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t * a_thread);
 int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread);
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
-void zlog_spec_del(zlog_spec_t * a_spec);
-void zlog_spec_profile(zlog_spec_t * a_spec);
 
 #endif

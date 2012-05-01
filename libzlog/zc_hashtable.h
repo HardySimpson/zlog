@@ -22,29 +22,12 @@
 
 #include <stdlib.h>
 
-typedef struct zc_hashtable_entry_t {
-	unsigned int hash_key;
-	void *key;
-	void *value;
-	struct zc_hashtable_entry_t *prev;
-	struct zc_hashtable_entry_t *next;
-} zc_hashtable_entry_t;
+typedef struct zc_hashtable_entry_s zc_hashtable_entry_t;
+typedef struct zc_hashtable_s zc_hashtable_t;
 
 typedef unsigned int (*zc_hashtable_hash_fn) (void *key);
 typedef int (*zc_hashtable_equal_fn) (void *key1, void *key2);
 typedef void (*zc_hashtable_del_fn) (void *kv);
-
-typedef struct {
-	size_t nelem;
-
-	zc_hashtable_entry_t **tab;
-	size_t tab_size;
-
-	zc_hashtable_hash_fn hash;
-	zc_hashtable_equal_fn equal;
-	zc_hashtable_del_fn key_del;
-	zc_hashtable_del_fn value_del;
-} zc_hashtable_t;
 
 zc_hashtable_t *zc_hashtable_new(size_t a_size,
 				 zc_hashtable_hash_fn hash_fn,

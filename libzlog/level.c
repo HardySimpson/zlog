@@ -20,14 +20,33 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
+#include "syslog.h"
 
 #include "zc_defs.h"
 #include "level.h"
-#include "syslog.h"
 
-static zc_arraylist_t *zlog_env_levels;
+void zlog_level_profile(zlog_level_t *a_level, int flag)
+{
+	zc_assert(a_level,);
+	zc_profile(flag, "---level[%p][%d,%s,%s,%d,%d]---",
+		a_level,
+		a_level->int_level,
+		a_level->str_uppercase,
+		a_level->str_lowercase,
+		(int) a_level->str_len,
+		a_level->syslog_level);
+	return;
+}
 
 /*******************************************************************************/
+void zlog_level_del(zlog_level_t *a_level)
+{
+	zc_assert(a_level,);
+	free(a_level);
+	zc_debug("zlog_level_del[%p]", a_level);
+	return;
+}
+
 static int syslog_level_atoi(char *str)
 {
 	/* guess no unix system will choose -187
@@ -56,30 +75,23 @@ static int syslog_level_atoi(char *str)
 	return -187;
 }
 
-static void zlog_level_del(zlog_level_t *a_level)
-{
-	if (a_level) {
-		free(a_level);
-	}
-	return;
-}
-
-static zlog_level_t *zlog_level_new(char *line)
+/* line: TRACE = 10, LOG_ERR */
+zlog_level_t *zlog_level_new(char *line)
 {
 	int rc;
 	zlog_level_t *a_level;
 	int i;
-	int nread;
+	int nscan;
 	char str[MAXLEN_CFG_LINE + 1];
 	int l;
 	char sl[MAXLEN_CFG_LINE + 1];
 
 	zc_assert_debug(line, -1);
 
-	nread = sscanf(line, " %[^= ] = %d ,%s",
+	nscan = sscanf(line, " %[^= ] = %d ,%s",
 		str, &l, sl);
-	if (nread < 2) {
-		zc_error("level[%s] syntax wrong", line);
+	if (nscan < 2) {
+		zc_error("level[%s], syntax wrong", line);
 		return NULL;
 	}
 
@@ -115,8 +127,8 @@ static zlog_level_t *zlog_level_new(char *line)
 	}
 
 	/* strncpy and toupper(str)  */
-	for (i = 0; (i < sizeof(a_level->str_capital) - 1) && str[i] != '\0'; i++) {
-		(a_level->str_capital)[i] = toupper(str[i]);
+	for (i = 0; (i < sizeof(a_level->str_uppercase) - 1) && str[i] != '\0'; i++) {
+		(a_level->str_uppercase)[i] = toupper(str[i]);
 		(a_level->str_lowercase)[i] = tolower(str[i]);
 	}
 
@@ -126,7 +138,7 @@ static zlog_level_t *zlog_level_new(char *line)
 		rc = -1;
 		goto zlog_level_new_exit;
 	} else {
-		(a_level->str_capital)[i] = '\0';
+		(a_level->str_uppercase)[i] = '\0';
 		(a_level->str_lowercase)[i] = '\0';
 	}
 
@@ -138,10 +150,12 @@ static zlog_level_t *zlog_level_new(char *line)
 		zlog_level_del(a_level);
 		return NULL;
 	} else {
+		zlog_level_profile(a_level, ZC_DEBUG);
 		return a_level;
 	}
 }
 
+#if 0
 /*******************************************************************************/
 
 static int zlog_level_set_inner(zc_arraylist_t *levels, char *line)
@@ -281,7 +295,7 @@ int zlog_level_atoi(char *str)
 	}
 
 	zc_arraylist_foreach(zlog_env_levels, i, a_level) {
-		if (a_level && STRICMP(str, ==, a_level->str_capital)) {
+		if (a_level && STRICMP(str, ==, a_level->str_uppercase)) {
 			return i;
 		}
 	}
@@ -321,10 +335,12 @@ void zlog_levels_profile(void)
 	zc_arraylist_foreach(zlog_env_levels, i, a_level) {
 		if (a_level) {
 			zc_error("level:%s = %d, %d",
-				a_level->str_capital, 
+				a_level->str_uppercase, 
 				i, a_level->syslog_level);
 		}
 	}
 
 	return;
 }
+
+#endif

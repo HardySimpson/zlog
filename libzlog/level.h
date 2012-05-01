@@ -22,33 +22,16 @@
 
 #include "zc_defs.h"
 
-typedef struct {
+typedef struct zlog_level_s {
 	int int_level;
-	char str_capital[PATH_MAX + 1];
+	char str_uppercase[PATH_MAX + 1];
 	char str_lowercase[PATH_MAX + 1];
 	size_t str_len;
-	int syslog_level;
+       	int syslog_level;
 } zlog_level_t;
 
-int zlog_levels_init(void);
-void zlog_levels_fini(void);
-
-/* if fail, keep old not change */
-int zlog_levels_reset(void);
-void zlog_levels_profile(void);
-
-/* rule init use, slow */
-/* if not found, return -1 */
-int zlog_level_atoi(char *str);
-
-/* spec ouput use, fast */
-/* rule output use, fast */
-/* if not found, return zlog_env_level[254] */
-zlog_level_t *zlog_level_get(int l);
-
-/* conf init & update use, slow */
-/* if l is wrong or str=="", return -1 */
-int zlog_level_set(char *line);
-
+zlog_level_t *zlog_level_new(char *line);
+void zlog_level_del(zlog_level_t *a_level);
+void zlog_level_profile(zlog_level_t *a_level, int flag);
 
 #endif

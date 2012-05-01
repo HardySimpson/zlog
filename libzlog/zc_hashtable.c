@@ -24,6 +24,26 @@
 #include "zc_defs.h"
 #include "zc_hashtable.h"
 
+struct zc_hashtable_entry_s {
+	unsigned int hash_key;
+	void *key;
+	void *value;
+	struct zc_hashtable_entry_s *prev;
+	struct zc_hashtable_entry_s *next;
+};
+
+struct zc_hashtable_s {
+	size_t nelem;
+
+	zc_hashtable_entry_t **tab;
+	size_t tab_size;
+
+	zc_hashtable_hash_fn hash;
+	zc_hashtable_equal_fn equal;
+	zc_hashtable_del_fn key_del;
+	zc_hashtable_del_fn value_del;
+};
+
 zc_hashtable_t *zc_hashtable_new(size_t a_size,
 				 zc_hashtable_hash_fn hash,
 				 zc_hashtable_equal_fn equal,
@@ -31,10 +51,6 @@ zc_hashtable_t *zc_hashtable_new(size_t a_size,
 				 zc_hashtable_del_fn value_del)
 {
 	zc_hashtable_t *a_table;
-
-	zc_assert_debug(a_size, NULL);
-	zc_assert_debug(hash, NULL);
-	zc_assert_debug(equal, NULL);
 
 	a_table = calloc(1, sizeof(*a_table));
 	if (!a_table) {
@@ -67,8 +83,6 @@ void zc_hashtable_del(zc_hashtable_t * a_table)
 	zc_hashtable_entry_t *p;
 	zc_hashtable_entry_t *q;
 
-	zc_assert_debug(a_table,);
-
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
 			q = p->next;
@@ -93,8 +107,6 @@ void zc_hashtable_clean(zc_hashtable_t * a_table)
 	size_t i;
 	zc_hashtable_entry_t *p;
 	zc_hashtable_entry_t *q;
-
-	zc_assert_debug(a_table,);
 
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
@@ -121,8 +133,6 @@ static int zc_hashtable_rehash(zc_hashtable_t * a_table)
 	zc_hashtable_entry_t **tab;
 	zc_hashtable_entry_t *p;
 	zc_hashtable_entry_t *q;
-
-	zc_assert_debug(a_table, -1);
 
 	tab_size = 2 * a_table->tab_size;
 	tab = calloc(tab_size, sizeof(*tab));
@@ -158,9 +168,6 @@ zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table,
 	unsigned int i;
 	zc_hashtable_entry_t *p;
 
-	zc_assert_debug(a_table, NULL);
-	zc_assert_debug(a_key, NULL);
-
 	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
 		if (a_table->equal(a_key, p->key))
@@ -183,9 +190,6 @@ int zc_hashtable_put(zc_hashtable_t * a_table, void *a_key, void *a_value)
 	int rc = 0;
 	unsigned int i;
 	zc_hashtable_entry_t *p = NULL;
-
-	zc_assert_debug(a_table, -1);
-	zc_assert_debug(a_key, -1);
 
 	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
@@ -241,9 +245,6 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, void *a_key)
 	zc_hashtable_entry_t *p;
 	unsigned int i;
 
-	zc_assert_debug(a_table,);
-	zc_assert_debug(a_key,);
-
 	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
 		if (a_table->equal(a_key, p->key))
@@ -285,8 +286,6 @@ zc_hashtable_entry_t *zc_hashtable_begin(zc_hashtable_t * a_table)
 	size_t i;
 	zc_hashtable_entry_t *p;
 
-	zc_assert_debug(a_table, NULL);
-
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = p->next) {
 			if (p)
@@ -302,9 +301,6 @@ zc_hashtable_entry_t *zc_hashtable_next(zc_hashtable_t * a_table,
 {
 	size_t i;
 	size_t j;
-
-	zc_assert_debug(a_table, NULL);
-	zc_assert_debug(a_entry, NULL);
 
 	if (a_entry->next)
 		return a_entry->next;

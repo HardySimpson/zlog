@@ -29,17 +29,95 @@
 #include <fcntl.h>
 #include <pthread.h>
 
-#include "rotater.h"
 #include "zc_defs.h"
+#include "rotater.h"
 
-typedef struct {
-	pthread_mutex_t mlock;  /**< thread lock */
-	int lock_fd;            /**< process lock */
-} zlog_rotater_t;
+struct zlog_rotater_s {
+	pthread_mutex_t lock_mutex;
+	char *lock_file;
+	int lock_fd;
+};
 
-static zlog_rotater_t zlog_env_rotater;
+void zlog_rotater_profile(zlog_rotater_t * a_rot, int flag)
+{
+	zc_assert(a_rot,);
+	zc_profile(flag, "--rotater[%p][%p,%s,%d]--",
+		a_rot,
+		&(a_rot->lock_mutex),
+		a_rot->lock_file,
+		a_rot->lock_fd);
+	return;
+}
 
-static int zlog_rotater_debug(zlog_rotater_t * a_rot);
+/*******************************************************************************/
+void zlog_rotater_del(zlog_rotater_t *a_rot)
+{
+	int rc = 0;
+
+	zc_assert(a_rot,);
+
+	if (a_rot->lock_fd) {
+		rc = close(a_rot->lock_fd);
+		if (rc) {
+			zc_error("close fail, errno[%d]", errno);
+		}
+	}
+
+	rc = pthread_mutex_destroy(&(a_rot->lock_mutex));
+	if (rc) {
+		zc_error("pthread_mutex_destroy fail, errno[%d]", errno);
+	}
+
+	free(a_rot);
+	zc_debug("zlog_rotater_del[%p]", a_rot);
+	return;
+}
+
+zlog_rotater_t *zlog_rotater_new(char *lock_file)
+{
+	int rc = 0;
+	int fd = 0;
+	zlog_rotater_t *a_rot;
+
+	a_rot = calloc(1, sizeof(zlog_rotater_t));
+	if (!a_rot) {
+		zc_error("calloc fail, errno[%d]", errno);
+		return NULL;
+	}
+
+	rc = pthread_mutex_init(&(a_rot->lock_mutex), NULL);
+	if (rc) {
+		zc_error("pthread_mutex_init fail, errno[%d]", errno);
+		free(a_rot);
+		return NULL;
+	}
+
+	/* depends on umask of the user here
+	 * if user A create /tmp/zlog.lock 0600
+	 * user B is unable to read /tmp/zlog.lock
+	 * B has to choose another lock file except /tmp/zlog.lock
+	 */
+	fd = open(lock_file, O_RDWR | O_CREAT,
+		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	if (fd < 0) {
+		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
+		rc = -1;
+		goto zlog_rotater_new_exit;
+	}
+
+	a_rot->lock_fd = fd;
+	a_rot->lock_file = lock_file;
+
+      zlog_rotater_new_exit:
+	if (rc) {
+		zlog_rotater_del(a_rot);
+		return NULL;
+        } else {
+		zlog_rotater_profile(a_rot, ZC_DEBUG);
+		return a_rot;
+	}
+}
+
 
 /*******************************************************************************/
 typedef struct {
@@ -138,88 +216,8 @@ static int zlog_rotater_onefile_cmp(zlog_rotater_onefile_t * a_file_1,
 }
 
 /*******************************************************************************/
-int zlog_rotater_init(char *lock_file)
-{
-	int rc = 0;
-	int fd = 0;
 
-	zc_assert_debug(a_rot, -1);
-	zc_assert_debug(lock_file, -1);
-
-	rc = pthread_mutex_init(&(zlog_env_rotater.mlock), NULL);
-	if (rc) {
-		zc_error("pthread_mutex_init fail, errno[%d]", errno);
-		return -1;
-	}
-
-	/* depends on umask of the user here
-	 * if user A create /tmp/zlog.lock 0600
-	 * user B is unable to read /tmp/zlog.lock
-	 * B has to choose another lock file except /tmp/zlog.lock
-	 */
-	fd = open(lock_file, O_RDWR | O_CREAT,
-		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
-		return -1;
-	}
-
-	zlog_env_rotater.lock_fd = fd;
-
-	zlog_rotater_debug(&zlog_env_rotater);
-	return 0;
-}
-
-int zlog_rotater_update(char *lock_file)
-{
-	int rc = 0;
-	int fd = 0;
-
-	zc_assert_debug(lock_file, -1);
-
-	if (zlog_env_rotater.lock_fd) {
-		rc = close(zlog_env_rotater.lock_fd);
-		if (rc) {
-			zc_error("close fail, errno[%d]", errno);
-		}
-	}
-
-	fd = open(lock_file, O_RDWR | O_CREAT,
-		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
-		return -1;
-	}
-
-	zlog_env_rotater.lock_fd = fd;
-
-	zlog_rotater_debug(&zlog_env_rotater);
-	return 0;
-}
-
-void zlog_rotater_fini()
-{
-	int rc = 0;
-
-	if (zlog_env_rotater.lock_fd) {
-		rc = close(zlog_env_rotater.lock_fd);
-		if (rc) {
-			zc_error("close fail, errno[%d]", errno);
-		}
-	}
-
-	rc = pthread_mutex_destroy(&(zlog_env_rotater.mlock));
-	if (rc) {
-		zc_error("pthread_mutex_destroy fail, errno[%d]", errno);
-	}
-
-	memset(&zlog_env_rotater, 0x00, sizeof(zlog_env_rotater));
-	return;
-}
-
-/*******************************************************************************/
-
-static int zlog_rotater_trylock(void)
+static int zlog_rotater_trylock(zlog_rotater_t *a_rot)
 {
 	int rc = 0;
 	struct flock fl;
@@ -229,11 +227,11 @@ static int zlog_rotater_trylock(void)
 	fl.l_whence = SEEK_SET;
 	fl.l_len = 0;
 
-	rc = pthread_mutex_trylock(&(zlog_env_rotater.mlock));
+	rc = pthread_mutex_trylock(&(a_rot->lock_mutex));
 	if (rc) {
 		if (errno == EBUSY) {
 			zc_debug
-			    ("pthread_mutex_trylock fail, as mlock is locked by other threads");
+			    ("pthread_mutex_trylock fail, as lock_mutex is locked by other threads");
 		} else {
 			zc_error("pthread_mutex_trylock fail, errno[%d]",
 				 errno);
@@ -241,7 +239,7 @@ static int zlog_rotater_trylock(void)
 		return -1;
 	}
 
-	rc = fcntl(zlog_env_rotater.lock_fd, F_SETLK, &fl);
+	rc = fcntl(a_rot->lock_fd, F_SETLK, &fl);
 	if (rc == -1) {
 		if (errno == EAGAIN || errno == EACCES) {
 			/* lock by other process, that's right, go on */
@@ -250,10 +248,10 @@ static int zlog_rotater_trylock(void)
 			zc_debug
 			    ("fcntl lock fail, as file is lock by other process");
 		} else {
-			zc_error("lock fd[%d] fail, errno[%d]", zlog_env_rotater.lock_fd,
+			zc_error("lock fd[%d] fail, errno[%d]", a_rot->lock_fd,
 				 errno);
 		}
-		rc = pthread_mutex_unlock(&(zlog_env_rotater.mlock));
+		rc = pthread_mutex_unlock(&(a_rot->lock_mutex));
 		if (rc) {
 			zc_error("pthread_mutex_unlock fail, errno[%d]", errno);
 		}
@@ -263,7 +261,7 @@ static int zlog_rotater_trylock(void)
 	return 0;
 }
 
-static int zlog_rotater_unlock(void)
+static int zlog_rotater_unlock(zlog_rotater_t *a_rot)
 {
 	int rc = 0;
 	int rd = 0;
@@ -274,14 +272,14 @@ static int zlog_rotater_unlock(void)
 	fl.l_whence = SEEK_SET;
 	fl.l_len = 0;
 
-	rc = fcntl(zlog_env_rotater.lock_fd, F_SETLK, &fl);
+	rc = fcntl(a_rot->lock_fd, F_SETLK, &fl);
 	if (rc == -1) {
 		rd = -1;
-		zc_error("unlock fd[%s] fail, errno[%d]", zlog_env_rotater.lock_fd,
+		zc_error("unlock fd[%s] fail, errno[%d]", a_rot->lock_fd,
 			 errno);
 	}
 
-	rc = pthread_mutex_unlock(&(zlog_env_rotater.mlock));
+	rc = pthread_mutex_unlock(&(a_rot->lock_mutex));
 	if (rc) {
 		rd = -1;
 		zc_error("pthread_mutext_unlock fail, errno[%d]", errno);
@@ -434,7 +432,9 @@ int zlog_rotater_lsmv(char *base_file_path, int file_max_count)
 	return rc;
 }
 
-int zlog_rotater_rotate(char *file_path, long file_max_size, int file_max_count, size_t msg_len)
+int zlog_rotater_rotate(zlog_rotater_t *a_rot, 
+		char *file_path, long file_max_size, int file_max_count,
+		size_t msg_len)
 {
 	int rc = 0;
 	int rd = 0;
@@ -459,7 +459,7 @@ int zlog_rotater_rotate(char *file_path, long file_max_size, int file_max_count,
 		}
 	}
 
-	rd = zlog_rotater_trylock();
+	rd = zlog_rotater_trylock(a_rot);
 	if (rd) {
 		zc_error("warn:zlog_rotater_trylock fail, maybe lock by other process or threads");
 		return 0;
@@ -492,7 +492,7 @@ int zlog_rotater_rotate(char *file_path, long file_max_size, int file_max_count,
 
       zlog_rotater_rotate_exit:
 	/* unlock file */
-	rd = zlog_rotater_unlock();
+	rd = zlog_rotater_unlock(a_rot);
 	if (rd) {
 		zc_error("zlog_rotater_unlock fail");
 	}
@@ -501,10 +501,3 @@ int zlog_rotater_rotate(char *file_path, long file_max_size, int file_max_count,
 }
 
 /*******************************************************************************/
-static int zlog_rotater_debug(zlog_rotater_t * a_rot)
-{
-	zc_debug("---zlog_env_rotater start[%p]---", &zlog_env_rotater);
-	zc_debug("zlog_env_rotater.mlock[%p]", &(zlog_env_rotater.mlock));
-	zc_debug("zlog_env_rotater.lock_fd[%d]", zlog_env_rotater.lock_fd);
-	return 0;
-}

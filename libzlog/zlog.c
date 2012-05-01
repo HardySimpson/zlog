@@ -32,6 +32,7 @@
 #include "mdc.h"
 
 /*******************************************************************************/
+/*******************************************************************************/
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
 static zlog_conf_t zlog_env_conf;
 static zlog_tmap_t zlog_env_tmap;

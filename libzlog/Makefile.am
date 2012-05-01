@@ -1,6 +1,27 @@
 lib_LTLIBRARIES = libzlog.la
 
 libzlog_la_SOURCES =	\
+	zc_profile.c	\
+	zc_profile.h	\
+	zc_arraylist.c	\
+	zc_arraylist.h	\
+	zc_hashtable.c	\
+	zc_hashtable.h	\
+	zc_util.c	\
+	zc_util.h	\
+	zc_xplatform.c	\
+	zc_xplatform.h	\
+	zc_defs.h	\
+	rotater.c	\
+	rotater.h	\
+	level.c		\
+	level.h		\
+	level_list.c	\
+	level_list.h	\
+	spec.c		\
+	spec.h		\
+	format.c	\
+	format.h	\
 	buf.c		\
 	buf.h		\
 	category.c	\
@@ -9,32 +30,13 @@ libzlog_la_SOURCES =	\
 	conf.h		\
 	event.c		\
 	event.h		\
-	format.c	\
-	format.h	\
 	mdc.c		\
 	mdc.h		\
-	level.c	\
-	level.h	\
 	thread.c	\
 	thread.h	\
-	rotater.c	\
-	rotater.h	\
 	rule.c		\
 	rule.h		\
-	spec.c		\
-	spec.h		\
-	zlog.c		\
-	zc_arraylist.c	\
-	zc_arraylist.h	\
-	zc_error.c	\
-	zc_error.h	\
-	zc_hashtable.c	\
-	zc_hashtable.h	\
-	zc_util.c	\
-	zc_util.h	\
-	zc_xplatform.c	\
-	zc_xplatform.h	\
-	zc_defs.h	
+	zlog.c
 
 libzlog_la_LIBADD = $(PTREADLIB)
 #libzlog_la_LDFLAGS = -version-info 1:1:0

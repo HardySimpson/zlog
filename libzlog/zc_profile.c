@@ -26,8 +26,17 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "zc_error.h"
+#include "zc_profile.h"
 #include "zc_xplatform.h"
+
+static char *debug_log = NULL;
+static char *error_log = NULL;
+
+void zc_profile_init(void)
+{
+	debug_log = getenv("ZLOG_PROFILE_DEBUG");
+	error_log = getenv("ZLOG_PROFILE_DEBUG");
+}
 
 static void zc_time(char *time_str, size_t time_str_size)
 {
@@ -41,29 +50,26 @@ static void zc_time(char *time_str, size_t time_str_size)
 	return;
 }
 
-int zc_debug_inner(const char *file, const long line, const char *fmt, ...)
+int zc_profile_inner(int flag, const char *file, const long line, const char *fmt, ...)
 {
 	va_list args;
 	char time_str[20 + 1];
-	static int need_debug = 1;
-	static char *debug_log = NULL;
-	static FILE *fp = NULL;
+	FILE *fp = NULL;
 
-	if (need_debug == 0)
-		return 0;
-
-	if (debug_log == NULL) {
-		debug_log = getenv("ZLOG_PROFILE_DEBUG");
-		if (debug_log == NULL) {
-			need_debug = 0;
+	if (flag == ZC_DEBUG) {
+ 		if (debug_log == NULL) {
 			return 0;
+		} else {
+			fp = fopen(debug_log, "a");
+			if (!fp) return -1;
 		}
-	}
-
-	fp = fopen(debug_log, "a");
-	if (!fp) {
-		need_debug = 0;
-		return -1;
+	} else if (flag == ZC_ERROR) {
+ 		if (error_log == NULL) {
+			return 0;
+		} else {
+			fp = fopen(error_log, "a");
+			if (!fp) return -1;
+		}
 	}
 
 	zc_time(time_str, sizeof(time_str));
@@ -79,40 +85,3 @@ int zc_debug_inner(const char *file, const long line, const char *fmt, ...)
 	return 0;
 }
 
-int zc_error_inner(const char *file, const long line, const char *fmt, ...)
-{
-	va_list args;
-	char time_str[20 + 1];
-	static int need_error = 1;
-	static char *error_log = NULL;
-	static FILE *fp = NULL;
-
-	if (need_error == 0)
-		return 0;
-
-	if (error_log == NULL) {
-		error_log = getenv("ZLOG_PROFILE_ERROR");
-		if (error_log == NULL) {
-			need_error = 0;
-			return 0;
-		}
-	}
-
-	fp = fopen(error_log, "a");
-	if (!fp) {
-		need_error = 0;
-		return -1;
-	}
-
-	zc_time(time_str, sizeof(time_str));
-
-	fprintf(fp, "%s ERROR (%d:%s:%ld) ", time_str, getpid(), file, line);
-	va_start(args, fmt);
-	vfprintf(fp, fmt, args);
-	va_end(args);
-	fprintf(fp, "\n");
-
-	fclose(fp);
-
-	return 0;
-}

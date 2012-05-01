@@ -22,11 +22,14 @@
 
 #include "zc_defs.h"
 
-int zlog_rotater_init(char *lock_file);
-int zlog_rotater_update(char *lock_file);
-void zlog_rotater_fini(void);
-int zlog_rotater_rotate(char *file_path,
-		long file_max_size, int file_max_count,
+typedef struct zlog_rotater_s zlog_rotater_t;
+
+zlog_rotater_t *zlog_rotater_new(char *lock_file);
+void zlog_rotater_del(zlog_rotater_t *a_rot);
+int zlog_rotater_rotate(zlog_rotater_t *a_rot,
+		char *file_path, long file_max_size, int file_max_count,
 		size_t msg_len);
+
+void zlog_rotater_profile(zlog_rotater_t *a_rot, int flag);
 
 #endif
