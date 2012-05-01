@@ -26,11 +26,28 @@
 #include "buf.h"
 
 /*******************************************************************************/
-static void zlog_buf_debug(zlog_buf_t * a_buf);
-static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t buf_size_min,
-			     size_t buf_size_max);
-static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment);
+void zlog_buf_profile(zlog_buf_t * a_buf, int flag)
+{
+	zc_assert(a_buf,);
+	zc_profile(flag, "---buf[%p][%ld-%ld][%s][%p:%ld]---",
+			a_buf,
+			a_buf->size_min, a_buf->size_max,
+			a_buf->truncate_str,
+			a_buf->start, a_buf->end - a_buf->start);
+	return;
+}
 /*******************************************************************************/
+void zlog_buf_del(zlog_buf_t * a_buf)
+{
+	zc_assert(a_buf,);
+	if (a_buf->start) {
+		free(a_buf->start);
+	}
+	free(a_buf);
+	zc_debug("zlog_buf_del[%p]", a_buf);
+	return;
+}
+
 static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t buf_size_min,
 			     size_t buf_size_max)
 {
@@ -70,7 +87,7 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 		if (strlen(truncate_str) > sizeof(a_buf->truncate_str) - 1) {
 			zc_error("truncate_str[%s] overflow", truncate_str);
 			rc = -1;
-			goto zlog_buf_create_exit;
+			goto zlog_buf_new_exit;
 		} else {
 			strcpy(a_buf->truncate_str, truncate_str);
 		}
@@ -80,37 +97,26 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 	rc = zlog_buf_set_size(a_buf, buf_size_min, buf_size_max);
 	if (rc) {
 		zc_error("zlog_buf_set_size fail");
-		goto zlog_buf_create_exit;
+		goto zlog_buf_new_exit;
 	}
 
 	a_buf->start = calloc(1, a_buf->size_min);
 	if (!a_buf->start) {
 		zc_error("calloc fail, errno[%d]", errno);
 		rc = -1;
-		goto zlog_buf_create_exit;
+		goto zlog_buf_new_exit;
 	}
 	a_buf->end = a_buf->start;
 	a_buf->size_real = a_buf->size_min;
 
-      zlog_buf_create_exit:
+      zlog_buf_new_exit:
 	if (rc) {
 		zlog_buf_del(a_buf);
 		return NULL;
 	} else {
-		zlog_buf_debug(a_buf);
+		zlog_buf_profile(a_buf, ZC_DEBUG);
 		return a_buf;
 	}
-}
-
-/*******************************************************************************/
-void zlog_buf_del(zlog_buf_t * a_buf)
-{
-	if (a_buf->start) {
-		free(a_buf->start);
-	}
-	zc_debug("free a_buf at[%p]", a_buf);
-	free(a_buf);
-	return;
 }
 
 /*******************************************************************************/
@@ -155,6 +161,70 @@ static void zlog_buf_truncate(zlog_buf_t * a_buf)
 	memcpy(p, a_buf->truncate_str, len);
 
 	return;
+}
+
+/*******************************************************************************/
+/* return 0:	success
+ * return <0:	fail, set size_real to -1;
+ * return >0:	by conf limit, can't extend size
+ */
+static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
+{
+	int rc = 0;
+	size_t new_size = 0;
+	size_t len = 0;
+	char *p = NULL;
+
+	if (a_buf->size_max != 0 && a_buf->size_real >= a_buf->size_max) {
+		zc_error("a_buf->size_real[%ld] >= a_buf->size_max[%ld]",
+			 a_buf->size_real, a_buf->size_max);
+		return 1;
+	}
+
+	if (a_buf->size_max == 0 && increment == 0) {
+		/* unlimit && use inner step */
+		new_size = a_buf->size_real * 1.5;
+	} else if (a_buf->size_max == 0 && increment != 0) {
+		/* unlimit && use outer step */
+		new_size = a_buf->size_real + 1.5 * increment;
+	} else if (a_buf->size_max != 0 && increment == 0) {
+		/* limit && use inner step */
+		if (a_buf->size_real + a_buf->size_step < a_buf->size_max) {
+			new_size = a_buf->size_real + a_buf->size_step;
+		} else if (a_buf->size_real + a_buf->size_step >=
+			   a_buf->size_max) {
+			new_size = a_buf->size_max;
+			rc = 1;
+		}
+	} else if (a_buf->size_max != 0 && increment != 0) {
+		/* limit && use out step */
+		if (a_buf->size_real + increment < a_buf->size_max) {
+			new_size = a_buf->size_real + a_buf->size_step;
+		} else if (a_buf->size_real + increment >= a_buf->size_max) {
+			new_size = a_buf->size_max;
+			rc = 1;
+		}
+	}
+
+	len = a_buf->end - a_buf->start;
+
+	p = realloc(a_buf->start, new_size);
+	if (!p) {
+		zc_error("realloc fail, errno[%d]", errno);
+		free(a_buf->start);
+		a_buf->start = NULL;
+		a_buf->end = NULL;
+		/* set size_real = -1, so other func know buf is unavailiable */
+		a_buf->size_real = -1;
+		return -1;
+	} else {
+		a_buf->start = p;
+		a_buf->end = p + len;
+		memset(a_buf->end, 0x00, new_size - len);
+		a_buf->size_real = new_size;
+	}
+
+	return rc;
 }
 
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
@@ -305,83 +375,6 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 	return 0;
 }
 
-/*******************************************************************************/
-/* return 0:	success
- * return <0:	fail, set size_real to -1;
- * return >0:	by conf limit, can't extend size
- */
-static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
-{
-	int rc = 0;
-	size_t new_size = 0;
-	size_t len = 0;
-	char *p = NULL;
-
-	if (a_buf->size_max != 0 && a_buf->size_real >= a_buf->size_max) {
-		zc_error("a_buf->size_real[%ld] >= a_buf->size_max[%ld]",
-			 a_buf->size_real, a_buf->size_max);
-		return 1;
-	}
-
-	if (a_buf->size_max == 0 && increment == 0) {
-		/* unlimit && use inner step */
-		new_size = a_buf->size_real * 1.5;
-	} else if (a_buf->size_max == 0 && increment != 0) {
-		/* unlimit && use outer step */
-		new_size = a_buf->size_real + 1.5 * increment;
-	} else if (a_buf->size_max != 0 && increment == 0) {
-		/* limit && use inner step */
-		if (a_buf->size_real + a_buf->size_step < a_buf->size_max) {
-			new_size = a_buf->size_real + a_buf->size_step;
-		} else if (a_buf->size_real + a_buf->size_step >=
-			   a_buf->size_max) {
-			new_size = a_buf->size_max;
-			rc = 1;
-		}
-	} else if (a_buf->size_max != 0 && increment != 0) {
-		/* limit && use out step */
-		if (a_buf->size_real + increment < a_buf->size_max) {
-			new_size = a_buf->size_real + a_buf->size_step;
-		} else if (a_buf->size_real + increment >= a_buf->size_max) {
-			new_size = a_buf->size_max;
-			rc = 1;
-		}
-	}
-
-	len = a_buf->end - a_buf->start;
-
-	p = realloc(a_buf->start, new_size);
-	if (!p) {
-		zc_error("realloc fail, errno[%d]", errno);
-		free(a_buf->start);
-		a_buf->start = NULL;
-		a_buf->end = NULL;
-		/* set size_real = -1, so other func know buf is unavailiable */
-		a_buf->size_real = -1;
-		return -1;
-	} else {
-		a_buf->start = p;
-		a_buf->end = p + len;
-		memset(a_buf->end, 0x00, new_size - len);
-		a_buf->size_real = new_size;
-	}
-
-	return rc;
-}
 
 /*******************************************************************************/
-static void zlog_buf_debug(zlog_buf_t * a_buf)
-{
-	zc_debug("buf:[%p][%ld-%ld][%s][%p][%ld]", a_buf,
-		 a_buf->size_min, a_buf->size_max, a_buf->truncate_str,
-		 a_buf->start, a_buf->end - a_buf->start);
-	return;
-}
 
-void zlog_buf_profile(zlog_buf_t * a_buf)
-{
-	zc_error("buf:[%p][%ld-%ld][%s][%p][%ld]", a_buf,
-		 a_buf->size_min, a_buf->size_max, a_buf->truncate_str,
-		 a_buf->start, a_buf->end - a_buf->start);
-	return;
-}

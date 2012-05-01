@@ -21,17 +21,6 @@
 #define  __zlog_thread_h
 
 #include "zc_defs.h"
-
-typedef struct {
-	zc_hashtable_t *tab;
-} zlog_tmap_t;
-
-int zlog_tmap_init(zlog_tmap_t * a_tmap);
-int zlog_tmap_update(zlog_tmap_t * a_tmap, size_t buf_size_min,
-		     size_t buf_size_max);
-void zlog_tmap_fini(zlog_tmap_t * a_tmap);
-
-/* a tmap is consist of many threads */
 #include "event.h"
 #include "buf.h"
 #include "mdc.h"
@@ -45,9 +34,13 @@ typedef struct {
 	zlog_buf_t *msg_buf;
 } zlog_thread_t;
 
-zlog_thread_t *zlog_tmap_get_thread(zlog_tmap_t * a_tmap);
-zlog_thread_t *zlog_tmap_new_thread(zlog_tmap_t * a_tmap, size_t buf_size_min,
-				    size_t buf_size_max);
-void zlog_tmap_profile(zlog_tmap_t * a_tmap);
+
+void zlog_thread_del(zlog_thread_t * a_thread);
+void zlog_thread_profile(zlog_thread_t * a_thread, int flag);
+zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max);
+
+int zlog_thread_rebuild_msg_buf(zlog_thread_t * a_thread,
+				size_t buf_size_min,
+				size_t buf_size_max);
 
 #endif

@@ -63,7 +63,7 @@ static int zlog_level_list_set_default(zc_arraylist_t *levels)
 	|| zlog_level_list_set(levels, "! = 255, LOG_INFO");
 }
 
-zc_arraylist_t *zlog_levels_new(void)
+zc_arraylist_t *zlog_level_list_new(void)
 {
 	int rc;
 	zc_arraylist_t *levels;

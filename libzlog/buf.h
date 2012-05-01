@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 
-typedef struct {
+typedef struct zlog_buf_s {
 	size_t size_min;
 	size_t size_max;
 	size_t size_step;
@@ -36,12 +36,13 @@ typedef struct {
 zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 			 const char *truncate_str);
 void zlog_buf_del(zlog_buf_t * a_buf);
+void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
+
 void zlog_buf_restart(zlog_buf_t * a_buf);
 int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...);
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
 int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 		      const struct tm *a_tm);
-void zlog_buf_profile(zlog_buf_t * a_buf);
 
 #endif

@@ -29,39 +29,22 @@
 #include "zc_defs.h"
 #include "format.h"
 #include "thread.h"
+#include "rotater.h"
 
-typedef struct zlog_rule_t zlog_rule_t;
-typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule,
-				    zlog_thread_t * a_thread);
-struct zlog_rule_t {
-	char category[MAXLEN_CFG_LINE + 1];
-	char compare_char;
-	/* [*] log any level 
-	 * [.] log level >= rule level, default
-	 * [=] log level == rule level 
-	 * [!] log level != rule level
-	 */
-	int level;
+typedef struct zlog_rule_s zlog_rule_t;
 
-	char file_path[MAXLEN_PATH + 1];
-	FILE *static_file_stream;
-	zc_arraylist_t *dynamic_file_specs;
+zlog_rule_t *zlog_rule_new(char *line,
+		zlog_rotater_t * a_rotater,
+		zc_arraylist_t * levels,
+		zlog_format_t * default_format,
+		zc_arraylist_t * formats);
 
-	long file_max_size;
-	int file_max_count;
-	int syslog_facility;
-
-	zlog_rule_output_fn output;
-
-	zlog_format_t *format;
-};
-
-zlog_rule_t *zlog_rule_new(zlog_format_t *default_format,
-		zc_arraylist_t * formats, char *line, long line_len);
 void zlog_rule_del(zlog_rule_t * a_rule);
+void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
+
+
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule);
-void zlog_rule_profile(zlog_rule_t * a_rule);
 
 #endif

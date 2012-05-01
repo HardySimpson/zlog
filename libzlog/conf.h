@@ -23,22 +23,10 @@
 #include "zc_defs.h"
 #include "format.h"
 
-typedef struct {
-	char file[MAXLEN_PATH + 1];
-	char mtime[20 + 1];
+typedef struct zlog_conf_s zlog_conf_t;
 
-	int ignore_error_format_rule;
-	size_t buf_size_min;
-	size_t buf_size_max;
-	char rotate_lock_file[MAXLEN_PATH + 1];
-	zlog_format_t *default_format;
-	zc_arraylist_t *formats;
-	zc_arraylist_t *rules;
-} zlog_conf_t;
-
-int zlog_conf_init(zlog_conf_t * a_conf, char *conf_file);
-void zlog_conf_fini(zlog_conf_t * a_conf);
-int zlog_conf_update(zlog_conf_t * a_conf, char *conf_file);
-void zlog_conf_profile(zlog_conf_t * a_conf);
+zlog_conf_t *zlog_conf_new(char *conf_file);
+void zlog_conf_del(zlog_conf_t * a_conf);
+void zlog_conf_profile(zlog_conf_t * a_conf, int flag);
 
 #endif

@@ -22,7 +22,14 @@
 
 #include <stdlib.h>
 
-typedef struct zc_hashtable_entry_s zc_hashtable_entry_t;
+typedef struct zc_hashtable_entry_s {
+	unsigned int hash_key;
+	void *key;
+	void *value;
+	struct zc_hashtable_entry_s *prev;
+	struct zc_hashtable_entry_s *next;
+} zc_hashtable_entry_t;
+
 typedef struct zc_hashtable_s zc_hashtable_t;
 
 typedef unsigned int (*zc_hashtable_hash_fn) (void *key);

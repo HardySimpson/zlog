@@ -28,6 +28,29 @@
 #include "zc_defs.h"
 #include "event.h"
 
+void zlog_event_profile(zlog_event_t * a_event, int flag)
+{
+	zc_assert(a_event,);
+	zc_profile(flag, "---event[%p][%s,%s][%s,%ld][%p,%s][%ld,%ld][%ld,%ld]---",
+			a_event,
+			a_event->category_name, a_event->host_name,
+			a_event->file, a_event->line,
+			a_event->hex_buf, a_event->str_format,	
+			a_event->time_stamp.tv_sec, a_event->time_stamp.tv_usec,
+			(long)a_event->pid, (long)a_event->tid);
+	return;
+}
+
+/*******************************************************************************/
+
+void zlog_event_del(zlog_event_t * a_event)
+{
+	zc_assert(a_event,);
+	free(a_event);
+	zc_debug("zlog_event_del[%p]", a_event);
+	return;
+}
+
 zlog_event_t *zlog_event_new(void)
 {
 	int rc = 0;
@@ -56,24 +79,18 @@ zlog_event_t *zlog_event_new(void)
 	 * even fork to oth pid, tid not change
 	 */
 	a_event->tid = pthread_self();
-	zc_debug("first in thread[%ld]", a_event->tid);
 
       zlog_event_new_exit:
 	if (rc) {
 		zlog_event_del(a_event);
 		return NULL;
 	} else {
+		zlog_event_profile(a_event, ZC_DEBUG);
 		return a_event;
 	}
 }
 
-void zlog_event_del(zlog_event_t * a_event)
-{
-	zc_debug("free a_event at[%p]", a_event);
-	free(a_event);
-	return;
-}
-
+/*******************************************************************************/
 void zlog_event_refresh(zlog_event_t * a_event,
 			char *category_name, size_t * category_name_len,
 			char *file, long line, int level,
@@ -104,6 +121,14 @@ void zlog_event_refresh(zlog_event_t * a_event,
 		break;
 	}
 
+	/* pid should fetch eveytime, as no one knows,
+	 * when does user fork his process
+	 */
+	a_event->pid = getpid();
+
+	/* in a event's life cycle, time will be get when spec need,
+	 * and keep unchange though all life cycle
+	 */
 	memset(&(a_event->time_stamp), 0x00, sizeof(a_event->time_stamp));
 	return;
 }

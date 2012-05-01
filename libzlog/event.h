@@ -57,8 +57,9 @@ typedef struct {
 } zlog_event_t;
 
 zlog_event_t *zlog_event_new(void);
-
 void zlog_event_del(zlog_event_t * a_event);
+void zlog_event_profile(zlog_event_t * a_event, int flag);
+
 void zlog_event_refresh(zlog_event_t * a_event,
 			char *category_name, size_t * category_name_len,
 			char *file, long line, int level,

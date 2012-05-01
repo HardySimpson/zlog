@@ -21,13 +21,8 @@
 
 #include <limits.h>
 
-#ifdef PATH_MAX
-#define MAXLEN_PATH PATH_MAX
-#else
 #define MAXLEN_PATH 1024
-#endif
-
-#define MAXLEN_CFG_LINE MAXLEN_PATH*4
+#define MAXLEN_CFG_LINE (MAXLEN_PATH * 4)
 
 #ifdef NAME_MAX
 #define MAXLEN_FILE NAME_MAX

@@ -24,14 +24,6 @@
 #include "zc_defs.h"
 #include "zc_hashtable.h"
 
-struct zc_hashtable_entry_s {
-	unsigned int hash_key;
-	void *key;
-	void *value;
-	struct zc_hashtable_entry_s *prev;
-	struct zc_hashtable_entry_s *next;
-};
-
 struct zc_hashtable_s {
 	size_t nelem;
 

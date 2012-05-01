@@ -65,7 +65,7 @@ void zlog_format_del(zlog_format_t * a_format)
 	return;
 }
 
-zlog_format_t *zlog_format_new(const char *line, zc_arraylist_t *levels)
+zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 {
 	int rc = 0;
 	int nscan = 0;
@@ -76,6 +76,9 @@ zlog_format_t *zlog_format_new(const char *line, zc_arraylist_t *levels)
 	char *p;
 	char *q;
 	zlog_spec_t *a_spec;
+
+	zc_assert(line, NULL);
+	zc_assert(levels, NULL);
 
 	a_format = calloc(1, sizeof(zlog_format_t));
 	if (!a_format) {
@@ -121,6 +124,12 @@ zlog_format_t *zlog_format_new(const char *line, zc_arraylist_t *levels)
 	memset(a_format->pattern, 0x00, sizeof(a_format->pattern));
 	strncpy(a_format->pattern, p_start, p_end - p_start);
 
+	rc = zc_str_replace_env(a_format->pattern, sizeof(a_format->pattern));
+	if (rc) {
+		zc_error("zc_str_replace_env fail");
+		goto zlog_format_new_exit;
+	}
+
 	a_format->pattern_specs =
 	    zc_arraylist_new((zc_arraylist_del_fn) zlog_spec_del);
 	if (!(a_format->pattern_specs)) {
@@ -130,7 +139,7 @@ zlog_format_t *zlog_format_new(const char *line, zc_arraylist_t *levels)
 	}
 
 	for (p = a_format->pattern; *p != '\0'; p = q) {
-		a_spec = zlog_spec_new(p, &q);
+		a_spec = zlog_spec_new(p, &q, levels);
 		if (!a_spec) {
 			zc_error("zlog_spec_new fail");
 			rc = -1;
@@ -139,6 +148,7 @@ zlog_format_t *zlog_format_new(const char *line, zc_arraylist_t *levels)
 
 		rc = zc_arraylist_add(a_format->pattern_specs, a_spec);
 		if (rc) {
+			zlog_spec_del(a_spec);
 			zc_error("zc_arraylist_add fail");
 			rc = -1;
 			goto zlog_format_new_exit;
@@ -181,3 +191,10 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 	return 0;
 }
 
+/* return 1	true
+ * return 0	false
+ */
+int zlog_format_has_name(zlog_format_t * a_format, char *name)
+{
+	return STRCMP(a_format->name, ==, name);
+}

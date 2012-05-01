@@ -22,20 +22,24 @@ libzlog_la_SOURCES =	\
 	spec.h		\
 	format.c	\
 	format.h	\
-	buf.c		\
-	buf.h		\
-	category.c	\
-	category.h	\
+	rule.c		\
+	rule.h		\
 	conf.c		\
 	conf.h		\
+	buf.c		\
+	buf.h		\
 	event.c		\
 	event.h		\
 	mdc.c		\
 	mdc.h		\
 	thread.c	\
 	thread.h	\
-	rule.c		\
-	rule.h		\
+	thread_table.c	\
+	thread_table.h	\
+	category.c	\
+	category.h	\
+	category_table.c	\
+	category_table.h	\
 	zlog.c
 
 libzlog_la_LIBADD = $(PTREADLIB)

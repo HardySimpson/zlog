@@ -17,29 +17,23 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __zlog_mdc_h
-#define __zlog_mdc_h
+#ifndef __zlog_category_table_h
+#define __zlog_category_table_h
 
 #include "zc_defs.h"
+#include "category.h"
 
-typedef struct zlog_mdc_s zlog_mdc_t;
+zc_hashtable_t *zlog_category_table_new(void);
+void zlog_category_table_del(zc_hashtable_t * categories);
+void zlog_category_table_profile(zc_hashtable_t * categories, int flag);
 
-zlog_mdc_t *zlog_mdc_new(void);
-void zlog_mdc_del(zlog_mdc_t * a_mdc);
-void zlog_mdc_profile(zlog_mdc_t *a_mdc, int flag);
+int zlog_category_table_obtain_rules(
+			zc_hashtable_t * categories,
+		 	zc_arraylist_t * rules);
 
+zlog_category_t *zlog_category_table_fetch_category(
+			zc_hashtable_t * categories,
+		 	char *category_name, zc_arraylist_t * rules);
 
-void zlog_mdc_clean(zlog_mdc_t * a_mdc);
-int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value);
-char *zlog_mdc_get(zlog_mdc_t * a_mdc, char *key);
-void zlog_mdc_remove(zlog_mdc_t * a_mdc, char *key);
-
-typedef struct zlog_mdc_kv_s {
-	char key[MAXLEN_PATH + 1];
-	char value[MAXLEN_PATH + 1];
-	size_t value_len;
-} zlog_mdc_kv_t;
-
-zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t * a_mdc, char *key);
 
 #endif

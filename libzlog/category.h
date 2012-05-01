@@ -21,27 +21,19 @@
 #define __zlog_category_h
 
 #include "zc_defs.h"
+#include "thread.h"
 
-typedef struct {
-	zc_hashtable_t *tab;
-} zlog_cmap_t;
-
-int zlog_cmap_init(zlog_cmap_t * a_cmap);
-int zlog_cmap_update(zlog_cmap_t * a_cmap, zc_arraylist_t * rules);
-void zlog_cmap_fini(zlog_cmap_t * a_cmap);
-void zlog_cmap_profile(zlog_cmap_t * a_cmap);
-
-typedef struct zlog_category_t {
+typedef struct zlog_category_s {
 	char name[MAXLEN_PATH + 1];
 	size_t name_len;
 	zc_arraylist_t *match_rules;
 } zlog_category_t;
 
-zlog_category_t *zlog_cmap_fetch_category(zlog_cmap_t * a_cmap,
-					  char *category_name,
-					  zc_arraylist_t * rules);
+zlog_category_t *zlog_category_new(char *name, zc_arraylist_t * rules);
+void zlog_category_del(zlog_category_t * a_category);
+void zlog_category_profile(zlog_category_t *a_category, int flag);
 
-#include "thread.h"
 int zlog_category_output(zlog_category_t * a_cat, zlog_thread_t * a_thread);
+int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist_t * rules);
 
 #endif
