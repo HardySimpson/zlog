@@ -110,6 +110,7 @@ void zlog_event_refresh(zlog_event_t * a_event,
 		break;
 	}
 
+	a_event->pid = (pid_t) 0;
 	memset(&(a_event->time_stamp), 0x00, sizeof(a_event->time_stamp));
 	return;
 }
