@@ -288,6 +288,10 @@ static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 {
 	int rc;
 
+	if (!a_thread->event->pid) {
+		a_thread->event->pid = getpid();
+	}
+
 	rc = zlog_buf_printf(a_buf, "%d", (int)a_thread->event->pid);
 	if (rc) {
 		zc_error("zlog_buf_printf maybe fail or overflow");

@@ -123,8 +123,9 @@ void zlog_event_refresh(zlog_event_t * a_event,
 
 	/* pid should fetch eveytime, as no one knows,
 	 * when does user fork his process
+	 * so clean here, and fetch at spec.c
 	 */
-	a_event->pid = getpid();
+	a_event->pid = (pid_t) 0;
 
 	/* in a event's life cycle, time will be get when spec need,
 	 * and keep unchange though all life cycle
