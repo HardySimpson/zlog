@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 
 	rc = zlog_init("test_conf.conf");
 	if (rc) {
-		printf("init failed\n");
+		printf("init failed, try zlog-chk-conf test_conf.conf for more detail\n");
 		return -1;
 	}
 

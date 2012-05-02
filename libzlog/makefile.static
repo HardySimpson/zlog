@@ -1,14 +1,29 @@
-all_o = zlog.o category.o rule.o format.o event.o conf.o level.o buf.o rotater.o spec.o process.o \
-	zc_hashtable.o zc_error.o zc_arraylist.o zc_xplatform.o zc_util.o \
+all_o =		\
+	buf.o		\
+	category.o		\
+	category_table.o		\
+	conf.o		\
+	event.o		\
+	format.o		\
+	level.o		\
+	level_list.o		\
+	mdc.o		\
+	rotater.o		\
+	rule.o		\
+	spec.o		\
+	thread.o		\
+	thread_table.o		\
+	zc_arraylist.o		\
+	zc_hashtable.o		\
+	zc_profile.o		\
+	zc_util.o		\
+	zc_xplatform.o		\
+	zlog.o		\
 
-all	:	libzlog.a zlog_chk_conf
+all	:	libzlog.a
 
 libzlog.a	:	$(all_o)
 	ar -rv $@ $(all_o)
-
-zlog_chk_conf	:	zlog_chk_conf.o
-	gcc -o $@ $^ -L. -lzlog -lpthread
-	ctags -R .
 
 .c.o	:
 	gcc -pg -Wall -D_GNU_SOURCE -o $@ -c $< -I.

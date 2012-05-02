@@ -52,7 +52,7 @@ static int syslog_level_atoi(char *str)
 	/* guess no unix system will choose -187
 	 * as its syslog level, so it is a safe return value
 	 */
-	zc_assert_debug(str, -187);
+	zc_assert(str, -187);
 
 	if (STRICMP(str, ==, "LOG_EMERG"))
 		return LOG_EMERG;
@@ -78,17 +78,20 @@ static int syslog_level_atoi(char *str)
 /* line: TRACE = 10, LOG_ERR */
 zlog_level_t *zlog_level_new(char *line)
 {
-	int rc;
-	zlog_level_t *a_level;
+	int rc = 0;
+	zlog_level_t *a_level = NULL;
 	int i;
 	int nscan;
 	char str[MAXLEN_CFG_LINE + 1];
-	int l;
+	int l = 0;
 	char sl[MAXLEN_CFG_LINE + 1];
 
 	zc_assert(line, NULL);
 
-	nscan = sscanf(line, " %[^= ] = %d ,%s",
+	memset(str, 0x00, sizeof(str));
+	memset(sl, 0x00, sizeof(sl));
+
+	nscan = sscanf(line, " %[^= \t] = %d ,%s",
 		str, &l, sl);
 	if (nscan < 2) {
 		zc_error("level[%s], syntax wrong", line);
@@ -101,12 +104,12 @@ zlog_level_t *zlog_level_new(char *line)
 		return NULL;
 	}
 
-	if (*str == '\0') {
+	if (str[0] == '\0') {
 		zc_error("str[0] = 0");
 		return NULL;
 	}
 
-	a_level = calloc(1, sizeof(*a_level));
+	a_level = calloc(1, sizeof(zlog_level_t));
 	if (!a_level) {
 		zc_error("calloc fail, errno[%d]", errno);
 		return NULL;
@@ -115,7 +118,7 @@ zlog_level_t *zlog_level_new(char *line)
 	a_level->int_level = l;
 
 	/* fill syslog level */
-	if (*sl == '\0') {
+	if (sl[0] == '\0') {
 		a_level->syslog_level = LOG_DEBUG;
 	} else {
 		a_level->syslog_level = syslog_level_atoi(sl);

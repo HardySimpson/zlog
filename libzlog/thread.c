@@ -29,7 +29,7 @@
 void zlog_thread_profile(zlog_thread_t * a_thread, int flag)
 {
 	zc_assert(a_thread,);
-	zlog_profile(flag, "--thread[%p][%p][%p][%p,%p,%p,%p]--",
+	zc_profile(flag, "--thread[%p][%p][%p][%p,%p,%p,%p]--",
 			a_thread,
 			a_thread->mdc,
 			a_thread->event,
@@ -136,43 +136,92 @@ zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 	}
 }
 
-int zlog_thread_rebuild_msg_buf(zlog_thread_t * a_thread,
-				size_t buf_size_min,
-				size_t buf_size_max)
+/*******************************************************************************/
+int zlog_thread_update_msg_buf(zlog_thread_t * a_thread, size_t buf_size_min, size_t buf_size_max)
 {
 	int rc = 0;
-	zlog_buf_t *pre_msg_buf = NULL;
-	zlog_buf_t *msg_buf = NULL;
 
-	zc_assert(a_thread,);
-	pre_msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
+	zc_assert(a_thread, -1);
+
+	/* 1st, mv msg_buf msg_buf_backup */
+	if (a_thread->pre_msg_buf_backup) zlog_buf_del(a_thread->pre_msg_buf_backup);
+	if (a_thread->msg_buf_backup) zlog_buf_del(a_thread->msg_buf_backup);
+	a_thread->pre_msg_buf_backup = a_thread->pre_msg_buf;
+	a_thread->msg_buf_backup = a_thread->msg_buf;
+
+
+	/* 2nd, gen new buf */
+	a_thread->pre_msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->pre_msg_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
-		goto zlog_thread_rebuild_msg_buf_exit;
+		goto zlog_thread_update_msg_buf_exit;
 	}
 
-	msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
+	a_thread->msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->msg_buf) {
 		zc_error("zlog_buf_new fail");
 		rc = -1;
-		goto zlog_thread_rebuild_msg_buf_exit;
+		goto zlog_thread_update_msg_buf_exit;
 	}
 
-	if (a_thread->pre_msg_buf) zlog_buf_del(a_thread->pre_msg_buf);
-	if (a_thread->msg_buf) zlog_buf_del(a_thread->msg_buf);
-	a_thread->pre_msg_buf = pre_msg_buf;
-	a_thread->msg_buf = msg_buf;
-
-      zlog_thread_rebuild_msg_buf_exit:
+      zlog_thread_update_msg_buf_exit:
 	if (rc) {
-		if (pre_msg_buf) zlog_buf_del(pre_msg_buf);
-		if (msg_buf) zlog_buf_del(msg_buf);
+		if (a_thread->pre_msg_buf) zlog_buf_del(a_thread->pre_msg_buf);
+		if (a_thread->msg_buf) zlog_buf_del(a_thread->msg_buf);
+		a_thread->pre_msg_buf = NULL;
+		a_thread->msg_buf = NULL;
 		return -1;
 	} else {
-		zc_debug("update a thread at[%p]", a_thread);
 		return 0;
 	}
+}
+
+void zlog_thread_commit_msg_buf(zlog_thread_t * a_thread)
+{
+	zc_assert(a_thread, );
+	if (!a_thread->pre_msg_buf_backup || !a_thread->msg_buf_backup) {
+		zc_warn("backup is null, never update before");
+		return;
+	}
+
+	zlog_buf_del(a_thread->pre_msg_buf_backup);
+	a_thread->pre_msg_buf_backup = NULL;
+	zlog_buf_del(a_thread->msg_buf_backup);
+	a_thread->msg_buf_backup = NULL;
+	return;
+}
+
+void zlog_thread_rollback_msg_buf(zlog_thread_t * a_thread)
+{
+	zc_assert(a_thread,);
+	if (!a_thread->pre_msg_buf_backup || !a_thread->msg_buf_backup) {
+		zc_warn("backup is null, never update before");
+		return;
+	}
+
+	if (a_thread->pre_msg_buf) {
+		/* update success */
+		zlog_buf_del(a_thread->pre_msg_buf);
+		a_thread->pre_msg_buf = a_thread->pre_msg_buf_backup;
+		a_thread->pre_msg_buf_backup = NULL;
+	} else {
+		/* update fail */
+		a_thread->pre_msg_buf = a_thread->pre_msg_buf_backup;
+		a_thread->pre_msg_buf_backup = NULL;
+	}
+
+	if (a_thread->msg_buf) {
+		/* update success */
+		zlog_buf_del(a_thread->msg_buf);
+		a_thread->msg_buf = a_thread->msg_buf_backup;
+		a_thread->msg_buf_backup = NULL;
+	} else {
+		/* update fail */
+		a_thread->msg_buf = a_thread->msg_buf_backup;
+		a_thread->msg_buf_backup = NULL;
+	}
+	return;
 }
 
 /*******************************************************************************/

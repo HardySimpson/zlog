@@ -232,8 +232,7 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 	rc = pthread_mutex_trylock(&(a_rotater->lock_mutex));
 	if (rc) {
 		if (errno == EBUSY) {
-			zc_debug
-			    ("pthread_mutex_trylock fail, as lock_mutex is locked by other threads");
+			zc_warn("pthread_mutex_trylock fail, as lock_mutex is locked by other threads");
 		} else {
 			zc_error("pthread_mutex_trylock fail, errno[%d]",
 				 errno);
@@ -247,8 +246,7 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 			/* lock by other process, that's right, go on */
 			/* EAGAIN on linux */
 			/* EACCES on AIX */
-			zc_debug
-			    ("fcntl lock fail, as file is lock by other process");
+			zc_warn("fcntl lock fail, as file is lock by other process");
 		} else {
 			zc_error("lock fd[%d] fail, errno[%d]", a_rotater->lock_fd,
 				 errno);
@@ -442,7 +440,7 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 	int rd = 0;
 	struct stat info;
 
-	zc_assert_debug(file_path, -1);
+	zc_assert(file_path, -1);
 
 	if (msg_len > file_max_size) {
 		zc_debug("one msg's len[%ld] > file_max_size[%ld], no rotate",
@@ -463,7 +461,7 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 
 	rd = zlog_rotater_trylock(a_rotater);
 	if (rd) {
-		zc_error("warn:zlog_rotater_trylock fail, maybe lock by other process or threads");
+		zc_warn("zlog_rotater_trylock fail, maybe lock by other process or threads");
 		return 0;
 	}
 

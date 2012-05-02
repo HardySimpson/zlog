@@ -63,9 +63,7 @@ zc_hashtable_t *zlog_thread_table_new(void)
 }
 
 /*******************************************************************************/
-int zlog_thread_table_rebuild_msg_buf(zc_hashtable_t * threads,
-			size_t buf_size_min,
-			size_t buf_size_max)
+int zlog_thread_table_update_msg_buf(zc_hashtable_t * threads, size_t buf_size_min, size_t buf_size_max)
 {
 	int rc = 0;
 	zc_hashtable_entry_t *a_entry;
@@ -74,9 +72,9 @@ int zlog_thread_table_rebuild_msg_buf(zc_hashtable_t * threads,
 	zc_assert(threads, -1);
 	zc_hashtable_foreach(threads, a_entry) {
 		a_thread = (zlog_thread_t *) a_entry->value;
-		rc = zlog_thread_rebuild_msg_buf(a_thread, buf_size_min, buf_size_max);
+		rc = zlog_thread_update_msg_buf(a_thread, buf_size_min, buf_size_max);
 		if (rc) {
-			zc_error("zlog_thread_rebuild_msg_buf fail");
+			zc_error("zlog_thread_update_msg_buf fail, try rollback");
 			return -1;
 		}
 	}
@@ -84,6 +82,33 @@ int zlog_thread_table_rebuild_msg_buf(zc_hashtable_t * threads,
 	return 0;
 }
 
+void zlog_thread_table_commit_msg_buf(zc_hashtable_t * threads)
+{
+	zc_hashtable_entry_t *a_entry;
+	zlog_thread_t *a_thread;
+
+	zc_assert(threads,);
+	zc_hashtable_foreach(threads, a_entry) {
+		a_thread = (zlog_thread_t *) a_entry->value;
+		zlog_thread_commit_msg_buf(a_thread);
+	}
+	return;
+}
+
+void zlog_thread_table_rollback_msg_buf(zc_hashtable_t * threads)
+{
+	zc_hashtable_entry_t *a_entry;
+	zlog_thread_t *a_thread;
+
+	zc_assert(threads,);
+	zc_hashtable_foreach(threads, a_entry) {
+		a_thread = (zlog_thread_t *) a_entry->value;
+		zlog_thread_rollback_msg_buf(a_thread);
+	}
+	return;
+}
+
+/*******************************************************************************/
 zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t tid)
 {
 	zlog_thread_t *a_thread;
@@ -125,6 +150,4 @@ zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads,
 		return a_thread;
 	}
 }
-
-
 /*******************************************************************************/

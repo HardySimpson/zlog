@@ -39,15 +39,13 @@
 typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule,
 					zlog_thread_t * a_thread);
 
-/* return 1, should log; return 0, need not log */
-typedef int (*zlog_rule_compare_fn) (int event_level, int rule_level);
 
 struct zlog_rule_s {
 	char category[MAXLEN_CFG_LINE + 1];
-	zlog_rule_compare_fn compare; /* if NULL, means allow all */
 	int level;
 	char compare_char;
 	/* 
+	 * [*] log all level
 	 * [.] log level >= rule level, default
 	 * [=] log level == rule level 
 	 * [!] log level != rule level
@@ -80,6 +78,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->compare_char,
 		a_rule->level,
 		a_rule->file_path,
+		a_rule->dynamic_file_specs,
 		a_rule->file_max_size,
 		a_rule->file_max_count,
 		a_rule->syslog_facility,
@@ -184,7 +183,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule,
 static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread,
 			      char **file_path)
 {
-	int rc;
+	int rc = 0;
 	int i;
 	zlog_spec_t *a_spec;
 
@@ -376,33 +375,12 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 	return 0;
 }
 /*******************************************************************************/
-static int zlog_rule_compare_true(int event_level, int rule_level)
-{
-	return 1;
-}
-
-static int zlog_rule_compare_ge(int event_level, int rule_level)
-{
-	return (event_level >= rule_level);
-}
-
-static int zlog_rule_compare_eq(int event_level, int rule_level)
-{
-	return (event_level == rule_level);
-}
-
-static int zlog_rule_compare_ne(int event_level, int rule_level)
-{
-	return (event_level != rule_level);
-}
-
-/*******************************************************************************/
 static int syslog_facility_atoi(char *facility)
 {
 	/* guess no unix system will choose -187
 	 * as its syslog facility, so it is a safe return value
 	 */
-	zc_assert_debug(facility, -187);
+	zc_assert(facility, -187);
 
 	if (STRICMP(facility, ==, "LOG_LOCAL0"))
 		return LOG_LOCAL0;
@@ -515,25 +493,21 @@ zlog_rule_t *zlog_rule_new(char *line,
 	case '=':
 		/* aa.=debug */
 		a_rule->compare_char = '=';
-		a_rule->compare = zlog_rule_compare_eq;
 		p = level + 1;
 		break;
 	case '!':
 		/* aa.!debug */
 		a_rule->compare_char = '!';
-		a_rule->compare = zlog_rule_compare_ne;
 		p = level + 1;
 		break;
 	case '*':
 		/* aa.* */
-		a_rule->compare_char = '.';
-		a_rule->compare = zlog_rule_compare_true;
+		a_rule->compare_char = '*';
 		p = level;
 		break;
 	default:
 		/* aa.debug */
 		a_rule->compare_char = '.';
-		a_rule->compare = zlog_rule_compare_ge;
 		p = level;
 		break;
 	}
@@ -716,17 +690,40 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 /*******************************************************************************/
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	if (a_rule->compare(a_thread->event->level, a_rule->level)) {
+	switch (a_rule->compare_char) {
+	case '*' :
 		return a_rule->output(a_rule, a_thread);
-	} else {
-		return 0;
+		break;
+	case '.' :
+		if (a_thread->event->level >= a_rule->level) {
+			return a_rule->output(a_rule, a_thread);
+		} else {
+			return 0;
+		}
+		break;
+	case '=' :
+		if (a_thread->event->level == a_rule->level) {
+			return a_rule->output(a_rule, a_thread);
+		} else {
+			return 0;
+		}
+		break;
+	case '!' :
+		if (a_thread->event->level != a_rule->level) {
+			return a_rule->output(a_rule, a_thread);
+		} else {
+			return 0;
+		}
+		break;
 	}
+
+	return 0;
 }
 
 /*******************************************************************************/
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule)
 {
-	zc_assert_debug(a_rule, -1);
+	zc_assert(a_rule, -1);
 	
 	if (STRCMP(a_rule->category, ==, "!")) {
 		return 1;

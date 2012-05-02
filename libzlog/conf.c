@@ -34,7 +34,7 @@
 #include "zc_defs.h"
 
 /*******************************************************************************/
-#define ZLOG_CONF_DEFAULT_FORMAT "default   \"%d(%F %T) %V [%p:%F:%L] %m%n\""
+#define ZLOG_CONF_DEFAULT_FORMAT "default = \"%d(%F %T) %V [%p:%F:%L] %m%n\""
 #define ZLOG_CONF_DEFAULT_RULE "*.*        >stdout"
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MIN 1024
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MAX (2 * 1024 * 1024)
@@ -115,13 +115,14 @@ void zlog_conf_del(zlog_conf_t * a_conf)
 	return;
 }
 
-static int zlog_conf_build_default(zlog_conf_t * a_conf);
-static int zlog_conf_read_config(zlog_conf_t * a_conf);
+static int zlog_conf_build_without_file(zlog_conf_t * a_conf);
+static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
 
 zlog_conf_t *zlog_conf_new(char *conf_file)
 {
 	int rc = 0;
 	int nwrite = 0;
+	int has_conf_file = 0;
 	zlog_conf_t *a_conf;
 
 	a_conf = calloc(1, sizeof(zlog_conf_t));
@@ -130,31 +131,63 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 		return NULL;
 	}
 
-	if (conf_file) {
+	if (conf_file && conf_file[0] != '\0') {
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", conf_file);
+		has_conf_file = 1;
 	} else if (getenv("ZLOG_CONF_PATH") != NULL) {
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONF_PATH"));
+		has_conf_file = 1;
 	} else {
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
+		has_conf_file = 0;
 	}
 	if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
-		zc_error("not enough space for path name, nwrite=[%d]", nwrite);
+		zc_error("not enough space for path name, nwrite=[%d], errno[%d]", nwrite, errno);
 		rc = -1;
 		goto zlog_conf_new_exit;
 	}
 
-	rc = zlog_conf_build_default(a_conf);
-	if (rc) {
+	/* set default configuration start */
+	a_conf->strict_init = 1;
+	a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
+	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
+	strcpy(a_conf->rotate_lock_file, ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE);
+	strcpy(a_conf->default_format_line, ZLOG_CONF_DEFAULT_FORMAT);
+	/* set default configuration end */
+
+	a_conf->levels = zlog_level_list_new();
+	if (!a_conf->levels) {
+		zc_error("zlog_level_list_new fail");
 		rc = -1;
-		zc_error("zlog_conf_build fail");
 		goto zlog_conf_new_exit;
 	}
 
-	rc = zlog_conf_read_config(a_conf);
-	if (rc) {
+	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
+	if (!a_conf->formats) {
+		zc_error("zc_arraylist_new fail");
 		rc = -1;
-		zc_error("zlog_conf_read_config fail");
 		goto zlog_conf_new_exit;
+	}
+
+	a_conf->rules = zc_arraylist_new((zc_arraylist_del_fn) zlog_rule_del);
+	if (!a_conf->rules) {
+		zc_error("init rule_list fail");
+		rc = -1;
+		goto zlog_conf_new_exit;
+	}
+
+	if (has_conf_file) {
+		rc = zlog_conf_build_with_file(a_conf);
+		if (rc) {
+			zc_error("zlog_conf_build_with_file fail");
+			goto zlog_conf_new_exit;
+		}
+	} else {
+		rc = zlog_conf_build_without_file(a_conf);
+		if (rc) {
+			zc_error("zlog_conf_build_with_file fail");
+			goto zlog_conf_new_exit;
+		}
 	}
 
       zlog_conf_new_exit:
@@ -167,35 +200,10 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	}
 }
 /*******************************************************************************/
-static int zlog_conf_build_default(zlog_conf_t * a_conf)
+static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 {
 	int rc = 0;
 	zlog_rule_t *default_rule;
-
-	/* set default configuration start */
-	a_conf->strict_init = 1;
-	a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
-	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
-	strcpy(a_conf->rotate_lock_file, ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE);
-	strcpy(a_conf->default_format_line, ZLOG_CONF_DEFAULT_FORMAT);
-
-	a_conf->levels = zlog_level_list_new();
-	if (!a_conf->levels) {
-		zc_error("zlog_level_list_new fail");
-		return -1;
-	}
-
-	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
-	if (!a_conf->formats) {
-		zc_error("zc_arraylist_new fail");
-		return -1;
-	}
-
-	a_conf->rules = zc_arraylist_new((zc_arraylist_del_fn) zlog_rule_del);
-	if (!a_conf->rules) {
-		zc_error("init rule_list fail");
-		return -1;
-	}
 
 	a_conf->default_format = zlog_format_new(a_conf->default_format_line, a_conf->levels);
 	if (!a_conf->default_format) {
@@ -209,12 +217,6 @@ static int zlog_conf_build_default(zlog_conf_t * a_conf)
 		return -1;
 	}
 
-	/* with config file */
-	if (a_conf->file[0] != '\0') {
-		return 0;
-	}
-
-	/* without config file */
 	default_rule = zlog_rule_new(
 			ZLOG_CONF_DEFAULT_RULE,
 			a_conf->rotater,
@@ -229,8 +231,8 @@ static int zlog_conf_build_default(zlog_conf_t * a_conf)
 	/* add default rule */
 	rc = zc_arraylist_add(a_conf->rules, default_rule);
 	if (rc) {
-		zc_error("zc_arraylist_add fail");
 		zlog_rule_del(default_rule);
+		zc_error("zc_arraylist_add fail");
 		return -1;
 	}
 
@@ -239,7 +241,7 @@ static int zlog_conf_build_default(zlog_conf_t * a_conf)
 /*******************************************************************************/
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section);
 
-static int zlog_conf_read_config(zlog_conf_t * a_conf)
+static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 {
 	int rc = 0;
 	struct stat a_stat;
@@ -255,11 +257,6 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 
 	int section = 0;
 	/* [global:1] [levels:2] [formats:3] [rules:4] */
-
-	/* without config file, do nothing */
-	if (a_conf->file[0] == '\0') {
-		return 0;
-	}
 
 	rc = lstat(a_conf->file, &a_stat);
 	if (rc) {
@@ -325,10 +322,17 @@ static int zlog_conf_read_config(zlog_conf_t * a_conf)
 		 * character. So let's process it
 		 */
 		rc = zlog_conf_parse_line(a_conf, line, &section);
-		if (rc) {
-			zc_error("parse configure file[%s]line:(%ld)[%s] fail",
-				a_conf->file, line_no, line);
+		if (rc < 0) {
+			zc_error("parse configure file[%s]line_no[%ld] fail",
+				a_conf->file, line_no);
+			zc_error("line[%s]", line);
 			goto zlog_conf_read_config_exit;
+		} else if (rc > 0) {
+			zc_warn("parse configure file[%s]line_no[%ld] fail",
+				a_conf->file, line_no);
+			zc_warn("line[%s]", line);
+			zc_warn("as strict init is set to false, ignore and go on");
+			rc = 0;
 		}
 	}
 
@@ -343,6 +347,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 {
 	int rc = 0;
 	int nscan = 0;
+	int nread = 0;
 	char name[MAXLEN_CFG_LINE + 1];
 	char word_1[MAXLEN_CFG_LINE + 1];
 	char word_2[MAXLEN_CFG_LINE + 1];
@@ -359,7 +364,8 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 
 	/* get and set outer section flag, so it is a closure? haha */
 	if (line[0] == '[') {
-		nscan = sscanf(line, "[ %s ]", name);
+		int last_section = *section;
+		nscan = sscanf(line, "[ %[^] \t]", name);
 		if (STRCMP(name, ==, "global")) {
 			*section = 1;
 		} else if (STRCMP(name, ==, "levels")) {
@@ -367,20 +373,42 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		} else if (STRCMP(name, ==, "formats")) {
 			*section = 3;
 		} else if (STRCMP(name, ==, "rules")) {
-			*section = 3;
+			*section = 4;
 		} else {
-			zc_error("wrong section name[%s]", line);
+			zc_error("wrong section name[%s]", name);
 			return -1;
+		}
+		/* check the sequence of section, must increase */
+		if (last_section >= *section) {
+			zc_error("wrong sequence of section, must follow global->levels->formats->rules");
+			return -1;
+		}
+
+		if (*section == 4) {
+			/* now build rotater and default_format
+			 * from the unchanging global setting,
+			 * for zlog_rule_new() */
+			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);	
+			if (!a_conf->rotater) {
+				zc_error("zlog_rotater_new fail");
+				return -1;
+			}
+
+			a_conf->default_format = zlog_format_new(a_conf->default_format_line, a_conf->levels);
+			if (!a_conf->default_format) {
+				zc_error("zlog_format_new fail");
+				return -1;
+			}
 		}
 		return 0;
 	}
 
-	/* set detail */
+	/* process detail */
 	switch (*section) {
 	case 1:
 		memset(name, 0x00, sizeof(name));
 		memset(value, 0x00, sizeof(value));
-		nscan = sscanf(line, " %[^= ] = %s ", name, value);
+		nscan = sscanf(line, " %[^=]= %s ", name, value);
 		if (nscan != 2) {
 			zc_error("sscanf [%s] fail, name or value is null", line);
 			return -1;
@@ -389,13 +417,13 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		memset(word_1, 0x00, sizeof(word_1));
 		memset(word_2, 0x00, sizeof(word_2));
 		memset(word_3, 0x00, sizeof(word_3));
-		nscan = sscanf(name, "%s%s%s", word_1, word_2, word_3);
+		nscan = sscanf(name, "%s%n%s%s", word_1, &nread, word_2, word_3);
 
 		if (STRCMP(word_1, ==, "strict") && STRCMP(word_2, ==, "init")) {
 			/* if environment variable ZLOG_STRICT_INIT is set
 			 * then always make it strict 
 			 */
-			if (STRICMP(value, ==, "false") && !get_env("ZLOG_STRICT_INIT")) {
+			if (STRICMP(value, ==, "false") && !getenv("ZLOG_STRICT_INIT")) {
 				a_conf->strict_init = 0;
 			} else {
 				a_conf->strict_init = 1;
@@ -406,22 +434,11 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			a_conf->buf_size_max = zc_parse_byte_size(value);
 		} else if (STRCMP(word_1, ==, "rotate") &&
 				STRCMP(word_2, ==, "lock") && STRCMP(word_3, ==, "file")) {
-			/* close the default or older rotater */
-			if (a_conf->rotater) zlog_rotater_del(a_conf->rotater);
+			/* may overwrite the inner default value, or last value */
 			strcpy(a_conf->rotate_lock_file, value);
-			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);	
-			if (!a_conf->rotater) {
-				zc_error("zlog_rotater_new fail");
-				return -1;
-			}
 		} else if (STRCMP(word_1, ==, "default") && STRCMP(word_2, ==, "format")) {
-			/* close the default or older default_format */
-			if (a_conf->default_format) zlog_format_del(a_conf->default_format);
-			a_conf->default_format = zlog_format_new(line, a_conf->levels);
-			if (!a_conf->default_format) {
-				zc_error("zlog_format_new fail");
-				return -1;
-			}
+			strcpy(a_conf->default_format_line, line + nread);
+			/* so the input now is [format = "xxyy"], fit format's style */
 		} else {
 			zc_error("name[%s] is not any one of global options", name);
 			if (a_conf->strict_init) return -1;
@@ -449,6 +466,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		}
 		break;
 	case 4:
+zc_debug("");
 		a_rule = zlog_rule_new(line,
 			a_conf->rotater,
 			a_conf->levels,
@@ -473,4 +491,27 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 	}
 
 	return 0;
+}
+/*******************************************************************************/
+zc_arraylist_t *zlog_conf_get_rules(zlog_conf_t *a_conf)
+{
+	zc_assert(a_conf, NULL);
+	return a_conf->rules;
+}
+
+void zlog_conf_get_buf_size(zlog_conf_t *a_conf,
+		size_t * buf_size_min, size_t * buf_size_max)
+{
+	zc_assert(a_conf,);
+	zc_assert(buf_size_min,);
+	zc_assert(buf_size_max,);
+
+	*buf_size_min = a_conf->buf_size_min;
+	*buf_size_max = a_conf->buf_size_max;
+}
+
+char *zlog_conf_get_file(zlog_conf_t *a_conf)
+{
+	zc_assert(a_conf, NULL);
+	return a_conf->file;
 }

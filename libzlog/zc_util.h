@@ -23,5 +23,6 @@ size_t zc_parse_byte_size(char *astring);
 int zc_str_replace_env(char *str, size_t size);
 
 #define zc_max(a,b) ((a) > (b) ? (a) : (b))
+#define zc_min(a,b) ((a) < (b) ? (a) : (b))
 
 #endif

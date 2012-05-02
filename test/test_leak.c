@@ -20,70 +20,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "zlog.h"
-
-static zlog_category_t *zc;
-
-int work(long loop_count)
-{
-	while(loop_count-- > 0) {
-		ZLOG_INFO(zc, "loglog");
-	}
-	return 0;
-}
-
-
-int test(long process_count, long loop_count)
-{
-	long i;
-	pid_t pid;
-
-	for (i = 0; i < process_count; i++) {
-		pid = fork();
-		if (pid < 0) {
-			printf("fork fail\n");
-		} else if(pid == 0) {
-			work(loop_count);
-			return 0;
-		}
-	}
-
-	for (i = 0; i < process_count; i++) {
-		pid = wait(NULL);
-	}
-
-	return 0;
-}
-
 
 int main(int argc, char** argv)
 {
 	int rc;
+	int k;
+	int i;
 
-	if (argc != 3) {
-		fprintf(stderr, "test nprocess nloop\n");
-		exit(1);
+	if (argc != 2) {
+		printf("test_init ntime\n");
+		return -1;
 	}
 
-	rc = zlog_init("test_press.conf");
-	if (rc) {
-		printf("init failed\n");
-		return 2;
+	rc = zlog_init("test_leak.conf");
+
+	k = atoi(argv[1]);
+	while (k-- > 0) {
+		i = rand();
+		switch (i % 3) {
+		case 0:
+			rc = zlog_init("zlog.conf");
+			printf("init\n");
+			break;
+		case 1:
+			rc = zlog_reload(NULL);
+			printf("update\n");
+			break;
+		case 2:
+			zlog_fini();
+			printf("fini\n");
+	//		printf("zlog_finish\tj=[%d], rc=[%d]\n", j, rc);
+			break;
+		}
 	}
 
-	zc = zlog_get_category("my_cat");
-	if (!zc) {
-		printf("get cat failed\n");
-		zlog_fini();
-		return 3;
-	}
-
-	test(atol(argv[1]), atol(argv[2]));
 
 	zlog_fini();
-	
 	return 0;
 }

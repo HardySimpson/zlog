@@ -18,47 +18,29 @@
  */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <string.h>
-
 #include "zlog.h"
 
 int main(int argc, char** argv)
 {
 	int rc;
-	
 	zlog_category_t *zc;
 
-	rc = zlog_init("test_init.conf");
+	rc = zlog_init("test_tmp.conf");
 	if (rc) {
-		printf("init fail");
-		return -2;
+		printf("init failed\n");
+		return -1;
 	}
 
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
-		printf("zlog_get_category fail\n");
+		printf("get cat fail\n");
 		zlog_fini();
-		return -1;
+		return -2;
 	}
 
-	ZLOG_INFO(zc, "before update");
-
-	sleep(3);
-
-	rc = zlog_reload("test_init.2.conf");
-	if (rc) {
-		printf("update fail\n");
-	}
-
-	ZLOG_INFO(zc, "after update");
-
-	zlog_profile();
+	ZLOG_INFO(zc, "hello, zlog");
 
 	zlog_fini();
-
 	
 	return 0;
 }

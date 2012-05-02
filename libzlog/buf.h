@@ -21,14 +21,16 @@
 #define __zlog_buf_h
 
 #include <stdarg.h>
+#include <time.h>
 
 typedef struct zlog_buf_s {
 	size_t size_min;
 	size_t size_max;
-	size_t size_step;
+	size_t size_real;
+
 	char truncate_str[MAXLEN_PATH + 1];
 	size_t truncate_str_len;
-	size_t size_real;
+
 	char *start;
 	char *end;
 } zlog_buf_t;
@@ -44,5 +46,8 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
 int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 		      const struct tm *a_tm);
+
+int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
+			int left_adjust, size_t min_width, size_t max_width);
 
 #endif

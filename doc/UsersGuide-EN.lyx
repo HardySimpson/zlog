@@ -2585,6 +2585,14 @@ Used to output the file name where the logging request was issued.
 test_hello.c
 \end_layout
 
+\begin_layout Plain Layout
+or, under some compiler
+\end_layout
+
+\begin_layout Plain Layout
+/home/zlog/src/test/test_hello.c
+\end_layout
+
 \end_inset
 </cell>
 </row>

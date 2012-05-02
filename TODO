@@ -5,6 +5,7 @@
 [x] 修改arraylist的读取长度，循环等
 [x] 运行期间指定是否采用线程
 [x] buf_append 优化——为了安全，不优化这个
+[x] 用某种自动编译器以及文档生成器
 [o] 研究ilog读配置文件, buf
 [o] 采用更加面向对象的方法来写
 [o] 使用arraylist来代替linklist为内部数据结构
@@ -35,14 +36,13 @@
 [o] ylog, 更简单的接口, 改名为dzlog的一堆接口来解决
 [o] zlog-gen-conf
 [o] rotate控制个数
+[o] 改变配置文件的布局，去掉@ &这种符号，改用[global],[format]这样的形式来
+[o] 把reload改成原子性的，失败用旧的
+[o] 优化spec_gen_msg部分, spec内采用自己写的buf_append对齐来代替buf_sprintf
 
 [p] 使用valgrind测试性能
-[p] 用某种自动编译器以及文档生成器
-[p] 改变配置文件的布局，去掉@ &这种符号，改用[global],[format]这样的形式来
-[ ] 把reload改成原子性的，失败用旧的
 [ ] 文件的权限设置
 [ ] 输出函数自定义
-[ ] spec内采用自己写的buf_append对齐来代替buf_sprintf
 [ ] 增加man  age,  df, 案例, doxygen
 [ ] zlog-chk-conf -c
 [ ] zlog-input -c category -p priority -f conf

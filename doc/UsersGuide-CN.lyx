@@ -2488,6 +2488,14 @@ reference "sub:Time-Character"
 test_hello.c
 \end_layout
 
+\begin_layout Plain Layout
+或者在某些编译器下
+\end_layout
+
+\begin_layout Plain Layout
+/home/zlog/src/test/test_hello.c
+\end_layout
+
 \end_inset
 </cell>
 </row>
@@ -5469,9 +5477,16 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout LyX-Code
-2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) [] - 1.hello, zlog 2012-03-12
- 09:26:37.740 INFO   (my_cat:test_mdc.c:51) [Zhang] - 2.hello, zlog 2012-03-12
- 09:26:37.740 INFO   (my_cat:test_mdc.c:55) [Li] - 3.hello, zlog
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) [] - 1.hello, zlog 
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:51) [Zhang] - 2.hello, zlog
+ 
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:55) [Li] - 3.hello, zlog
 \end_layout
 
 \begin_layout Standard

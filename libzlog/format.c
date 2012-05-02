@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include "zc_defs.h"
 #include "thread.h"
@@ -70,7 +71,7 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 	int rc = 0;
 	int nscan = 0;
 	zlog_format_t *a_format = NULL;
-	int nread;
+	int nread = 0;
 	const char *p_start;
 	const char *p_end;
 	char *p;
@@ -91,9 +92,15 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 	 * pattern      %d(%F %X.%l) %-6V (%c:%F:%L) - %m%n
 	 */
 	memset(a_format->name, 0x00, sizeof(a_format->name));
-	nscan = sscanf(line, " %[^= ] = %n", a_format->name, &nread);
+	nscan = sscanf(line, " %[^= \t] = %n", a_format->name, &nread);
 	if (nscan != 1) {
 		zc_error("format[%s], syntax wrong", line);
+		rc = -1;
+		goto zlog_format_new_exit;
+	}
+
+	if (*(line + nread) != '"') {
+		zc_error("the 1st char of pattern is not \", line+nread[%s]", line+nread);
 		rc = -1;
 		goto zlog_format_new_exit;
 	}
@@ -107,11 +114,6 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 		}
 	}
 
-	if (*(line + nread) != '"') {
-		zc_error("the 1st char of pattern is not \", line[%s]", line);
-		rc = -1;
-		goto zlog_format_new_exit;
-	}
 
 	p_start = line + nread + 1;
 	p_end = strrchr(p_start, '"');
@@ -179,11 +181,12 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
 		rc = zlog_spec_gen_msg(a_spec, a_thread);
-		if (rc < 0) {
+		switch (rc) {
+		case -1:
 			zc_error("zlog_spec_gen_msg fail");
 			return -1;
-		} else if (rc > 0) {
-			/* buf is full  */
+		case 1:
+			zc_error("zlog_spec_gen_msg, buffer is full");
 			break;
 		}
 	}

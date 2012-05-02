@@ -33,7 +33,7 @@ void zlog_mdc_profile(zlog_mdc_t *a_mdc, int flag)
 	zlog_mdc_kv_t *a_mdc_kv;
 
 	zc_assert(a_mdc,);
-	zlog_profile(flag, "---mdc[%p]---", a_mdc);
+	zc_profile(flag, "---mdc[%p]---", a_mdc);
 
 	zc_hashtable_foreach(a_mdc->tab, a_entry) {
 		a_mdc_kv = a_entry->value;

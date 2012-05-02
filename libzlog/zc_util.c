@@ -34,7 +34,7 @@ size_t zc_parse_byte_size(char *astring)
 	size_t sz;
 	long res;
 
-	zc_assert_debug(astring, 0);
+	zc_assert(astring, 0);
 
 	/* clear space */
 	for (p = q = astring; *p != '\0'; p++) {
@@ -117,8 +117,8 @@ int zc_str_replace_env(char *str, size_t size)
 	q = str;
 
 	do {
-		int nscan;
-		int nread;
+		int nscan = 0;
+		int nread = 0;
 
 		p = strchr(q, '%');
 		if (!p) {

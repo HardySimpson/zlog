@@ -20,45 +20,72 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
-#include <string.h>
 
 #include "zlog.h"
+
+static zlog_category_t *zc;
+
+int work(long loop_count)
+{
+	while(loop_count-- > 0) {
+		ZLOG_INFO(zc, "loglog");
+	}
+	return 0;
+}
+
+
+int test(long process_count, long loop_count)
+{
+	long i;
+	pid_t pid;
+
+	for (i = 0; i < process_count; i++) {
+		pid = fork();
+		if (pid < 0) {
+			printf("fork fail\n");
+		} else if(pid == 0) {
+			work(loop_count);
+			return 0;
+		}
+	}
+
+	for (i = 0; i < process_count; i++) {
+		pid = wait(NULL);
+	}
+
+	return 0;
+}
+
 
 int main(int argc, char** argv)
 {
 	int rc;
-	
-	zlog_category_t *zc;
 
-	rc = zlog_init("test_init.conf");
-	if (rc) {
-		printf("init fail");
-		return -2;
+	if (argc != 3) {
+		fprintf(stderr, "test nprocess nloop\n");
+		exit(1);
 	}
+
+	rc = zlog_init("test_press_zlog.conf");
+	if (rc) {
+		printf("init failed\n");
+		return 2;
+	}
+
+zlog_profile();
 
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
-		printf("zlog_get_category fail\n");
+		printf("get cat failed\n");
 		zlog_fini();
-		return -1;
+		return 3;
 	}
 
-	ZLOG_INFO(zc, "before update");
-
-	sleep(3);
-
-	rc = zlog_reload("test_init.2.conf");
-	if (rc) {
-		printf("update fail\n");
-	}
-
-	ZLOG_INFO(zc, "after update");
-
-	zlog_profile();
+	test(atol(argv[1]), atol(argv[2]));
 
 	zlog_fini();
-
 	
 	return 0;
 }

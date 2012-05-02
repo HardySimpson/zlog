@@ -65,24 +65,48 @@ zc_hashtable_t *zlog_category_table_new(void)
 	}
 }
 /*******************************************************************************/
-int zlog_category_table_obtain_rules(
-				zc_hashtable_t * categories,
-				zc_arraylist_t * rules)
+int zlog_category_table_update_rules(zc_hashtable_t * categories, zc_arraylist_t * new_rules)
 {
-	int rc;
+	int rc = 0;
 	zc_hashtable_entry_t *a_entry;
 	zlog_category_t *a_category;
 
 	zc_assert(categories, -1);
 	zc_hashtable_foreach(categories, a_entry) {
 		a_category = (zlog_category_t *) a_entry->value;
-		rc = zlog_category_obtain_rules(a_category, rules);
+		rc = zlog_category_update_rules(a_category, new_rules);
 		if (rc) {
-			zc_error("zlog_category_obtain_rules fail");
+			zc_error("zlog_category_update_rules fail, try rollback");
 			return -1;
 		}
 	}
 	return 0;
+}
+
+void zlog_category_table_commit_rules(zc_hashtable_t * categories)
+{
+	zc_hashtable_entry_t *a_entry;
+	zlog_category_t *a_category;
+
+	zc_assert(categories,);
+	zc_hashtable_foreach(categories, a_entry) {
+		a_category = (zlog_category_t *) a_entry->value;
+		zlog_category_commit_rules(a_category);
+	}
+	return;
+}
+
+void zlog_category_table_rollback_rules(zc_hashtable_t * categories)
+{
+	zc_hashtable_entry_t *a_entry;
+	zlog_category_t *a_category;
+
+	zc_assert(categories,);
+	zc_hashtable_foreach(categories, a_entry) {
+		a_category = (zlog_category_t *) a_entry->value;
+		zlog_category_rollback_rules(a_category);
+	}
+	return;
 }
 
 /*******************************************************************************/

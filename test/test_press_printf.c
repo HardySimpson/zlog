@@ -28,7 +28,7 @@ static FILE *fp;
 int work(long loop_count)
 {
 	while(loop_count-- > 0) {
-		fprintf(fp, "2011-10-24 17:00:14 | 14644:test.c:11 | 日志日志\n");
+		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
 	}
 	return 0;
 }

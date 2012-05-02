@@ -9,4 +9,4 @@ make -f makefile.linux
 
 >press.log
 
-valgrind --tool=callgrind ./test_press 1 10000
+valgrind --tool=callgrind ./test_press_zlog 1 10000

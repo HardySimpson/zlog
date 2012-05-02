@@ -28,9 +28,9 @@ zc_hashtable_t *zlog_thread_table_new(void);
 void zlog_thread_table_del(zc_hashtable_t *threads);
 void zlog_thread_table_profile(zc_hashtable_t *threads, int flag);
 
-int zlog_thread_table_rebuild_msg_buf(zc_hashtable_t * threads,
-			size_t buf_size_min,
-			size_t buf_size_max);
+int zlog_thread_table_update_msg_buf(zc_hashtable_t * threads, size_t buf_size_min, size_t buf_size_max);
+void zlog_thread_table_commit_msg_buf(zc_hashtable_t * threads);
+void zlog_thread_table_rollback_msg_buf(zc_hashtable_t * threads);
 
 zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t tid);
 zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads, size_t buf_size_min,

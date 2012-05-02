@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "zc_error.c"
+#include "zc_profile.c"
 #include "zc_hashtable.h"
 #include "zc_hashtable.c"
 

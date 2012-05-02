@@ -28,10 +28,14 @@
 typedef struct {
 	zlog_mdc_t *mdc;
 	zlog_event_t *event;
+
 	zlog_buf_t *pre_path_buf;
 	zlog_buf_t *path_buf;
 	zlog_buf_t *pre_msg_buf;
 	zlog_buf_t *msg_buf;
+
+	zlog_buf_t *pre_msg_buf_backup;
+	zlog_buf_t *msg_buf_backup;
 } zlog_thread_t;
 
 
@@ -39,8 +43,8 @@ void zlog_thread_del(zlog_thread_t * a_thread);
 void zlog_thread_profile(zlog_thread_t * a_thread, int flag);
 zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max);
 
-int zlog_thread_rebuild_msg_buf(zlog_thread_t * a_thread,
-				size_t buf_size_min,
-				size_t buf_size_max);
+int zlog_thread_update_msg_buf(zlog_thread_t * a_thread, size_t buf_size_min, size_t buf_size_max);
+void zlog_thread_commit_msg_buf(zlog_thread_t * a_thread);
+void zlog_thread_rollback_msg_buf(zlog_thread_t * a_thread);
 
 #endif

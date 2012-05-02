@@ -36,7 +36,8 @@ void zlog_level_list_profile(zc_arraylist_t *levels, int flag)
 	zc_assert(levels,);
 	zc_profile(flag, "--level_list[%p]--", levels);
 	zc_arraylist_foreach(levels, i, a_level) {
-		zc_level_profile(a_level, flag);
+		/* skip empty slots */
+		if (a_level) zlog_level_profile(a_level, flag);
 	}
 	return;
 }
@@ -46,7 +47,7 @@ void zlog_level_list_del(zc_arraylist_t *levels)
 {
 	zc_assert(levels,);
 	zc_arraylist_del(levels);
-	zc_debug("zc_levels_del[%p]", levels);
+	zc_debug("zc_level_list_del[%p]", levels);
 	return;
 }
 
@@ -65,7 +66,7 @@ static int zlog_level_list_set_default(zc_arraylist_t *levels)
 
 zc_arraylist_t *zlog_level_list_new(void)
 {
-	int rc;
+	int rc = 0;
 	zc_arraylist_t *levels;
 
 	levels = zc_arraylist_new((zc_arraylist_del_fn)zlog_level_del);
@@ -74,7 +75,7 @@ zc_arraylist_t *zlog_level_list_new(void)
 		return NULL;
 	}
 
-	rc = zlog_levels_set_default(levels);
+	rc = zlog_level_list_set_default(levels);
 	if (rc) {
 		zc_error("zlog_level_set_default fail");
 		rc = -1;
@@ -86,7 +87,7 @@ zc_arraylist_t *zlog_level_list_new(void)
 		zc_arraylist_del(levels);
 		return NULL;
 	} else {
-		zlog_levels_profile(levels, ZC_DEBUG);
+		zlog_level_list_profile(levels, ZC_DEBUG);
 		return levels;
 	}
 }
@@ -94,7 +95,7 @@ zc_arraylist_t *zlog_level_list_new(void)
 /*******************************************************************************/
 int zlog_level_list_set(zc_arraylist_t *levels, char *line)
 {
-	int rc;
+	int rc = 0;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_new(line);
@@ -107,10 +108,10 @@ int zlog_level_list_set(zc_arraylist_t *levels, char *line)
 	if (rc) {
 		zc_error("zc_arraylist_set fail");
 		rc = -1;
-		goto zlog_level_set_exit;
+		goto zlog_level_list_set_exit;
 	}
 
-      zlog_level_set_exit:
+      zlog_level_list_set_exit:
 	if (rc) {
 		zc_error("line[%s]", line);
 		zlog_level_del(a_level);

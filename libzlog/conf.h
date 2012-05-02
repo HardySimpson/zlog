@@ -29,4 +29,9 @@ zlog_conf_t *zlog_conf_new(char *conf_file);
 void zlog_conf_del(zlog_conf_t * a_conf);
 void zlog_conf_profile(zlog_conf_t * a_conf, int flag);
 
+zc_arraylist_t *zlog_conf_get_rules(zlog_conf_t *a_conf);
+void zlog_conf_get_buf_size(zlog_conf_t *a_conf,
+		size_t * buf_size_min, size_t * buf_size_max);
+char *zlog_conf_get_file(zlog_conf_t *a_conf);
+
 #endif

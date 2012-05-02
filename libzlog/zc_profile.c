@@ -29,15 +29,6 @@
 #include "zc_profile.h"
 #include "zc_xplatform.h"
 
-static char *debug_log = NULL;
-static char *error_log = NULL;
-
-void zc_profile_init(void)
-{
-	debug_log = getenv("ZLOG_PROFILE_DEBUG");
-	error_log = getenv("ZLOG_PROFILE_DEBUG");
-}
-
 static void zc_time(char *time_str, size_t time_str_size)
 {
 	time_t tt;
@@ -56,32 +47,47 @@ int zc_profile_inner(int flag, const char *file, const long line, const char *fm
 	char time_str[20 + 1];
 	FILE *fp = NULL;
 
-	if (flag == ZC_DEBUG) {
- 		if (debug_log == NULL) {
-			return 0;
-		} else {
-			fp = fopen(debug_log, "a");
-			if (!fp) return -1;
-		}
-	} else if (flag == ZC_ERROR) {
- 		if (error_log == NULL) {
-			return 0;
-		} else {
-			fp = fopen(error_log, "a");
-			if (!fp) return -1;
-		}
+	static char *debug_log = NULL;
+	static char *error_log = NULL;
+	static volatile int init_flag = 0;
+
+	if (!init_flag) {
+		/* maybe not thread-safe here, but that's the only light way */
+		init_flag = 1;
+		debug_log = getenv("ZLOG_PROFILE_DEBUG");
+		error_log = getenv("ZLOG_PROFILE_ERROR");
 	}
 
-	zc_time(time_str, sizeof(time_str));
+	switch (flag) {
+	case ZC_DEBUG:
+ 		if (debug_log == NULL) return 0;
+		fp = fopen(debug_log, "a");
+		if (!fp) return -1;
+		zc_time(time_str, sizeof(time_str));
+		fprintf(fp, "%s DEBUG (%d:%s:%ld) ", time_str, getpid(), file, line);
+		break;
+	case ZC_WARN:
+ 		if (error_log == NULL) return 0;
+		fp = fopen(error_log, "a");
+		if (!fp) return -1;
+		zc_time(time_str, sizeof(time_str));
+		fprintf(fp, "%s WARN  (%d:%s:%ld) ", time_str, getpid(), file, line);
+		break;
+	case ZC_ERROR:
+ 		if (error_log == NULL) return 0;
+		fp = fopen(error_log, "a");
+		if (!fp) return -1;
+		zc_time(time_str, sizeof(time_str));
+		fprintf(fp, "%s ERROR (%d:%s:%ld) ", time_str, getpid(), file, line);
+		break;
+	}
 
-	fprintf(fp, "%s DEBUG (%d:%s:%ld) ", time_str, getpid(), file, line);
 	va_start(args, fmt);
 	vfprintf(fp, fmt, args);
 	va_end(args);
 	fprintf(fp, "\n");
 
 	fclose(fp);
-
 	return 0;
 }
 
