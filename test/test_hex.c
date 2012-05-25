@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "zlog.h"
+#include "stdlib.h"
 
 static int ReadTotalFile( FILE * fp , char ** ptr , long * len )
 {
@@ -107,7 +108,9 @@ int main(int argc, char** argv)
 
 	rc = ReadTotalFile(fp, &dmp, &dmp_len);
 
+
 	HZLOG_DEBUG(zc, dmp, dmp_len);
+rc = system("ps -o \"pid,ppid,pcpu,pmem,rssize,start_time,args\" | grep test_hex");
 	fclose(fp);
 	free(dmp);
 

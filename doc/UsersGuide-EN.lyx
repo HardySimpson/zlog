@@ -68,7 +68,7 @@ by Hardy Simpson
 status collapsed
 
 \begin_layout Plain Layout
-This Guide is for zlog v0.9.
+This Guide is for zlog v1.0.
 \end_layout
 
 \end_inset
@@ -4915,7 +4915,7 @@ zlog.h
 \end_layout
 
 \begin_layout Section
-init and finish
+initialize and finish
 \end_layout
 
 \begin_layout LyX-Code
@@ -4957,7 +4957,7 @@ reference "sec:Profile-zlog-Itself"
 \emph on
 zlog_init()
 \emph default
- per process is effective, other times will fail.
+ per process is effective, other times will fail and do nothing.
 \end_layout
 
 \begin_layout Standard
@@ -4970,7 +4970,7 @@ zlog_reload()
 conf_file
 \emph default
 .
- From the conf-file it re-calculate category-rule relationship, rebuild
+ From the conf_file it re-calculate category-rule relationship, rebuild
  thread buffers.
  It can be call at runtime when configure file changed, and can be use unlimit
  times.
@@ -4987,7 +4987,7 @@ zlog_reload()
 \emph on
 zlog_reload()
 \emph default
- failed, return -1 and zlog will be unuseable.
+ failed, return -1 and keep using the last configure file.
 \end_layout
 
 \begin_layout Standard
@@ -5000,7 +5000,7 @@ zlog_fini()
  
 \emph default
 applied, close opened files.
- It can be call unlimit times.
+ It can be called unlimit times.
 \end_layout
 
 \begin_layout Section

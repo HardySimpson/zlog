@@ -86,9 +86,7 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 
 /*******************************************************************************/
 /* implementation of write function */
-static int zlog_spec_write_time_direct(zlog_spec_t * a_spec,
-				     zlog_thread_t * a_thread,
-				     zlog_buf_t * a_buf)
+static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -111,8 +109,7 @@ static int zlog_spec_write_time_direct(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_write_time_msus(zlog_spec_t * a_spec,
-				   zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int i;
 	int rc = 0;
@@ -149,8 +146,7 @@ static int zlog_spec_write_time_msus(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-			     zlog_buf_t * a_buf)
+static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 	zlog_mdc_kv_t *a_mdc_kv;
@@ -169,8 +165,7 @@ static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-			     zlog_buf_t * a_buf)
+static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -182,14 +177,13 @@ static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_write_category(zlog_spec_t * a_spec,
-				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
 	int rc = 0;
 
 	rc = zlog_buf_append(a_buf, a_thread->event->category_name,
-			     *(a_thread->event->category_name_len));
+			     a_thread->event->category_name_len);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -197,13 +191,11 @@ static int zlog_spec_write_category(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-				 zlog_buf_t * a_buf)
+static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
-	rc = zlog_buf_append(a_buf, a_thread->event->file,
-			     strlen(a_thread->event->file));
+	rc = zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -211,14 +203,13 @@ static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	return 0;
 }
 
-static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-				 zlog_buf_t * a_buf)
+static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 	char *p;
 	char *end;
 
-	end = a_thread->event->file + strlen(a_thread->event->file) - 1;
+	end = (char*)a_thread->event->file + strlen(a_thread->event->file) - 1;
 	for (p = end; *p != '/' && p > a_thread->event->file; p--);
 		/* empty */
 
@@ -234,8 +225,7 @@ static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_
 	return 0;
 }
 
-static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-				 zlog_buf_t * a_buf)
+static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -247,13 +237,11 @@ static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	return 0;
 }
 
-static int zlog_spec_write_hostname(zlog_spec_t * a_spec,
-				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
-	rc = zlog_buf_append(a_buf, a_thread->event->host_name,
-			     a_thread->event->host_name_len);
+	rc = zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -261,8 +249,20 @@ static int zlog_spec_write_hostname(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-				 zlog_buf_t * a_buf)
+
+static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	int rc = 0;
+
+	rc = zlog_buf_append(a_buf, a_thread->event->host_name, a_thread->event->host_name_len);
+	if (rc) {
+		zc_error("zlog_buf_append maybe fail or overflow");
+		return rc;
+	}
+	return 0;
+}
+
+static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -274,8 +274,7 @@ static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	return 0;
 }
 
-static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-				zlog_buf_t * a_buf)
+static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -287,14 +286,9 @@ static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	return 0;
 }
 
-static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-			     zlog_buf_t * a_buf)
+static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
-
-	if (!a_thread->event->pid) {
-		a_thread->event->pid = getpid();
-	}
 
 	if (!a_thread->event->pid) {
 		a_thread->event->pid = getpid();
@@ -308,8 +302,7 @@ static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-			     zlog_buf_t * a_buf)
+static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -324,8 +317,7 @@ static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec,
-				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 	zlog_level_t *a_level;
@@ -340,8 +332,7 @@ static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec,
-				  zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 	zlog_level_t *a_level;
@@ -356,8 +347,7 @@ static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread,
-				zlog_buf_t * a_buf)
+static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int rc = 0;
 
@@ -507,8 +497,7 @@ int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 	return a_spec->gen_msg(a_spec, a_thread);
 }
 
-static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec,
-				    zlog_thread_t * a_thread)
+static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 
@@ -521,8 +510,7 @@ static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec,
-				      zlog_thread_t * a_thread)
+static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 
@@ -556,8 +544,7 @@ int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 	return a_spec->gen_path(a_spec, a_thread);
 }
 
-static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec,
-				     zlog_thread_t * a_thread)
+static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 
@@ -573,8 +560,7 @@ static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec,
 	return 0;
 }
 
-static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec,
-				       zlog_thread_t * a_thread)
+static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 
@@ -845,6 +831,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			break;
 		case 'p':
 			a_spec->write_buf = zlog_spec_write_pid;
+			break;
+		case 'U':
+			a_spec->write_buf = zlog_spec_write_srcfunc;
 			break;
 		case 'v':
 			a_spec->write_buf = zlog_spec_write_level_lowercase;

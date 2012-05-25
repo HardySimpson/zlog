@@ -33,17 +33,20 @@ typedef enum {
 
 typedef struct {
 	char *category_name;
-	size_t *category_name_len;
+	size_t category_name_len;
 	char host_name[256 + 1];
 	size_t host_name_len;
 
-	char *file;
+	const char *file;
+	size_t file_len;
+	const char *func;
+	size_t func_len;
 	long line;
 	int level;
 
-	void *hex_buf;
+	const void *hex_buf;
 	size_t hex_buf_len;
-	char *str_format;
+	const char *str_format;
 	va_list str_args;
 	zlog_event_cmd generate_cmd;
 
@@ -61,9 +64,9 @@ void zlog_event_del(zlog_event_t * a_event);
 void zlog_event_profile(zlog_event_t * a_event, int flag);
 
 void zlog_event_set(zlog_event_t * a_event,
-			char *category_name, size_t * category_name_len,
-			char *file, long line, int level,
-			void *hex_buf, size_t hex_buf_len, char *str_format,
-			va_list str_args, int generate_cmd);
+			char *category_name, size_t category_name_len,
+			const char *file, size_t file_len, const char *func, size_t func_len, long line, int level,
+			const void *hex_buf, size_t hex_buf_len, const char *str_format, va_list str_args,
+			int generate_cmd);
 
 #endif

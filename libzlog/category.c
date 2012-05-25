@@ -59,7 +59,7 @@ static int zlog_category_set_name(zlog_category_t * a_category, char *name)
 
 	len = strlen(name);
 	if (len > sizeof(a_category->name) - 1) {
-		zc_error("name[%d] too long", name);
+		zc_error("name[%s] too long", name);
 		return -1;
 	}
 

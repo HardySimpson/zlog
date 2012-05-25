@@ -78,8 +78,8 @@ static zlog_mdc_kv_t *zlog_mdc_kv_new(char *key, char *value)
 		return NULL;
 	}
 
-	strcpy(a_mdc_kv->key, key);
-	strcpy(a_mdc_kv->value, value);
+	strncpy(a_mdc_kv->key, key, sizeof(a_mdc_kv->key)-1);
+	strncpy(a_mdc_kv->value, value, sizeof(a_mdc_kv->key)-1);
 	a_mdc_kv->value_len = value_len;
 	zc_debug("zlog_mdc_kv_new[%p][%s-%s]",
 		a_mdc_kv,

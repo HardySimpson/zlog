@@ -39,6 +39,7 @@
 [o] 改变配置文件的布局，去掉@ &这种符号，改用[global],[format]这样的形式来
 [o] 把reload改成原子性的，失败用旧的
 [o] 优化spec_gen_msg部分, spec内采用自己写的buf_append对齐来代替buf_sprintf
+[o] 引入__func__
 
 [p] 使用valgrind测试性能
 [ ] 文件的权限设置

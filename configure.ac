@@ -4,7 +4,6 @@ AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([libzlog/zlog.h])
 AC_CONFIG_HEADER([config.h])
 AC_GNU_SOURCE
-#LT_INIT(disable-shared) 
 
 # Checks for programs.
 AC_PROG_CPP

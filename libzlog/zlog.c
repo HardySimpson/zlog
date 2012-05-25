@@ -50,16 +50,16 @@ static void zlog_fini_inner(void)
 	return;
 }
 
-static int zlog_init_inner(char *conf_file)
+static int zlog_init_inner(char *confpath)
 {
 	int rc = 0;
 	zlog_thread_t *a_thread;
 	size_t buf_size_min;
 	size_t buf_size_max;
 
-	zlog_env_conf = zlog_conf_new(conf_file);
+	zlog_env_conf = zlog_conf_new(confpath);
 	if (!zlog_env_conf) {
-		zc_error("zlog_conf_new[%s] fail", conf_file);
+		zc_error("zlog_conf_new[%s] fail", confpath);
 		rc = -1;
 		goto zlog_init_inner_exit;
 	}
@@ -98,7 +98,7 @@ static int zlog_init_inner(char *conf_file)
 }
 
 /*******************************************************************************/
-int zlog_init(char *conf_file)
+int zlog_init(char *confpath)
 {
 	int rc = 0;
 	int rd = 0;
@@ -117,9 +117,9 @@ int zlog_init(char *conf_file)
 		goto zlog_init_exit;
 	}
 
-	rc = zlog_init_inner(conf_file);
+	rc = zlog_init_inner(confpath);
 	if (rc) {
-		zc_error("zlog_init_inner[%s] fail", conf_file);
+		zc_error("zlog_init_inner[%s] fail", confpath);
 		goto zlog_init_exit;
 	}
 
@@ -135,7 +135,7 @@ int zlog_init(char *conf_file)
 	return rc;
 }
 
-int dzlog_init(char *conf_file, char *default_category_name)
+int dzlog_init(char *confpath, char *cname)
 {
 	int rc = 0;
 	int rd = 0;
@@ -153,19 +153,19 @@ int dzlog_init(char *conf_file, char *default_category_name)
 		goto dzlog_init_exit;
 	}
 
-	rc = zlog_init_inner(conf_file);
+	rc = zlog_init_inner(confpath);
 	if (rc) {
-		zc_error("zlog_init_inner[%s] fail", conf_file);
+		zc_error("zlog_init_inner[%s] fail", confpath);
 		goto dzlog_init_exit;
 	}
 
 	zlog_default_category = zlog_category_table_fetch_category(
 				zlog_env_categories,
-				default_category_name,
+				cname,
 				zlog_conf_get_rules(zlog_env_conf));
 	if (!zlog_default_category) {
 		zc_error("zlog_category_table_fetch_category[%s] fail",
-				default_category_name);
+				cname);
 		rc = -1;
 		goto dzlog_init_exit;
 	}
@@ -184,7 +184,7 @@ int dzlog_init(char *conf_file, char *default_category_name)
 	return rc;
 }
 /*******************************************************************************/
-int zlog_reload(char *conf_file)
+int zlog_reload(char *confpath)
 {
 	int rc = 0;
 	int rd = 0;
@@ -207,12 +207,12 @@ int zlog_reload(char *conf_file)
 		goto zlog_reload_exit_2;
 	}
 
-	if (conf_file == NULL) {
+	if (confpath == NULL) {
 		/* use last conf file */
-		conf_file = zlog_conf_get_file(zlog_env_conf);
+		confpath = zlog_conf_get_file(zlog_env_conf);
 	}
 
-	new_conf = zlog_conf_new(conf_file);
+	new_conf = zlog_conf_new(confpath);
 	if (!new_conf) {
 		zc_error("zlog_conf_new fail");
 		rc = -1;
@@ -296,13 +296,13 @@ void zlog_fini(void)
 	return;
 }
 /*******************************************************************************/
-zlog_category_t *zlog_get_category(char *category_name)
+zlog_category_t *zlog_get_category(char *cname)
 {
 	int rd = 0;
 	zlog_category_t *a_category = NULL;
 
-	zc_assert(category_name, NULL);
-	zc_debug("------zlog_get_category[%s] start------", category_name);
+	zc_assert(cname, NULL);
+	zc_debug("------zlog_get_category[%s] start------", cname);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
@@ -317,15 +317,15 @@ zlog_category_t *zlog_get_category(char *category_name)
 
 	a_category = zlog_category_table_fetch_category(
 				zlog_env_categories,
-				category_name,
+				cname,
 				zlog_conf_get_rules(zlog_env_conf));
 	if (!a_category) {
-		zc_error("zlog_category_table_fetch_category[%s] fail", category_name);
+		zc_error("zlog_category_table_fetch_category[%s] fail", cname);
 		goto zlog_get_category_exit;
 	}
 
       zlog_get_category_exit:
-	zc_debug("------zlog_get_category[%s] end------ ", category_name);
+	zc_debug("------zlog_get_category[%s] end------ ", cname);
 	rd = pthread_rwlock_unlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
@@ -334,14 +334,14 @@ zlog_category_t *zlog_get_category(char *category_name)
 	return a_category;
 }
 
-int dzlog_set_category(char *default_category_name)
+int dzlog_set_category(char *cname)
 {
 	int rd = 0;
 	int rc = 0;
 
-	zc_assert(default_category_name, -1);
+	zc_assert(cname, -1);
 
-	zc_debug("------dzlog_set_category[%s] start------", default_category_name);
+	zc_debug("------dzlog_set_category[%s] start------", cname);
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
@@ -356,16 +356,16 @@ int dzlog_set_category(char *default_category_name)
 
 	zlog_default_category = zlog_category_table_fetch_category(
 				zlog_env_categories,
-				default_category_name,
+				cname,
 				zlog_conf_get_rules(zlog_env_conf));
 	if (!zlog_default_category) {
-		zc_error("zlog_category_table_fetch_category[%s] fail", default_category_name);
+		zc_error("zlog_category_table_fetch_category[%s] fail", cname);
 		rc = -1;
 		goto dzlog_set_category_exit;
 	}
 
       dzlog_set_category_exit:
-	zc_debug("------dzlog_set_category[%s] end, rc[%d]------ ", default_category_name, rc);
+	zc_debug("------dzlog_set_category[%s] end, rc[%d]------ ", cname, rc);
 	rd = pthread_rwlock_unlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
@@ -554,9 +554,10 @@ void zlog_clean_mdc(void)
 
 /*******************************************************************************/
 
-static int zlog_output(zlog_category_t * a_category, char *file, long line,
-		       int level, void *hex_buf, size_t hex_buf_len,
-		       char *str_format, va_list str_args, int generate_cmd)
+static int zlog_output(zlog_category_t * a_category,
+		const char *file, size_t file_len, const char *func, size_t func_len, long line, int level,
+		const void *hex_buf, size_t hex_buf_len, const char *str_format, va_list str_args,
+		int generate_cmd)
 {
 	int rc = 0;
 	int rd = 0;
@@ -609,8 +610,8 @@ static int zlog_output(zlog_category_t * a_category, char *file, long line,
 	}
 
 	zlog_event_set(a_thread->event,
-			   a_category->name, &(a_category->name_len),
-			   file, line, level,
+			   a_category->name, a_category->name_len,
+			   file, file_len, func, func_len, line, level,
 			   hex_buf, hex_buf_len, str_format, str_args,
 			   generate_cmd);
 
@@ -632,9 +633,10 @@ static int zlog_output(zlog_category_t * a_category, char *file, long line,
 }
 
 /* for speed up, copy from zlog_output */
-static int dzlog_output(char *file, long line,
-		       int level, void *hex_buf, size_t hex_buf_len,
-		       char *str_format, va_list str_args, int generate_cmd)
+static int dzlog_output(const char *file, size_t file_len, const char *func, size_t func_len,
+		long line, int level,
+		const void *hex_buf, size_t hex_buf_len, const char *str_format, va_list str_args,
+		int generate_cmd)
 {
 	int rc = 0;
 	int rd = 0;
@@ -653,6 +655,7 @@ static int dzlog_output(char *file, long line,
 		goto zlog_output_exit;
 	}
 
+	/* that's the differnce, must judge default_category in lock */
 	if (!zlog_default_category) {
 		zc_error("zlog_default_category is null,"
 			"dzlog_init() or dzlog_set_cateogry() is not called above");
@@ -696,9 +699,8 @@ static int dzlog_output(char *file, long line,
 	}
 
 	zlog_event_set(a_thread->event,
-			zlog_default_category->name,
-			&(zlog_default_category->name_len),
-			file, line, level,
+			zlog_default_category->name, zlog_default_category->name_len,
+			file, file_len, func, func_len, line, level,
 			hex_buf, hex_buf_len, str_format, str_args,
 			generate_cmd);
 
@@ -721,43 +723,51 @@ static int dzlog_output(char *file, long line,
 }
 
 /*******************************************************************************/
-void zlog(zlog_category_t * a_cat, char *file, long line, int level, char *format, ...)
+void zlog(zlog_category_t * category,
+	const char *file, size_t filelen, const char *func, size_t funclen,
+	long line, const int level,
+	const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	zlog_output(a_cat, file, line, level, NULL, 0, format, args, ZLOG_FMT);
+	zlog_output(category, file, filelen, func, funclen, line, level, NULL, 0, format, args, ZLOG_FMT);
 	va_end(args);
 }
 
-void vzlog(zlog_category_t * a_cat, char *file, long line, int level,
-	   char *format, va_list args)
+void vzlog(zlog_category_t * category,
+	const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const char *format, va_list args)
 {
-	zlog_output(a_cat, file, line, level, NULL, 0, format, args, ZLOG_FMT);
+	zlog_output(category, file, filelen, func, funclen, line, level, NULL, 0, format, args, ZLOG_FMT);
 }
 
-void hzlog(zlog_category_t * a_cat, char *file, long line, int level,
-	   void *buf, size_t buf_len)
+void hzlog(zlog_category_t * category,
+	const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const void *buf, size_t buf_len)
 {
-	zlog_output(a_cat, file, line, level, buf, buf_len, NULL, 0, ZLOG_HEX);
+	zlog_output(category, file, filelen, func, funclen, line, level, buf, buf_len, NULL, 0, ZLOG_HEX);
 }
 
 /*******************************************************************************/
-void dzlog(char *file, long line, int level, char *format, ...)
+void dzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	dzlog_output(file, line, level, NULL, 0, format, args, ZLOG_FMT);
+	dzlog_output(file, filelen, func, funclen, line, level, NULL, 0, format, args, ZLOG_FMT);
 	va_end(args);
 }
 
-void vdzlog(char *file, long line, int level, char *format, va_list args)
+void vdzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const char *format, va_list args)
 {
-	dzlog_output(file, line, level, NULL, 0, format, args, ZLOG_FMT);
+	dzlog_output(file, filelen, func, funclen, line, level, NULL, 0, format, args, ZLOG_FMT);
 }
 
-void hdzlog(char *file, long line, int level, void *buf, size_t buf_len)
+void hdzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const void *buf, size_t buf_len)
 {
-	dzlog_output(file, line, level, buf, buf_len, NULL, 0, ZLOG_HEX);
+	dzlog_output(file, filelen, func, funclen, line, level, buf, buf_len, NULL, 0, ZLOG_HEX);
 }
 
 /*******************************************************************************/

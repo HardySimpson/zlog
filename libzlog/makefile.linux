@@ -12,7 +12,7 @@ all_o	=		\
 	thread.o	\
 	zlog.o		\
 	zc_arraylist.o	\
-	zc_error.o	\
+	zc_profile.o	\
 	zc_hashtable.o	\
 	zc_util.o	\
 	zc_xplatform.o
@@ -23,7 +23,7 @@ libzlog.so	:	$(all_o)
 	gcc -shared -o $@ $(all_o) -lpthread
 
 .c.o	:
-	gcc -g -Wall -Wwrite-strings -D_GNU_SOURCE -fPIC -o $@ -c $< -I.
+	gcc -g -Wall -Werror -D_GNU_SOURCE -fPIC -o $@ -c $< -I.
 #-Werror
 
 clean	:

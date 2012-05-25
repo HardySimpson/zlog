@@ -110,8 +110,7 @@ void zlog_category_table_rollback_rules(zc_hashtable_t * categories)
 }
 
 /*******************************************************************************/
-zlog_category_t *zlog_category_table_fetch_category(
-			zc_hashtable_t * categories,
+zlog_category_t *zlog_category_table_fetch_category(zc_hashtable_t * categories,
 			char *category_name, zc_arraylist_t * rules)
 {
 	int rc = 0;
