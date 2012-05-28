@@ -52,6 +52,7 @@ struct zlog_rule_s {
 	 */
 
 	char file_path[MAXLEN_PATH + 1];
+	unsigned int file_perms;
 
 	zc_arraylist_t *dynamic_file_specs;
 	zlog_rotater_t *rotater;
@@ -72,12 +73,13 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s|%p,%ld*%d|%d;%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s(0%o)|%p,%ld*%d|%d;%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
 		a_rule->level,
 		a_rule->file_path,
+		a_rule->file_perms,
 		a_rule->dynamic_file_specs,
 		a_rule->file_max_size,
 		a_rule->file_max_count,
@@ -111,8 +113,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(a_rule->file_path, O_WRONLY | O_APPEND | O_CREAT,
-		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	fd = open(a_rule->file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
 			 errno);
@@ -148,8 +149,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(a_rule->file_path, O_WRONLY | O_APPEND | O_CREAT,
-		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	fd = open(a_rule->file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
 			 errno);
@@ -226,11 +226,9 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(file_path, O_WRONLY | O_APPEND | O_CREAT,
-		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	fd = open(file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
-			 errno);
+		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
 		return -1;
 	}
 
@@ -269,11 +267,9 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule,
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(file_path, O_WRONLY | O_APPEND | O_CREAT,
-		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	fd = open(file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
-			 errno);
+		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
 		return -1;
 	}
 
@@ -410,7 +406,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 		zlog_rotater_t * a_rotater,
 		zc_arraylist_t * levels,
 		zlog_format_t * default_format,
-		zc_arraylist_t * formats)
+		zc_arraylist_t * formats,
+		unsigned int file_perms)
 {
 	int rc = 0;
 	int nscan = 0;
@@ -445,6 +442,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 
 	a_rule->rotater = a_rotater;
 	a_rule->levels = levels;
+	a_rule->file_perms = file_perms;
 
 	/* line         [f.INFO "%H/log/aa.log", 20MB * 12; MyTemplate]
 	 * selector     [f.INFO]

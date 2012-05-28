@@ -39,6 +39,7 @@
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MIN 1024
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MAX (2 * 1024 * 1024)
 #define ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE "/tmp/zlog.lock"
+#define ZLOG_CONF_DEFAULT_FILE_PERMS 0600
 /*******************************************************************************/
 
 struct zlog_conf_s {
@@ -56,6 +57,8 @@ struct zlog_conf_s {
 
 	char default_format_line[MAXLEN_CFG_LINE + 1];
 	zlog_format_t *default_format;
+
+	unsigned int file_perms;
 
 	zc_arraylist_t *formats;
 
@@ -75,12 +78,13 @@ void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
 	zc_profile(flag, "---strict init[%d]---", a_conf->strict_init);
 	zc_profile(flag, "---buffer min[%ld]---", a_conf->buf_size_min);
 	zc_profile(flag, "---buffer max[%ld]---", a_conf->buf_size_max);
-	zc_profile(flag, "---rotate lock file[%s]---", a_conf->rotate_lock_file);
 	if (a_conf->default_format) {
 		zc_profile(flag, "---default_format---");
 		zlog_format_profile(a_conf->default_format, flag);
 	}
+	zc_profile(flag, "---file perms[0%o]---", a_conf->file_perms);
 
+	zc_profile(flag, "---rotate lock file[%s]---", a_conf->rotate_lock_file);
 	if (a_conf->rotater) zlog_rotater_profile(a_conf->rotater, flag);
 
 	if (a_conf->levels) zlog_level_list_profile(a_conf->levels, flag);
@@ -153,6 +157,7 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
 	strcpy(a_conf->rotate_lock_file, ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE);
 	strcpy(a_conf->default_format_line, ZLOG_CONF_DEFAULT_FORMAT);
+	a_conf->file_perms = ZLOG_CONF_DEFAULT_FILE_PERMS;
 	/* set default configuration end */
 
 	a_conf->levels = zlog_level_list_new();
@@ -222,7 +227,8 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 			a_conf->rotater,
 			a_conf->levels,
 			a_conf->default_format,
-			a_conf->formats);
+			a_conf->formats,
+			a_conf->file_perms);
 	if (!default_rule) {
 		zc_error("zlog_rule_new fail");
 		return -1;
@@ -432,13 +438,15 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			a_conf->buf_size_min = zc_parse_byte_size(value);
 		} else if (STRCMP(word_1, ==, "buffer") && STRCMP(word_2, ==, "max")) {
 			a_conf->buf_size_max = zc_parse_byte_size(value);
+		} else if (STRCMP(word_1, ==, "file") && STRCMP(word_2, ==, "perms")) {
+			sscanf(value, "%o", &(a_conf->file_perms));
 		} else if (STRCMP(word_1, ==, "rotate") &&
 				STRCMP(word_2, ==, "lock") && STRCMP(word_3, ==, "file")) {
 			/* may overwrite the inner default value, or last value */
 			strcpy(a_conf->rotate_lock_file, value);
 		} else if (STRCMP(word_1, ==, "default") && STRCMP(word_2, ==, "format")) {
-			strcpy(a_conf->default_format_line, line + nread);
 			/* so the input now is [format = "xxyy"], fit format's style */
+			strcpy(a_conf->default_format_line, line + nread);
 		} else {
 			zc_error("name[%s] is not any one of global options", name);
 			if (a_conf->strict_init) return -1;
@@ -466,12 +474,12 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		}
 		break;
 	case 4:
-zc_debug("");
 		a_rule = zlog_rule_new(line,
 			a_conf->rotater,
 			a_conf->levels,
 			a_conf->default_format,
-			a_conf->formats);
+			a_conf->formats,
+			a_conf->file_perms);
 		if (!a_rule) {
 			zc_error("zlog_rule_new fail [%s]", line);
 			if (a_conf->strict_init) return -1;

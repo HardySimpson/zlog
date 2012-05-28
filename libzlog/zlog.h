@@ -96,7 +96,7 @@ typedef enum {
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_NOTICE, format, ##args)
 #define ZLOG_INFO(cat, format, args...) \
-	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+	zlog(cat, __FILE__, sizeof(__FILE__), __func__, sizeof(__func__), __LINE__, \
 	ZLOG_LEVEL_INFO, format, ##args)
 #define ZLOG_DEBUG(cat, format, args...) \
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \

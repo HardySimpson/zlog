@@ -40,9 +40,9 @@
 [o] 把reload改成原子性的，失败用旧的
 [o] 优化spec_gen_msg部分, spec内采用自己写的buf_append对齐来代替buf_sprintf
 [o] 引入__func__
+[o] 文件的权限设置
 
 [p] 使用valgrind测试性能
-[ ] 文件的权限设置
 [ ] 输出函数自定义
 [ ] 增加man  age,  df, 案例, doxygen
 [ ] zlog-chk-conf -c
