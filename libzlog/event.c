@@ -31,10 +31,12 @@
 void zlog_event_profile(zlog_event_t * a_event, int flag)
 {
 	zc_assert(a_event,);
-	zc_profile(flag, "---event[%p][%s,%s][%s,%ld][%p,%s][%ld,%ld][%ld,%ld]---",
+	zc_profile(flag, "---event[%p][%s,%s][%s(%ld),%s(%ld),%ld,%d][%p,%s][%ld,%ld][%ld,%ld]---",
 			a_event,
 			a_event->category_name, a_event->host_name,
-			a_event->file, a_event->line,
+			a_event->file, a_event->file_len,
+			a_event->func, a_event->func_len,
+			a_event->line, a_event->level,
 			a_event->hex_buf, a_event->str_format,	
 			a_event->time_stamp.tv_sec, a_event->time_stamp.tv_usec,
 			(long)a_event->pid, (long)a_event->tid);

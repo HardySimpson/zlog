@@ -134,16 +134,12 @@ zlog has feartures below:
 \end_layout
 
 \begin_layout Itemize
-syslog style configure file, easy for understand and use
+syslog model, which is more flexible and more clear than hierarchy model
+ of log4j
 \end_layout
 
 \begin_layout Itemize
-log format Customization, like pattern layout in log4j
-\end_layout
-
-\begin_layout Itemize
-range-category model, which is more flexible and more clear than hierarchy
- model of log4j
+log format customization, like pattern layout in log4j
 \end_layout
 
 \begin_layout Itemize
@@ -195,7 +191,8 @@ self debugable, can output zlog's self debug&error log at runtime
 \end_layout
 
 \begin_layout Itemize
-Not depend on any other 3rd party library, just base on POSIX system.
+Not depend on any other 3rd party library, just base on POSIX system(and
+ a C99 compliant vsnprintf).
 \end_layout
 
 \begin_layout Standard
@@ -214,12 +211,13 @@ target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout Standard
-GettingStart: in doc directory of zlog-0.9.0.tar.gz, GettingStart-CN.txt GettingStart
--EN.txt 
+GettingStart: in doc directory of zlog-latest-stable.tar.gz, GettingStart-CN.txt
+ GettingStart-EN.txt 
 \end_layout
 
 \begin_layout Standard
-UsersGuide: in doc directory of zlog-0.9.0.tar.gz, UsersGuide-CN.pdf UsersGuide-EN.pdf
+UsersGuide: in doc directory of zlog-latest-stable.tar.gz, UsersGuide-CN.pdf
+ UsersGuide-EN.pdf
 \end_layout
 
 \begin_layout Standard
@@ -281,6 +279,62 @@ type "mailto:"
 
 \end_layout
 
+\begin_layout Section
+zlog 1.0 Release Notes:
+\end_layout
+
+\begin_layout Enumerate
+zlog is based on POSIX-compatible system.
+ I just have GNU/linux and AIX envrionment and test to compile and run zlog
+ on them.
+ Still I think zlog will work well on FreeBSD, NetBSD, OpenBSD, OpenSolaris,
+ Mac OS X etc.
+ Test run zlog on any system is welcome.
+\end_layout
+
+\begin_layout Enumerate
+in zlog, I use a feature of C99 compliant vsnprintf.
+ That is, if the buffer size of destination is not long enough, vsnprintf
+ will return the the number of characters (not includ‐ ing the trailing
+ '
+\backslash
+0') which would have been written to the final string if enough space had
+ been available.
+ If the vsnprintf on your sysem is not work like that, zlog can not know
+ the right buffer size when a single log is longer than buffer.
+ Fortunately, glibc 2.1,libc on AIX, libc on freebsd...
+ work in the right way, while glibc 2.0 is not.
+ In this case, user should crack zlog himself with a C99 compliant vsnprintf.
+ I suggest 
+\begin_inset CommandInset href
+LatexCommand href
+name "ctrio"
+target "http://sourceforge.net/projects/ctrio/"
+
+\end_inset
+
+, or 
+\begin_inset CommandInset href
+LatexCommand href
+name "C99-snprintf"
+target "http://www.jhweiss.de/software/snprintf.html"
+
+\end_inset
+
+.
+ The file buf.c should be cracked, good luck!
+\end_layout
+
+\begin_layout Enumerate
+zlog 1.0 is not compatible with zlog 0.9.
+ I change zlog() in zlog.h for more arguments, as __func__ which points the
+ function where the log takes place.
+ I change zlog.conf also, which is divided into some sections for more clarity.
+ If The user of zlog 0.9 want to update to zlog 1.0, he should re-compile
+ his source code(but need not to change it), as all macros of zlog 1.0 are
+ the same as zlog 0.9.
+\end_layout
+
 \begin_layout Chapter
 What is not zlog
 \end_layout
@@ -316,6 +370,10 @@ So now I think about how to connect zlog and rsyslog, the tranditional syslog(3)
  If you have a good idea, tell me!
 \end_layout
 
+\begin_layout Standard
+
+\end_layout
+
 \begin_layout Chapter
 Hello World
 \end_layout
@@ -340,7 +398,7 @@ $ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd zlog-0.9.0/
+$ cd zlog-x.x.x/
 \end_layout
 
 \begin_layout LyX-Code
@@ -609,15 +667,19 @@ $ vi test_hello.conf
 \end_layout
 
 \begin_layout LyX-Code
-&simple                 "%m%n"
+[formats]
 \end_layout
 
 \begin_layout LyX-Code
- 
+simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.DEBUG            >stdout; simple
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG    >stdout; simple
 \end_layout
 
 \end_deeper
@@ -734,6 +796,397 @@ reference "sec:dzlog-API"
 \end_layout
 
 \begin_layout Chapter
+Syslog model
+\end_layout
+
+\begin_layout Section
+Category, Rule and Format
+\end_layout
+
+\begin_layout Standard
+In zlog, There are 3 important concepts: category, rule and format.
+\end_layout
+
+\begin_layout Standard
+Category is designed for different input.
+ In source code category is a (zlog_cateogory_t *) variable.
+ In program, get different category for log will distinguish them from each
+ other.
+\end_layout
+
+\begin_layout Standard
+Format describes detail log pattern, like with or without time stamp, source
+ file, source line.
+\end_layout
+
+\begin_layout Standard
+Rule consists of category, level, output file(or other channel) and format.
+ In brief, if category string in rule of configure file equals the name
+ of category variable in source, they match.
+\end_layout
+
+\begin_layout Standard
+So when excute this sentence in source file
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *c;
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout Standard
+zlog library will find the name of c is 
+\begin_inset Quotes eld
+\end_inset
+
+my_cat
+\begin_inset Quotes erd
+\end_inset
+
+, which has one rule in configure file.
+ That is
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG    >stdout; simple
+\end_layout
+
+\begin_layout Standard
+Then library will check if level is right to decide whether the log will
+ be output or not.
+ As INFO>=DEBUG.
+ So log will be output, and as the rule said, it will be output to stdout(standa
+rd output) in the format of simple, which described above
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n" 
+\end_layout
+
+\begin_layout Standard
+At last show in screen
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout Standard
+That's the whole story.
+ The only thing user need to do is writing message.
+ Where the log will be output, or in which format, is done by zlog library.
+\end_layout
+
+\begin_layout Section
+The difference between syslog model and log4j model
+\end_layout
+
+\begin_layout Standard
+OK, then, Does it have anything to do with syslog? Till Now, the model is
+ more like log4j.
+ As in log4j, there are concepts of logger, appender and layout.
+ The difference is, in log4j, each logger in source code must corresponds
+ to one logger in configure file, and just has one definite level.
+ One-to-one relationship is the only choice for log4j, log4cxx, log4cpp,
+ log4cplus log4net and etc...
+\end_layout
+
+\begin_layout Standard
+But log4j model is NOT flexible, they invent filters to make up for it,
+ and that make things more worse.
+ So let's get back to syslog model, which is designed excellently.
+\end_layout
+
+\begin_layout Standard
+Continue our example in last section.
+ If in the zlog configure file, there are 2 rules:
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG     >stdout; simple
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.INFO      >stdout;
+\end_layout
+
+\begin_layout Standard
+Then they will generate 2 log to stdout:
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 INFO [11288:test_hello.c:41] hello, zlog
+\end_layout
+
+\begin_layout Standard
+Now one category in source code corresponds to two rules in configure file.
+ Maybe log4j's user will say, 
+\begin_inset Quotes eld
+\end_inset
+
+That's good, but 2 appender for one logger will do the same thing
+\begin_inset Quotes erd
+\end_inset
+
+.
+ So, Let's see the next example of configure file:
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.WARN     
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/aa.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG    
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/bb.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+And the source code is:
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "info, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_DEBUG(c, "debug, zlog");
+\end_layout
+
+\begin_layout Standard
+Then, in aa.log, there is just one log
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 INFO [11288:test_hello.c:41] info, zlog
+\end_layout
+
+\begin_layout Standard
+But in bb.log, there will be two
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 INFO [11288:test_hello.c:41] info, zlog
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 DEBUG [11288:test_hello.c:42] debug, zlog
+\end_layout
+
+\begin_layout Standard
+From this example, you can find the difference.
+ Log4j can not do it easily.
+ In zlog, one category may correspond to mutiple rules, and each rules can
+ have different level and different output and different format.
+\end_layout
+
+\begin_layout Section
+Expand syslog model
+\end_layout
+
+\begin_layout Standard
+So, at last you can see, category in zlog is more like facility in syslog.
+ Unfortunately, facility is a int, and the value of facility must be chose
+ from a few system-defined range.
+ zlog do it better, make it a variable which comes from a string.
+\end_layout
+
+\begin_layout Standard
+In syslog, there is a special wildcards 
+\begin_inset Quotes eld
+\end_inset
+
+*
+\begin_inset Quotes erd
+\end_inset
+
+, matches all facility.
+ It does the same thing in zlog.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+*
+\begin_inset Quotes erd
+\end_inset
+
+ matches all categories.
+ That a convenient way to make all error in your system redirect to one
+ log file.
+ Just write in configure file like this:
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+*.error    
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/error.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The thing zlog goes further is, sub-category matching.
+ If in your source code is this:
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout Standard
+And in configure file, the rules is
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*      
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/my_cat.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+my_.NOTICE    
+\begin_inset Quotes eld
+\end_inset
+
+/var/log/my.log
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This 2 rules both matches category 
+\begin_inset Quotes eld
+\end_inset
+
+c
+\begin_inset Quotes erd
+\end_inset
+
+ with the name 
+\begin_inset Quotes eld
+\end_inset
+
+my_cat
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The wildcard 
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+ is the way to represent super category.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+my_
+\begin_inset Quotes erd
+\end_inset
+
+ is a super category to 
+\begin_inset Quotes eld
+\end_inset
+
+my_cat
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+my_dog
+\begin_inset Quotes erd
+\end_inset
+
+.
+ There is also another wildcard 
+\begin_inset Quotes eld
+\end_inset
+
+!
+\begin_inset Quotes erd
+\end_inset
+
+.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Category-Matching"
+
+\end_inset
+
+ for more detail.
+\end_layout
+
+\begin_layout Chapter
 Configure File
 \end_layout
 
@@ -742,66 +1195,39 @@ Most actions of zlog library are dependent upon configure file: where to
  output the log, how log is rotate, the output format, etc...
  Configure File is a special language tells how library works.
  I design it as clear as I can.
-\end_layout
-
-\begin_layout Section
-Global Setting
-\end_layout
-
-\begin_layout Standard
-# Global setting begins with @.
- All global setting could be not written, for use default value.
- The full sytanx is:
+ Here is a example of zlog.conf:
 \end_layout
 
 \begin_layout LyX-Code
-@[key][n space or tab][value]
-\end_layout
-
-\begin_layout Standard
-# If ignore_error_format_rule is true, zlog_init() will omit error syntax
- of formats and rules.
- Else if ignore_error_format_rule is false, zlog_init() will check sytnax
- of all formats and rules strictly, and any error will cause zlog_init()
- failed and return -1.
- Default, ignore_error_format_rule is false.
+# comments
 \end_layout
 
 \begin_layout LyX-Code
-@ignore_error_format_rule    false
+[global]
 \end_layout
 
 \begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout Standard
-# zlog allocates one log buffer in each thread.
- buf_size_min indicates size of buffer malloced at init time.
- While loging, if log content size > buf_size, buffer will expand automaticly,
- till buf_size_max, and log content is truncated.
- buf_size_max setting to 0 means buf_size is unlimited, everytime buf_size
- = 2*buf_size, till process use up all it's memory.
- Size can append with unit KB, MB or GB suffix, so 1024 equals 1KB.
- Default, buf_size_min is 1K and buf_size_max is 2MB.
+strict init = true
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_min           1024
+buffer min = 1024
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_max           2MB
+buffer max = 2MB
 \end_layout
 
-\begin_layout Standard
-# rotate_lock_file is a lock file for rotate a log safely between multi-process.
- zlog will create the file at zlog_init().
- Make sure your program has permission to create and read-write the file.
- If programs run by different users who need to write and rotater a same
- log file, make sure that each program has permission to create and read-write
- the same lock file.
- Default, rotate_lock_file is /tmp/zlog.lock
+\begin_layout LyX-Code
+rotate lock file = /tmp/zlog.lock
+\end_layout
+
+\begin_layout LyX-Code
+default format = "%d(%F %T.%l) %-6P (%c:%F:%L) - %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+file perms = 600
 \end_layout
 
 \begin_layout LyX-Code
@@ -809,62 +1235,231 @@ Global Setting
 \end_layout
 
 \begin_layout LyX-Code
-@rotate_lock_file       /tmp/zlog.lock
+[levels]
+\end_layout
+
+\begin_layout LyX-Code
+TRACE = 10
+\end_layout
+
+\begin_layout LyX-Code
+CRIT = 130, LOG_CRIT
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+normal = "%d(%F %T.%l) %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+default.*               >stdout; simple
+\end_layout
+
+\begin_layout LyX-Code
+*.*                     "%12.2E(HOME)/log/%c.log", 1MB*12; simple
+\end_layout
+
+\begin_layout LyX-Code
+my_.INFO                >stderr;
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.!ERROR           "/var/log/aa.log"
+\end_layout
+
+\begin_layout LyX-Code
+my_dog.=DEBUG           >syslog, LOG_LOCAL0; simple
+\end_layout
+
+\begin_layout LyX-Code
+my_fish.warn            |/var/pipe; normal
+\end_layout
+
+\begin_layout LyX-Code
+my_mice.*               @user_define;
+\end_layout
+
+\begin_layout Section
+Global Parameters
 \end_layout
 
 \begin_layout Standard
-# default_format is used by rules without format.
- That cause each rule without format specified, would yield output like
- this:
+Global parameters begin with [global].
+ [] means a section's beginning, and the order of sections must be unchanged,
+ follow the global-levels-formats-rules.
+ This section can be ommit.The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(key) = (value)
+\end_layout
+
+\begin_layout Itemize
+strict init
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Quotes eld
+\end_inset
+
+strict init
+\begin_inset Quotes erd
+\end_inset
+
+is true, zlog_init() will check sytnax of all formats and rules strictly,
+ and any error will cause zlog_init() failed and return -1.
+ When 
+\begin_inset Quotes eld
+\end_inset
+
+strict init
+\begin_inset Quotes erd
+\end_inset
+
+is false, zlog_init() will omit error syntax of formats and rules.
+ The default is true.
+\end_layout
+
+\begin_layout Itemize
+buffer min
+\end_layout
+
+\begin_layout Itemize
+buffer max
+\end_layout
+
+\begin_layout Standard
+zlog allocates a log buffer in each thread.
+\begin_inset Quotes eld
+\end_inset
+
+buffer min
+\begin_inset Quotes erd
+\end_inset
+
+ indicates size of buffer malloced at init time.
+ While loging, if one single log's content size is longer than buffer size,
+ zlog will expand buffer automaticly till 
+\begin_inset Quotes eld
+\end_inset
+
+buffer max
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Then, If the size is still longer than 
+\begin_inset Quotes eld
+\end_inset
+
+buffer max
+\begin_inset Quotes erd
+\end_inset
+
+, the log content will be truncated.
+ If 
+\begin_inset Quotes eld
+\end_inset
+
+buffer max
+\begin_inset Quotes erd
+\end_inset
+
+ is 0, it means buffer size is unlimited, and each time zlog will expand
+ buffer twice its size, till process use up all it's memory.
+ The value of these 2 parameter can append with unit KB, MB or GB suffix,
+ so 1024 equals 1KB.
+ Default, 
+\begin_inset Quotes eld
+\end_inset
+
+buffer min
+\begin_inset Quotes erd
+\end_inset
+
+ is 1K and 
+\begin_inset Quotes eld
+\end_inset
+
+buffer max
+\begin_inset Quotes erd
+\end_inset
+
+ is 2MB.
+\end_layout
+
+\begin_layout Itemize
+rotate lock file
+\end_layout
+
+\begin_layout Standard
+This specifies a lock file for rotate a log safely between multi-process.
+ zlog will create the file at zlog_init().
+ Make sure your program has permission to create and read-write the file.
+ If programs run by different users who need to write and rotater a same
+ log file, make sure that each program has permission to create and read-write
+ the same lock file.
+ The default is /tmp/zlog.lock
+\end_layout
+
+\begin_layout Itemize
+default format
+\end_layout
+
+\begin_layout Standard
+This parameter is used by rules without format specified.
+ The default is
+\end_layout
+
+\begin_layout LyX-Code
+"%d(%F %T) %V [%p:%F:%L] %m%n"
+\end_layout
+
+\begin_layout Standard
+It will yield output like this:
 \end_layout
 
 \begin_layout LyX-Code
 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
 \end_layout
 
-\begin_layout Standard
-You can set it to change the default behavior.The inner default format:
-\end_layout
-
-\begin_layout LyX-Code
-@default_format "%d(%F %T) %V [%p:%F:%L] %m%n"
+\begin_layout Itemize
+file perms
 \end_layout
 
 \begin_layout Standard
-# User can defined his own levels, and suggest to be used with user-defined
- macros in source file.
+This specifies all log file permission when they are created.
+ The default is 600, which just allowed user read and write.
+\end_layout
+
+\begin_layout Section
+Level Customization
 \end_layout
 
 \begin_layout Standard
-The inner default levels are
-\end_layout
-
-\begin_layout LyX-Code
-@level               DEBUG = 20, LOG_DEBUG
-\end_layout
-
-\begin_layout LyX-Code
-@level               INFO = 40, LOG_INFO
-\end_layout
-
-\begin_layout LyX-Code
-@level               NOTICE = 60, LOG_NOTICE
-\end_layout
-
-\begin_layout LyX-Code
-@level               WARN = 80, LOG_WARNING
-\end_layout
-
-\begin_layout LyX-Code
-@level               ERROR = 100, LOG_ERR
-\end_layout
-
-\begin_layout LyX-Code
-@level               FATAL = 120, LOG_ALERT
-\end_layout
-
-\begin_layout LyX-Code
-@level               UNKNOWN = 254, LOG_ERR
+This section begins with [levels], which make user can defined his own levels,
+ and suggest to be used with user-defined macros in source file.
+ This section can be ommit.
 \end_layout
 
 \begin_layout Standard
@@ -872,7 +1467,7 @@ The syntax is
 \end_layout
 
 \begin_layout LyX-Code
-@level[n tabs or spaces][level string] = [level int], [syslog level, optional]
+(level string) = (level int), (syslog level, optional)
 \end_layout
 
 \begin_layout Standard
@@ -892,1434 +1487,55 @@ reference "sec:Define-new-level"
 \end_layout
 
 \begin_layout Section
-Category, Rule and Format
+Formats Definition
 \end_layout
 
 \begin_layout Standard
-This is part of C source file:
+This section begins with [formats], where user defined its prefer log pattern.
+ The syntax is
 \end_layout
 
 \begin_layout LyX-Code
-zlog_init("test_hello.conf");
-\end_layout
-
-\begin_layout LyX-Code
-/* read conf file to memory */
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-c = zlog_get_category("my_cat");
-\end_layout
-
-\begin_layout LyX-Code
-/* match 
+(name) = 
 \begin_inset Quotes eld
 \end_inset
 
-my_cat
+(actual formats)
 \begin_inset Quotes erd
 \end_inset
 
- to c */
+
 \end_layout
 
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-ZLOG_INFO(c, "hello, zlog");
-\end_layout
-
-\begin_layout LyX-Code
-/* logging action 
+\begin_layout Standard
+It is easy to understand, name will be use in the next section [rules].
+ The 
 \begin_inset Quotes eld
 \end_inset
 
-hello, zlog
+name
 \begin_inset Quotes erd
 \end_inset
 
- which bonds to c */
-\end_layout
-
-\begin_layout Standard
-And this is part of conf file:
-\end_layout
-
-\begin_layout LyX-Code
-&simple                 "%m%n"           
-\end_layout
-
-\begin_layout LyX-Code
-# format, begein with a &
-\end_layout
-
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
-my_cat.DEBUG             >stdout; simple
-\end_layout
-
-\begin_layout LyX-Code
-# rule, all my_cat's log and level bigger than debug
-\end_layout
-
-\begin_layout LyX-Code
-# output to standard output, use simple format decribed above.
-\end_layout
-
-\begin_layout Standard
-And this is the output:
-\end_layout
-
-\begin_layout LyX-Code
-hello, zlog
-\end_layout
-
-\begin_layout Standard
-Category is designed for different input.
- In source code name of category variable is a charactor string.
- In program, get different category for log will distinguish them from each
- other.
-\end_layout
-
-\begin_layout Standard
-Format describes log pattern, like with or without time stamp, source file,
- source line.
-\end_layout
-
-\begin_layout Standard
-Rule consists of category, level, output file(or other channel) and format.
- In brief, if category string in rule of configure file equals name of category
- variable in source, they match.
-\end_layout
-
-\begin_layout Standard
-So when excute this sentence in source file
-\end_layout
-
-\begin_layout LyX-Code
-ZLOG_INFO(c, "hello, zlog");
-\end_layout
-
-\begin_layout Standard
-zlog library will find the name of c is 
+ of format are made up of letters and digits.
+ The underscore 
 \begin_inset Quotes eld
 \end_inset
 
-my_cat
+_
 \begin_inset Quotes erd
 \end_inset
 
-, which has one rule.
- That is
-\end_layout
-
-\begin_layout LyX-Code
-my_cat.DEBUG             >stdout; simple
-\end_layout
-
-\begin_layout Standard
-Then library will check if level is right to decide whether the log will
- be output or not.
- As INFO>=DEBUG.
- So log will be output, and as the rule said, it will be output to stdout(standa
-rd output) in the format of simple, which described above
-\end_layout
-
-\begin_layout LyX-Code
-&simple                 "%m%n" 
-\end_layout
-
-\begin_layout Standard
-At last show in screen
-\end_layout
-
-\begin_layout LyX-Code
-hello, zlog
-\end_layout
-
-\begin_layout Standard
-That's the whole story.
- The only thing user need to do is writing message.
- Where the log will be output, or in which format, is done by zlog library.
-\end_layout
-
-\begin_layout Standard
-Category variable and rule are loose coupled.
- If there are 2 lines of same rules above, thus
-\emph on
- ZLOG_INFO(c, "hello, zlog")
-\emph default
- will cause to lines of output 
+counts as a letter.
+ The 
 \begin_inset Quotes eld
 \end_inset
 
-
-\emph on
-hello, zlog
-\emph default
-
+actual format
 \begin_inset Quotes erd
 \end_inset
 
-.
- If mistaking the rule, write it as 
-\begin_inset Quotes eld
-\end_inset
-
-my_ca.debug >stdout; simple
-\begin_inset Quotes erd
-\end_inset
-
-, nothing will be output to screen.
- Loose coupling are both fallible and flexible.
- Still, zlog has a feature to make up for this deficiency, see 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "category-nomatch"
-
-\end_inset
-
-.
- 
-\end_layout
-
-\begin_layout Standard
-Rule and format are tightly coupled.
- If a rule using a format that is not mentioned before, zlog_init() will
- be failed, unless 
-\begin_inset Quotes eld
-\end_inset
-
-@ignore_error_format_rule false
-\begin_inset Quotes erd
-\end_inset
-
- is set at the beginning of configure file.
- One format can be used in mutilple rules.
-\end_layout
-
-\begin_layout Standard
-The syntax of format is:
-\end_layout
-
-\begin_layout LyX-Code
-&[name][n tab or space]
-\begin_inset Quotes eld
-\end_inset
-
-[conversion pattern]
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The syntax of rule is:
-\end_layout
-
-\begin_layout LyX-Code
-[selector][n tab or space][action]
-\end_layout
-
-\begin_layout LyX-Code
-[selector] = [category string].[level]
-\end_layout
-
-\begin_layout LyX-Code
-[action] = [output], [file limitation,optional]; [format name, optional]
-\end_layout
-
-\begin_layout Section
-Select Input
-\begin_inset CommandInset label
-LatexCommand label
-name "sec:Select-Input"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Whether or not a log will be output by zlog, depend on category variable
- and level in c source file match category string and level in rule or not.
-\end_layout
-
-\begin_layout LyX-Code
-[selector] = [category string].[level]
-\end_layout
-
-\begin_layout Subsection
-Level Matching
-\end_layout
-
-\begin_layout Standard
-There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
- "ERROR" and "FATAL".
- As all other log library, aa.DEBUG means all log of level that is greater
- than or equals to DEBUG will be output.
- Still, there are more expressions.
- Levels in configure file are case insensitive, both capital or lowercase
- is accepted.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="2">
-<features>
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-example expression
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-meaning
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-*
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-all [source level]
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa.debug
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-[source level]>=debug
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa.=debug
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-[source level]==debug
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa.!debug
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-[source level]!=debug
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-User can define his own level, see
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Define-new-level"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Subsection
-Category Matching
-\begin_inset CommandInset label
-LatexCommand label
-name "sub:Category-Matching"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Finally, We arrive at here.
- The matching between source category variable and rule category string
- from configure file is quite different from other logging library like
- log4j.
- I call it range-category model.
-\end_layout
-
-\begin_layout Standard
-In log4j, there are father logger and child logger.
- For Example, if the configure file is like this:
-\end_layout
-
-\begin_layout LyX-Code
-log4j.logger.aa=ERROR, A1
-\end_layout
-
-\begin_layout LyX-Code
-log4j.logger.aa.bb=
-\end_layout
-
-\begin_layout LyX-Code
-log4j.logger.aa.cc=INFO
-\end_layout
-
-\begin_layout Standard
-aa is a father logger.
- aa.bb and aa.cc is the child of aa.
-\end_layout
-
-\begin_layout Standard
-aa.bb inherits aa's level and appender, which are ERROR and A1.
-\end_layout
-
-\begin_layout Standard
-aa.cc inherits and overwrite aa's level.
- So aa.cc has the level of INFO and appender of A1.
-\end_layout
-
-\begin_layout Standard
-Two demands here.
-\end_layout
-
-\begin_layout Standard
-1st, If I want all aa's log output to a special file (and keep output of
- aa.bb and aa.cc not changed)? 
-\end_layout
-
-\begin_layout Standard
-2rd, If I change aa.bb's code, I want all aa.bb's log above DEBUG level direct
- to aa.bb.debug.log, and watches it carefully for a period.
- But at the same time, keep aa's ERROR log not changed to fit operating
- personnel's habbits.
-\end_layout
-
-\begin_layout Standard
-How can log4j do that job? Very hard, maybe need set threshold, maybe set
- aa.bb's additivity to false.
- That's really hard, because in log4j, each logger must have a level, maybe
- decide itself, or inherit from its parent.
- But in the end, there can be only one level for each logger, no more.
-\end_layout
-
-\begin_layout Standard
-How can zlog do that job? First, zlog allows each category could have multiple
- levels.
- For example
-\end_layout
-
-\begin_layout LyX-Code
-aa.debug         
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa.debug.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
-aa.=notice       
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa.notice.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Is that make you ease?
-\end_layout
-
-\begin_layout Standard
-Second, in zlog, all rules are independent, NO heritage.
- Range-category relationship is express as a underline in category string.
- For example:
-\end_layout
-
-\begin_layout LyX-Code
-#rule 1
-\end_layout
-
-\begin_layout LyX-Code
-aa_bb.DEBUG         
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa_bb.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-#rule 2
-\end_layout
-
-\begin_layout LyX-Code
-aa_cc.INFO          
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa_cc.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-#rule 3
-\end_layout
-
-\begin_layout LyX-Code
-aa_.ERROR           
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa_error.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-#rule 4
-\end_layout
-
-\begin_layout LyX-Code
-aa.*                
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-There is no heirship here, just 4 sperate rules.
- 
-\end_layout
-
-\begin_layout Standard
-If the name of category in source is 
-\begin_inset Quotes eld
-\end_inset
-
-
-\emph on
-aa_bb
-\emph default
-
-\begin_inset Quotes erd
-\end_inset
-
-.
- The c source file is like this.
-\end_layout
-
-\begin_layout LyX-Code
-category_t ab;
-\end_layout
-
-\begin_layout LyX-Code
-ab = zlog_get_category(
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-);
-\end_layout
-
-\begin_layout LyX-Code
-ZLOG_DEBUG(ab, 
-\begin_inset Quotes eld
-\end_inset
-
-ab's debug
-\begin_inset Quotes erd
-\end_inset
-
-);
-\end_layout
-
-\begin_layout LyX-Code
-ZLOG_ERROR(ab, 
-\begin_inset Quotes eld
-\end_inset
-
-ab's error
-\begin_inset Quotes erd
-\end_inset
-
-);
-\end_layout
-
-\begin_layout Standard
-Then category string in rule 1 and rule 3, which are 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
- and 
-\begin_inset Quotes eld
-\end_inset
-
-aa_
-\begin_inset Quotes erd
-\end_inset
-
-, match the category variable in source file, whose name is 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-.
- These two rules determine that aa_bb's >=DEBUG log action in source will
- be output to 
-\emph on
-aa_bb.log,
-\emph default
- and aa_bb's >=ERROR log action in source will be output to 
-\emph on
-aa_error.log
-\emph default
-.
- ERROR log will be written in both files.
- But rule 4 doesn't match the category.
- It's category string is 
-\begin_inset Quotes eld
-\end_inset
-
-aa
-\begin_inset Quotes erd
-\end_inset
-
-, which accurately matches the category variable whose name is
-\begin_inset Quotes eld
-\end_inset
-
-aa
-\begin_inset Quotes erd
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-That is the range-category model.
- Rule and rule are sperate.
- Each source category variable has its rules, one rule may belong to different
- soure category variable.
- Rule-super-category-string(with '_') matches all source-sub-category-variable,
- so super-category-string range contains sub-cateogry-string range.
- At a result, user could select any range in configure file, matches big
- or small of categories for output, but not affect other rules' action.
-\end_layout
-
-\begin_layout Standard
-In fact, when 
-\emph on
-zlog_get_category()
-\emph default
- is called, there is NO guarantee that the category must contains rules.
- It may have many matching rules, or may have none.
- That depends on how configure file is written.
- After the configure file is changed and 
-\emph on
-zlog_reload()
-\emph default
- is called, the relationship between categories and rules will be re-calculated.
- Each Category will get its new matching rules, in the way described above.
-\end_layout
-
-\begin_layout Standard
-In zlog, multiple output is done by multiple rules, not by multiple appender
- as log4j does.
- One rule represents a programmer's intention of output for identified category
- with identified level.
- No need to assign constant level to each category.
- Category, level, Output can be combined free.
- That takes flexible.
-\end_layout
-
-\begin_layout Standard
-Here I should thank to designer of syslog.
- zlog just make a small step(string category, sub-category) behind syslog,
- but is far more flexible than log4j.
- Maybe log4j is written by java and the author are fascinated by inheritance,
- think it the answer to everything...
-\end_layout
-
-\begin_layout Subsection
-Category nomatch rules
-\begin_inset CommandInset label
-LatexCommand label
-name "category-nomatch"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-The compensation for category nomatching is the wastebin rule.
- Category name of wastebin rule is 
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-.
- This rule, whose category string is 
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-, matches category that doesn't has any rules.
- For example, when 
-\emph on
-zlog_get_category(
-\begin_inset Quotes eld
-\end_inset
-
-xx
-\begin_inset Quotes erd
-\end_inset
-
-) 
-\emph default
-goes through all rules and find there is no rule matches 
-\emph on
-
-\begin_inset Quotes eld
-\end_inset
-
-xx
-\begin_inset Quotes erd
-\end_inset
-
-
-\emph default
-, and there is a rule's category string is 
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-.
- Wastebin rule matches category 
-\emph on
-
-\begin_inset Quotes eld
-\end_inset
-
-xx
-\begin_inset Quotes erd
-\end_inset
-
- 
-\emph default
-and output it's log to a special file.
- Wastebin rule is unique, only the last 
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-rule works.
- User can find his mistake at runtime.
- The wastebin rule maybe write like this
-\end_layout
-
-\begin_layout LyX-Code
-!.*                
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/zlog.nomatch.log
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Let's conclude with a table here.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="4">
-<features>
-<column alignment="center" valignment="top" width="30text%">
-<column alignment="center" valignment="top" width="20col%">
-<column alignment="center" valignment="top" width="30col%">
-<column alignment="center" valignment="top" width="20col%">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-summarize
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-category string from configure file
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-matched category
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-no matched category
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-* matches all
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-*.*
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa, aa_bb, aa_cc, xx, yy ...
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-NONE
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-string end with underline matches super-category and sub-categories 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa_.*
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa, aa_bb, aa_cc, aa_bb_cc
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-xx, yy
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-string not end with underline accurately matches category 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa.*
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa_bb, aa_cc, aa_bb_cc
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-! matches category that has no rule matched
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-!.*
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-xx
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-aa(as it matches rules above)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-Output Action
-\end_layout
-
-\begin_layout Standard
-Now, zlog supports 4 ways of output, the syntax is
-\end_layout
-
-\begin_layout LyX-Code
-[action] = [output], [file limitation,optional]; [format name, optional]
-\end_layout
-
-\begin_layout Standard
-\begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="3">
-<features>
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="30text%">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-output action
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-output
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-file limitation
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-to standard out
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
->stdout
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-no meaning
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-to standard error
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
->stderr
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-no meaning
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-to syslog
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
->syslog
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
-\end_layout
-
-\begin_layout Plain Layout
-This is not optional.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-to file
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-\begin_inset Quotes eld
-\end_inset
-
-[file path]
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-file limitation, can be:
-\end_layout
-
-\begin_layout Plain Layout
-1000, 1k, 2M, 1G...
-\end_layout
-
-\begin_layout Plain Layout
-3m*2, 4k*3...
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-
-\emph on
-[file path]
-\emph default
- can be absolute file path or relative file path.
- It is quoted by double quotation marks.
- 
-\emph on
-Conversion pattern
-\emph default
- can be used in file path.
- If the file path is 
-\begin_inset Quotes eld
-\end_inset
-
-%E(HOME)/log/out.log
-\begin_inset Quotes erd
-\end_inset
-
- and the program' environment $HOME is /home/harry, then the log file will
- be /home/harry/log/output.log at last.
- See 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Conversion-pattern"
-
-\end_inset
-
- for more details.
-\end_layout
-
-\begin_layout Standard
-
-\emph on
-[file limitation]
-\emph default
- controls log file size and count.
- zlog rotate log file when the file is too large by this value.
- Let the action is
-\end_layout
-
-\begin_layout LyX-Code
-\begin_inset Quotes eld
-\end_inset
-
-%E(HOME)/log/out.log
-\begin_inset Quotes erd
-\end_inset
-
-,1M*3
-\end_layout
-
-\begin_layout Standard
-After a out.log is filled by programs to 1M, the rotation is
-\end_layout
-
-\begin_layout LyX-Code
-out.log -> out.log.1
-\end_layout
-
-\begin_layout LyX-Code
-out.log(new create) 
-\end_layout
-
-\begin_layout Standard
-If the new log is full again, the rotation is
-\end_layout
-
-\begin_layout LyX-Code
-out.log.1 -> out.log.2
-\end_layout
-
-\begin_layout LyX-Code
-out.log -> out.log.1
-\end_layout
-
-\begin_layout LyX-Code
-out.log(new create)
-\end_layout
-
-\begin_layout Standard
-The next time rotation will delete the oldest log, as *3 means just allows
- 3 file exist
-\end_layout
-
-\begin_layout LyX-Code
-unlink(out.log.2)
-\end_layout
-
-\begin_layout LyX-Code
-out.log.1 -> out.log.2
-\end_layout
-
-\begin_layout LyX-Code
-out.log -> out.log.1
-\end_layout
-
-\begin_layout LyX-Code
-out.log(new create)
-\end_layout
-
-\begin_layout Standard
-So the oldest log has the biggest serial number.
-\end_layout
-
-\begin_layout Standard
-
-\emph on
-[format name]
-\emph default
- is optional.
- If not set, use zlog default format in global setting, which is:
-\end_layout
-
-\begin_layout LyX-Code
-@default_format "%d(%F %T) %P [%p:%F:%L] %m%n"
-\end_layout
-
-\begin_layout Standard
-That cause each rule without format specified, would yield output like this:
-\end_layout
-
-\begin_layout LyX-Code
-2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
-\end_layout
-
-\begin_layout Standard
-Each rule can use its own format.
- One format can be used in mutilple rules.
- .
- If before the rule write such a format:
-\end_layout
-
-\begin_layout LyX-Code
-&simple "%m%n
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout LyX-Code
-my_cat.*    >stdout; simple
-\end_layout
-
-\begin_layout Standard
-Then the output will be:
-\end_layout
-
-\begin_layout LyX-Code
-hello, zlog
-\end_layout
-
-\begin_layout Standard
-The syntax of format is:
-\end_layout
-
-\begin_layout LyX-Code
-&[name][n tab or space]
-\begin_inset Quotes eld
-\end_inset
-
-[conversion pattern]
-\begin_inset Quotes erd
-\end_inset
-
-
+ can be built up with conversion patterns, as describled below.
 \end_layout
 
 \begin_layout Section
@@ -2401,7 +1617,7 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="17" columns="3">
+<lyxtabular version="3" rows="18" columns="3">
 <features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="50text%">
@@ -2812,6 +2028,35 @@ Used to output the id of the process that generated the logging event, which
 
 \begin_layout Plain Layout
 2134
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
@@ -4751,6 +3996,712 @@ A literal '%' character.
 
 \end_layout
 
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Section
+Rules
+\end_layout
+
+\begin_layout Standard
+This section begins with [rules].
+ It decide how log actions are filtered, formated and output.
+ The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(category).(level)    (output), (file limitation,optional); (format name,
+ optional)
+\end_layout
+
+\begin_layout Standard
+When zlog_init() is called, all rules will be read to memory.
+ When zlog_get_category() is called, a category will bonds to mutiple rules,
+ in the way 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Category-Matching"
+
+\end_inset
+
+ describe.
+ When do the real logging, as ZLOG_INFO() is called, the level between matches
+ rules and log action will be checked and decide whether this single log
+ will be output through the rule.
+ When zlog_reload() is called, all rules in new configure file will be flushed
+ to memory, and all category's rule will be re-caculated.
+\end_layout
+
+\begin_layout Subsection
+Level Matching
+\end_layout
+
+\begin_layout Standard
+There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
+ "ERROR" and "FATAL".
+ As all other log library, aa.DEBUG means all log of level that is greater
+ than or equals to DEBUG will be output.
+ Still, there are more expressions.
+ Levels in configure file are case insensitive, both capital or lowercase
+ is accepted.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="2">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+example expression
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+all [source level]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.debug
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source level]>=debug
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.=debug
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source level]==debug
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.!debug
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source level]!=debug
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+User can define his own level, see
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Define-new-level"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Category Matching
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Category-Matching"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+Category Matching is simple.
+ The name of category is made up of letters and digits.
+ The underscore 
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+counts as a letter.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="4">
+<features>
+<column alignment="center" valignment="top" width="30text%">
+<column alignment="center" valignment="top" width="20col%">
+<column alignment="center" valignment="top" width="30col%">
+<column alignment="center" valignment="top" width="20col%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+summarize
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category string from configure file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category matches
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category not matches
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+* matches all
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa, aa_bb, aa_cc, xx, yy ...
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NONE
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+string end with underline matches super-category and sub-categories 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa, aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+xx, yy
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+string not end with underline accurately matches category 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+! matches category that has no rule matched
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+!.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+xx
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa(as it matches rules above)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Output Action
+\end_layout
+
+\begin_layout Standard
+Now, zlog supports 4 ways of output, the syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(output), (file limitation,optional); (format name, optional)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="3">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="30text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output action
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+file limitation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to standard out
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>stdout
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to standard error
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>stderr
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to syslog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>syslog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
+\end_layout
+
+\begin_layout Plain Layout
+This is not optional.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+(file path)
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+file limitation, can be:
+\end_layout
+
+\begin_layout Plain Layout
+1000, 1k, 2M, 1G...
+\end_layout
+
+\begin_layout Plain Layout
+3m*2, 4k*3...
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+(file path) can be absolute file path or relative file path.
+ It is quoted by double quotation marks.
+ 
+\emph on
+Conversion pattern
+\emph default
+ can be used in file path.
+ If the file path is 
+\begin_inset Quotes eld
+\end_inset
+
+%E(HOME)/log/out.log
+\begin_inset Quotes erd
+\end_inset
+
+ and the program' environment $HOME is /home/harry, then the log file will
+ be /home/harry/log/output.log at last.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Conversion-pattern"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Standard
+(file limitation) controls log file size and count.
+ zlog rotate log file when the file is too large by this value.
+ Let the action is
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+%E(HOME)/log/out.log
+\begin_inset Quotes erd
+\end_inset
+
+,1M*3
+\end_layout
+
+\begin_layout Standard
+After a out.log is filled by programs to 1M, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create) 
+\end_layout
+
+\begin_layout Standard
+If the new log is full again, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log.1 -> out.log.2
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create)
+\end_layout
+
+\begin_layout Standard
+The next time rotation will delete the oldest log, as *3 means just allows
+ 3 file exist
+\end_layout
+
+\begin_layout LyX-Code
+unlink(out.log.2)
+\end_layout
+
+\begin_layout LyX-Code
+out.log.1 -> out.log.2
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create)
+\end_layout
+
+\begin_layout Standard
+So the oldest log has the biggest serial number.
+\end_layout
+
+\begin_layout Standard
+(format name) is optional.
+ If not set, use zlog default format in global setting, which is:
+\end_layout
+
+\begin_layout LyX-Code
+"%d(%F %T) %V [%p:%F:%L] %m%n"
+\end_layout
+
 \begin_layout Section
 Configure File Tools
 \end_layout
@@ -4827,68 +4778,6 @@ It tells you that line 126 in you configure file, zlog.conf, is wrong, and
  the 1st line further tells you that [aaa] is not a right rule.
 \end_layout
 
-\begin_layout Standard
-zlog-chk-conf can read mutiple configure files at the same time.
- For example
-\end_layout
-
-\begin_layout LyX-Code
-$ zlog-chk-conf zlog.conf ylog.conf 
-\end_layout
-
-\begin_layout LyX-Code
---[zlog.conf] syntax right 
-\end_layout
-
-\begin_layout LyX-Code
---[ylog.conf] syntax right 
-\end_layout
-
-\begin_layout Standard
-The other useful tool is
-\end_layout
-
-\begin_layout LyX-Code
-$ zlog-gen-conf -h 
-\end_layout
-
-\begin_layout LyX-Code
-Useage: zlog-gen-conf [conf file] 
-\end_layout
-
-\begin_layout LyX-Code
-If no filename is specified, use zlog.conf as default
-\end_layout
-
-\begin_layout LyX-Code
--c 	Chinese comment(UTF-8)
-\end_layout
-
-\begin_layout LyX-Code
-         if envrionment is GBK, use
-\end_layout
-
-\begin_layout LyX-Code
-         $ iconv -f UTF-8 -t GBK xx.conf > yy.conf
-\end_layout
-
-\begin_layout LyX-Code
-         $ mv yy.conf xx.conf
-\end_layout
-
-\begin_layout LyX-Code
--e 	Enligsh comment
-\end_layout
-
-\begin_layout LyX-Code
--h,	show help message 
-\end_layout
-
-\begin_layout Standard
-It will generate a configure file template for you, with comment if needed.
- The comment is a summary of this chapter.
-\end_layout
-
 \begin_layout LyX-Code
 
 \end_layout
@@ -4918,41 +4807,52 @@ zlog.h
 initialize and finish
 \end_layout
 
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
 \begin_layout LyX-Code
-int zlog_init(char *conf_file);
+int zlog_init(char *
+\bar under
+confpath
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
-int zlog_reload(char *conf_file);
+int zlog_reload(char *
+\bar under
+confpath
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
 void zlog_fini(void);
 \end_layout
 
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
-
-\emph on
-zlog_init()
-\emph default
- read configuration from file.
+zlog_init() read configuration from file 
+\bar under
+confpath
+\bar default
+.
  If 
-\emph on
-conf_file
-\emph default
- is NULL, all log will be output to stdout with inner format.
- If 
-\emph on
-zlog_init()
-\emph default
- fail, it will record a error log in ZLOG_PROFILE_ERROR(see 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Profile-zlog-Itself"
-
-\end_inset
-
-), and returns -1.
+\bar under
+confpath
+\bar default
+ is NULL, it looks environment variable ZLOG_CONF_PATH for configure file.
+ If $ZLOG_CONF_PATH is NULL also, all log will be output to stdout with
+ inner format.
  Only the first time call 
 \emph on
 zlog_init()
@@ -4961,41 +4861,29 @@ zlog_init()
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog_reload()
-\emph default
- is designed to reload 
-\emph on
-conf_file
-\emph default
-.
- From the conf_file it re-calculate category-rule relationship, rebuild
- thread buffers.
- It can be call at runtime when configure file changed, and can be use unlimit
- times.
- If conf_file is NULL, reload the last configure file 
-\emph on
-zlog_init() 
-\emph default
-or 
-\emph on
-zlog_reload()
-\emph default
- specified.
+zlog_reload() is designed to reload configure file.
+ From the 
+\bar under
+confpath
+\bar default
+ it re-calculate category-rule relationship, rebuild thread buffers.
+ It can be called at runtime when configure file is changed or using another
+ configure file.
+ It can be called unlimit times.
  If 
+\bar under
+confpath
+\bar default
+ is NULL, it reloads the last configure file zlog_init()
 \emph on
-zlog_reload()
+ 
 \emph default
- failed, return -1 and keep using the last configure file.
+or zlog_reload() specified.
+ If zlog_reload() failed, the last configuration in memory will remain unchanged.
 \end_layout
 
 \begin_layout Standard
-
-\emph on
-zlog_fini()
-\emph default
- release all memory zlog API
+zlog_fini() release all memory zlog API
 \emph on
  
 \emph default
@@ -5003,174 +4891,439 @@ applied, close opened files.
  It can be called unlimit times.
 \end_layout
 
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success , zlog_init() and zlog_reload() return zero.
+ On error, zlog_init() and zlog_reload() return -1, and detail error log
+ will be record to a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
 \begin_layout Section
 category operation
 \end_layout
 
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
 \begin_layout LyX-Code
-typedef struct zlog_category_t zlog_category_t;
+typedef struct zlog_category_s zlog_category_t;
 \end_layout
 
 \begin_layout LyX-Code
-zlog_category_t *zlog_get_category(char *category_name);
+zlog_category_t *zlog_get_category(char *
+\bar under
+cname
+\bar default
+);
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog_get_category() get a category from zlog's cateogory_table for future
+ log, if none, create it.
+ Then It goes throuh all rules in configure memory, which comes from configure
+ file, And find matched rules corresponds to 
+\bar under
+cname
+\bar default
+.
 \end_layout
 
 \begin_layout Standard
+That's how category string in rules matches 
+\bar under
+cname
+\bar default
+:
+\end_layout
 
-\emph on
-zlog_get_category()
-\emph default
- get a category from global table for future log, if none, create it.
- If success, return the address of zlog_category_t, else return NULL.
- 
-\emph on
-category_name
-\emph default
- should correspond to configure setting, see 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Select-Input"
+\begin_layout Enumerate
+* matches all 
+\bar under
+cname
+\bar default
+.
+\end_layout
 
+\begin_layout Enumerate
+category string which ends with underscore 
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+ matches super-category and sub-categories.
+ For example, 
+\begin_inset Quotes eld
+\end_inset
+
+aa_
+\begin_inset Quotes erd
+\end_inset
+
+ matches 
+\bar under
+cname
+\bar default
+ like 
+\begin_inset Quotes eld
+\end_inset
+
+aa
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes erd
+\end_inset
+
+aa_
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+aa_bb_cc
+\begin_inset Quotes erd
 \end_inset
 
 .
- No need to worry about category's memory release,
+\end_layout
+
+\begin_layout Enumerate
+category string which does not ends with underscore 
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+matches 
+\bar under
+cname
+\bar default
+ accurately.
+ For example, 
+\begin_inset Quotes eld
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+ matches 
+\bar under
+cname
+\bar default
+ of 
+\begin_inset Quotes eld
+\end_inset
+
+aa_bb
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Enumerate
+! matches 
+\bar under
+cname
+\bar default
+ that has no rule matched.
+\end_layout
+
+\begin_layout Standard
+The rules of each category will be automaticlly re-caculate when zlog_reload()
+ is called.No need to worry about category's memory release,
 \emph on
  zlog_fini()
 \emph default
  will clean up at last.
 \end_layout
 
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success, return the address of zlog_category_t.
+ On error, return NULL, and detail error log will be record to a log file
+ ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
 \begin_layout Section
-log functions
+log functions and macros
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+void zlog(zlog_category_t * 
+\bar under
+category
+\bar default
+, 
 \end_layout
 
 \begin_layout LyX-Code
-void zlog(zlog_category_t * a_cat, 
+          const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-             char *file, long line, 
+          const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+, 
 \end_layout
 
 \begin_layout LyX-Code
-             int level,
+          long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-             char *format, ...);
+          const char *
+\bar under
+format
+\bar default
+, ...); 
 \end_layout
 
 \begin_layout LyX-Code
-void vzlog(zlog_category_t * a_cat,
+void vzlog(zlog_category_t * 
+\bar under
+category
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-             char *file, long line,
+          const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-             int level,
+          const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+, 
 \end_layout
 
 \begin_layout LyX-Code
-             char *format, va_list args); 
+          long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-void hzlog(zlog_category_t * a_cat,
+          const char *
+\bar under
+format
+\bar default
+, va_list 
+\bar under
+args
+\bar default
+); 
 \end_layout
 
 \begin_layout LyX-Code
-             char *file, long line,
+void hzlog(zlog_category_t * 
+\bar under
+category
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-             int level,
+          const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-             void *buf, size_t buf_len); 
+          const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+, 
 \end_layout
 
+\begin_layout LyX-Code
+          long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const void *
+\bar under
+buf
+\bar default
+, size_t 
+\bar under
+buflen
+\bar default
+); 
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
 These 3 functions are the real log function producing user message, which
  corresponds to %m is configure file.
  
-\emph on
-a_cat
-\emph default
- comes from 
-\emph on
-zlog_get_category()
-\emph default
- described above.
+\bar under
+category
+\bar default
+ comes from zlog_get_category() described above.
 \end_layout
 
 \begin_layout Standard
-
+zlog() and vzlog()
 \emph on
-zlog()
-\emph default
- and 
-\emph on
-vzlog() 
+ 
 \emph default
 produce output according to a 
-\emph on
+\bar under
 format
-\emph default
- like 
-\emph on
-printf(3)
-\emph default
- and 
-\emph on
-vprintf(3)
-\emph default
-.
+\bar default
+ like printf(3) and vprintf(3).
 \end_layout
 
 \begin_layout Standard
-
-\emph on
 vzlog()
-\emph default
- is equivalent to 
 \emph on
-zlog()
-\emph default
-, respectively, except that it is called with a va_list instead of a variable
- number of arguments.
  
-\emph on
-vzlog()
 \emph default
- invokes the va_copy macro, the value of 
-\emph on
+is equivalent to zlog(), respectively, except that it is called with a va_list
+ instead of a variable number of arguments.
+ vzlog() invokes the va_copy macro, the value of 
+\bar under
 args
-\emph default
+\bar default
  remain unchanged after the call.
- See 
-\emph on
-stdarg(3)
-\emph default
-.
+ See stdarg(3).
  
 \end_layout
 
 \begin_layout Standard
-
+hzlog()
 \emph on
-hzlog() 
+ 
 \emph default
 is a little different, it produce output like this, the hexadecimal representati
 on of 
+\bar under
+buf
 \emph on
-buf 
+\bar default
+ 
 \emph default
 and output len is 
-\emph on
+\bar under
 buf_len
 \end_layout
 
@@ -5199,21 +5352,38 @@ F
 
 \begin_layout Standard
 The parameter 
-\emph on
+\bar under
 file
-\emph default
+\bar default
  and 
-\emph on
+\bar under
 line
-\emph default
+\bar default
  are usually filled with __FILE__ and __LINE__ macro.
  These indicate where log event happens.
+ The parameter 
+\bar under
+func
+\bar default
+ is filled with __func__ or __FUNCTION__, if the compiler supports, otherwise
+ it will be filled with 
+\begin_inset Quotes eld
+\end_inset
+
+<unkown>
+\begin_inset Quotes erd
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
 
+\bar under
+level
 \emph on
-level 
+\bar default
+ 
 \emph default
 is a int, which usually is in
 \end_layout
@@ -5252,245 +5422,213 @@ ZLOG_LEVEL_FATAL = 120
 } zlog_level;
 \end_layout
 
-\begin_layout Section
-log macros
-\end_layout
-
 \begin_layout Standard
-For easy writing, there are some log macros
-\end_layout
-
-\begin_layout Standard
-macros of zlog()
+Each fuction has its macros for easy use.
+ For example,
 \end_layout
 
 \begin_layout LyX-Code
 #define ZLOG_FATAL(cat, format, args...) 
 \backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ##args)
-\end_layout
-
-\begin_layout LyX-Code
-#define ZLOG_ERROR(cat, format, args...) 
+         zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,
+ __LINE__, 
 \backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, ##args)
-\end_layout
-
-\begin_layout LyX-Code
-#define ZLOG_WARN(cat, format, args...) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, ##args)
-\end_layout
-
-\begin_layout LyX-Code
-#define ZLOG_NOTICE(cat, format, args...) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, ##args)
-\end_layout
-
-\begin_layout LyX-Code
-#define ZLOG_INFO(cat, format, args...) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, ##args)
-\end_layout
-
-\begin_layout LyX-Code
-#define ZLOG_DEBUG(cat, format, args...) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ##args) 
+         ZLOG_LEVEL_FATAL, format, ##args) 
 \end_layout
 
 \begin_layout Standard
-macros of vzlog()
+The full list of macros is:
 \end_layout
 
 \begin_layout LyX-Code
-#define VZLOG_FATAL(cat, format, args) 
-\backslash
-
+/* zlog macros */
 \end_layout
 
 \begin_layout LyX-Code
-vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, args)
+ZLOG_FATAL(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-#define VZLOG_ERROR(cat, format, args) 
-\backslash
-
+ZLOG_ERROR(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, args)
+ZLOG_WARN(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-#define VZLOG_WARN(cat, format, args) 
-\backslash
-
+ZLOG_NOTICE(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, args)
+ZLOG_INFO(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-#define VZLOG_NOTICE(cat, format, args) 
-\backslash
-
+ZLOG_DEBUG(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, args)
+/* vzlog macros */
 \end_layout
 
 \begin_layout LyX-Code
-#define VZLOG_INFO(cat, format, args) 
-\backslash
-
+VZLOG_FATAL(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, args)
+VZLOG_ERROR(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-#define VZLOG_DEBUG(cat, format, args) 
-\backslash
-
+VZLOG_WARN(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-vzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, args) 
+VZLOG_NOTICE(cat, format, args)
 \end_layout
 
+\begin_layout LyX-Code
+VZLOG_INFO(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_DEBUG(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+/* hzlog macros */
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_FATAL(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_ERROR(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_WARN(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_NOTICE(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_INFO(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_DEBUG(cat, buf, buf_len) 
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
-macros of hzlog()
+These functions returns nothing.
+ But if there is anything wrong happens, detail error log will be record
+ to a log file ZLOG_PROFILE_ERROR indicates.
 \end_layout
 
-\begin_layout LyX-Code
-#define HZLOG_FATAL(cat, buf, buf_len) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, buf, buf_len)
-\end_layout
-
-\begin_layout LyX-Code
-#define HZLOG_ERROR(cat, buf, buf_len) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, buf, buf_len)
-\end_layout
-
-\begin_layout LyX-Code
-#define HZLOG_WARN(cat, buf, buf_len) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, buf, buf_len)
-\end_layout
-
-\begin_layout LyX-Code
-#define HZLOG_NOTICE(cat, buf, buf_len) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, buf, buf_len)
-\end_layout
-
-\begin_layout LyX-Code
-#define HZLOG_INFO(cat, buf, buf_len) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, buf, buf_len)
-\end_layout
-
-\begin_layout LyX-Code
-#define HZLOG_DEBUG(cat, buf, buf_len) 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-hzlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, buf, buf_len) 
-\end_layout
-
+\end_deeper
 \begin_layout Section
 MDC operation
 \end_layout
 
-\begin_layout Standard
-MDC(Mapped Diagnostic Context) is a thread key-value map, so it has nothing
- to do with category.
- the fuctions are
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int zlog_put_mdc(char *
+\bar under
+key
+\bar default
+, char *
+\bar under
+value
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
-int zlog_put_mdc(char *key, char *value);
+char *zlog_get_mdc(char *
+\bar under
+key
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
-char *zlog_get_mdc(char *key);
-\end_layout
-
-\begin_layout LyX-Code
-void zlog_remove_mdc(char *key);
+void zlog_remove_mdc(char *
+\bar under
+key
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
 void zlog_clean_mdc(void);
 \end_layout
 
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
-key and value are all strings, which are no longer than MAXLEN_PATH(typically
- 1024).
- One thing should remeber is that the map bonds to a thread, thus in one
+MDC(Mapped Diagnostic Context) is a thread key-value map, so it has nothing
+ to do with category.
+\end_layout
+
+\begin_layout Standard
+
+\bar under
+key
+\bar default
+ and 
+\bar under
+value
+\bar default
+ are all strings, which should be no longer than MAXLEN_PATH(1024).
+ If the input is longer than MAXLEN_PATH(1024), the input will be truncated.
+\end_layout
+
+\begin_layout Standard
+One thing should remeber is that the map bonds to a thread, thus in one
  thread if you set a key-value pair will not affect other threads.
 \end_layout
 
-\begin_layout Standard
-zlog_put_mdc() returns 0 for success, -1 for fail.
- zlog_get_mdc returns poiter of value for success, NULL for fail or key
- not exist.
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+RETURN VALUE
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+zlog_put_mdc() returns 0 for success, -1 for fail.
+ zlog_get_mdc() returns poiter of 
+\bar under
+value
+\bar default
+ for success, NULL for fail or key not exist.
+ If there is anything wrong happens, detail error log will be record to
+ a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
 \begin_layout Section
 dzlog API
 \begin_inset CommandInset label
@@ -5502,6 +5640,75 @@ name "sec:dzlog-API"
 
 \end_layout
 
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int dzlog_init(char *confpath, char *cname);
+\end_layout
+
+\begin_layout LyX-Code
+int dzlog_set_category(char *cname); 
+\end_layout
+
+\begin_layout LyX-Code
+void dzlog(const char *file, size_t filelen,
+\end_layout
+
+\begin_layout LyX-Code
+           const char *func, size_t funclen,
+\end_layout
+
+\begin_layout LyX-Code
+           long line, int level,
+\end_layout
+
+\begin_layout LyX-Code
+           const char *format, ...); 
+\end_layout
+
+\begin_layout LyX-Code
+void vdzlog(const char *file, size_t filelen,
+\end_layout
+
+\begin_layout LyX-Code
+            const char *func, size_t funclen,
+\end_layout
+
+\begin_layout LyX-Code
+            long line, int level,
+\end_layout
+
+\begin_layout LyX-Code
+            const char *format, va_list args); 
+\end_layout
+
+\begin_layout LyX-Code
+void hdzlog(const char *file, size_t filelen,
+\end_layout
+
+\begin_layout LyX-Code
+            const char *func, size_t funclen,
+\end_layout
+
+\begin_layout LyX-Code
+            long line, int level,
+\end_layout
+
+\begin_layout LyX-Code
+            const void *buf, size_t buflen);
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
 dzlog consists of some simlple fuctions that omit 
 \emph on
@@ -5516,92 +5723,57 @@ zlog_category_t
 zlog_category_t
 \emph default
  variables.
- Still, user can get and use other category through normal API for flexibility.
-\end_layout
-
-\begin_layout LyX-Code
-int dzlog_init(char *conf_file, char *default_category_name);
-\end_layout
-
-\begin_layout LyX-Code
-int dzlog_set_category(char *default_category_name);
+ Still, user can get and use other category through normal API at the same
+ time for flexibility.
 \end_layout
 
 \begin_layout Standard
+dzlog_init() is just as zlog_init(), but need a 
+\bar under
+cname
+\bar default
+ for inner default category.
+ zlog_reload() and zlog_fini() can be used as before, to refresh conf_file,
+ or release all.
+\end_layout
 
+\begin_layout Standard
+dzlog_set_category()
 \emph on
-dzlog_init()
-\emph default
- is just as 
-\emph on
-zlog_init()
-\emph default
-, but need a 
-\emph on
-default_category_name
-\emph default
- for inner default_category.
  
-\emph on
-zlog_reload()
-\emph default
- and 
-\emph on
-zlog_fini()
-\emph default
- can be used as before, to refresh conf_file, or release all.
-\end_layout
-
-\begin_layout Standard
-
-\emph on
-dzlog_set_category() 
 \emph default
 is designed for change default category.
  The last default category is instead by new one, and still don't worry
- about memory releasing, all category will be clean up at 
-\emph on
-zlog_fini().
-\end_layout
-
-\begin_layout LyX-Code
-void dzlog(char *file, long line, int level, char *format, ...);
-\end_layout
-
-\begin_layout LyX-Code
-void vdzlog(char *file, long line, int level, char *format, va_list args);
-\end_layout
-
-\begin_layout LyX-Code
-void hdzlog(char *file, long line, int level, void *buf, size_t buf_len);
+ about memory releasing, all category will be clean up at zlog_fini().
 \end_layout
 
 \begin_layout Standard
-These 3 are dzlog functions, which bind to the default category.
+Macros are defined in zlog.h.
+ They are the general way in simple logging.
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_FATAL(format, args...)
+DZLOG_FATAL(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_ERROR(format, args...)
+DZLOG_ERROR(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_WARN(format, args...)
+DZLOG_WARN(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_NOTICE(format, args...)
+DZLOG_NOTICE(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_INFO(format, args...)
+DZLOG_INFO(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_DEBUG(format, args...)
+DZLOG_DEBUG(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
@@ -5660,11 +5832,57 @@ HDZLOG_INFO(buf, buf_len)
 HDZLOG_DEBUG(buf, buf_len)
 \end_layout
 
-\begin_layout Standard
-Macros are defined in zlog.h.
- They are the general way in simple logging.
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+RETURN VALUE
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+On success , dzlog_init() and dzlog_set_category() return zero.
+ On error, dzlog_init() and dzlog_set_category() return -1, and detail error
+ log will be record to a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+debug and profile
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+void zlog_profile(void);
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+environment variable ZLOG_PROFILE_ERROR indicates zlog's error log itself.
+\end_layout
+
+\begin_layout Standard
+environment variable ZLOG_PROFILE_DEBUG indicates zlog's debug log itself.
+\end_layout
+
+\begin_layout Standard
+zlog_profile() print all information in memory to zlog's error log file
+ at runtime.
+ User can compare it to configure file, to find out possible errors.
+ 
+\end_layout
+
+\end_deeper
 \begin_layout Chapter
 Advance Using
 \end_layout
@@ -5828,7 +6046,15 @@ $ cat test_mdc.conf
 \end_layout
 
 \begin_layout LyX-Code
-&mdc_format    "%d(%F %X.%ms) %-6V (%c:%F:%L) [%M(myname)] - %m%n"
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+mdc_format=     "%d(%F %X.%ms) %-6V (%c:%F:%L) [%M(myname)] - %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
 \end_layout
 
 \begin_layout LyX-Code
@@ -5850,11 +6076,7 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout Standard
-You can see 
-\emph on
-zlog_put_mdc()
-\emph default
- function set the map with key 
+You can see zlog_put_mdc() function set the map with key 
 \begin_inset Quotes eld
 \end_inset
 
@@ -6048,11 +6270,7 @@ That's a quick way, if user kown what he is doing.
 \begin_layout Standard
 About MDC, another thing is that map belongs to thread, each thread has
  it's own map.
- In one thread 
-\emph on
-zlog_mdc_put()
-\emph default
- will not affect other thread's map.
+ In one thread zlog_mdc_put() will not affect other thread's map.
  Still, if you just want to distinguish on thread from another, use %t in
  conversion charactor is enough.
 \end_layout
@@ -6208,11 +6426,7 @@ Runtime profile will make efficency lost.
 
 \begin_layout Standard
 There is still another way to profile zlog libraray.
- As we all know, 
-\emph on
-zlog_init()
-\emph default
- read configure file to memory .
+ As we all know, zlog_init() read configure file to memory .
  Through all log actions, the configure structure memory keeps unchanged.
  There is possibility that this memory is damaged by other fuctions in user's
  application, or the memory doesn't equal what configure file describes.
@@ -6527,39 +6741,27 @@ $ cat $(top_builddir)/test/test_level.conf
 \end_layout
 
 \begin_layout LyX-Code
-@ignore_error_format_rule	false 
+[global]
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_min			1024 
+default format  =               "%V %v %m%n"
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_max			0 
+[levels]
 \end_layout
 
 \begin_layout LyX-Code
-@rotate_lock_file		/tmp/zlog.lock 
+TRACE = 30, LOG_DEBUG
 \end_layout
 
 \begin_layout LyX-Code
-@default_format			"%V %v %m%n"
+[rules]
 \end_layout
 
 \begin_layout LyX-Code
-  
-\end_layout
-
-\begin_layout LyX-Code
-@level				TRACE = 30, LOG_DEBUG
-\end_layout
-
-\begin_layout LyX-Code
-  
-\end_layout
-
-\begin_layout LyX-Code
-my_cat.TRACE		>stdout; 
+my_cat.TRACE            >stdout;
 \end_layout
 
 \begin_layout Standard
@@ -6567,31 +6769,31 @@ The inner default levels are(no need to write them in conf file):
 \end_layout
 
 \begin_layout LyX-Code
-@level              DEBUG = 20, LOG_DEBUG
+DEBUG = 20, LOG_DEBUG
 \end_layout
 
 \begin_layout LyX-Code
-@level              INFO = 40, LOG_INFO
+INFO = 40, LOG_INFO
 \end_layout
 
 \begin_layout LyX-Code
-@level              NOTICE = 60, LOG_NOTICE
+NOTICE = 60, LOG_NOTICE
 \end_layout
 
 \begin_layout LyX-Code
-@level              WARN = 80, LOG_WARNING
+WARN = 80, LOG_WARNING
 \end_layout
 
 \begin_layout LyX-Code
-@level              ERROR = 100, LOG_ERR
+ERROR = 100, LOG_ERR
 \end_layout
 
 \begin_layout LyX-Code
-@level              FATAL = 120, LOG_ALERT
+FATAL = 120, LOG_ALERT
 \end_layout
 
 \begin_layout LyX-Code
-@level              UNKNOWN = 254, LOG_ERR
+UNKNOWN = 254, LOG_ERR
 \end_layout
 
 \begin_layout Standard
@@ -6644,7 +6846,8 @@ Using the new log level in source file, the direct way is like this
 
 \begin_deeper
 \begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, 30, 
+zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,__LINE__,
+ 30, 
 \begin_inset Quotes eld
 \end_inset
 
@@ -6702,13 +6905,20 @@ ZLOG_LEVEL_TRACE = 30,
 \end_layout
 
 \begin_layout LyX-Code
-#define ZLOG_TRACE(cat, format, args...) 
+#define ZLOG_TRACE(cat, format, ...) 
 \backslash
 
 \end_layout
 
 \begin_layout LyX-Code
-    zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_TRACE, format, ##args)
+        zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,
+ __LINE__, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+        ZLOG_LEVEL_TRACE, format, ## __VA_ARGS__) 
 \end_layout
 
 \begin_layout LyX-Code

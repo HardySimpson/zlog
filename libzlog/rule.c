@@ -656,7 +656,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			goto zlog_rule_new_exit;
 		}
 	} else {
-		printf("the 1st char[%c] of file_path[%s] is wrong",
+		zc_error("the 1st char[%c] of file_path[%s] is wrong",
 		       file_path[0], file_path);
 		rc = -1;
 		goto zlog_rule_new_exit;

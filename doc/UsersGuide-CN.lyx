@@ -158,7 +158,7 @@ syslog风格的配置文件，易学易用
 \end_layout
 
 \begin_layout Itemize
-纲目分类模型，比log4j系列的继承模型更加清晰
+syslog分类模型，比log4j系列的继承模型更加清晰
 \end_layout
 
 \begin_layout Itemize
@@ -205,7 +205,7 @@ MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字�
 \end_layout
 
 \begin_layout Itemize
-不依赖其他库，只要是个POSIX系统就成
+不依赖其他库，只要是个POSIX系统就成(当然还要一个C99兼容的vsnprintf)
 \end_layout
 
 \begin_layout Standard
@@ -289,6 +289,44 @@ type "mailto:"
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+zlog 1.0 发布说明
+\end_layout
+
+\begin_layout Enumerate
+zlog是基于POSIX的。目前我手上有的环境只有AIX和linux。如果在其他的系统下（FreeBSD, NetBSD, OpenBSD, OpenSolar
+is, Mac OS X...）有问题欢迎探讨
+\end_layout
+
+\begin_layout Enumerate
+zlog使用了一个C99兼容的vsnprintf。也就是说如果缓存大小不足，vsnprintf将会返回目标字符串应有的长度（不包括'
+\backslash
+0')。如果在你的系统上vsnprintf不是这么运作的，zlog就不知道怎么扩大缓存。如果在目标缓存不够的时候vsnprintf返回-1，zlog就会认为这次
+写入失败。幸运的是目前大多数c标准库符合C99标准。glibc 2.1,libc on AIX, libc on freebsd...都是好的，不过glibc2.0不是。
+在这种情况下，用户需要自己来装一个C99兼容的vsnprintf，来crack这个函数库。我推荐
+\begin_inset CommandInset href
+LatexCommand href
+name "ctrio"
+target "http://sourceforge.net/projects/ctrio/"
+
+\end_inset
+
+, 或者
+\begin_inset CommandInset href
+LatexCommand href
+name "C99-snprintf"
+target "http://www.jhweiss.de/software/snprintf.html"
+
+\end_inset
+
+。只要改buf.c就行，祝好运！
+\end_layout
+
+\begin_layout Enumerate
+zlog1.0和0.9不是兼容的。因为我增加了__func__，这样在C99情况下能打印函数名。我还改了配置文件的格式，对配置文件分节，这样看的清楚点。如果你是zl
+og0.9的用户，想要升级到1.0，那就需要重新编译你的程序链接新的库（你的源代码倒不用改，因为几个输出日志的宏和0.9还是一样）
 \end_layout
 
 \begin_layout Chapter

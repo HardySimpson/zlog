@@ -34,6 +34,7 @@
  * So, what should you do if you want to using zlog on the platform that doesn't
  * conform C99? My Answer is, crack zlog with a portable C99-vsnprintf, like this
  * http://sourceforge.net/projects/ctrio/
+ * http://www.jhweiss.de/software/snprintf.html
  * If you can see this note, you can fix it yourself? Aren't you? ^_^
  
  * Oh, I put the snprintf in C99 standard here,

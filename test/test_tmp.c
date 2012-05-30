@@ -39,6 +39,7 @@ int main(int argc, char** argv)
 	}
 
 	ZLOG_INFO(zc, "hello, zlog");
+	zlog_profile();
 
 	zlog_fini();
 	
