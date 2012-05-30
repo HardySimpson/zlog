@@ -95,7 +95,7 @@ typedef enum {
 #define DZLOG_DEBUG(format, ...) \
 	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, __VA_ARGS__)
 
-#elif defined __GNU_C__
+#elif defined __GNUC__
 /* zlog macros */
 #define ZLOG_FATAL(cat, format, args...) \
 	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ##args)
