@@ -123,8 +123,12 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 		goto zlog_format_new_exit;
 	}
 
+	if (p_end - p_start > sizeof(a_format->pattern) - 1) {
+		zc_error("pattern is too long");
+		goto zlog_format_new_exit;
+	}
 	memset(a_format->pattern, 0x00, sizeof(a_format->pattern));
-	strncpy(a_format->pattern, p_start, p_end - p_start);
+	memcpy(a_format->pattern, p_start, p_end - p_start);
 
 	rc = zc_str_replace_env(a_format->pattern, sizeof(a_format->pattern));
 	if (rc) {

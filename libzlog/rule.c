@@ -615,7 +615,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
-		strncpy(a_rule->file_path, file_path + 1, len);
+		memcpy(a_rule->file_path, file_path + 1, len);
 
 		/* replace any environment variables like %E(HOME) */
 		rc = zc_str_replace_env(a_rule->file_path, sizeof(a_rule->file_path));

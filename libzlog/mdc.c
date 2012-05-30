@@ -18,6 +18,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
 
 #include "mdc.h"
@@ -64,13 +65,6 @@ static void zlog_mdc_kv_del(zlog_mdc_kv_t * a_mdc_kv)
 static zlog_mdc_kv_t *zlog_mdc_kv_new(char *key, char *value)
 {
 	zlog_mdc_kv_t *a_mdc_kv;
-	size_t value_len;
-
-	value_len = strlen(value);
-	if (strlen(key) > MAXLEN_PATH || value_len > MAXLEN_PATH) {
-		zc_error("key[%s] or value[%s] is too long", key, value);
-		return NULL;
-	}
 
 	a_mdc_kv = calloc(1, sizeof(zlog_mdc_kv_t));
 	if (!a_mdc_kv) {
@@ -78,9 +72,8 @@ static zlog_mdc_kv_t *zlog_mdc_kv_new(char *key, char *value)
 		return NULL;
 	}
 
-	strncpy(a_mdc_kv->key, key, sizeof(a_mdc_kv->key)-1);
-	strncpy(a_mdc_kv->value, value, sizeof(a_mdc_kv->key)-1);
-	a_mdc_kv->value_len = value_len;
+	snprintf(a_mdc_kv->key, sizeof(a_mdc_kv->key), "%s", key);
+	a_mdc_kv->value_len = snprintf(a_mdc_kv->value, sizeof(a_mdc_kv->value), "%s", value);
 	zc_debug("zlog_mdc_kv_new[%p][%s-%s]",
 		a_mdc_kv,
 		a_mdc_kv->key, a_mdc_kv->value);
