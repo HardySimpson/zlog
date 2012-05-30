@@ -195,10 +195,18 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 				 nwrite, size_left, format);
 			rc = zlog_buf_resize(a_buf, 0);
 			if (rc > 0) {
-				zc_error
-				    ("conf limit to %ld, can't extend, so truncate",
+				zc_error ("conf limit to %ld, can't extend, so truncate",
 				     a_buf->size_max);
-				a_buf->end += size_left - 1;
+				va_copy(ap, args);
+				size_left = a_buf->size_real - (a_buf->end - a_buf->start);
+				nwrite = vsnprintf(a_buf->end, size_left, format, ap);
+				if (nwrite < 0) {
+					zc_error("vsnprintf fail, errno[%d]", errno);
+					zc_error("nwrite[%d], size_left[%ld], format[%s]",
+						 nwrite, size_left, format);
+					return -1;
+				}
+				a_buf->end += nwrite;
 				*(a_buf->end) = '\0';
 				zlog_buf_truncate(a_buf);
 				return 1;
