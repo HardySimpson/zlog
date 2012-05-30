@@ -28,6 +28,7 @@
 #include "thread_table.h"
 #include "mdc.h"
 #include "zc_defs.h"
+#include "rule.h"
 
 /*******************************************************************************/
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
@@ -795,4 +796,36 @@ void zlog_profile(void)
 		return;
 	}
 	return;
+}
+/*******************************************************************************/
+int zlog_set_record(char *str1, zlog_record_fn record)
+{
+	int rd = 0;
+	zlog_rule_t *a_rule;
+	int i = 0;
+
+	zc_assert(str1, -1);
+
+	rd = pthread_rwlock_wrlock(&zlog_env_lock);
+	if (rd) {
+		zc_error("pthread_rwlock_rdlock fail, rd[%d]", rd);
+		return -1;
+	}
+
+	if (zlog_env_init_flag <= 0) {
+		zc_error("before use, must zlog_init first!!!");
+		goto zlog_set_record_exit;
+	}
+
+	zc_arraylist_foreach(zlog_conf_get_rules(zlog_env_conf), i, a_rule) {
+		zlog_rule_set_record(a_rule, str1, record);
+	}
+
+      zlog_set_record_exit:
+	rd = pthread_rwlock_unlock(&zlog_env_lock);
+	if (rd) {
+		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
+		return -1;
+	}
+	return 0;
 }

@@ -36,6 +36,8 @@ void zlog_profile(void);
 
 zlog_category_t *zlog_get_category(char *cname);
 
+
+
 int zlog_put_mdc(char *key, char *value);
 char *zlog_get_mdc(char *key);
 void zlog_remove_mdc(char *key);
@@ -60,6 +62,9 @@ void vdzlog(const char *file, size_t filelen, const char *func, size_t funclen, 
 	const char *format, va_list args);
 void hdzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
 	const void *buf, size_t buflen);
+
+typedef int (*zlog_record_fn)(char *str2, char *msg, size_t msg_len);
+int zlog_set_record(char *str1, zlog_record_fn record);
 
 /******* useful macros, can be redefined at user's h file **********/
 

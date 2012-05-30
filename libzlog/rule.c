@@ -65,6 +65,10 @@ struct zlog_rule_s {
 
 	zlog_rule_output_fn output;
 	zlog_format_t *format;
+
+	char user_defined_str1[MAXLEN_PATH + 1];
+	char user_defined_str2[MAXLEN_PATH + 1];
+	zlog_record_fn record;
 };
 
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
@@ -73,7 +77,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s(0%o)|%p,%ld*%d|%d;%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s(0%o)|%p,%ld*%d|%d;%p][%s:%s:%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
@@ -84,7 +88,10 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->file_max_size,
 		a_rule->file_max_count,
 		a_rule->syslog_facility,
-		a_rule->format);
+		a_rule->format,
+		a_rule->user_defined_str1,
+		a_rule->user_defined_str2,
+		a_rule->record);
 
 	if (a_rule->dynamic_file_specs) {
 		zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {
@@ -95,8 +102,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 }
 
 /*******************************************************************************/
-static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule,
-					       zlog_thread_t * a_thread)
+static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	int fd = 0;
@@ -131,8 +137,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule,
 	return 0;
 }
 
-static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule,
-					       zlog_thread_t * a_thread)
+static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	int fd;
@@ -180,8 +185,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule,
 /* return 0	success
  * return !=0	fail
  */
-static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread,
-			      char **file_path)
+static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread, char **file_path)
 {
 	int rc = 0;
 	int i;
@@ -201,8 +205,7 @@ static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread,
 	return 0;
 }
 
-static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule,
-						zlog_thread_t * a_thread)
+static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	ssize_t nwrite = 0;
@@ -242,8 +245,7 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule,
 	return 0;
 }
 
-static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule,
-						zlog_thread_t * a_thread)
+static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	ssize_t nwrite = 0;
@@ -294,8 +296,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule,
 	return 0;
 }
 
-static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
-				   zlog_thread_t * a_thread)
+static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	char *msg;
@@ -316,6 +317,35 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule,
 	a_level = zlog_level_list_get(a_rule->levels, a_thread->event->level);
 	syslog(a_rule->syslog_facility | a_level->syslog_level,
 		"%s", msg);
+	return 0;
+}
+
+static int zlog_rule_output_user_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
+{
+	int rc = 0;
+	char *msg;
+	size_t msg_len;
+
+	rc = zlog_format_gen_msg(a_rule->format, a_thread);
+	if (rc) {
+		zc_error("zlog_format_gen_msg fail");
+		return -1;
+	}
+
+	msg = a_thread->msg_buf->start;
+	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
+
+	if (a_rule->record) {
+		rc = a_rule->record(a_rule->user_defined_str2, msg, msg_len);
+		if (rc) {
+			zc_error("a_rule->record fail");
+			return -1;
+		}
+	} else {
+		zc_error("user defined record funcion for [%s,%s] not set, no outpu",
+			a_rule->user_defined_str1, a_rule->user_defined_str2);
+		return -1;
+	}
 	return 0;
 }
 
@@ -655,6 +685,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
+	} else if (file_path[0] == '$') {
+		sscanf(file_path + 1, "%s", a_rule->user_defined_str1);
+		sscanf(file_limit, " %[^; ]", a_rule->user_defined_str2);
+		a_rule->output = zlog_rule_output_user_record;
 	} else {
 		zc_error("the 1st char[%c] of file_path[%s] is wrong",
 		       file_path[0], file_path);
@@ -761,3 +795,14 @@ int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
 	return 0;
 }
 
+/*******************************************************************************/
+
+int zlog_rule_set_record(zlog_rule_t * a_rule, char *str1, zlog_record_fn record)
+{
+	if (a_rule->output != zlog_rule_output_user_record) return 0;
+
+	if (STRCMP(str1, ==, a_rule->user_defined_str1)) {
+		a_rule->record = record;
+	}
+	return 0;
+}

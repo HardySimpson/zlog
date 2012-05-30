@@ -43,9 +43,11 @@ zlog_rule_t *zlog_rule_new(char *line,
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
 
-
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule);
+
+typedef int (*zlog_record_fn)(char *str2, char *msg, size_t msg_len);
+int zlog_rule_set_record(zlog_rule_t * a_rule, char *str1, zlog_record_fn record);
 
 #endif

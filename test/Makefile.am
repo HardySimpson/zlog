@@ -22,6 +22,7 @@ noinst_PROGRAMS =	\
 	test_level	\
 	test_leak	\
 	test_default	\
+	test_user_record	\
 	test_profile
 
 test_tmp_SOURCES = test_tmp.c
