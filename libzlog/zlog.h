@@ -69,31 +69,31 @@ typedef enum {
 #if defined __STDC_VERSION__ && STDC_VERSION__ > 199901
 /* zlog macros */
 #define ZLOG_FATAL(cat, format, ...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, __VA_ARGS__)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ## __VA_ARGS__)
 #define ZLOG_ERROR(cat, format, ...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, __VA_ARGS__)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, ## __VA_ARGS__)
 #define ZLOG_WARN(cat, format, ...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, __VA_ARGS__)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_WARN, format, ## __VA_ARGS__)
 #define ZLOG_NOTICE(cat, format, ...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, __VA_ARGS__)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, ## __VA_ARGS__)
 #define ZLOG_INFO(cat, format, ...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, __VA_ARGS__)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_INFO, format, ## __VA_ARGS__)
 #define ZLOG_DEBUG(cat, format, ...) \
-	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, __VA_ARGS__)
+	zlog(cat, __FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ## __VA_ARGS__)
 
 /* dzlog macros */
 #define DZLOG_FATAL(format, ...) \
-	ddzlog(__FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, __VA_ARGS__)
+	ddzlog(__FILE__, __LINE__, ZLOG_LEVEL_FATAL, format, ## __VA_ARGS__)
 #define DZLOG_ERROR(format, ...) \
-	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, __VA_ARGS__)
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_ERROR, format, ## __VA_ARGS__)
 #define DZLOG_WARN(format, ...) \
-	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_WARN, format, __VA_ARGS__)
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_WARN, format, ## __VA_ARGS__)
 #define DZLOG_NOTICE(format, ...) \
-	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, __VA_ARGS__)
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_NOTICE, format, ## __VA_ARGS__)
 #define DZLOG_INFO(format, ...) \
-	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_INFO, format, __VA_ARGS__)
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_INFO, format, ## __VA_ARGS__)
 #define DZLOG_DEBUG(format, ...) \
-	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, __VA_ARGS__)
+	dzlog(__FILE__, __LINE__, ZLOG_LEVEL_DEBUG, format, ## __VA_ARGS__)
 
 #elif defined __GNUC__
 /* zlog macros */
