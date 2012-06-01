@@ -42,4 +42,4 @@ doc/*.pdf
 doc/obj.think
 doc/zlog.3
 doc/zlogtest.xls
-
+zlog-*.tar.gz
