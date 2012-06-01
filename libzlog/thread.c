@@ -180,14 +180,14 @@ int zlog_thread_update_msg_buf(zlog_thread_t * a_thread, size_t buf_size_min, si
 void zlog_thread_commit_msg_buf(zlog_thread_t * a_thread)
 {
 	zc_assert(a_thread, );
-	if (!a_thread->pre_msg_buf_backup || !a_thread->msg_buf_backup) {
+	if (!a_thread->pre_msg_buf_backup && !a_thread->msg_buf_backup) {
 		zc_warn("backup is null, never update before");
 		return;
 	}
 
-	zlog_buf_del(a_thread->pre_msg_buf_backup);
+	if (a_thread->pre_msg_buf_backup) zlog_buf_del(a_thread->pre_msg_buf_backup);
 	a_thread->pre_msg_buf_backup = NULL;
-	zlog_buf_del(a_thread->msg_buf_backup);
+	if (a_thread->msg_buf_backup) zlog_buf_del(a_thread->msg_buf_backup);
 	a_thread->msg_buf_backup = NULL;
 	return;
 }

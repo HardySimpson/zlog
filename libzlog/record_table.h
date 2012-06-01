@@ -17,37 +17,14 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file rule.h
- * @brief rule decide to output in format by category & level
- */
+#ifndef __zlog_record_table_h
+#define __zlog_record_table_h
 
-#ifndef __zlog_rule_h
-#define __zlog_rule_h
-
-#include <stdio.h>
 #include "zc_defs.h"
-#include "format.h"
-#include "thread.h"
-#include "rotater.h"
 #include "record.h"
 
-typedef struct zlog_rule_s zlog_rule_t;
-
-zlog_rule_t *zlog_rule_new(char *line,
-		zlog_rotater_t * a_rotater,
-		zc_arraylist_t * levels,
-		zlog_format_t * default_format,
-		zc_arraylist_t * formats,
-		unsigned int file_perms);
-
-void zlog_rule_del(zlog_rule_t * a_rule);
-void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
-
-int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
-int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
-int zlog_rule_is_wastebin(zlog_rule_t * a_rule);
-
-int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
+zc_hashtable_t *zlog_record_table_new(void);
+void zlog_record_table_del(zc_hashtable_t * records);
+void zlog_record_table_profile(zc_hashtable_t * records, int flag);
 
 #endif

@@ -1134,6 +1134,13 @@ my_dog
 \end_inset
 
 ，详见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:分类匹配"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Chapter
@@ -4155,7 +4162,7 @@ aa(as it matches rules above)
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="3">
+<lyxtabular version="3" rows="6" columns="3">
 <features>
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -4285,7 +4292,7 @@ LOG_USER(default), LOG_LOCAL[0-7]
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4294,7 +4301,7 @@ LOG_USER(default), LOG_LOCAL[0-7]
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4310,7 +4317,7 @@ LOG_USER(default), LOG_LOCAL[0-7]
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4323,6 +4330,35 @@ LOG_USER(default), LOG_LOCAL[0-7]
 
 \begin_layout Plain Layout
 3m*2, 4k*3...
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+用户自定义输出
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$name
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+param
 \end_layout
 
 \end_inset
@@ -4447,6 +4483,17 @@ out.log(new create)
 
 \begin_layout LyX-Code
 &default "%d(%F %T) %P [%p:%F:%L] %m%n"
+\end_layout
+
+\begin_layout Standard
+用户自定义输出详见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:用户自定义输出"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -4617,7 +4664,8 @@ zlog_reload()从
 \bar under
 confpath
 \bar default
-重载配置，并根据这个配置文件来重计算内部的分类规则匹配、重建每个线程的缓存。可以在配置文件发生改变后调用这个函数。这个函数使用次数不限。如果
+重载配置，并根据这个配置文件来重计算内部的分类规则匹配、重建每个线程的缓存、并设置原有的用户自定义输出函数。可以在配置文件发生改变后调用这个函数。这个函数使用次
+数不限。如果
 \bar under
 confpath
 \bar default
@@ -4626,7 +4674,7 @@ g_reload()具有原子性。
 \end_layout
 
 \begin_layout Standard
-zlog_fini()清理所有zlog API申请的内存，关闭它们打开的文件。可以被不限次数调用。
+zlog_fini()清理所有zlog API申请的内存，关闭它们打开的文件。使用次数不限。
 \end_layout
 
 \end_deeper
@@ -4696,55 +4744,7 @@ cname
 \end_layout
 
 \begin_layout Enumerate
-以下划线
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-结尾的分类名同时匹配本级分类和下级分类。例如
-\begin_inset Quotes eld
-\end_inset
-
-aa_
-\begin_inset Quotes erd
-\end_inset
-
-匹配
-\begin_inset Quotes eld
-\end_inset
-
-aa
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes erd
-\end_inset
-
-aa_
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb_cc
-\begin_inset Quotes erd
-\end_inset
-
-这几个
+以下划线_结尾的分类名同时匹配本级分类和下级分类。例如aa_匹配aa, aa_, aa_bb, aa_bb_cc这几个
 \bar under
 cname
 \bar default
@@ -4752,35 +4752,11 @@ cname
 \end_layout
 
 \begin_layout Enumerate
-不以下划线
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-结尾的分类名精确匹配
+不以下划线_结尾的分类名精确匹配
 \bar under
 cname
 \bar default
-。例如
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-匹配
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-这个
+。例如aa_bb匹配aa_bb这个
 \bar under
 cname
 \bar default
@@ -5124,10 +5100,18 @@ ZLOG_LEVEL_FATAL = 120
 \begin_layout LyX-Code
 #define ZLOG_FATAL(cat, format, args...) 
 \backslash
-         zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,
- __LINE__, 
+         
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__,
+ 
 \backslash
-         ZLOG_LEVEL_FATAL, format, ##args) 
+ 
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_FATAL, format, ##args) 
 \end_layout
 
 \begin_layout Standard
@@ -5330,59 +5314,163 @@ name "sec:dzlog接口"
 
 \begin_deeper
 \begin_layout LyX-Code
-int dzlog_init(char *confpath, char *cname);
+int dzlog_init(char *
+\bar under
+confpath
+\bar default
+, char *
+\bar under
+cname
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
-int dzlog_set_category(char *cname); 
+int dzlog_set_category(char *
+\bar under
+cname
+\bar default
+); 
 \end_layout
 
 \begin_layout LyX-Code
-void dzlog(const char *file, size_t filelen,
+void dzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-           const char *func, size_t funclen,
+           const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-           long line, int level,
+           long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-           const char *format, ...); 
+           const char *
+\bar under
+format
+\bar default
+, ...); 
 \end_layout
 
 \begin_layout LyX-Code
-void vdzlog(const char *file, size_t filelen,
+void vdzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const char *func, size_t funclen,
+            const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            long line, int level,
+            long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const char *format, va_list args); 
+            const char *
+\bar under
+format
+\bar default
+, va_list 
+\bar under
+args
+\bar default
+); 
 \end_layout
 
 \begin_layout LyX-Code
-void hdzlog(const char *file, size_t filelen,
+void hdzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const char *func, size_t funclen,
+            const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            long line, int level,
+            long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const void *buf, size_t buflen);
+            const void *
+\bar under
+buf
+\bar default
+, size_t 
+\bar under
+buflen
+\bar default
+);
 \end_layout
 
 \end_deeper
@@ -5509,6 +5597,100 @@ HDZLOG_DEBUG(buf, buf_len)
 \begin_layout Standard
 成功情况下dzlog_init()和dzlog_set_category()返回0。失败情况下dzlog_init()和 dzlog_set_category(
 )返回-1。详细错误会被写在由环境变量ZLOG_PROFILE_ERROR指定的错误日志里面。
+\end_layout
+
+\end_deeper
+\begin_layout Section
+用户自定义输出
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+总览
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+typedef int (*zlog_record_fn)(char *
+\bar under
+param
+\bar default
+, char *
+\bar under
+msg
+\bar default
+, size_t 
+\bar under
+msglen
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_set_record(char *
+\bar under
+name
+\bar default
+, zlog_record_fn 
+\bar under
+record
+\bar default
+); 
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+描述
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog允许用户自定义输出函数。输出函数需要绑定到某条特殊的规则上。这种规则的例子是：
+\end_layout
+
+\begin_layout LyX-Code
+*.*     $name, param; simple
+\end_layout
+
+\begin_layout Standard
+zlog_set_record()做绑定动作。规则中输出段有$
+\bar under
+name
+\bar default
+的，会被用来做用户自定义输出。输出函数为
+\bar under
+record
+\bar default
+。这个函数需要为zlog_record_fn的格式。 
+\bar under
+param
+\bar default
+来自规则的逗号后的字符串。
+\bar under
+msg
+\bar default
+和
+\bar under
+msglen
+\bar default
+ 是zlog格式化后的日志信息和长度。
+\end_layout
+
+\begin_layout Standard
+所有zlog_set_record()做的绑定在zlog_reload()使用后继续有效。
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+返回值
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+成功情况下zlog_set_record()返回0。失败情况下zlog_set_record()返回-1。详细错误会被写在由环境变量ZLOG_PROFILE_E
+RROR指定的错误日志里面。
 \end_layout
 
 \end_deeper
@@ -6004,7 +6186,7 @@ zlog.error.log日志没产生，因为没有错误发生。
 \end_layout
 
 \begin_layout Standard
-你可以看出来，debug日志展示了zlog是怎么初始化还有清理的。不过在ZLOG_INFO()执行的时候没有日志打出来，这是从效率出发。
+你可以看出来，debug日志展示了zlog是怎么初始化还有清理的。不过在ZLOG_INFO()执行的时候没有日志打出来，这是为了效率。
 \end_layout
 
 \begin_layout Standard
@@ -6396,7 +6578,8 @@ my_cat.TRACE		>stdout;
 
 \begin_deeper
 \begin_layout LyX-Code
-zlog(cat, __FILE__, __LINE__, 30, 
+zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,__LINE__,
+ 30, 
 \begin_inset Quotes eld
 \end_inset
 
@@ -6629,9 +6812,196 @@ INFO info hello, zlog - info
 \end_layout
 
 \end_deeper
-\begin_layout Standard
+\begin_layout Section
+用户自定义输出
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:用户自定义输出"
+
+\end_inset
+
 
 \end_layout
 
+\begin_layout Standard
+这里我把用户自定义输出的几个步骤写下来。
+\end_layout
+
+\begin_layout Enumerate
+在配置文件里面定义规则
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat test_record.conf
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*      $myoutput, myparam;simple
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+绑定一个函数到$myoutput，并使用之
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int output(char *str2, char *msg, size_t msg_len)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("[mystd]:[%s][%s][%ld]
+\backslash
+n", str2, msg, (long)msg_len);
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+rc = zlog_init("test_record.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zlog_set_record("myoutput", output);
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+最后我们发现用户自定义输出的函数能用了！
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+[mystd]:[myparam][hello, zlog
+\end_layout
+
+\begin_layout LyX-Code
+][12] 
+\end_layout
+
+\begin_layout Standard
+正如你所见，msglen是12，zlog生成的msg在最后有一个换行符。
+\end_layout
+
+\end_deeper
 \end_body
 \end_document

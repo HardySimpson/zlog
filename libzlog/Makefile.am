@@ -36,6 +36,10 @@ libzlog_la_SOURCES =	\
 	thread.h	\
 	thread_table.c	\
 	thread_table.h	\
+	record.c	\
+	record.h	\
+	record_table.c	\
+	record_table.h	\
 	category.c	\
 	category.h	\
 	category_table.c	\

@@ -33,11 +33,13 @@ zlog.pc
 press.log*
 callgrind*
 err.log
-doc/*
-!doc/*.lyx
-!doc/*.conf
-!doc/*.txt
 test_*
 !test_*.c
 !test_*.conf
 !test_*.h
+doc/*.lyx~
+doc/*.pdf
+doc/obj.think
+doc/zlog.3
+doc/zlogtest.xls
+

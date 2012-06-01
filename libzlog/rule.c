@@ -66,9 +66,9 @@ struct zlog_rule_s {
 	zlog_rule_output_fn output;
 	zlog_format_t *format;
 
-	char user_defined_str1[MAXLEN_PATH + 1];
-	char user_defined_str2[MAXLEN_PATH + 1];
-	zlog_record_fn record;
+	char record_name[MAXLEN_PATH + 1];
+	char record_param[MAXLEN_PATH + 1];
+	zlog_record_fn record_output;
 };
 
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
@@ -89,9 +89,9 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->file_max_count,
 		a_rule->syslog_facility,
 		a_rule->format,
-		a_rule->user_defined_str1,
-		a_rule->user_defined_str2,
-		a_rule->record);
+		a_rule->record_name,
+		a_rule->record_param,
+		a_rule->record_output);
 
 	if (a_rule->dynamic_file_specs) {
 		zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {
@@ -320,7 +320,7 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 	return 0;
 }
 
-static int zlog_rule_output_user_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
+static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
 	char *msg;
@@ -335,15 +335,15 @@ static int zlog_rule_output_user_record(zlog_rule_t * a_rule, zlog_thread_t * a_
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	if (a_rule->record) {
-		rc = a_rule->record(a_rule->user_defined_str2, msg, msg_len);
+	if (a_rule->record_output) {
+		rc = a_rule->record_output(a_rule->record_param, msg, msg_len);
 		if (rc) {
 			zc_error("a_rule->record fail");
 			return -1;
 		}
 	} else {
-		zc_error("user defined record funcion for [%s,%s] not set, no outpu",
-			a_rule->user_defined_str1, a_rule->user_defined_str2);
+		zc_error("user defined record funcion for [%s,%s] not set, no output",
+			a_rule->record_name, a_rule->record_param);
 		return -1;
 	}
 	return 0;
@@ -686,9 +686,9 @@ zlog_rule_t *zlog_rule_new(char *line,
 			goto zlog_rule_new_exit;
 		}
 	} else if (file_path[0] == '$') {
-		sscanf(file_path + 1, "%s", a_rule->user_defined_str1);
-		sscanf(file_limit, " %[^; ]", a_rule->user_defined_str2);
-		a_rule->output = zlog_rule_output_user_record;
+		sscanf(file_path + 1, "%s", a_rule->record_name);
+		sscanf(file_limit, " %[^; ]", a_rule->record_param);
+		a_rule->output = zlog_rule_output_record;
 	} else {
 		zc_error("the 1st char[%c] of file_path[%s] is wrong",
 		       file_path[0], file_path);
@@ -797,12 +797,15 @@ int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
 
 /*******************************************************************************/
 
-int zlog_rule_set_record(zlog_rule_t * a_rule, char *str1, zlog_record_fn record)
+int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
 {
-	if (a_rule->output != zlog_rule_output_user_record) return 0;
+	zlog_record_t *a_record;
 
-	if (STRCMP(str1, ==, a_rule->user_defined_str1)) {
-		a_rule->record = record;
+	if (a_rule->output != zlog_rule_output_record) return 0;
+
+	a_record = zc_hashtable_get(records, a_rule->record_name);
+	if (a_record) {
+		a_rule->record_output = a_record->output;
 	}
 	return 0;
 }

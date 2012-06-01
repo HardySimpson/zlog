@@ -1496,7 +1496,7 @@ level int should in [1,253], more larger, more important.
 see 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sec:Define-new-level"
+reference "sec:User-defined-Level"
 
 \end_inset
 
@@ -4607,7 +4607,7 @@ user-defined output
 \begin_inset Text
 
 \begin_layout Plain Layout
-$str1
+$name
 \end_layout
 
 \end_inset
@@ -4616,7 +4616,7 @@ $str1
 \begin_inset Text
 
 \begin_layout Plain Layout
-str2
+param of record function
 \end_layout
 
 \end_inset
@@ -4734,6 +4734,17 @@ So the oldest log has the biggest serial number.
 
 \begin_layout LyX-Code
 "%d(%F %T) %V [%p:%F:%L] %m%n"
+\end_layout
+
+\begin_layout Standard
+see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:User-defined-Output"
+
+\end_inset
+
+ for more details for $.
 \end_layout
 
 \begin_layout Section
@@ -4867,41 +4878,10 @@ confpath
 void zlog_fini(void);
 \end_layout
 
-<<<<<<< Updated upstream
 \end_deeper
 \begin_layout List
 \labelwidthstring 00.00.0000
 DESCRIPTION
-=======
-\begin_layout Standard
-
-\emph on
-zlog_init()
-\emph default
- read configuration from file.
- If 
-\emph on
-conf_file
-\emph default
- is NULL, all log will be output to stdout with inner format.
- If 
-\emph on
-zlog_init()
-\emph default
- fail, it will record a error log in ZLOG_PROFILE_ERROR(see 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Profile-zlog-Itself"
-
-\end_inset
-
-), and returns -1.
- Only the first time call 
-\emph on
-zlog_init()
-\emph default
- per process is effective, other times will fail and do nothing.
->>>>>>> Stashed changes
 \end_layout
 
 \begin_deeper
@@ -4928,7 +4908,8 @@ zlog_reload() is designed to reload configure file.
 \bar under
 confpath
 \bar default
- it re-calculate category-rule relationship, rebuild thread buffers.
+ it re-calculate category-rule relationship, rebuild thread buffers, and
+ reset user-defined ouput function to rules.
  It can be called at runtime when configure file is changed or using another
  configure file.
  It can be called unlimit times.
@@ -4936,17 +4917,10 @@ confpath
 \bar under
 confpath
 \bar default
- is NULL, it reloads the last configure file zlog_init()
-\emph on
- 
-\emph default
-<<<<<<< Updated upstream
-or zlog_reload() specified.
+ is NULL, it reloads the last configure file zlog_init() or zlog_reload()
+ specified.
  If zlog_reload() failed, the last configuration in memory will remain unchanged.
  So zlog_reload() is atomic.
-=======
- failed, return -1 and keep using the last configure file.
->>>>>>> Stashed changes
 \end_layout
 
 \begin_layout Standard
@@ -5497,10 +5471,18 @@ Each fuction has its macros for easy use.
 \begin_layout LyX-Code
 #define ZLOG_FATAL(cat, format, args...) 
 \backslash
-         zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,
- __LINE__, 
+         
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__,
+ 
 \backslash
-         ZLOG_LEVEL_FATAL, format, ##args) 
+
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_FATAL, format, ##args) 
 \end_layout
 
 \begin_layout Standard
@@ -5714,59 +5696,163 @@ SYNOPSIS
 
 \begin_deeper
 \begin_layout LyX-Code
-int dzlog_init(char *confpath, char *cname);
+int dzlog_init(char *
+\bar under
+confpath
+\bar default
+, char *
+\bar under
+cname
+\bar default
+);
 \end_layout
 
 \begin_layout LyX-Code
-int dzlog_set_category(char *cname); 
+int dzlog_set_category(char *
+\bar under
+cname
+\bar default
+); 
 \end_layout
 
 \begin_layout LyX-Code
-void dzlog(const char *file, size_t filelen,
+void dzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-           const char *func, size_t funclen,
+           const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-           long line, int level,
+           long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-           const char *format, ...); 
+           const char *
+\bar under
+format
+\bar default
+, ...); 
 \end_layout
 
 \begin_layout LyX-Code
-void vdzlog(const char *file, size_t filelen,
+void vdzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const char *func, size_t funclen,
+            const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            long line, int level,
+            long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const char *format, va_list args); 
+            const char *
+\bar under
+format
+\bar default
+, va_list 
+\bar under
+args
+\bar default
+); 
 \end_layout
 
 \begin_layout LyX-Code
-void hdzlog(const char *file, size_t filelen,
+void hdzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const char *func, size_t funclen,
+            const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            long line, int level,
+            long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
 \end_layout
 
 \begin_layout LyX-Code
-            const void *buf, size_t buflen);
+            const void *
+\bar under
+buf
+\bar default
+, size_t 
+\bar under
+buflen
+\bar default
+);
 \end_layout
 
 \end_deeper
@@ -5910,6 +5996,107 @@ RETURN VALUE
 On success , dzlog_init() and dzlog_set_category() return zero.
  On error, dzlog_init() and dzlog_set_category() return -1, and detail error
  log will be record to a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+User-defined Output
+\end_layout
+
+\begin_layout List
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+typedef int (*zlog_record_fn)(char *
+\bar under
+param
+\bar default
+, char *
+\bar under
+msg
+\bar default
+, size_t 
+\bar under
+msglen
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_set_record(char *
+\bar under
+name
+\bar default
+, zlog_record_fn 
+\bar under
+record
+\bar default
+); 
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog allows user defines his own output function.
+ The output function bonds to specail kind of rule in configure file.
+ A typical rule is:
+\end_layout
+
+\begin_layout LyX-Code
+*.*     $name, param; simple
+\end_layout
+
+\begin_layout Standard
+zlog_set_record() do the bonding operation.
+ rules with the $
+\bar under
+name
+\bar default
+ will be output through user-defined function 
+\bar under
+record
+\bar default
+.
+ The function has the type of zlog_record_fn.
+ 
+\bar under
+param
+\bar default
+ comes from rule.
+ 
+\bar under
+msg
+\bar default
+ and 
+\bar under
+msglen
+\bar default
+ are zlog formated log message and its length.
+\end_layout
+
+\begin_layout Standard
+All settings of zlog_set_record() keeps available after zlog_reload().
+\end_layout
+
+\end_deeper
+\begin_layout List
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success, zlog_set_record() returns zero.
+ On error, it returns -1, and detail error log will be record to a log file
+ ZLOG_PROFILE_ERROR indicates.
 \end_layout
 
 \end_deeper
@@ -6710,10 +6897,10 @@ lock,4]--
 \end_layout
 
 \begin_layout Section
-User-defined level
+User-defined Level
 \begin_inset CommandInset label
 LatexCommand label
-name "sec:Define-new-level"
+name "sec:User-defined-Level"
 
 \end_inset
 
@@ -7071,9 +7258,197 @@ That's just what we expect, the configure file only allows >=TRACE ouput
 \end_layout
 
 \end_deeper
-\begin_layout Standard
+\begin_layout Section
+User-defined Output
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:User-defined-Output"
+
+\end_inset
+
 
 \end_layout
 
+\begin_layout Standard
+Here I write down all steps of how user define own output function.
+\end_layout
+
+\begin_layout Enumerate
+defined output in rules of configure file.
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat test_record.conf
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*      $myoutput, myparam;simple
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+set a ouput function for myoutput, then using it
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int output(char *str2, char *msg, size_t msg_len)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("[mystd]:[%s][%s][%ld]
+\backslash
+n", str2, msg, (long)msg_len);
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+rc = zlog_init("test_record.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zlog_set_record("myoutput", output);
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Now we can see the user-defined output() works!
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+[mystd]:[myparam][hello, zlog
+\end_layout
+
+\begin_layout LyX-Code
+][12] 
+\end_layout
+
+\begin_layout Standard
+As you can see, msglen is 12, and msg formated by zlog contains a newline
+ character.
+\end_layout
+
+\end_deeper
 \end_body
 \end_document

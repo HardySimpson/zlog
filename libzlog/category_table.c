@@ -27,13 +27,13 @@
 void zlog_category_table_profile(zc_hashtable_t * categories, int flag)
 {
 	zc_hashtable_entry_t *a_entry;
-	zlog_category_t *a_categoryegory;
+	zlog_category_t *a_category;
 
 	zc_assert(categories,);
 	zc_profile(flag, "-category_table[%p]-", categories);
 	zc_hashtable_foreach(categories, a_entry) {
-		a_categoryegory = (zlog_category_t *) a_entry->value;
-		zlog_category_profile(a_categoryegory, flag);
+		a_category = (zlog_category_t *) a_entry->value;
+		zlog_category_profile(a_category, flag);
 	}
 	return;
 }

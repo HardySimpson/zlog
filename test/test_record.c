@@ -20,9 +20,9 @@
 #include <stdio.h>
 #include "zlog.h"
 
-int mystd(char *str2, char *msg, size_t msg_len)
+int output(char *str2, char *msg, size_t msg_len)
 {
-	printf("[mystd]:[%s", msg);
+	printf("[mystd]:[%s][%s][%ld]\n", str2, msg, (long)msg_len);
 	return 0;
 }
 
@@ -31,13 +31,13 @@ int main(int argc, char** argv)
 	int rc;
 	zlog_category_t *zc;
 
-	rc = zlog_init("test_user_record.conf");
+	rc = zlog_init("test_record.conf");
 	if (rc) {
 		printf("init failed\n");
 		return -1;
 	}
 
-	zlog_set_record("mystd", mystd);
+	zlog_set_record("myoutput", output);
 
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
@@ -47,9 +47,6 @@ int main(int argc, char** argv)
 	}
 
 	ZLOG_INFO(zc, "hello, zlog");
-	zlog_profile();
-
 	zlog_fini();
-	
 	return 0;
 }
