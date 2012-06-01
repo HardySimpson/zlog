@@ -1500,7 +1500,7 @@ ZLOG_INFO(c, "hello, zlog");
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="17" columns="3">
+<lyxtabular version="3" rows="18" columns="3">
 <features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="50text%">
@@ -1890,6 +1890,35 @@ n
 
 \begin_layout Plain Layout
 2134
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%U
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+调用函数名，来自于__func__(C99)或者__FUNCTION__(gcc)，如果编译器支持的话。
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+main
 \end_layout
 
 \end_inset
@@ -4470,7 +4499,7 @@ out.log(new create)
 \end_layout
 
 \begin_layout Standard
-最旧的文件有最大的序列号
+最旧的文件有最大的序列号。如果不写*3,则意味这一直转档下去，不会删除任何旧的日志。
 \end_layout
 
 \begin_layout Standard

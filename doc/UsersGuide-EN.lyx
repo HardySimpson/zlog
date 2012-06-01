@@ -2040,7 +2040,7 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+%U
 \end_layout
 
 \end_inset
@@ -2049,7 +2049,9 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+Used to output the funtion name where the logging request was issued.
+ It comes from __func__(C99) or __FUNCION__(gcc) macro, with the support
+ of complier.
 \end_layout
 
 \end_inset
@@ -2058,7 +2060,7 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-
+main
 \end_layout
 
 \end_inset
@@ -4725,6 +4727,8 @@ out.log(new create)
 
 \begin_layout Standard
 So the oldest log has the biggest serial number.
+ If *3 is not written, it means rotation will be continue and no old log
+ will be deleted.
 \end_layout
 
 \begin_layout Standard
