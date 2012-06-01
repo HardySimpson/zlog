@@ -1,6 +1,7 @@
 SUBDIRS =		\
 	libzlog		\
-	tools
+	tools		\
+	doc
 
 if ENABLE_TEST
 SUBDIRS += test
@@ -11,8 +12,4 @@ pkgconfig_DATA = zlog.pc
 
 EXTRA_DIST =	\
 	autogen.sh	\
-	zlog.pc.in	\
-	doc/UsersGuide-CN.pdf	\
-	doc/UsersGuide-EN.pdf	\
-	doc/GettingStart-CN.txt	\
-	doc/GettingStart-EN.txt	
+	zlog.pc.in

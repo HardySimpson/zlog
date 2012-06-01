@@ -18,6 +18,13 @@ $ make
 $ sudo make install
 # 默认安装在/usr/local/下，包括libzlog.so和zlog.h
 
+# add one line
+$ sudo vi /etc/ld.so.conf
+/usr/local/lib
+$ sudo ldconfig
+
+在你的程序运行之前，保证libzlog.so在系统的动态链接库加载器可以找到的目录下。上面的命令适用于linux，别的系统自己想办法。
+
 
 2.介绍一下配置文件
 
@@ -32,8 +39,10 @@ zlog里面有三个重要的概念,category,format，rule
 现在试着写配置文件，配置文件名无所谓，放在哪里也无所谓，反正在zlog_init()的时候可以指定
 $ cat /etc/zlog.conf
 
-&simple                 "%m%n"
-my_cat.DEBUG            >stdout; simple
+[formats]
+simple = "%m%n"
+[rules]
+my_cat.DEBUG    >stdout; simple
 
 在目前的配置文件的例子里面，可以看到my_cat分类，>=debug等级的日志会被输出到stdout(标准输出)，并且输出的格式是simple这个格式，也就是用户输入信息+换行符。如果要输出到文件并控制文件大小为1兆，规则的配置应该是
 my_cat.DEBUG            "/var/log/aa.log", 1M; simple
@@ -78,24 +87,23 @@ $ ./test_hello
 hello, zlog
 
 5.高级使用
- * syslog风格的配置文件，易学易用
- * 可以灵活配置日志输出的格式，类似于log4j的pattern layout
- * 纲目分类模型，比log4j系列的继承模型更加清晰
- * 多种输出，包括动态文件、静态文件、stdout、stderr、syslog
- * 可以在运行时动态刷新配置，只需要调用函数zlog_reload()
- * 高性能，在我的笔记本上达到72'000条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
- * 用户可以自定义等级，无需改变库代码
- * 多线程和多进程写同一个日志的情况下，安全转档（转档就是把太大的日志重命名）
- * 可以精确到微秒
- * 如果一个程序默认只用一个分类输出，zlog提供了简单的调用包装dzlog
- * MDC，一个log4j风格的键-值对的表，可以扩展用户自定义的字段
- * 自诊断，可以在运行时输出zlog自己的日志和配置状态
- * 不依赖其他库，只要是个POSIX系统就成
+ *  syslog分类模型，比log4j模型更加直接了当
+ *  日志格式定制，类似于log4j的pattern layout
+ *  多种输出，包括动态文件、静态文件、stdout、stderr、syslog、用户自定义输出函数
+ *  运行时刷新配置——调用函数zlog_reload()
+ *  高性能，在我的笔记本上达到72'000条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
+ *  用户自定义等级
+ *  多线程和多进程环境下保证安全转档
+ *  精确到微秒
+ *  简单调用包装dzlog（一个程序默认只用一个分类）
+ *  MDC，线程键-值对的表，可以扩展用户自定义的字段
+ *  自诊断，可以在运行时输出zlog自己的日志和配置状态
+ *  不依赖其他库，只要是个POSIX系统就成(当然还要一个C99兼容的vsnprintf)
 
 6.相关链接
 软件下载：https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-上手指南：zlog-latest-stable.tar.gz包内doc目录下 GettingStart-CN.txt GettingStart-EN.txt
-使用攻略：zlog-latest-stable.tar.gz包内doc目录下 UsersGuide-CN.pdf UsersGuide-EN.pdf
+上手指南：doc目录下 GettingStart-CN.txt GettingStart-EN.txt
+使用攻略：doc目录下 UsersGuide-CN.pdf UsersGuide-EN.pdf
 源代码：git@github.com:HardySimpson/zlog.git
 英文主页：http://hardysimpson.github.com/zlog
 中文主页：http://www.oschina.net/p/zlog

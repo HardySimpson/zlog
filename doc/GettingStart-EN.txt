@@ -13,11 +13,18 @@ Download https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.g
 
 uncompress, install 
 $ tar -zxvf zlog-latest-stable.tar.gz
-$ cd zlog-0.9.0/
+$ cd zlog-x.x.x/
 $ ./configure --enable-test # complie test program
 $ make
 $ sudo make install
 default install in /usr/local/, include libzlog.so and zlog.h
+
+# add one line
+$ sudo vi /etc/ld.so.conf
+/usr/local/lib
+$ sudo ldconfig
+
+Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find it. The command metioned above is for linux. Other system should find its own way.
 
 
 2. Introduce configure file
@@ -33,8 +40,10 @@ Rule consists of category, level, output file(or other channel) and format. In b
 Now write configure file. No matter what's the file name is or where it locates, zlog_init() will read file from agruments.
 $ cat /etc/zlog.conf
 
-&simple                 "%m%n"
-my_cat.DEBUG            >stdout; simple
+[formats]
+simple = "%m%n"
+[rules]
+my_cat.DEBUG    >stdout; simple
 
 In configure file now, you can see, logs, whose category of "my_cat", >= debug level, will be output to standard output, with the format of simple(%m - usermessage %n - newline).If you want output to a file and control its size, write like this
 
@@ -80,26 +89,25 @@ $ ./test_hello
 hello, zlog
 
 5. Advance Using
- * syslog style configure file, easy for understand and use
- * log format Customization, like pattern layout in log4j
- * range-category model, which is more flexible and more clear than hierarchy model of log4j
- * multiple output, include static file path, dynamic file path, stdout, stderr, syslog
- * runtime refreash configure to change output flow or output format, just need to call one function -- zlog_reload()
- * high efficieny, on my laptop, record 720'000 log per second, about 200 times faster than syslog(3) with rsyslogd
- * user can define his own log level without change and rebuild library
- * safely rotate log file by size when multiple process or multiple threads write to one same log file
- * accurate to microseconds
- * dzlog, a default category log API for easy use
- * MDC, a log4j style key-value map, expand user defined field in dynamic log file path or log format, is also useful in multi-thread programming
- * self debugable, can output zlog's self debug&error log at runtime
- * Not depend on any other 3rd party library, just base on POSIX system.
+ *  syslog model, better than log4j model
+ *  log format customization
+ *  multiple output, include static file path, dynamic file path, stdout, stderr, syslog, user-defined ouput
+ *  runtime refreash configure -- zlog_reload()
+ *  high efficieny, about 200 times faster than syslog(3) with rsyslogd
+ *  user-defined log level
+ *  safely rotate log file on multiple-process or multiple-threads condition
+ *  accurate to microseconds
+ *  dzlog, a default category log API for easy use
+ *  MDC, a log4j style key-value map
+ *  self debugable, can output zlog's self debug&error log at runtime
+ *  Not depend on any other 3rd party library, just base on POSIX system(and a C99 compliant vsnprintf).
 
 
 6. Links:
 
 Download: https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-GettingStart: in doc directory of zlog-0.9.0.tar.gz, GettingStart-CN.txt GettingStart-EN.txt
-UsersGuide: in doc directory of zlog-0.9.0.tar.gz, UsersGuide-CN.pdf UsersGuide-EN.pdf
+GettingStart: doc/GettingStart-CN.txt GettingStart-EN.txt
+UsersGuide: doc/UsersGuide-CN.pdf UsersGuide-EN.pdf
 Homepage(in English): http://hardysimpson.github.com/zlog
 Homepage(in Chinese): http://www.oschina.net/p/zlog
 Author's Blog(in Chinese): http://my.oschina.net/HardySimpson/blog

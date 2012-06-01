@@ -134,43 +134,32 @@ zlog has feartures below:
 \end_layout
 
 \begin_layout Itemize
-syslog model, which is more flexible and more clear than hierarchy model
- of log4j
+syslog model, better than log4j model
 \end_layout
 
 \begin_layout Itemize
-log format customization, like pattern layout in log4j
+log format customization
 \end_layout
 
 \begin_layout Itemize
 multiple output, include static file path, dynamic file path, stdout, stderr,
- syslog
+ syslog, user-defined ouput
 \end_layout
 
 \begin_layout Itemize
-runtime refreash configure to change output flow or output format, just
- need to call one function -- zlog_reload()
+runtime refreash configure -- zlog_reload()
 \end_layout
 
 \begin_layout Itemize
-high efficieny, on my laptop, record 720'000 log per second, about 200 times
- faster than syslog(3) with rsyslogd
+high efficieny, about 200 times faster than syslog(3) with rsyslogd
 \end_layout
 
 \begin_layout Itemize
-user can define his own log level without change and rebuild library
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Define-new-level"
-
-\end_inset
-
-
+user-defined log level
 \end_layout
 
 \begin_layout Itemize
-safely rotate log file by size when multiple process or multiple threads
- write to one same log file
+safely rotate log file on multiple-process or multiple-threads condition
 \end_layout
 
 \begin_layout Itemize
@@ -182,8 +171,7 @@ dzlog, a default category log API for easy use
 \end_layout
 
 \begin_layout Itemize
-MDC, a log4j style key-value map, expand user defined field in dynamic log
- file path or log format, is also useful in multi-thread programming
+MDC, a log4j style key-value map
 \end_layout
 
 \begin_layout Itemize
@@ -211,13 +199,11 @@ target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout Standard
-GettingStart: in doc directory of zlog-latest-stable.tar.gz, GettingStart-CN.txt
- GettingStart-EN.txt 
+GettingStart: doc/GettingStart-CN.txt GettingStart-EN.txt 
 \end_layout
 
 \begin_layout Standard
-UsersGuide: in doc directory of zlog-latest-stable.tar.gz, UsersGuide-CN.pdf
- UsersGuide-EN.pdf
+UsersGuide: doc/UsersGuide-CN.pdf UsersGuide-EN.pdf
 \end_layout
 
 \begin_layout Standard
@@ -336,7 +322,7 @@ zlog 1.0 is not compatible with zlog 0.9.
 \end_layout
 
 \begin_layout Chapter
-What is not zlog
+What is not zlog?
 \end_layout
 
 \begin_layout Standard
@@ -425,8 +411,31 @@ If --enable-test is used, then all the test program under test directory
  These are also good example codes which show how to use zlog.
 \end_layout
 
+\begin_layout LyX-Code
+# add one line
+\end_layout
+
+\begin_layout LyX-Code
+$ sudo vi /etc/ld.so.conf
+\end_layout
+
+\begin_layout LyX-Code
+/usr/local/lib
+\end_layout
+
+\begin_layout LyX-Code
+$ sudo ldconfig
+\end_layout
+
+\begin_layout Standard
+Before running a real program, make sure libzlog.so is in the directory where
+ the system's dynamic lib loader can find it.
+ The command metioned above is for linux.
+ Other system should find its own way.
+\end_layout
+
 \begin_layout Itemize
-For developer.
+For developer of zlog library.
  If zlog is built in other path other than source path(parallel building),
  you need to copy all configure file to build path by hand, to run test
  program successfully.
@@ -450,7 +459,7 @@ hello, zlog
 \end_layout
 
 \begin_layout Itemize
-For developer.
+For developer of zlog library.
  If zlog is downloaded from github, there will be no configure shell.
  It is generated from configure.ac by auto tools.
  You need autoconf, automake in your environment.
@@ -1020,6 +1029,8 @@ From this example, you can find the difference.
  Log4j can not do it easily.
  In zlog, one category may correspond to mutiple rules, and each rules can
  have different level and different output and different format.
+ That gives user a easy, clear way to filter and multi-ouput all his logs
+ on demand.
 \end_layout
 
 \begin_layout Section
@@ -1027,9 +1038,9 @@ Expand syslog model
 \end_layout
 
 \begin_layout Standard
-So, at last you can see, category in zlog is more like facility in syslog.
- Unfortunately, facility is a int, and the value of facility must be chose
- from a few system-defined range.
+At last you can see, category in zlog is more like facility in syslog.
+ Unfortunately, facility in sylog is a int, and the value of facility must
+ be chose from a few system-defined range.
  zlog do it better, make it a variable which comes from a string.
 \end_layout
 
@@ -1053,8 +1064,8 @@ In syslog, there is a special wildcards
 \end_inset
 
  matches all categories.
- That a convenient way to make all error in your system redirect to one
- log file.
+ That a convenient way to make all error comes from multipule compoments
+ in your system redirect to one log file.
  Just write in configure file like this:
 \end_layout
 
@@ -1075,7 +1086,7 @@ In syslog, there is a special wildcards
 \end_layout
 
 \begin_layout Standard
-The thing zlog goes further is, sub-category matching.
+The exciting and unique feature of zlog is, sub-category matching.
  If in your source code is this:
 \end_layout
 
@@ -1291,19 +1302,15 @@ my_dog.=DEBUG           >syslog, LOG_LOCAL0; simple
 \end_layout
 
 \begin_layout LyX-Code
-my_fish.warn            |/var/pipe; normal
-\end_layout
-
-\begin_layout LyX-Code
 my_mice.*               @user_define;
 \end_layout
 
 \begin_layout Section
-Global Parameters
+Global
 \end_layout
 
 \begin_layout Standard
-Global parameters begin with [global].
+Global section begins with [global].
  [] means a section's beginning, and the order of sections must be unchanged,
  follow the global-levels-formats-rules.
  This section can be ommit.The syntax is
@@ -1358,8 +1365,8 @@ buffer min
 \end_inset
 
  indicates size of buffer malloced at init time.
- While loging, if one single log's content size is longer than buffer size,
- zlog will expand buffer automaticly till 
+ While loging, if one single log's content size is longer than buffer size
+ now, zlog will expand buffer automaticly till 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1450,10 +1457,20 @@ file perms
 \begin_layout Standard
 This specifies all log file permission when they are created.
  The default is 600, which just allowed user read and write.
+ Note that it is affect by user's umask.
+ The final file permission will be 
+\begin_inset Quotes eld
+\end_inset
+
+file perms
+\begin_inset Quotes erd
+\end_inset
+
+& ~umask.
 \end_layout
 
 \begin_layout Section
-Level Customization
+Level
 \end_layout
 
 \begin_layout Standard
@@ -1487,7 +1504,7 @@ reference "sec:Define-new-level"
 \end_layout
 
 \begin_layout Section
-Formats Definition
+Formats
 \end_layout
 
 \begin_layout Standard
@@ -1508,16 +1525,8 @@ This section begins with [formats], where user defined its prefer log pattern.
 \end_layout
 
 \begin_layout Standard
-It is easy to understand, name will be use in the next section [rules].
- The 
-\begin_inset Quotes eld
-\end_inset
-
-name
-\begin_inset Quotes erd
-\end_inset
-
- of format are made up of letters and digits.
+It is easy to understand, (name) will be use in the next section [rules].
+ The (name) of format must made up of letters and digits.
  The underscore 
 \begin_inset Quotes eld
 \end_inset
@@ -1527,15 +1536,8 @@ _
 \end_inset
 
 counts as a letter.
- The 
-\begin_inset Quotes eld
-\end_inset
-
-actual format
-\begin_inset Quotes erd
-\end_inset
-
- can be built up with conversion patterns, as describled below.
+ The (actual format) should be put into to double quotes.
+ It can be built up with conversion patterns, as describled below.
 \end_layout
 
 \begin_layout Section
@@ -4007,6 +4009,8 @@ Rules
 \begin_layout Standard
 This section begins with [rules].
  It decide how log actions are filtered, formated and output.
+ This section can be omit, too, but there will be no log output anymore,
+ hehe.
  The syntax is
 \end_layout
 
@@ -4017,8 +4021,8 @@ This section begins with [rules].
 
 \begin_layout Standard
 When zlog_init() is called, all rules will be read to memory.
- When zlog_get_category() is called, a category will bonds to mutiple rules,
- in the way 
+ When zlog_get_category() is called, mutiple rules will be assigned to each
+ category, in the way 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:Category-Matching"
@@ -4027,10 +4031,11 @@ reference "sub:Category-Matching"
 
  describe.
  When do the real logging, as ZLOG_INFO() is called, the level between matches
- rules and log action will be checked and decide whether this single log
- will be output through the rule.
- When zlog_reload() is called, all rules in new configure file will be flushed
- to memory, and all category's rule will be re-caculated.
+ rules and INFO will be checked and decide whether this single log will
+ be output through the rule.
+ When zlog_reload() is called, configure file will be re-read to memory,
+ include rules.
+ And all category's rule will be re-caculated.
 \end_layout
 
 \begin_layout Subsection
@@ -4410,7 +4415,7 @@ Output Action
 \end_layout
 
 \begin_layout Standard
-Now, zlog supports 4 ways of output, the syntax is
+Now, zlog supports 5 ways of output, the syntax is
 \end_layout
 
 \begin_layout LyX-Code
@@ -4419,7 +4424,7 @@ Now, zlog supports 4 ways of output, the syntax is
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="3">
+<lyxtabular version="3" rows="6" columns="3">
 <features>
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -4545,7 +4550,7 @@ This is not optional.
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4554,7 +4559,7 @@ to file
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4570,7 +4575,7 @@ to file
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -4583,6 +4588,35 @@ file limitation, can be:
 
 \begin_layout Plain Layout
 3m*2, 4k*3...
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+user-defined output
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$str1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+str2
 \end_layout
 
 \end_inset
@@ -4833,10 +4867,41 @@ confpath
 void zlog_fini(void);
 \end_layout
 
+<<<<<<< Updated upstream
 \end_deeper
 \begin_layout List
 \labelwidthstring 00.00.0000
 DESCRIPTION
+=======
+\begin_layout Standard
+
+\emph on
+zlog_init()
+\emph default
+ read configuration from file.
+ If 
+\emph on
+conf_file
+\emph default
+ is NULL, all log will be output to stdout with inner format.
+ If 
+\emph on
+zlog_init()
+\emph default
+ fail, it will record a error log in ZLOG_PROFILE_ERROR(see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Profile-zlog-Itself"
+
+\end_inset
+
+), and returns -1.
+ Only the first time call 
+\emph on
+zlog_init()
+\emph default
+ per process is effective, other times will fail and do nothing.
+>>>>>>> Stashed changes
 \end_layout
 
 \begin_deeper
@@ -4853,11 +4918,8 @@ confpath
  is NULL, it looks environment variable ZLOG_CONF_PATH for configure file.
  If $ZLOG_CONF_PATH is NULL also, all log will be output to stdout with
  inner format.
- Only the first time call 
-\emph on
-zlog_init()
-\emph default
- per process is effective, other times will fail and do nothing.
+ Only the first time call zlog_init() per process is effective, other times
+ will fail and do nothing.
 \end_layout
 
 \begin_layout Standard
@@ -4878,8 +4940,13 @@ confpath
 \emph on
  
 \emph default
+<<<<<<< Updated upstream
 or zlog_reload() specified.
  If zlog_reload() failed, the last configuration in memory will remain unchanged.
+ So zlog_reload() is atomic.
+=======
+ failed, return -1 and keep using the last configure file.
+>>>>>>> Stashed changes
 \end_layout
 
 \begin_layout Standard
@@ -5067,9 +5134,9 @@ cname
 The rules of each category will be automaticlly re-caculate when zlog_reload()
  is called.No need to worry about category's memory release,
 \emph on
- zlog_fini()
+ 
 \emph default
- will clean up at last.
+zlog_fini() will clean up at last.
 \end_layout
 
 \end_deeper
@@ -5868,11 +5935,11 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-environment variable ZLOG_PROFILE_ERROR indicates zlog's error log itself.
+environment variable ZLOG_PROFILE_ERROR indicates zlog's error log path.
 \end_layout
 
 \begin_layout Standard
-environment variable ZLOG_PROFILE_DEBUG indicates zlog's debug log itself.
+environment variable ZLOG_PROFILE_DEBUG indicates zlog's debug log path.
 \end_layout
 
 \begin_layout Standard
@@ -6070,9 +6137,16 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout LyX-Code
-2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) [] - 1.hello, zlog 2012-03-12
- 09:26:37.740 INFO   (my_cat:test_mdc.c:51) [Zhang] - 2.hello, zlog 2012-03-12
- 09:26:37.740 INFO   (my_cat:test_mdc.c:55) [Li] - 3.hello, zlog
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) [] - 1.hello, zlog 
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:51) [Zhang] - 2.hello, zlog
+ 
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:55) [Li] - 3.hello, zlog
 \end_layout
 
 \begin_layout Standard
@@ -6522,35 +6596,19 @@ $ cat test_profile.conf
 \end_layout
 
 \begin_layout LyX-Code
-@ignore_error_format_rule false 
+[formats] 
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_min 1024 
+simple = "%m%n"   
 \end_layout
 
 \begin_layout LyX-Code
-@buf_size_max 0 
+[rules]
 \end_layout
 
 \begin_layout LyX-Code
-@rotate_lock_file /tmp/zlog.lock
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-&simple "%m%n"
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-my_cat.* >stdout; simple
+my_cat.*                >stdout; simple 
 \end_layout
 
 \begin_layout Standard
@@ -6562,162 +6620,97 @@ $ cat /tmp/zlog.error.log
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:zlog.c:802) ------zlog_profile start------  
+06-01 11:21:26 WARN  (7063:zlog.c:783) ------zlog_profile start------ 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:zlog.c:803) init_flag:[1] 
+06-01 11:21:26 WARN  (7063:zlog.c:784) init_flag:[1] 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:* = 0, 6 
+06-01 11:21:26 WARN  (7063:conf.c:75) -conf[0x2333010]- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:DEBUG = 20, 7 
+06-01 11:21:26 WARN  (7063:conf.c:76) --global-- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:INFO = 40, 6 
+06-01 11:21:26 WARN  (7063:conf.c:77) ---file[test_profile.conf],mtime[2012-06-01
+ 11:20:44]--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:NOTICE = 60, 5 
+06-01 11:21:26 WARN  (7063:conf.c:78) ---strict init[1]--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:WARN = 80, 4 
+06-01 11:21:26 WARN  (7063:conf.c:79) ---buffer min[1024]--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:ERROR = 100, 3 
+06-01 11:21:26 WARN  (7063:conf.c:80) ---buffer max[2097152]--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:FATAL = 120, 1 
+06-01 11:21:26 WARN  (7063:conf.c:82) ---default_format--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:UNKNOWN = 254, 3 
+06-01 11:21:26 WARN  (7063:format.c:48) ---format[0x235ef60][default = %d(%F
+ %T) %V [%p:%F:%L] %m%n(0x233b810)]--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:level.c:246) level:! = 255, 6 
-\end_layout
-
-\begin_layout Standard
-That shows the levels.
- If user has defined levels, shows here also.
+06-01 11:21:26 WARN  (7063:conf.c:85) ---file perms[0600]--- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:442) ---conf[0x7fbcbed14520]--- 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:443) file:[test_profile.conf],mtime:[2012-03-13
- 10:45:30] 
-\end_layout
-
-\begin_layout Standard
-That shows which configure file is read, and what's it last modified time.
- When you have doubt with conf file and conf memory not equals, check their
- time and path first.
- In this example, use ls -l test_profile.conf, and compare them.
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:444) ignore_error_format_rule:[0] 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:445) buf_size_min:[1024] 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:446) buf_size_max:[0] 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:447) rotate_lock_file:[/tmp/zlog.lock]
+06-01 11:21:26 WARN  (7063:conf.c:87) ---rotate lock file[/tmp/zlog.lock]---
  
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:449) default_format: 
+06-01 11:21:26 WARN  (7063:rotater.c:48) --rotater[0x233b7d0][0x233b7d0,/tmp/zlog.
+lock,4]-- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:format.c:183) format:[0x14e82e0][default]-[%d(%F
- %T) %V [%p:%F:%L] %m%n] 
-\end_layout
-
-\begin_layout Standard
-Here shows some global setting.
+06-01 11:21:26 WARN  (7063:level_list.c:37) --level_list[0x2335490]-- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:452) ---rules[0x14d5120]--- 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:rule.c:718) rule:[0x14f8320][my_cat.0]-[,0][0x14f0300]
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x23355c0][0,*,*,1,6]---
  
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:conf.c:457) ---formats[0x14d5420]--- 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:format.c:183) format:[0x14f0300][simple]-[%m%n]
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x23375e0][20,DEBUG,debug,5,7]---
  
 \end_layout
 
-\begin_layout Standard
-rules and formats are not so distinct.
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x2339600][40,INFO,info,4,6]---
+ 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:thread.c:260) ---tmap[0x7fbcbed16570]--- 
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x233b830][60,NOTICE,notice,6,5]-
+-- 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:thread.c:263) thread:[140448634054400] 
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x233d850][80,WARN,warn,4,4]---
+ 
 \end_layout
 
 \begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:category.c:273) ---cmap[0x7fbcbed16578]--- 
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:category.c:276) category:[my_cat] 
-\end_layout
-
-\begin_layout Standard
-tmap is thread map.
- It has one thread.
-\end_layout
-
-\begin_layout Standard
-cmap is category map.
- It has one category -- my_cat
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:zlog.c:810) default_category[my_cat] 
-\end_layout
-
-\begin_layout Standard
-default category of dzlog is printed at last.
-\end_layout
-
-\begin_layout LyX-Code
-03-13 11:15:19 ERROR (25631:zlog.c:812) ------zlog_profile end------ 
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x233fc80][100,ERROR,error,5,3]--
+-
 \end_layout
 
 \begin_layout Section
-User defines level
+User-defined level
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Define-new-level"

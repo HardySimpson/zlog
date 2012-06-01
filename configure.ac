@@ -59,6 +59,7 @@ Makefile
 libzlog/Makefile
 tools/Makefile
 test/Makefile
+doc/Makefile
 ])
 
 AC_OUTPUT
