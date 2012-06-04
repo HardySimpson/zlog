@@ -100,7 +100,7 @@ status collapsed
 status collapsed
 
 \begin_layout Plain Layout
-有问题，写邮件到
+有问题，在github上开个issue，或者写邮件到
 \begin_inset CommandInset href
 LatexCommand href
 name "HardySimpson1984@gmail.com"
@@ -228,6 +228,18 @@ target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 LatexCommand href
 name "git@github.com:HardySimpson/zlog.git"
 target "git@github.com:HardySimpson/zlog.git"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+问题讨论区：
+\begin_inset CommandInset href
+LatexCommand href
+name "https://github.com/HardySimpson/zlog/issues"
+target "https://github.com/HardySimpson/zlog/issues"
 
 \end_inset
 

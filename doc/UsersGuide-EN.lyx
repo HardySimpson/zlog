@@ -78,7 +78,8 @@ This Guide is for zlog v1.0.
 status collapsed
 
 \begin_layout Plain Layout
-If you have comments or error corrections, write email to 
+If you have comments or error corrections, post a issue on github, or write
+ email to 
 \begin_inset CommandInset href
 LatexCommand href
 name "HardySimpson1984@gmail.com"
@@ -212,6 +213,18 @@ SourceCode:
 LatexCommand href
 name "git@github.com:HardySimpson/zlog.git"
 target "git@github.com:HardySimpson/zlog.git"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Mail List: 
+\begin_inset CommandInset href
+LatexCommand href
+name "https://github.com/HardySimpson/zlog/issues"
+target "https://github.com/HardySimpson/zlog/issues"
 
 \end_inset
 
