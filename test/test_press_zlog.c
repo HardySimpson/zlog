@@ -74,8 +74,6 @@ int main(int argc, char** argv)
 		return 2;
 	}
 
-zlog_profile();
-
 	zc = zlog_get_category("my_cat");
 	if (!zc) {
 		printf("get cat failed\n");

@@ -1334,8 +1334,57 @@ rotate lock file
 \end_layout
 
 \begin_layout Standard
-这个选项指定了一个锁文件，用来保证多进程情况下日志安全转档。zlog会在zlog_init()时候创建这个文件。确认你执行程序的用户有权限创建和读写这个文件。如
-果有多个用户需要转档同一个日志文件，确认这个锁文件对于多个用户都可读写。默认值是/tmp/zlog.lock。
+这个选项指定了一个锁文件，用来保证多进程情况下日志安全转档。zlog会在zlog_init()时候以读写权限打开这个文件。确认你执行程序的用户有权限创建和读写这
+个文件。转档日志的伪代码是：
+\end_layout
+
+\begin_layout LyX-Code
+write(log_file, a_log);
+\end_layout
+
+\begin_layout LyX-Code
+if (log_file > 1M)
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+if (pthread_mutex_lock succ && fcntl_lock(lock_file) succ)
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+if (log_file > 1M) //check again, prevent other process already rotate it
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+rotate(log_file)
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+fcntl_unlock(lock_file)
+\end_layout
+
+\begin_layout LyX-Code
+pthread_mutex_unlock
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+mutex_lock用于多线程， fcntl_lock用于多进程。fcntl_lock是POSIX建议锁。详见man 3 fcntl。这个锁是全系统有效的。在某
+个进程意外死亡后，操作系统会释放此进程持有的锁。这就是我为什么用fcntl锁来保证安全转档。进程需要对锁文件有读写权限。
+\end_layout
+
+\begin_layout Standard
+默认来说，rotate lock file = self。在这种情况下，zlog不会创建任何锁文件，用配置文件作为锁文件。fcntl是建议锁，所以用户可以自由的
+修改存储他们的配置文件。一般来说，单个日志文件不会被不同操作系统用户的进程转档，所以用配置文件作为锁文件是安全的。
+\end_layout
+
+\begin_layout Standard
+如果你设置其他路径作为锁文件，例如/tmp/zlog.lock，zlog会在zlog_init()的时候创建这个文件。如果有多个操作系统用户的进程需要转档同一个日
+志文件，确认这个锁文件对于多个用户都可读写。默认值是/tmp/zlog.lock。
 \end_layout
 
 \begin_layout Itemize

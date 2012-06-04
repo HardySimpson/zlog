@@ -38,8 +38,8 @@
 #define ZLOG_CONF_DEFAULT_RULE "*.*        >stdout"
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MIN 1024
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MAX (2 * 1024 * 1024)
-#define ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE "/tmp/zlog.lock"
 #define ZLOG_CONF_DEFAULT_FILE_PERMS 0600
+#define ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE "/tmp/zlog.lock"
 /*******************************************************************************/
 
 struct zlog_conf_s {
@@ -155,7 +155,11 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	a_conf->strict_init = 1;
 	a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
 	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
-	strcpy(a_conf->rotate_lock_file, ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE);
+	if (has_conf_file) {
+		strcpy(a_conf->rotate_lock_file, a_conf->file);
+	} else {
+		strcpy(a_conf->rotate_lock_file, ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE);
+	}
 	strcpy(a_conf->default_format_line, ZLOG_CONF_DEFAULT_FORMAT);
 	a_conf->file_perms = ZLOG_CONF_DEFAULT_FILE_PERMS;
 	/* set default configuration end */

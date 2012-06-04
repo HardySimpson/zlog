@@ -1421,12 +1421,72 @@ rotate lock file
 
 \begin_layout Standard
 This specifies a lock file for rotate a log safely between multi-process.
- zlog will create the file at zlog_init().
+ zlog will open the file at zlog_init() with the premisson of read-write.
+ The pseudo-code of rotating a log file is:
+\end_layout
+
+\begin_layout LyX-Code
+write(log_file, a_log);
+\end_layout
+
+\begin_layout LyX-Code
+if (log_file > 1M)
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+if (pthread_mutex_lock succ && fcntl_lock(lock_file) succ)
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+if (log_file > 1M) //check again, prevent other process already rotate it
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+rotate(log_file)
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+fcntl_unlock(lock_file)
+\end_layout
+
+\begin_layout LyX-Code
+pthread_mutex_unlock
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+mutex_lock is for multi-thread and fcntl_lock is for multi-process.
+ fcntl_lock is the POSIX advisory record locking.
+ See man 3 fcntl for details.
+ The lock is system-wide, and when a process died unexpected unexpectedly,
+ operating system release all lock owned by the process.
+ That's why I chose fcntl lock for rotating log safely.
+ Process need read-write permisson of lock_file to lock it.
+\end_layout
+
+\begin_layout Standard
+By default, rotate lock file = self.
+ In this way, zlog do not create any lock file and set the configure file
+ as the lock file.
+ As fcntl is advisory, it does not really forbid people to change and store
+ his configure file.
+ Generally speaking, one log file will not be rotated by processes run by
+ different operating system user, so using configure file as lock file is
+ safe.
+\end_layout
+
+\begin_layout Standard
+If you chose other path as lock file, for example, /tmp/zlog.lock, zlog will
+ create it at zlog_init().
  Make sure your program has permission to create and read-write the file.
- If programs run by different users who need to write and rotater a same
- log file, make sure that each program has permission to create and read-write
- the same lock file.
- The default is /tmp/zlog.lock
+ If processes run by different operating system users who need to write
+ and rotater the same log file, make sure that each program has permission
+ to create and read-write the same lock file.
 \end_layout
 
 \begin_layout Itemize
