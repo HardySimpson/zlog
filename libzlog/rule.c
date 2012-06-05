@@ -132,7 +132,12 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		close(fd);
 		return -1;
 	}
-	close(fd);
+
+	rc = close(fd);
+	if (rc < 0) {
+		zc_error("write fail, maybe cause by write, errno[%d]", errno);
+		return -1;
+	}
 
 	return 0;
 }
@@ -167,7 +172,12 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		close(fd);
 		return -1;
 	}
-	close(fd);
+
+	rc = close(fd);
+	if (rc < 0) {
+		zc_error("write fail, maybe cause by write, errno[%d]", errno);
+		return -1;
+	}
 
 	rc = zlog_rotater_rotate(a_rule->rotater,
 				a_rule->file_path,
@@ -241,7 +251,13 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		close(fd);
 		return -1;
 	}
-	close(fd);
+
+	rc = close(fd);
+	if (rc < 0) {
+		zc_error("write fail, maybe cause by write, errno[%d]", errno);
+		return -1;
+	}
+
 	return 0;
 }
 
@@ -281,7 +297,12 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		close(fd);
 		return -1;
 	}
-	close(fd);
+
+	rc = close(fd);
+	if (rc < 0) {
+		zc_error("write fail, maybe cause by write, errno[%d]", errno);
+		return -1;
+	}
 
 	rc = zlog_rotater_rotate(a_rule->rotater,
 				file_path,
@@ -580,8 +601,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 		}
 	}
 
-	/* output               ["%E(HOME)/log/aa.log" , 20MB*12]  [>syslog , LOG_LOCAL0 ]
-	 * file_path            ["%E(HOME)/log/aa.log" ]           [>syslog ]
+	/* output               [-"%E(HOME)/log/aa.log" , 20MB*12]  [>syslog , LOG_LOCAL0 ]
+	 * file_path            [-"%E(HOME)/log/aa.log" ]           [>syslog ]
 	 * *file_limit          [20MB * 12]                        [LOG_LOCAL0]
 	 */
 	memset(file_path, 0x00, sizeof(file_path));
