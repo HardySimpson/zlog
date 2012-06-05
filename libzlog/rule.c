@@ -52,19 +52,20 @@ struct zlog_rule_s {
 	 */
 
 	char file_path[MAXLEN_PATH + 1];
-	unsigned int file_perms;
-
 	zc_arraylist_t *dynamic_file_specs;
-	zlog_rotater_t *rotater;
 
+	unsigned int file_perms;
+	int file_open_flags;
 	long file_max_size;
 	int file_max_count;
 
 	zc_arraylist_t *levels;
 	int syslog_facility;
 
-	zlog_rule_output_fn output;
 	zlog_format_t *format;
+	zlog_rotater_t *rotater;
+
+	zlog_rule_output_fn output;
 
 	char record_name[MAXLEN_PATH + 1];
 	char record_param[MAXLEN_PATH + 1];
@@ -77,21 +78,27 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s(0%o)|%p,%ld*%d|%d;%p][%s:%s:%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s|%p(O%o:%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
 		a_rule->level,
+
 		a_rule->file_path,
-		a_rule->file_perms,
 		a_rule->dynamic_file_specs,
+
+		a_rule->file_perms,
+		a_rule->file_open_flags,
+
 		a_rule->file_max_size,
 		a_rule->file_max_count,
+
 		a_rule->syslog_facility,
-		a_rule->format,
+
 		a_rule->record_name,
 		a_rule->record_param,
-		a_rule->record_output);
+		a_rule->record_output,
+		a_rule->format);
 
 	if (a_rule->dynamic_file_specs) {
 		zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {
@@ -119,7 +126,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(a_rule->file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+	fd = open(a_rule->file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
 			 errno);
@@ -159,7 +166,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(a_rule->file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+	fd = open(a_rule->file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
 			 errno);
@@ -239,7 +246,7 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+	fd = open(file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
 		return -1;
@@ -285,7 +292,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 
-	fd = open(file_path, O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+	fd = open(file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
 		return -1;
@@ -473,11 +480,12 @@ zlog_rule_t *zlog_rule_new(char *line,
 	char output[MAXLEN_CFG_LINE + 1];
 	char format_name[MAXLEN_CFG_LINE + 1];
 	char file_path[MAXLEN_CFG_LINE + 1];
+	char file_max_size[MAXLEN_CFG_LINE + 1];
 	char *file_limit;
 
 	char *p;
 	char *q;
-	int len;
+	size_t len;
 
 	zc_assert(line, NULL);
 	zc_assert(a_rotater, NULL);
@@ -614,29 +622,39 @@ zlog_rule_t *zlog_rule_new(char *line,
 	}
 	file_limit = output + nread;
 
-	if (file_path[0] == '"') {
-		char file_max_size[MAXLEN_CFG_LINE + 1];
+	p = NULL;
+	switch (file_path[0]) {
+	case '-' :
+		/* sync file each time write log */
+		if (file_path[1] != '"') {
+			zc_error(" - must set before a file output");
+			rc = -1;
+			goto zlog_rule_new_exit;
+		}
+		p = file_path + 2;
+		a_rule->file_open_flags = O_SYNC;
+		/* fall through */
+	case '"' :
+		if (!p) p = file_path + 1;
 
 		memset(file_max_size, 0x00, sizeof(file_max_size));
 		nscan = sscanf(file_limit, " %[^*]*%d", file_max_size, &(a_rule->file_max_count));
 
 		a_rule->file_max_size = zc_parse_byte_size(file_max_size);
 
-		p = strrchr(file_path + 1, '"');
-		if (!p) {
-			zc_error("matching \" not found in conf line[%s]",
-				 output);
+		q = strrchr(p, '"');
+		if (!q) {
+			zc_error("matching \" not found in conf line[%s]", output);
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
-		len = p - file_path - 1;
+		len = q - p;
 		if (len > sizeof(a_rule->file_path) - 1) {
-			zc_error("file_path[%s] too long > %ld",
-				 sizeof(a_rule->file_path) - 1);
+			zc_error("file_path too long %ld > %ld", len, sizeof(a_rule->file_path) - 1);
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
-		memcpy(a_rule->file_path, file_path + 1, len);
+		memcpy(a_rule->file_path, p, len);
 
 		/* replace any environment variables like %E(HOME) */
 		rc = zc_str_replace_env(a_rule->file_path, sizeof(a_rule->file_path));
@@ -686,7 +704,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 				a_rule->output = zlog_rule_output_dynamic_file_rotate;
 			}
 		}
-	} else if (file_path[0] == '>') {
+		break;
+	case '>' :
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility = syslog_facility_atoi(file_limit);
 			if (a_rule->syslog_facility == -187) {
@@ -706,11 +725,13 @@ zlog_rule_t *zlog_rule_new(char *line,
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
-	} else if (file_path[0] == '$') {
+		break;
+	case '$' :
 		sscanf(file_path + 1, "%s", a_rule->record_name);
 		sscanf(file_limit, " %[^; ]", a_rule->record_param);
 		a_rule->output = zlog_rule_output_record;
-	} else {
+		break;
+	default :
 		zc_error("the 1st char[%c] of file_path[%s] is wrong",
 		       file_path[0], file_path);
 		rc = -1;

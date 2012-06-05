@@ -4490,16 +4490,16 @@ Output Action
 \end_layout
 
 \begin_layout Standard
-Now, zlog supports 5 ways of output, the syntax is
+Now, zlog supports some ways of output, the syntax is
 \end_layout
 
 \begin_layout LyX-Code
-(output), (file limitation,optional); (format name, optional)
+(output action), (output option); (format name, optional)
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="6" columns="3">
+<lyxtabular version="3" rows="7" columns="3">
 <features>
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -4509,7 +4509,7 @@ Now, zlog supports 5 ways of output, the syntax is
 \begin_inset Text
 
 \begin_layout Plain Layout
-output action
+output
 \end_layout
 
 \end_inset
@@ -4518,7 +4518,7 @@ output action
 \begin_inset Text
 
 \begin_layout Plain Layout
-output
+output action
 \end_layout
 
 \end_inset
@@ -4527,7 +4527,7 @@ output
 \begin_inset Text
 
 \begin_layout Plain Layout
-file limitation
+output option
 \end_layout
 
 \end_inset
@@ -4669,6 +4669,43 @@ file limitation, can be:
 </cell>
 </row>
 <row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+synchronous I/O file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\begin_inset Quotes eld
+\end_inset
+
+(file path)
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
@@ -4704,8 +4741,29 @@ param of record function
 
 \end_layout
 
+\begin_layout Itemize
+stdout, stderr, syslog
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
-(file path) can be absolute file path or relative file path.
+As table describes, only syslog's output option is meaningful and must be
+ set.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+file
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+file path
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+can be absolute file path or relative file path.
  It is quoted by double quotation marks.
  
 \emph on
@@ -4733,7 +4791,50 @@ reference "sec:Conversion-pattern"
 \end_layout
 
 \begin_layout Standard
-(file limitation) controls log file size and count.
+file of zlog is powerful, for example
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+/dev/console
+\begin_inset Quotes erd
+\end_inset
+
+ # output to console
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+/tmp/pipefile
+\begin_inset Quotes erd
+\end_inset
+
+# output to named pipe(FIFO), must create by mkfifo(1) before use
+\end_layout
+
+\begin_layout LyX-Code
+\begin_inset Quotes eld
+\end_inset
+
+/dev/null
+\begin_inset Quotes erd
+\end_inset
+
+ # output to null, not do anythin at all
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+rotate action 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+controls log file size and count.
  zlog rotate log file when the file is too large by this value.
  Let the action is
 \end_layout
@@ -4804,8 +4905,59 @@ So the oldest log has the biggest serial number.
  will be deleted.
 \end_layout
 
+\end_deeper
+\begin_layout Itemize
+synchronous I/O file
+\end_layout
+
+\begin_deeper
 \begin_layout Standard
-(format name) is optional.
+Putting a minus signe '-' set the synchronous I/O opition.
+ log file is opend with O_SYNC.
+ It is painfully slow:
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 100 1000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m0.732s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.030s
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m1.080s
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 100 1000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m20.646s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m2.570s
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m6.950s
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+format name
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+It is optional.
  If not set, use zlog default format in global setting, which is:
 \end_layout
 
@@ -4824,6 +4976,7 @@ reference "sec:User-defined-Output"
  for more details for $.
 \end_layout
 
+\end_deeper
 \begin_layout Section
 Configure File Tools
 \end_layout

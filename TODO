@@ -9,6 +9,7 @@
 [x] 输出到管道,有名管道和文件一样
 [x] 打印堆栈。。可能需要语言支持
 [x] zlog-input -c category -p priority -f conf
+---
 [o] 研究ilog读配置文件, buf
 [o] 采用更加面向对象的方法来写
 [o] 使用arraylist来代替linklist为内部数据结构
@@ -39,13 +40,18 @@
 [o] ylog, 更简单的接口, 改名为dzlog的一堆接口来解决
 [o] zlog-gen-conf
 [o] rotate控制个数
+--- 0.9 ---
 [o] 改变配置文件的布局，去掉@ &这种符号，改用[global],[format]这样的形式来
 [o] 把reload改成原子性的，失败用旧的
 [o] 优化spec_gen_msg部分, spec内采用自己写的buf_append对齐来代替buf_sprintf
 [o] 引入__func__
 [o] 文件的权限设置
 [o] 输出函数自定义
+--- 1.0.0 ---
 [o] 采用配置文件作为锁文件
+--- 1.0.1 ---
+[o] 增加同步写入到硬盘选项，打开后极为费时
+--- 1.0.2 ---
 
 [p] 使用valgrind测试性能
 [ ] 增加man  age,  df, 案例

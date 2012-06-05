@@ -4243,16 +4243,16 @@ aa(as it matches rules above)
 \end_layout
 
 \begin_layout Standard
-目前zlog支持4种输出，语法是：
+目前zlog支持若干种输出，语法是：
 \end_layout
 
 \begin_layout Standard
-[输出器] = [输出], [文件大小个数限制, 可选]; [format(格式)名, 可选]
+[输出], [附加选项, 可选]; [format(格式)名, 可选]
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="6" columns="3">
+<lyxtabular version="3" rows="7" columns="3">
 <features>
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -4280,7 +4280,7 @@ aa(as it matches rules above)
 \begin_inset Text
 
 \begin_layout Plain Layout
-文件限制字段
+附加选项
 \end_layout
 
 \end_inset
@@ -4395,7 +4395,7 @@ LOG_USER(default), LOG_LOCAL[0-7]
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Quotes eld
+\begin_inset Quotes erd
 \end_inset
 
 文件路径
@@ -4420,6 +4420,43 @@ LOG_USER(default), LOG_LOCAL[0-7]
 
 \begin_layout Plain Layout
 3m*2, 4k*3...
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+同步IO文件
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\begin_inset Quotes erd
+\end_inset
+
+文件路径
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
@@ -4461,16 +4498,28 @@ param
 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
+stdout, stderr, syslog
+\end_layout
 
-\emph on
-文件路径 
-\emph default
-可以是相对路径或者绝对路径，被双引号"包含。
-\emph on
-转换格式串
-\emph default
-可以用在文件路径上。例如文件路径是 
+\begin_deeper
+\begin_layout Standard
+如表格描述，其中只有sylog的附加选项是有意义并必须写的。
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+文件
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+文件路径
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 
 \begin_inset Quotes eld
 \end_inset
 
@@ -4478,11 +4527,7 @@ param
 \begin_inset Quotes erd
 \end_inset
 
-，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。
-\emph on
-转换格式串
-\emph default
-详见 
+，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:转换格式串"
@@ -4493,11 +4538,50 @@ reference "sec:转换格式串"
 \end_layout
 
 \begin_layout Standard
+zlog的文件功能极为强大，例如
+\end_layout
 
-\emph on
-文件限制
-\emph default
- 控制文件的大小和个数。zlog根据这个字段来转档，当日志文件太大的时候。例如
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+/dev/console
+\begin_inset Quotes erd
+\end_inset
+
+ #输出到控制台
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+/tmp/pipefile
+\begin_inset Quotes erd
+\end_inset
+
+#输出到命名管道(FIFO)，必须在调用前由mkfifo(1)创建
+\end_layout
+
+\begin_layout Standard
+\begin_inset Quotes eld
+\end_inset
+
+/dev/null
+\begin_inset Quotes erd
+\end_inset
+
+ #输出到NULL，也就是不输出
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+文件转档
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+控制文件的大小和个数。zlog根据这个字段来转档，当日志文件太大的时候。例如
 \end_layout
 
 \begin_layout LyX-Code
@@ -4563,12 +4647,65 @@ out.log(new create)
 最旧的文件有最大的序列号。如果不写*3,则意味这一直转档下去，不会删除任何旧的日志。
 \end_layout
 
-\begin_layout Standard
+\end_deeper
+\begin_layout Itemize
+同步IO文件
+\end_layout
 
-\emph on
+\begin_deeper
+\begin_layout Standard
+在文件路径前加上一个
+\begin_inset Quotes erd
+\end_inset
+
+-
+\begin_inset Quotes erd
+\end_inset
+
+就打开了同步IO选项。在打开文件(open)的时候，会以O_SYNC选项打开。这个选项极为耗时：
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 100 1000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m0.732s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.030s
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m1.080s
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 100 1000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m20.646s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m2.570s
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m6.950s
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
 格式名
-\emph default
- 是可选的，如果不写，用全局配置里面的默认格式：
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+是可选的，如果不写，用全局配置里面的默认格式：
 \end_layout
 
 \begin_layout LyX-Code
@@ -4586,6 +4723,7 @@ reference "sec:用户自定义输出"
 
 \end_layout
 
+\end_deeper
 \begin_layout Section
 配置文件工具
 \end_layout

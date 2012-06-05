@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT([zlog], [1.0.1], [HardySimpson1984@gmail.com])
+AC_INIT([zlog], [1.0.2], [HardySimpson1984@gmail.com])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AC_CONFIG_SRCDIR([libzlog/zlog.h])
 AC_CONFIG_HEADER([config.h])
