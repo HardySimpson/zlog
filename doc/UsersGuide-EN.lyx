@@ -110,8 +110,8 @@ What is zlog?
 \end_layout
 
 \begin_layout Standard
-zlog is a high efficent, thread safe, flexsible, clear model, pure c logging
- library
+zlog is a reliable, high efficent, thread safe, flexsible, clear model,
+ pure c logging library
 \end_layout
 
 \begin_layout Standard
@@ -4934,7 +4934,7 @@ sys	0m1.080s
 \end_layout
 
 \begin_layout LyX-Code
-$ time ./test_press_zlog 100 1000
+$ time ./test_press_zlog 100 1000  # synchronous I/O open
 \end_layout
 
 \begin_layout LyX-Code

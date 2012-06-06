@@ -1,6 +1,6 @@
 0. What is zlog?
 
-zlog is a high efficent, thread safe, flexsible, clear model, pure c logging library.
+zlog is a reliable, high efficent, thread safe, flexsible, clear model, pure c logging library.
 
   Actually, in the c world there is NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be easily redirected or reformat, syslog is slow and is designed for system use. 
   So I write zlog. 

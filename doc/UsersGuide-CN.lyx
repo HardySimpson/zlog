@@ -131,7 +131,7 @@ zlog是什么？
 \end_layout
 
 \begin_layout Standard
-zlog是一个高性能、线程安全、灵活、概念清晰的纯C日志函数库。
+zlog是一个高可靠性、性能、线程安全、灵活、概念清晰的纯C日志函数库。
 \end_layout
 
 \begin_layout Standard
@@ -4682,7 +4682,7 @@ sys	0m1.080s
 \end_layout
 
 \begin_layout LyX-Code
-$ time ./test_press_zlog 100 1000
+$ time ./test_press_zlog 100 1000 # synchronous I/O open
 \end_layout
 
 \begin_layout LyX-Code
