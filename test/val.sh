@@ -7,6 +7,6 @@ unset ZLOG_PROFILE_DEBUG_LOG
 make -f makefile.linux clean
 make -f makefile.linux
 
->press.log
+rm -f press.log
 
 valgrind --tool=callgrind ./test_press_zlog 1 10000

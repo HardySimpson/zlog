@@ -25,6 +25,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include "rule.h"
 #include "format.h"
@@ -59,6 +61,9 @@ struct zlog_rule_s {
 	long file_max_size;
 	int file_max_count;
 
+	size_t fsync_period;
+	volatile sig_atomic_t fsync_count;
+
 	zc_arraylist_t *levels;
 	int syslog_facility;
 
@@ -78,7 +83,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s|%p(O%o:%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s|%p(%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
@@ -87,9 +92,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->file_path,
 		a_rule->dynamic_file_specs,
 
-		a_rule->file_perms,
 		a_rule->file_open_flags,
-
 		a_rule->file_max_size,
 		a_rule->file_max_count,
 
@@ -109,6 +112,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 }
 
 /*******************************************************************************/
+
 static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc = 0;
@@ -138,6 +142,11 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
 		return -1;
+	}
+
+	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+		a_rule->fsync_count = 0;
+		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
 
 	rc = close(fd);
@@ -178,6 +187,11 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
 		return -1;
+	}
+
+	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+		a_rule->fsync_count = 0;
+		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
 
 	rc = close(fd);
@@ -259,6 +273,11 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
+	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+		a_rule->fsync_count = 0;
+		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
+	}
+
 	rc = close(fd);
 	if (rc < 0) {
 		zc_error("write fail, maybe cause by write, errno[%d]", errno);
@@ -303,6 +322,11 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
 		return -1;
+	}
+
+	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+		a_rule->fsync_count = 0;
+		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
 
 	rc = close(fd);
@@ -465,7 +489,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 		zc_arraylist_t * levels,
 		zlog_format_t * default_format,
 		zc_arraylist_t * formats,
-		unsigned int file_perms)
+		unsigned int file_perms,
+		size_t fsync_period)
 {
 	int rc = 0;
 	int nscan = 0;
@@ -502,6 +527,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 	a_rule->rotater = a_rotater;
 	a_rule->levels = levels;
 	a_rule->file_perms = file_perms;
+	a_rule->fsync_period = fsync_period;
 
 	/* line         [f.INFO "%H/log/aa.log", 20MB * 12; MyTemplate]
 	 * selector     [f.INFO]

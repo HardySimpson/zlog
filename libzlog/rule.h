@@ -39,7 +39,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 		zc_arraylist_t * levels,
 		zlog_format_t * default_format,
 		zc_arraylist_t * formats,
-		unsigned int file_perms);
+		unsigned int file_perms,
+		size_t fsync_period);
 
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);

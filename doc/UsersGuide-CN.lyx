@@ -1259,6 +1259,38 @@ my_dog.=DEBUG           >syslog, LOG_LOCAL0; simple
 my_mice.*               @user_define;
 \end_layout
 
+\begin_layout Standard
+有关单位：当设置内存大小或者大数字时，可以设置1k 5GB 4M这样的单位：
+\end_layout
+
+\begin_layout LyX-Code
+# 1k => 1000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1kb => 1024 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1m => 1000000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1mb => 1024*1024 bytes
+\end_layout
+
+\begin_layout LyX-Code
+# 1g => 1000000000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1gb => 1024*1024*1024 byte
+\end_layout
+
+\begin_layout Standard
+单位是大小写不敏感的，所以1GB 1Gb 1gB是等效的。
+\end_layout
+
 \begin_layout Section
 全局参数
 \end_layout
@@ -1294,6 +1326,16 @@ strict init
 \end_inset
 
 是false的时候，zlog_init()会忽略错误的格式和规则。 这个参数默认为true。
+\end_layout
+
+\begin_layout Itemize
+reload conf period
+\end_layout
+
+\begin_layout Standard
+这个选项让zlog能在一段时间间隔后自动重载配置文件。重载的间隔以每进程写日志的次数来定义。当写日志次数到了一定值后，内部将会调用zlog_reload()进行
+重载。每次zlog_reload()或者zlog_init()之后重新计数累加。因为zlog_reload()是原子性的，重载失败继续用当前的配置信息，所以自动
+重载是安全的。默认值是0，自动重载是关闭的。
 \end_layout
 
 \begin_layout Itemize
@@ -1424,7 +1466,7 @@ file perms
 \end_layout
 
 \begin_layout Standard
-这个指定了创建日志文件的缺省访问权限。默认为600，只允许当前用户读写。必须注意的是最后的产生的日志文件的权限为
+这个指定了创建日志文件的缺省访问权限。必须注意的是最后的产生的日志文件的权限为
 \begin_inset Quotes eld
 \end_inset
 
@@ -1432,7 +1474,60 @@ file perms
 \begin_inset Quotes erd
 \end_inset
 
-& ~umask。
+& ~umask。默认为600，只允许当前用户读写。
+\end_layout
+
+\begin_layout Itemize
+fsync period
+\end_layout
+
+\begin_layout Standard
+在每条规则写了一定次数的日志到文件后，zlog会调用fsync(3)来让操作系统马上把数据写到硬盘。次数是每条规则单独统计的，并且在zlog_reload()后
+会被清0。必须指出的是，在日志文件名是动态生成或者被转档的情况下，zlog不能保证把所有文件都搞定，他只fsync()那个时候刚刚write()的文件描述符。这
+提供了写日志速度和数据安全性之间的平衡。例子：
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 10 10000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m0.742s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m0.770s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.640s
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 10 10000  #fsync period = 1K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m4.190s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.080s 
+\end_layout
+
+\begin_layout LyX-Code
+sys 	0m1.240s
+\end_layout
+
+\begin_layout Standard
+如果你极度在乎安全而不是速度的话，用同步IO文件，见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "ite:同步IO文件"
+
+\end_inset
+
+。默认值是0，由操作系统来决定什么时候刷缓存到文件。
 \end_layout
 
 \begin_layout Section
@@ -4650,6 +4745,13 @@ out.log(new create)
 \end_deeper
 \begin_layout Itemize
 同步IO文件
+\begin_inset CommandInset label
+LatexCommand label
+name "ite:同步IO文件"
+
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4662,7 +4764,7 @@ out.log(new create)
 \begin_inset Quotes erd
 \end_inset
 
-就打开了同步IO选项。在打开文件(open)的时候，会以O_SYNC选项打开。这个选项极为耗时：
+就打开了同步IO选项。在打开文件(open)的时候，会以O_SYNC选项打开，这时候每次写日志操作都会等操作系统把数据写到硬盘后才返回。这个选项极为耗时：
 \end_layout
 
 \begin_layout LyX-Code
@@ -4678,7 +4780,7 @@ user	0m1.030s
 \end_layout
 
 \begin_layout LyX-Code
-sys	0m1.080s
+sys	 0m1.080s
 \end_layout
 
 \begin_layout LyX-Code
@@ -4694,7 +4796,7 @@ user	0m2.570s
 \end_layout
 
 \begin_layout LyX-Code
-sys	0m6.950s
+sys	 0m6.950s
 \end_layout
 
 \end_deeper

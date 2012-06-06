@@ -1235,6 +1235,10 @@ strict init = true
 \end_layout
 
 \begin_layout LyX-Code
+reload conf period = 1M
+\end_layout
+
+\begin_layout LyX-Code
 buffer min = 1024
 \end_layout
 
@@ -1252,6 +1256,10 @@ default format = "%d(%F %T.%l) %-6P (%c:%F:%L) - %m%n"
 
 \begin_layout LyX-Code
 file perms = 600
+\end_layout
+
+\begin_layout LyX-Code
+fsync period = 1K
 \end_layout
 
 \begin_layout LyX-Code
@@ -1318,6 +1326,39 @@ my_dog.=DEBUG           >syslog, LOG_LOCAL0; simple
 my_mice.*               @user_define;
 \end_layout
 
+\begin_layout Standard
+Note on units: when memory size or large number is needed, it is possible
+ to specify it in the usual form of 1k 5GB 4M and so forth:
+\end_layout
+
+\begin_layout LyX-Code
+# 1k => 1000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1kb => 1024 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1m => 1000000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1mb => 1024*1024 bytes
+\end_layout
+
+\begin_layout LyX-Code
+# 1g => 1000000000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1gb => 1024*1024*1024 byte
+\end_layout
+
+\begin_layout Standard
+units are case insensitive so 1GB 1Gb 1gB are all the same.
+\end_layout
+
 \begin_layout Section
 Global
 \end_layout
@@ -1358,6 +1399,21 @@ strict init
 
 is false, zlog_init() will omit error syntax of formats and rules.
  The default is true.
+\end_layout
+
+\begin_layout Itemize
+reload conf period
+\end_layout
+
+\begin_layout Standard
+This parameter supports zlog libraray reload configure file automaticlly
+ after a period, which is measured by number of log times per process.
+ When the number reaches the value, it calls zlog_reload() internally.
+ The number is reset to zero at the last zlog_reload() or zlog_init().
+ As zlog_reload() is atomic, when zlog_reload() fails, zlog still run with
+ the current configure.
+ So automaticlly reloading configure is safe.
+ The defualt is 0, which means never reload automaticlly.
 \end_layout
 
 \begin_layout Itemize
@@ -1529,7 +1585,6 @@ file perms
 
 \begin_layout Standard
 This specifies all log file permission when they are created.
- The default is 600, which just allowed user read and write.
  Note that it is affect by user's umask.
  The final file permission will be 
 \begin_inset Quotes eld
@@ -1540,6 +1595,70 @@ file perms
 \end_inset
 
 & ~umask.
+ The default is 600, which just allowed user read and write.
+\end_layout
+
+\begin_layout Itemize
+fsync period
+\end_layout
+
+\begin_layout Standard
+After a number of log times per rule(to file only), zlog will call fsync(3)
+ after write() to tells the Operating System to actually write data on disk
+ immediately.
+ The number is counted by each rule and will be reset to 0 after zlog_reload().
+ Note that when the file's path is dynamic generated or is rotated, zlog
+ do not guarantee fsync() hit all files.
+ It just fsync() the file descriptor that has been write() to at the boundary
+ time.
+ It offers a balance between speed and data safety.
+ A example:
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 10 10000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m0.742s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m0.770s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.640s
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 10 10000  #fsync period = 1K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m4.190s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.080s 
+\end_layout
+
+\begin_layout LyX-Code
+sys 	0m1.240s 
+\end_layout
+
+\begin_layout Standard
+If you want extreme safety but not care about speed, using synchronous I/O
+ file, see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "ite:synchronous-I/O-file"
+
+\end_inset
+
+.The defualt is 0, which means let the operating system flush the output
+ buffer when it wants.
+ 
 \end_layout
 
 \begin_layout Section
@@ -4244,7 +4363,7 @@ aa.!debug
 User can define his own level, see
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sec:Define-new-level"
+reference "sec:User-defined-Level"
 
 \end_inset
 
@@ -4908,12 +5027,20 @@ So the oldest log has the biggest serial number.
 \end_deeper
 \begin_layout Itemize
 synchronous I/O file
+\begin_inset CommandInset label
+LatexCommand label
+name "ite:synchronous-I/O-file"
+
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
 \begin_layout Standard
 Putting a minus signe '-' set the synchronous I/O opition.
- log file is opend with O_SYNC.
+ log file is opend with O_SYNC and every single log action will return until
+ Operation System write data to disk.
  It is painfully slow:
 \end_layout
 
@@ -4930,7 +5057,7 @@ user	0m1.030s
 \end_layout
 
 \begin_layout LyX-Code
-sys	0m1.080s
+sys	 0m1.080s
 \end_layout
 
 \begin_layout LyX-Code
@@ -4946,7 +5073,7 @@ user	0m2.570s
 \end_layout
 
 \begin_layout LyX-Code
-sys	0m6.950s
+sys	 0m6.950s
 \end_layout
 
 \end_deeper
@@ -5149,7 +5276,8 @@ confpath
 \bar default
  is NULL, it reloads the last configure file zlog_init() or zlog_reload()
  specified.
- If zlog_reload() failed, the last configuration in memory will remain unchanged.
+ If zlog_reload() failed, the current configuration in memory will remain
+ unchanged.
  So zlog_reload() is atomic.
 \end_layout
 
