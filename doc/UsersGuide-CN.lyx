@@ -164,7 +164,7 @@ syslog分类模型，比log4j模型更加直接了当
 \end_layout
 
 \begin_layout Itemize
-运行时刷新配置——调用函数zlog_reload()
+运行时手动、自动刷新配置文件（同时保证安全）
 \end_layout
 
 \begin_layout Itemize

@@ -148,7 +148,7 @@ multiple output, include static file path, dynamic file path, stdout, stderr,
 \end_layout
 
 \begin_layout Itemize
-runtime refreash configure -- zlog_reload()
+runtime mannully or automaticlly refreash configure(safely)
 \end_layout
 
 \begin_layout Itemize
