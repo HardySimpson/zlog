@@ -38,12 +38,19 @@ void * work(void *ptr)
 	char file[20];
 	sprintf(file, "press.%ld.log", (long)ptr);
 
+/*
+	int fd;
+	fd = open(file, O_CREAT | O_WRONLY | O_APPEND , 0644);
+*/
+	FILE *fp;
+	fp = fopen(file, "a");
+
 	while(j-- > 0) {
-		int fd;
-		fd = open(file, O_CREAT | O_WRONLY | O_APPEND , 0755);
-		write(fd, log, sizeof(log)-1);
-		close(fd);
+		//write(fd, log, sizeof(log)-1);
+		fwrite(log, sizeof(log)-1, 1, fp);
 	}
+	fclose(fp);
+	//close(fd);
 	return 0;
 }
 

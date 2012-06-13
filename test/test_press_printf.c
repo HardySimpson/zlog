@@ -23,18 +23,25 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 
 #include "zlog.h"
 
 FILE *fp;
+int fd;
 static long loop_count;
 
 
 void * work(void *ptr)
 {
 	long j = loop_count;
+static char aa[] = "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n";
 	while(j-- > 0) {
-		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
+//		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
+		fwrite(aa, sizeof(aa)-1, 1, fp);
+//		write(fd, aa, sizeof(aa)-1);
 	}
 	return 0;
 }
@@ -78,15 +85,13 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
-        fp = fopen("press.log", "a");
-        if (!fp) {
-                printf("fopen fail\n");
-                return 1;
-        }
+
+	fd = open("press.log", O_CREAT | O_WRONLY | O_APPEND, 0644);
+	fp = fdopen(fd, "a");
 	loop_count = atol(argv[3]);
 	test(atol(argv[1]), atol(argv[2]));
-
 	fclose(fp);
+
 	
 	return 0;
 }

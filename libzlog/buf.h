@@ -40,7 +40,10 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 void zlog_buf_del(zlog_buf_t * a_buf);
 void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
 
-void zlog_buf_restart(zlog_buf_t * a_buf);
+#define zlog_buf_restart(a_buf) do { \
+	a_buf->end = a_buf->start; \
+} while(0);
+
 int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...);
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
