@@ -485,6 +485,7 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		rc = -1;
 		goto zlog_rotater_rotate_exit;
 	} else if (rc == 0) {
+		rc = 1;
 		zc_debug("zlog_rotater_file_ls_mv success");
 	}
 

@@ -23,18 +23,26 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "zlog.h"
 
-FILE *fp;
 static long loop_count;
 
 
 void * work(void *ptr)
 {
 	long j = loop_count;
+	static char log[] = "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n";
+	char file[20];
+	sprintf(file, "press.%ld.log", (long)ptr);
+
 	while(j-- > 0) {
-		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
+		int fd;
+		fd = open(file, O_CREAT | O_WRONLY | O_APPEND , 0755);
+		write(fd, log, sizeof(log)-1);
+		close(fd);
 	}
 	return 0;
 }
@@ -54,7 +62,7 @@ int test(long process_count, long thread_count)
 			pthread_t  tid[thread_count];
 
 			for (j = 0; j < thread_count; j++) { 
-				pthread_create(&(tid[j]), NULL, work, fp);
+				pthread_create(&(tid[j]), NULL, work, (void*)j);
 			}
 			for (j = 0; j < thread_count; j++) { 
 				pthread_join(tid[j], NULL);
@@ -78,15 +86,9 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
-        fp = fopen("press.log", "a");
-        if (!fp) {
-                printf("fopen fail\n");
-                return 1;
-        }
+
 	loop_count = atol(argv[3]);
 	test(atol(argv[1]), atol(argv[2]));
-
-	fclose(fp);
 	
 	return 0;
 }

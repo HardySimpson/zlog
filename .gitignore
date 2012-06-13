@@ -28,9 +28,8 @@ missing
 stamp-h1
 tags
 zlog-chk-conf
-zlog-gen-conf
+zlog-*.tar.gz
 zlog.pc
-press.log*
 callgrind*
 err.log
 test_*
@@ -42,4 +41,4 @@ doc/*.pdf
 doc/obj.think
 doc/zlog.3
 doc/zlogtest.xls
-zlog-*.tar.gz
+test/press*

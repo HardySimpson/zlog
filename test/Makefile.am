@@ -14,8 +14,10 @@ noinst_PROGRAMS =	\
 	test_hex	\
 	test_init	\
 	test_press_zlog		\
+	test_press_zlog2	\
 	test_press_syslog	\
 	test_press_printf	\
+	test_press_printf2	\
 	test_syslog	\
 	test_conf	\
 	test_mdc	\
@@ -34,7 +36,9 @@ test_hello_SOURCES = test_hello.c
 test_hex_SOURCES = test_hex.c
 test_init_SOURCES = test_init.c
 test_press_zlog_SOURCES = test_press_zlog.c
+test_press_zlog2_SOURCES = test_press_zlog2.c
 test_press_printf_SOURCES = test_press_printf.c
+test_press_printf2_SOURCES = test_press_printf2.c
 test_press_syslog_SOURCES = test_press_syslog.c
 test_syslog_SOURCES = test_syslog.c
 test_mdc_SOURCES = test_mdc.c
@@ -48,6 +52,7 @@ EXTRA_DIST =		\
 	test_hex.conf	\
 	test_init.conf	\
 	test_press_zlog.conf	\
+	test_press_zlog2.conf	\
 	test_mdc.conf	\
 	test_syslog.conf	\
 	test_level.conf		\

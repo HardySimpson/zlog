@@ -22,31 +22,41 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "zlog.h"
 
 static zlog_category_t *zc;
+static long loop_count;
 
-int work(long loop_count)
+void * work(void *ptr)
 {
-	while(loop_count-- > 0) {
+	long j = loop_count;
+	while(j-- > 0) {
 		ZLOG_INFO(zc, "loglog");
 	}
 	return 0;
 }
 
 
-int test(long process_count, long loop_count)
+int test(long process_count, long thread_count)
 {
 	long i;
 	pid_t pid;
+	long j;
 
 	for (i = 0; i < process_count; i++) {
 		pid = fork();
 		if (pid < 0) {
 			printf("fork fail\n");
 		} else if(pid == 0) {
-			work(loop_count);
+			pthread_t  tid[thread_count];
+			for (j = 0; j < thread_count; j++) { 
+				pthread_create(&(tid[j]), NULL, work, NULL);
+			}
+			for (j = 0; j < thread_count; j++) { 
+				pthread_join(tid[j], NULL);
+			}
 			return 0;
 		}
 	}
@@ -63,8 +73,8 @@ int main(int argc, char** argv)
 {
 	int rc;
 
-	if (argc != 3) {
-		fprintf(stderr, "test nprocess nloop\n");
+	if (argc != 4) {
+		fprintf(stderr, "test nprocess nthreads nloop\n");
 		exit(1);
 	}
 
@@ -81,6 +91,7 @@ int main(int argc, char** argv)
 		return 3;
 	}
 
+	loop_count = atol(argv[3]);
 	test(atol(argv[1]), atol(argv[2]));
 
 	zlog_fini();

@@ -23,18 +23,25 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "zlog.h"
 
-FILE *fp;
 static long loop_count;
 
 
 void * work(void *ptr)
 {
 	long j = loop_count;
+	char category[20];
+	sprintf(category, "cat%ld", (long)ptr);
+	zlog_category_t *zc;
+
+	zc = zlog_get_category(category);
+	
 	while(j-- > 0) {
-		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
+		ZLOG_INFO(zc, "loglog");
 	}
 	return 0;
 }
@@ -54,7 +61,7 @@ int test(long process_count, long thread_count)
 			pthread_t  tid[thread_count];
 
 			for (j = 0; j < thread_count; j++) { 
-				pthread_create(&(tid[j]), NULL, work, fp);
+				pthread_create(&(tid[j]), NULL, work, (void*)j);
 			}
 			for (j = 0; j < thread_count; j++) { 
 				pthread_join(tid[j], NULL);
@@ -73,20 +80,21 @@ int test(long process_count, long thread_count)
 
 int main(int argc, char** argv)
 {
+	int rc = 0;
 	if (argc != 4) {
 		fprintf(stderr, "test nprocess nthreads nloop\n");
 		exit(1);
 	}
 
-        fp = fopen("press.log", "a");
-        if (!fp) {
-                printf("fopen fail\n");
-                return 1;
+        rc = zlog_init("test_press_zlog2.conf");
+        if (rc) {
+                printf("init failed\n");
+                return 2;
         }
+
 	loop_count = atol(argv[3]);
 	test(atol(argv[1]), atol(argv[2]));
 
-	fclose(fp);
-	
+	zlog_fini();
 	return 0;
 }

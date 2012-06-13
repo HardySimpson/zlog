@@ -41,7 +41,6 @@
 typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule,
 					zlog_thread_t * a_thread);
 
-
 struct zlog_rule_s {
 	char category[MAXLEN_CFG_LINE + 1];
 	int level;
@@ -55,6 +54,7 @@ struct zlog_rule_s {
 
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_file_specs;
+	int static_file_descriptor;
 
 	unsigned int file_perms;
 	int file_open_flags;
@@ -83,7 +83,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s|%p(%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s,%p,%d(%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
@@ -91,6 +91,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 
 		a_rule->file_path,
 		a_rule->dynamic_file_specs,
+		a_rule->static_file_descriptor,
 
 		a_rule->file_open_flags,
 		a_rule->file_max_size,
@@ -115,11 +116,8 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 
 static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	int fd = 0;
-	ssize_t nwrite = 0;
-	char *msg;
-	size_t msg_len;
+	int rc;
+	ssize_t nwrite;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
@@ -127,32 +125,19 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
-	fd = open(a_rule->file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
-			 errno);
-		return -1;
-	}
-
-	nwrite = write(fd, msg, msg_len);
+	nwrite = write(a_rule->static_file_descriptor,
+		a_thread->msg_buf->start, a_thread->msg_buf->end - a_thread->msg_buf->start);
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
-		close(fd);
+		close(a_rule->static_file_descriptor);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
-	}
-
-	rc = close(fd);
-	if (rc < 0) {
-		zc_error("write fail, maybe cause by write, errno[%d]", errno);
-		return -1;
+		if (fsync(a_rule->static_file_descriptor)) {
+			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
+		}
 	}
 
 	return 0;
@@ -160,11 +145,9 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 
 static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	int fd;
-	ssize_t nwrite = 0;
-	char *msg;
-	size_t msg_len;
+	int rc;
+	ssize_t nwrite;
+	size_t len;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
@@ -172,53 +155,54 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
-	fd = open(a_rule->file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path,
-			 errno);
-		return -1;
-	}
-
-	nwrite = write(fd, msg, msg_len);
+	len = a_thread->msg_buf->end - a_thread->msg_buf->start;
+	nwrite = write(a_rule->static_file_descriptor, a_thread->msg_buf->start, len);
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
-		close(fd);
+		close(a_rule->static_file_descriptor);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
-	}
-
-	rc = close(fd);
-	if (rc < 0) {
-		zc_error("write fail, maybe cause by write, errno[%d]", errno);
-		return -1;
+		if (fsync(a_rule->static_file_descriptor)) {
+			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
+		}
 	}
 
 	rc = zlog_rotater_rotate(a_rule->rotater,
 				a_rule->file_path,
 				a_rule->file_max_size,
 				a_rule->file_max_count,
-				msg_len);
-	if (rc) {
+				len);
+	if (rc < 0) {
 		zc_error("zlog_rotater_rotate fail");
 		return -1;
+	} else if (rc > 0) {
+		/* rotate succ, reopen fd to avoid write to old file*/
+		rc = close(a_rule->static_file_descriptor);
+		if (rc < 0) {
+			zc_error("close fail, maybe cause by write, errno[%d]", errno);
+		}
+
+		a_rule->static_file_descriptor = open(a_rule->file_path,
+			a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+		if (a_rule->static_file_descriptor < 0) {
+			zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
+			return -1;
+		}
+
 	}
 
 	return 0;
 }
 
-/* return 0	success
- * return !=0	fail
+/* return path	success
+ * return NULL	fail
  */
-static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread, char **file_path)
+static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
+	int rc;
 	int i;
 	zlog_spec_t *a_spec;
 
@@ -232,20 +216,16 @@ static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread, ch
 		}
 	}
 
-	*file_path = a_thread->path_buf->start;
 	return 0;
 }
 
 static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	ssize_t nwrite = 0;
-	char *msg;
-	size_t msg_len;
-	char *file_path;
+	int rc;
+	ssize_t nwrite;
 	int fd;
 
-	rc = zlog_rule_gen_path(a_rule, a_thread, &file_path);
+	rc = zlog_rule_gen_path(a_rule, a_thread);
 	if (rc) {
 		zc_error("zlog_rule_gen_path fail");
 		return -1;
@@ -257,16 +237,14 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
-	fd = open(file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+	fd = open(a_thread->path_buf->start,
+		a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
+		zc_error("open file[%s] fail, errno[%d]", a_thread->path_buf->start, errno);
 		return -1;
 	}
 
-	nwrite = write(fd, msg, msg_len);
+	nwrite = write(fd, a_thread->msg_buf->start, a_thread->msg_buf->end - a_thread->msg_buf->start);
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
@@ -280,7 +258,7 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 
 	rc = close(fd);
 	if (rc < 0) {
-		zc_error("write fail, maybe cause by write, errno[%d]", errno);
+		zc_error("close fail, maybe cause by write, errno[%d]", errno);
 		return -1;
 	}
 
@@ -289,14 +267,12 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 
 static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	ssize_t nwrite = 0;
-	char *msg;
-	size_t msg_len;
-	char *file_path;
+	int rc;
+	ssize_t nwrite;
+	size_t len;
 	int fd;
 
-	rc = zlog_rule_gen_path(a_rule, a_thread, &file_path);
+	rc = zlog_rule_gen_path(a_rule, a_thread);
 	if (rc) {
 		zc_error("zlog_rule_gen_path fail");
 		return -1;
@@ -308,16 +284,15 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
-	fd = open(file_path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+	fd = open(a_thread->path_buf->start,
+		a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
+		zc_error("open file[%s] fail, errno[%d]", a_thread->path_buf->start, errno);
 		return -1;
 	}
 
-	nwrite = write(fd, msg, msg_len);
+	len = a_thread->msg_buf->end - a_thread->msg_buf->start;
+	nwrite = write(fd, a_thread->msg_buf->start, len);
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
@@ -336,11 +311,11 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 	}
 
 	rc = zlog_rotater_rotate(a_rule->rotater,
-				file_path,
+				a_thread->path_buf->start,
 				a_rule->file_max_size,
 				a_rule->file_max_count,
-				msg_len);
-	if (rc) {
+				len);
+	if (rc < 0) {
 		zc_error("zlog_rotater_rotate fail");
 		return -1;
 	}
@@ -350,9 +325,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 
 static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	char *msg;
-	//size_t msg_len;
+	int rc;
 	zlog_level_t *a_level;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
@@ -361,22 +334,20 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
 	/*
+	msg = a_thread->msg_buf->start;
 	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
 	 */
 
 	a_level = zlog_level_list_get(a_rule->levels, a_thread->event->level);
 	syslog(a_rule->syslog_facility | a_level->syslog_level,
-		"%s", msg);
+		"%s", a_thread->msg_buf->start);
 	return 0;
 }
 
 static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	char *msg;
-	size_t msg_len;
+	int rc;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
@@ -384,11 +355,10 @@ static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
 	if (a_rule->record_output) {
-		rc = a_rule->record_output(a_rule->record_param, msg, msg_len);
+		rc = a_rule->record_output(a_rule->record_param,
+				a_thread->msg_buf->start,
+				a_thread->msg_buf->end - a_thread->msg_buf->start);
 		if (rc) {
 			zc_error("a_rule->record fail");
 			return -1;
@@ -404,10 +374,8 @@ static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 static int zlog_rule_output_stdout(zlog_rule_t * a_rule,
 				   zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	int nobj = 0;
-	char *msg;
-	size_t msg_len;
+	int rc;
+	ssize_t nwrite;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
@@ -415,12 +383,10 @@ static int zlog_rule_output_stdout(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
-	nobj = fwrite(msg, msg_len, 1, stdout);
-	if (nobj < 1) {
-		zc_error("fwrite error, errno[%d]", errno);
+	nwrite = write(STDOUT_FILENO, a_thread->msg_buf->start,
+			a_thread->msg_buf->end - a_thread->msg_buf->start);
+	if (nwrite < 0) {
+		zc_error("write fail, errno[%d]", errno);
 		return -1;
 	}
 
@@ -430,10 +396,8 @@ static int zlog_rule_output_stdout(zlog_rule_t * a_rule,
 static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 				   zlog_thread_t * a_thread)
 {
-	int rc = 0;
-	int nobj = 0;
-	char *msg;
-	size_t msg_len;
+	int rc;
+	ssize_t nwrite;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
@@ -441,12 +405,10 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	msg = a_thread->msg_buf->start;
-	msg_len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-
-	nobj = fwrite(msg, msg_len, 1, stderr);
-	if (nobj < 1) {
-		zc_error("fwrite error, errno[%d]", errno);
+	nwrite = write(STDERR_FILENO, a_thread->msg_buf->start,
+			a_thread->msg_buf->end - a_thread->msg_buf->start);
+	if (nwrite < 0) {
+		zc_error("write fail, errno[%d]", errno);
 		return -1;
 	}
 
@@ -698,6 +660,15 @@ zlog_rule_t *zlog_rule_new(char *line,
 				/* as rotate, so need to reopen everytime */
 				a_rule->output = zlog_rule_output_static_file_rotate;
 			}
+
+			a_rule->static_file_descriptor = open(a_rule->file_path,
+				a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+			if (a_rule->static_file_descriptor < 0) {
+				rc = -1;
+				zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
+				goto zlog_rule_new_exit;
+			}
+
 		} else {
 			zlog_spec_t *a_spec;
 
@@ -781,6 +752,11 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 	if (a_rule->dynamic_file_specs) {
 		zc_arraylist_del(a_rule->dynamic_file_specs);
 		a_rule->dynamic_file_specs = NULL;
+	}
+	if (a_rule->static_file_descriptor) {
+		if (close(a_rule->static_file_descriptor) < 0) {
+			zc_error("close fail, maybe cause by write, errno[%d]", errno);
+		}
 	}
 	free(a_rule);
 	zc_debug("zlog_rule_del[%p]", a_rule);
