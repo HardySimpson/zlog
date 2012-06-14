@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "rule.h"
 #include "format.h"
@@ -56,6 +57,7 @@ struct zlog_rule_s {
 	zc_arraylist_t *dynamic_file_specs;
 	int static_file_descriptor;
 	FILE *static_file_stream;
+	pthread_rwlock_t static_reopen_lock;
 
 	unsigned int file_perms;
 	int file_open_flags;
@@ -149,12 +151,19 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int rc;
+	int rd;
 	size_t nwrite;
 	size_t len;
 
 	rc = zlog_format_gen_msg(a_rule->format, a_thread);
 	if (rc) {
 		zc_error("zlog_format_gen_msg fail");
+		return -1;
+	}
+
+	rd = pthread_rwlock_rdlock(&(a_rule->static_reopen_lock));
+	if (rd) {
+		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
 		return -1;
 	}
 
@@ -174,6 +183,12 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		}
 	}
 
+	rd = pthread_rwlock_unlock(&(a_rule->static_reopen_lock));
+	if (rd) {
+		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
+		return -1;
+	}
+
 	rc = zlog_rotater_rotate(a_rule->rotater,
 				a_rule->file_path,
 				a_rule->file_max_size,
@@ -184,6 +199,13 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	} else if (rc > 0) {
 		/* rotate succ, reopen fd to avoid write to old file*/
+		rc = 0;
+		rd = pthread_rwlock_wrlock(&(a_rule->static_reopen_lock));
+		if (rd) {
+			zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
+			return -1;
+		}
+
 		rc = fclose(a_rule->static_file_stream);
 		if (rc) {
 			zc_error("fclose fail, maybe cause by write, errno[%d]", errno);
@@ -193,15 +215,24 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 			a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 		if (a_rule->static_file_descriptor < 0) {
 			zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
-			return -1;
+			rc = -1;
+			goto __unlock_exit;
 		}
 
 		a_rule->static_file_stream = fdopen(a_rule->static_file_descriptor, "a");
 		if (!a_rule->static_file_stream) {
 			zc_error("fdopen fd[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
-			return -1;
+			rc = -1;
+			goto __unlock_exit;
 		}
 
+	      __unlock_exit:
+		rd = pthread_rwlock_unlock(&(a_rule->static_reopen_lock));
+		if (rd) {
+			zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
+			return -1;
+		}
+		return rc;
 	}
 
 	return 0;
@@ -500,6 +531,13 @@ zlog_rule_t *zlog_rule_new(char *line,
 	a_rule->levels = levels;
 	a_rule->file_perms = file_perms;
 	a_rule->fsync_period = fsync_period;
+
+	rc = pthread_rwlock_init(&(a_rule->static_reopen_lock), NULL);
+	if (rc) {
+		zc_error("pthread_rwlock_init fail, rc[%d]", rc);
+		rc = -1;
+		goto zlog_rule_new_exit;
+	}
 
 	/* line         [f.INFO "%H/log/aa.log", 20MB * 12; MyTemplate]
 	 * selector     [f.INFO]
