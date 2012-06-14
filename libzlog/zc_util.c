@@ -33,7 +33,6 @@ size_t zc_parse_byte_size(char *astring)
 	char *q;
 	size_t sz;
 	long res;
-	int c, m;
 
 	zc_assert(astring, 0);
 
@@ -55,32 +54,49 @@ size_t zc_parse_byte_size(char *astring)
 		return 0;
 
 	if (astring[sz - 1] == 'B' || astring[sz - 1] == 'b') {
-		c = astring[sz - 2];
-		m = 1024;
-	} else {
-		c = astring[sz - 1];
-		m = 1000;
-	}
-
-	switch (c) {
-	case 'K':
-	case 'k':
-		res *= m;
-		break;
-	case 'M':
-	case 'm':
-		res *= m * m;
-		break;
-	case 'G':
-	case 'g':
-		res *= m * m * m;
-		break;
-	default:
-		if (!isdigit(c)) {
-			zc_error("Wrong suffix parsing " "size in bytes for string [%s], ignoring suffix",
-				 astring);
+		switch (astring[sz - 2]) {
+		case 'K':
+		case 'k':
+			res = res * 1024;
+			break;
+		case 'M':
+		case 'm':
+			res *= 1024 * 1024;
+			break;
+		case 'G':
+		case 'g':
+			res *= 1024 * 1024 * 1024;
+			break;
+		default:
+			if (!isdigit(astring[sz - 1])) {
+				zc_error("Wrong suffix parsing "
+					 "size in bytes for string [%s], ignoring suffix",
+					 astring);
+			}
+			break;
 		}
-		break;
+	} else {
+		switch (astring[sz - 1]) {
+		case 'K':
+		case 'k':
+			res = res * 1024;
+			break;
+		case 'M':
+		case 'm':
+			res *= 1024 * 1024;
+			break;
+		case 'G':
+		case 'g':
+			res *= 1024 * 1024 * 1024;
+			break;
+		default:
+			if (!isdigit(astring[sz - 1])) {
+				zc_error("Wrong suffix parsing "
+					 "size in bytes for string [%s], ignoring suffix",
+					 astring);
+			}
+			break;
+		}
 	}
 
 	return (res);

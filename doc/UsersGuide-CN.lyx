@@ -1786,7 +1786,8 @@ reference "sub:时间字符"
 \begin_inset Text
 
 \begin_layout Plain Layout
-环境变量，后面也要跟小括号，内涵环境变量的键。变量的值在zlog_init()的时候就求出来了
+环境变量，后面也要跟小括号，内涵环境变量的键。变量的值在zlog_init()的时候就求出来了。所以只含有%E的文件名被认为是静态路径文件，相比动态路径文件写日
+志会有一定的性能提升。
 \end_layout
 
 \end_inset
@@ -4814,7 +4815,8 @@ sys	 0m6.950s
 &default "%d(%F %T) %P [%p:%F:%L] %m%n"
 \end_layout
 
-\begin_layout Standard
+\end_deeper
+\begin_layout Itemize
 用户自定义输出详见
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -4825,7 +4827,6 @@ reference "sec:用户自定义输出"
 
 \end_layout
 
-\end_deeper
 \begin_layout Section
 配置文件工具
 \end_layout

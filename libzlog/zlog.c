@@ -22,7 +22,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <pthread.h>
-#include <signal.h>
 
 #include "conf.h"
 #include "category_table.h"
@@ -39,7 +38,6 @@ static zc_hashtable_t *zlog_env_threads;
 static zc_hashtable_t *zlog_env_categories;
 static zc_hashtable_t *zlog_env_records;
 static zlog_category_t *zlog_default_category;
-static volatile sig_atomic_t zlog_env_reload_conf_count;
 static int zlog_env_init_flag = 0;
 /*******************************************************************************/
 /* inner no need thread-safe */
@@ -60,6 +58,8 @@ static int zlog_init_inner(char *confpath)
 {
 	int rc = 0;
 	zlog_thread_t *a_thread;
+	size_t buf_size_min;
+	size_t buf_size_max;
 
 	zlog_env_conf = zlog_conf_new(confpath);
 	if (!zlog_env_conf) {
@@ -89,8 +89,10 @@ static int zlog_init_inner(char *confpath)
 		goto zlog_init_inner_exit;
 	}
 
+	zlog_conf_get_buf_size(zlog_env_conf, &buf_size_min, &buf_size_max);
+
 	a_thread = zlog_thread_table_new_thread(zlog_env_threads,
-			zlog_env_conf->buf_size_min, zlog_env_conf->buf_size_max);
+				buf_size_min, buf_size_max);
 	if (!a_thread) {
 		zc_error("zlog_thread_table_new_thread fail");
 		rc = -1;
@@ -171,7 +173,7 @@ int dzlog_init(char *confpath, char *cname)
 	zlog_default_category = zlog_category_table_fetch_category(
 				zlog_env_categories,
 				cname,
-				zlog_env_conf->rules);
+				zlog_conf_get_rules(zlog_env_conf));
 	if (!zlog_default_category) {
 		zc_error("zlog_category_table_fetch_category[%s] fail",
 				cname);
@@ -200,6 +202,10 @@ int zlog_reload(char *confpath)
 	int i = 0;
 	zlog_conf_t *new_conf = NULL;
 	zlog_rule_t *a_rule;
+	size_t new_buf_size_min;
+	size_t new_buf_size_max;
+	size_t old_buf_size_min;
+	size_t old_buf_size_max;
 	int do_thread_flag;
 
 	zc_debug("------zlog_reload start------");
@@ -215,22 +221,10 @@ int zlog_reload(char *confpath)
 		goto zlog_reload_exit_2;
 	}
 
-	/* use last conf file */
-	if (confpath == NULL) confpath = zlog_env_conf->file;
-
-	/* reach reload period */
-	if (confpath == (char*)-1) {
-		/* test again, avoid other threads already reloaded */
-		if (zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period) {
-			confpath = zlog_env_conf->file;
-		} else {
-			/* do nothing, already done */
-			goto zlog_reload_exit_2;
-		}
+	if (confpath == NULL) {
+		/* use last conf file */
+		confpath = zlog_conf_get_file(zlog_env_conf);
 	}
-
-	/* reset counter, whether automaticlly or mannually */
-	zlog_env_reload_conf_count = 0;
 
 	new_conf = zlog_conf_new(confpath);
 	if (!new_conf) {
@@ -239,22 +233,24 @@ int zlog_reload(char *confpath)
 		goto zlog_reload_exit;
 	}
 
-	zc_arraylist_foreach(new_conf->rules, i, a_rule) {
+	zc_arraylist_foreach(zlog_conf_get_rules(new_conf), i, a_rule) {
 		zlog_rule_set_record(a_rule, zlog_env_records);
 	}
 
-	rc = zlog_category_table_update_rules(zlog_env_categories, new_conf->rules);
+	rc = zlog_category_table_update_rules(zlog_env_categories, zlog_conf_get_rules(new_conf));
 	if (rc) {
 		zc_error("zlog_category_table_update fail");
 		rc = -1;
 		goto zlog_reload_exit;
 	}
 
-	if ((new_conf->buf_size_min != zlog_env_conf->buf_size_min) ||
-		(new_conf->buf_size_max != zlog_env_conf->buf_size_max) ) {
+	zlog_conf_get_buf_size(zlog_env_conf, &old_buf_size_min, &old_buf_size_max);
+	zlog_conf_get_buf_size(new_conf, &new_buf_size_min, &new_buf_size_max);
+
+	if ((new_buf_size_min != old_buf_size_min) || (new_buf_size_max != old_buf_size_max) ) {
 		do_thread_flag = 1;
 		rc = zlog_thread_table_update_msg_buf(zlog_env_threads,
-				new_conf->buf_size_min, new_conf->buf_size_max);
+				new_buf_size_min, new_buf_size_max);
 		if (rc) {
 			zc_error("zlog_category_table_update fail");
 			rc = -1;
@@ -341,7 +337,7 @@ zlog_category_t *zlog_get_category(char *cname)
 	a_category = zlog_category_table_fetch_category(
 				zlog_env_categories,
 				cname,
-				zlog_env_conf->rules);
+				zlog_conf_get_rules(zlog_env_conf));
 	if (!a_category) {
 		zc_error("zlog_category_table_fetch_category[%s] fail", cname);
 		goto zlog_get_category_exit;
@@ -380,7 +376,7 @@ int dzlog_set_category(char *cname)
 	zlog_default_category = zlog_category_table_fetch_category(
 				zlog_env_categories,
 				cname,
-				zlog_env_conf->rules);
+				zlog_conf_get_rules(zlog_env_conf));
 	if (!zlog_default_category) {
 		zc_error("zlog_category_table_fetch_category[%s] fail", cname);
 		rc = -1;
@@ -438,10 +434,13 @@ int zlog_put_mdc(char *key, char *value)
 		 */
 		a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
 		if (!a_thread) {
+			size_t buf_size_min;
+			size_t buf_size_max;
+			zlog_conf_get_buf_size(zlog_env_conf, &buf_size_min, &buf_size_max);
 			a_thread = zlog_thread_table_new_thread(zlog_env_threads,
-					zlog_env_conf->buf_size_min, zlog_env_conf->buf_size_max);
+							buf_size_min, buf_size_max);
 			if (!a_thread) {
-				zc_error("zlog_thread_table_new_thread fail");
+				zc_error("zlog_conf_get_buf_size fail");
 				rc = -1;
 				goto zlog_put_mdc_exit;
 			}
@@ -581,7 +580,6 @@ static int zlog_output(zlog_category_t * a_category,
 {
 	int rc = 0;
 	int rd = 0;
-	int need_reload = 0;
 	zlog_thread_t *a_thread;
 
 	rd = pthread_rwlock_rdlock(&zlog_env_lock);
@@ -617,8 +615,11 @@ static int zlog_output(zlog_category_t * a_category,
 		 */
 		a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
 		if (!a_thread) {
+			size_t buf_size_min;
+			size_t buf_size_max;
+			zlog_conf_get_buf_size(zlog_env_conf, &buf_size_min, &buf_size_max);
 			a_thread = zlog_thread_table_new_thread(zlog_env_threads,
-					zlog_env_conf->buf_size_min, zlog_env_conf->buf_size_max);
+							buf_size_min, buf_size_max);
 			if (!a_thread) {
 				zc_error("zlog_thread_table_new_thread fail");
 				rc = -1;
@@ -640,24 +641,11 @@ static int zlog_output(zlog_category_t * a_category,
 		goto zlog_output_exit;
 	}
 
-	
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		need_reload = 1;
-	}
-
       zlog_output_exit:
 	rd = pthread_rwlock_unlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
 		return -1;
-	}
-
-	/* will be wrlock, so after unlock */
-	if (need_reload) {
-		rc = zlog_reload((char *)-1);
-		if (rc) zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
 	}
 
 	return rc;
@@ -671,7 +659,6 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 {
 	int rc = 0;
 	int rd = 0;
-	int need_reload = 0;
 	zlog_thread_t *a_thread;
 	pthread_t tid;
 
@@ -717,8 +704,11 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 		 */
 		a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 		if (!a_thread) {
+			size_t buf_size_min;
+			size_t buf_size_max;
+			zlog_conf_get_buf_size(zlog_env_conf, &buf_size_min, &buf_size_max);
 			a_thread = zlog_thread_table_new_thread(zlog_env_threads,
-					zlog_env_conf->buf_size_min, zlog_env_conf->buf_size_max);
+							buf_size_min, buf_size_max);
 			if (!a_thread) {
 				zc_error("zlog_thread_table_new_thread fail");
 				rc = -1;
@@ -741,23 +731,11 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 		goto zlog_output_exit;
 	}
 
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		need_reload = 1;
-	}
-
       zlog_output_exit:
 	rd = pthread_rwlock_unlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
 		return -1;
-	}
-
-	/* will be wrlock, so after unlock */
-	if (need_reload) {
-		rc = zlog_reload((char *)-1);
-		if (rc) zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
 	}
 
 	return rc;
@@ -875,7 +853,7 @@ int zlog_set_record(char *name, zlog_record_fn record_output)
 		goto zlog_set_record_exit;
 	}
 
-	zc_arraylist_foreach(zlog_env_conf->rules, i, a_rule) {
+	zc_arraylist_foreach(zlog_conf_get_rules(zlog_env_conf), i, a_rule) {
 		zlog_rule_set_record(a_rule, zlog_env_records);
 	}
 

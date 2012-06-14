@@ -61,7 +61,7 @@ int test(long process_count, long thread_count)
 			pthread_t  tid[thread_count];
 
 			for (j = 0; j < thread_count; j++) { 
-				pthread_create(&(tid[j]), NULL, work, (void*)i);
+				pthread_create(&(tid[j]), NULL, work, (void*)j);
 			}
 			for (j = 0; j < thread_count; j++) { 
 				pthread_join(tid[j], NULL);

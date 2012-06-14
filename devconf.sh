@@ -2,4 +2,4 @@
 
 # from configure,Makefile.am->Makefile, developer use
 
-CFLAGS="-Wall -Werror -g -O0 -std=c99" ./configure --prefix=/opt/develop/ --enable-test
+CFLAGS="-Wall -Werror -g -O2 -std=c99" ./configure --prefix=/opt/develop/ --enable-test

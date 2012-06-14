@@ -164,6 +164,13 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 }
 
 /*******************************************************************************/
+void zlog_buf_restart(zlog_buf_t * a_buf)
+{
+	a_buf->end = a_buf->start;
+	return;
+}
+
+/*******************************************************************************/
 int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...)
 {
 	int rc = 0;

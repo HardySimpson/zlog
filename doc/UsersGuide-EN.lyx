@@ -1950,7 +1950,9 @@ for more detail.
 \begin_layout Plain Layout
 Used to output the environment variable.
  The key of environment variable should be enclose between parenthesis.Vaule
- is fixed at zlog_init()
+ is fixed at zlog_init().
+ So the log path contains only %E is through to be static log path.Logging
+ will be faster than dynamic log path.
 \end_layout
 
 \end_inset
@@ -5092,7 +5094,8 @@ It is optional.
 "%d(%F %T) %V [%p:%F:%L] %m%n"
 \end_layout
 
-\begin_layout Standard
+\end_deeper
+\begin_layout Itemize
 see 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -5103,7 +5106,6 @@ reference "sec:User-defined-Output"
  for more details for $.
 \end_layout
 
-\end_deeper
 \begin_layout Section
 Configure File Tools
 \end_layout

@@ -25,7 +25,6 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 
 #include "zc_profile.h"
 #include "zc_xplatform.h"
@@ -50,9 +49,10 @@ int zc_profile_inner(int flag, const char *file, const long line, const char *fm
 
 	static char *debug_log = NULL;
 	static char *error_log = NULL;
-	static volatile sig_atomic_t init_flag = 0;
+	static volatile int init_flag = 0;
 
 	if (!init_flag) {
+		/* maybe not thread-safe here, but that's the only light way */
 		init_flag = 1;
 		debug_log = getenv("ZLOG_PROFILE_DEBUG");
 		error_log = getenv("ZLOG_PROFILE_ERROR");
@@ -82,9 +82,6 @@ int zc_profile_inner(int flag, const char *file, const long line, const char *fm
 		break;
 	}
 
-	/* writing file twice(time & msg) is not atomic
-	 * may cause cross
-	 * but avoid log size limit */
 	va_start(args, fmt);
 	vfprintf(fp, fmt, args);
 	va_end(args);

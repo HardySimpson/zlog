@@ -25,10 +25,10 @@ exe = 		\
 all     :       $(exe)
 
 $(exe)  :       %:%.o
-	gcc -O1 -g -o $@ $^ -L../libzlog/.libs -lzlog -lpthread -Wl,-rpath ../libzlog/.libs
+	gcc -O2 -g -o $@ $^ -L../libzlog/.libs -lzlog -lpthread -Wl,-rpath ../libzlog/.libs
 
 .c.o	:
-	gcc -O1 -g -pg -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../libzlog
+	gcc -O2 -g -pg -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../libzlog
 
 clean	:
 	rm -f press.log* *.o $(exe)

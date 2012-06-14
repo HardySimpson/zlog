@@ -38,11 +38,32 @@
 #define ZLOG_CONF_DEFAULT_RULE "*.*        >stdout"
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MIN 1024
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MAX (2 * 1024 * 1024)
+#define ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE "/tmp/zlog.lock"
 #define ZLOG_CONF_DEFAULT_FILE_PERMS 0600
-#define ZLOG_CONF_DEFAULT_RELOAD_CONF_PERIOD 0
-#define ZLOG_CONF_DEFAULT_FSYNC_PERIOD 0
-#define ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE "/tmp/zlog.lock"
 /*******************************************************************************/
+
+struct zlog_conf_s {
+	char file[MAXLEN_PATH + 1];
+	char mtime[20 + 1];
+
+	int strict_init;
+	size_t buf_size_min;
+	size_t buf_size_max;
+
+	char rotate_lock_file[MAXLEN_CFG_LINE + 1];
+	zlog_rotater_t *rotater;
+
+	zc_arraylist_t *levels;
+
+	char default_format_line[MAXLEN_CFG_LINE + 1];
+	zlog_format_t *default_format;
+
+	unsigned int file_perms;
+
+	zc_arraylist_t *formats;
+
+	zc_arraylist_t *rules;
+};
 
 void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
 {
@@ -62,8 +83,6 @@ void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
 		zlog_format_profile(a_conf->default_format, flag);
 	}
 	zc_profile(flag, "---file perms[0%o]---", a_conf->file_perms);
-	zc_profile(flag, "---reload conf period[%ld]---", a_conf->reload_conf_period);
-	zc_profile(flag, "---fsync period[%ld]---", a_conf->fsync_period);
 
 	zc_profile(flag, "---rotate lock file[%s]---", a_conf->rotate_lock_file);
 	if (a_conf->rotater) zlog_rotater_profile(a_conf->rotater, flag);
@@ -136,15 +155,9 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	a_conf->strict_init = 1;
 	a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
 	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
-	if (has_conf_file) {
-		strcpy(a_conf->rotate_lock_file, a_conf->file);
-	} else {
-		strcpy(a_conf->rotate_lock_file, ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE);
-	}
+	strcpy(a_conf->rotate_lock_file, ZLOG_CONF_DEFAULT_ROTATE_LOCK_FILE);
 	strcpy(a_conf->default_format_line, ZLOG_CONF_DEFAULT_FORMAT);
 	a_conf->file_perms = ZLOG_CONF_DEFAULT_FILE_PERMS;
-	a_conf->reload_conf_period = ZLOG_CONF_DEFAULT_RELOAD_CONF_PERIOD;
-	a_conf->fsync_period = ZLOG_CONF_DEFAULT_FSYNC_PERIOD;
 	/* set default configuration end */
 
 	a_conf->levels = zlog_level_list_new();
@@ -152,7 +165,8 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 		zc_error("zlog_level_list_new fail");
 		rc = -1;
 		goto zlog_conf_new_exit;
-	} 
+	}
+
 	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!a_conf->formats) {
 		zc_error("zc_arraylist_new fail");
@@ -214,8 +228,7 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 			a_conf->levels,
 			a_conf->default_format,
 			a_conf->formats,
-			a_conf->file_perms,
-			a_conf->fsync_period);
+			a_conf->file_perms);
 	if (!default_rule) {
 		zc_error("zlog_rule_new fail");
 		return -1;
@@ -434,11 +447,6 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		} else if (STRCMP(word_1, ==, "default") && STRCMP(word_2, ==, "format")) {
 			/* so the input now is [format = "xxyy"], fit format's style */
 			strcpy(a_conf->default_format_line, line + nread);
-		} else if (STRCMP(word_1, ==, "reload") &&
-				STRCMP(word_2, ==, "conf") && STRCMP(word_3, ==, "period")) {
-			a_conf->reload_conf_period = zc_parse_byte_size(value);
-		} else if (STRCMP(word_1, ==, "fsync") && STRCMP(word_2, ==, "period")) {
-			a_conf->fsync_period = zc_parse_byte_size(value);
 		} else {
 			zc_error("name[%s] is not any one of global options", name);
 			if (a_conf->strict_init) return -1;
@@ -471,9 +479,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			a_conf->levels,
 			a_conf->default_format,
 			a_conf->formats,
-			a_conf->file_perms,
-			a_conf->fsync_period);
-
+			a_conf->file_perms);
 		if (!a_rule) {
 			zc_error("zlog_rule_new fail [%s]", line);
 			if (a_conf->strict_init) return -1;
@@ -495,3 +501,25 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 	return 0;
 }
 /*******************************************************************************/
+zc_arraylist_t *zlog_conf_get_rules(zlog_conf_t *a_conf)
+{
+	zc_assert(a_conf, NULL);
+	return a_conf->rules;
+}
+
+void zlog_conf_get_buf_size(zlog_conf_t *a_conf,
+		size_t * buf_size_min, size_t * buf_size_max)
+{
+	zc_assert(a_conf,);
+	zc_assert(buf_size_min,);
+	zc_assert(buf_size_max,);
+
+	*buf_size_min = a_conf->buf_size_min;
+	*buf_size_max = a_conf->buf_size_max;
+}
+
+char *zlog_conf_get_file(zlog_conf_t *a_conf)
+{
+	zc_assert(a_conf, NULL);
+	return a_conf->file;
+}

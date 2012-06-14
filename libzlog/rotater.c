@@ -450,11 +450,13 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 
 	rc = stat(file_path, &info);
 	if (rc) {
-		zc_warn("stat [%s] fail, errno[%d], maybe in rotating", file_path, errno);
-		return 0;
+		zc_error("stat [%s] fail, errno[%d]", file_path, errno);
+		return -1;
 	} else {
-		/* file not so big, return */
-		if (info.st_size + msg_len < file_max_size) return 0;
+		if (info.st_size + msg_len < file_max_size) {
+			/* file not so big, return */
+			return 0;
+		}
 	}
 
 	rd = zlog_rotater_trylock(a_rotater);
@@ -485,7 +487,6 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		rc = -1;
 		goto zlog_rotater_rotate_exit;
 	} else if (rc == 0) {
-		rc = 1;
 		zc_debug("zlog_rotater_file_ls_mv success");
 	}
 

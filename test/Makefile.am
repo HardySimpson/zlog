@@ -58,3 +58,6 @@ EXTRA_DIST =		\
 	test_level.conf		\
 	test_default.conf	\
 	test_profile.conf
+
+clean-local :
+	-rm -f press.*
