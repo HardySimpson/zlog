@@ -88,8 +88,6 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 /* implementation of write function */
 static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
@@ -104,20 +102,13 @@ static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_t
 			(long)a_thread->event->time_stamp.tv_usec);
 	}
 
-	rc = zlog_buf_strftime(a_buf, a_spec->time_fmt, a_spec->time_len,
+	return zlog_buf_strftime(a_buf, a_spec->time_fmt, a_spec->time_len,
 			       &(a_thread->event->local_time));
-	if (rc) {
-		zc_error("zlog_buf_strftime maybe fail or overflow");
-		return rc;
-	}
-
-	return 0;
 }
 
 static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int i;
-	int rc;
 
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
@@ -145,20 +136,13 @@ static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thr
 		       a_spec->us_offset[i], a_thread->event->us, 6);
 	}
 
-	rc = zlog_buf_strftime(a_buf, a_thread->event->time_fmt_msus,
+	return zlog_buf_strftime(a_buf, a_thread->event->time_fmt_msus,
 			       a_spec->time_len,
 			       &(a_thread->event->local_time));
-	if (rc) {
-		zc_error("zlog_buf_strftime maybe fail or overflow");
-		return rc;
-	}
-
-	return 0;
 }
 
 static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 	zlog_mdc_kv_t *a_mdc_kv;
 
 	a_mdc_kv = zlog_mdc_get_kv(a_thread->mdc, a_spec->mdc_key);
@@ -167,221 +151,108 @@ static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 		return 0;
 	}
 
-	rc = zlog_buf_append(a_buf, a_mdc_kv->value, a_mdc_kv->value_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_mdc_kv->value, a_mdc_kv->value_len);
 }
 
 static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
-	rc = zlog_buf_append(a_buf, a_spec->str, a_spec->len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_spec->str, a_spec->len);
 }
 
 static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-
-	int rc;
-
-	rc = zlog_buf_append(a_buf, a_thread->event->category_name,
-			     a_thread->event->category_name_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_thread->event->category_name, a_thread->event->category_name_len);
 }
 
 static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
 	zc_assert(a_thread->event->file, -1);
-
-	rc = zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
 }
 
 static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 	char *p;
 
 	p = strrchr(a_thread->event->file, '/') + 1;
 	zc_assert(p, -1);
 
-	rc = zlog_buf_append(a_buf, p, (char*)a_thread->event->file + a_thread->event->file_len - p);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, p, (char*)a_thread->event->file + a_thread->event->file_len - p);
 }
 
 static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 
-	rc = zlog_buf_printf(a_buf, "%ld", a_thread->event->line);
-	if (rc) {
-		zc_error("zlog_buf_printf maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_printf(a_buf, "%ld", a_thread->event->line);
 }
 
 static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
 	zc_assert(a_thread->event->func, -1);
-
-	rc = zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
 }
 
 
 static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
-	rc = zlog_buf_append(a_buf, a_thread->event->host_name, a_thread->event->host_name_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_thread->event->host_name, a_thread->event->host_name_len);
 }
 
 static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
-	rc = zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
 }
 
 static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
-	rc = zlog_buf_append(a_buf, "%", 1);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, "%", 1);
 }
 
 static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
-
-	if (!a_thread->event->pid) {
-		a_thread->event->pid = getpid();
-	}
-
-	rc = zlog_buf_printf(a_buf, "%d", (int)a_thread->event->pid);
-	if (rc) {
-		zc_error("zlog_buf_printf maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	if (!a_thread->event->pid) a_thread->event->pid = getpid();
+	return zlog_buf_printf(a_buf, "%d", (int)a_thread->event->pid);
 }
 
 static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
 
-	rc = zlog_buf_printf(a_buf, "%ld", (long)a_thread->event->tid);
-	if (rc) {
-		zc_error("zlog_buf_printf maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_printf(a_buf, "%ld", (long)a_thread->event->tid);
 }
 
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_list_get(a_spec->levels, a_thread->event->level);
-	zc_assert(a_level, -1);
-
-	rc = zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
 }
 
 static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_list_get(a_spec->levels, a_thread->event->level);
-	zc_assert(a_level, -1);
-
-	rc = zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
-	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
-		return rc;
-	}
-	return 0;
+	return zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
 }
 
 static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc;
 
 	if (a_thread->event->generate_cmd == ZLOG_FMT) {
 
 		if (a_thread->event->str_format == NULL) {
-			rc = zlog_buf_printf(a_buf, "format=(null)");
-			if (rc) {
-				zc_error ("zlog_buf_printf maybe fail or overflow");
-				return rc;
-			}
-			return 0;
+			return zlog_buf_printf(a_buf, "format=(null)");
 		} else {
-			rc = zlog_buf_vprintf(a_buf,
+			return zlog_buf_vprintf(a_buf,
 					      a_thread->event->str_format,
 					      a_thread->event->str_args);
-			if (rc) {
-				zc_error
-				    ("zlog_buf_vprintf maybe fail or overflow");
-				return rc;
-			}
-			return 0;
 		}
 	} else if (a_thread->event->generate_cmd == ZLOG_HEX) {
+		int rc;
 		long line_offset;
 		long byte_offset;
 
@@ -524,18 +395,9 @@ static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_th
 		/* buf is full, try printf */
 	}
 
-	rc = zlog_buf_adjust_append(a_thread->msg_buf, a_thread->pre_msg_buf->start,
+	return zlog_buf_adjust_append(a_thread->msg_buf, a_thread->pre_msg_buf->start,
 			a_thread->pre_msg_buf->end - a_thread->pre_msg_buf->start,
 			a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
-	if (rc < 0) {
-		zc_error("zlog_buf_adjust_append fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, make out loop stop */
-		return 1;
-	}
-
-	return 0;
 }
 
 /*******************************************************************************/
@@ -546,18 +408,8 @@ int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 
 static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	int rc;
-
 	/* no need to reprint %1.2d here */
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->path_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, make out loop stop */
-		return 1;
-	}
-	return 0;
+	return a_spec->write_buf(a_spec, a_thread, a_thread->path_buf);
 }
 
 static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
@@ -574,18 +426,9 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_t
 		/* buf is full, try printf */
 	}
 
-	rc = zlog_buf_adjust_append(a_thread->path_buf, a_thread->pre_path_buf->start,
+	return zlog_buf_adjust_append(a_thread->path_buf, a_thread->pre_path_buf->start,
 			a_thread->pre_path_buf->end - a_thread->pre_path_buf->start,
 			a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
-	if (rc < 0) {
-		zc_error("zlog_buf_adjust_append fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, make out loop stop */
-		return 1;
-	}
-
-	return 0;
 }
 
 /*******************************************************************************/
