@@ -402,6 +402,7 @@ int zlog_put_mdc(char *key, char *value)
 	int rc = 0;
 	int rd = 0;
 	zlog_thread_t *a_thread;
+	pthread_t tid;
 
 	zc_assert(key, -1);
 	zc_assert(value, -1);
@@ -418,7 +419,8 @@ int zlog_put_mdc(char *key, char *value)
 		goto zlog_put_mdc_exit;
 	}
 
-	a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+	tid = pthread_self();
+	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
 		rd = pthread_rwlock_unlock(&zlog_env_lock);
 		if (rd) {
@@ -436,7 +438,7 @@ int zlog_put_mdc(char *key, char *value)
 		/* change to wrlock, try to get thread first
 		 * to avoid oth thread make thread(buf&event) already
 		 */
-		a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+		a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 		if (!a_thread) {
 			a_thread = zlog_thread_table_new_thread(zlog_env_threads,
 					zlog_env_conf->buf_size_min, zlog_env_conf->buf_size_max);
@@ -469,6 +471,7 @@ char *zlog_get_mdc(char *key)
 	int rd = 0;
 	char *value = NULL;
 	zlog_thread_t *a_thread;
+	pthread_t tid;
 
 	zc_assert(key, NULL);
 
@@ -483,7 +486,8 @@ char *zlog_get_mdc(char *key)
 		goto zlog_get_mdc_exit;
 	}
 
-	a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+	tid = pthread_self();
+	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
 		zc_error("thread not found, maybe not use zlog_put_mdc before");
 		goto zlog_get_mdc_exit;
@@ -508,6 +512,7 @@ void zlog_remove_mdc(char *key)
 {
 	int rd = 0;
 	zlog_thread_t *a_thread;
+	pthread_t tid;
 
 	zc_assert(key, );
 
@@ -522,7 +527,8 @@ void zlog_remove_mdc(char *key)
 		goto zlog_remove_mdc_exit;
 	}
 
-	a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+	tid = pthread_self();
+	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
 		zc_error("thread not new now, maybe not use zlog_put_mdc before");
 		goto zlog_remove_mdc_exit;
@@ -543,6 +549,7 @@ void zlog_clean_mdc(void)
 {
 	int rd = 0;
 	zlog_thread_t *a_thread;
+	pthread_t tid;
 
 	rd = pthread_rwlock_rdlock(&zlog_env_lock);
 	if (rd) {
@@ -555,7 +562,8 @@ void zlog_clean_mdc(void)
 		goto zlog_clean_mdc_exit;
 	}
 
-	a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+	tid = pthread_self();
+	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
 		zc_error("thread not new now, maybe not use zlog_put_mdc before");
 		goto zlog_clean_mdc_exit;
@@ -580,15 +588,11 @@ static int zlog_output(zlog_category_t * a_category,
 		int generate_cmd)
 {
 	int rc = 0;
-	int rd = 0;
 	int need_reload = 0;
 	zlog_thread_t *a_thread;
+	pthread_t tid;
 
-	rd = pthread_rwlock_rdlock(&zlog_env_lock);
-	if (rd) {
-		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
-		return -1;
-	}
+	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag <= 0) {
 		zc_error("before use, must zlog_init first!!!");
@@ -596,26 +600,17 @@ static int zlog_output(zlog_category_t * a_category,
 		goto zlog_output_exit;
 	}
 
-	a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+	tid = pthread_self();
+	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
-		rd = pthread_rwlock_unlock(&zlog_env_lock);
-		if (rd) {
-			zc_error("pthread_rwlock_unlock fail, rd[%d]", rd);
-			rc = -1;
-			goto zlog_output_exit;
-		}
+		pthread_rwlock_unlock(&zlog_env_lock);
 		/* here between two lock's gap, other thread_table maybe create a thread */
-		rd = pthread_rwlock_wrlock(&zlog_env_lock);
-		if (rd) {
-			zc_error("pthread_rwlock_unlock fail, rd[%d]", rd);
-			rc = -1;
-			goto zlog_output_exit;
-		}
+		pthread_rwlock_wrlock(&zlog_env_lock);
 
 		/* change to wrlock, try to get thread first
 		 * to avoid oth thread make thread(buf&event) already
 		 */
-		a_thread = zlog_thread_table_get_thread(zlog_env_threads, pthread_self());
+		a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 		if (!a_thread) {
 			a_thread = zlog_thread_table_new_thread(zlog_env_threads,
 					zlog_env_conf->buf_size_min, zlog_env_conf->buf_size_max);
@@ -648,11 +643,7 @@ static int zlog_output(zlog_category_t * a_category,
 	}
 
       zlog_output_exit:
-	rd = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rd) {
-		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
-		return -1;
-	}
+	pthread_rwlock_unlock(&zlog_env_lock);
 
 	/* will be wrlock, so after unlock */
 	if (need_reload) {
@@ -670,16 +661,11 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 		int generate_cmd)
 {
 	int rc = 0;
-	int rd = 0;
 	int need_reload = 0;
 	zlog_thread_t *a_thread;
 	pthread_t tid;
 
-	rd = pthread_rwlock_rdlock(&zlog_env_lock);
-	if (rd) {
-		zc_error("pthread_rwlock_wrlock fail, rd[%d]", rd);
-		return -1;
-	}
+	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag <= 0) {
 		zc_error("before use, must zlog_init first!!!");
@@ -698,19 +684,9 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 	tid = pthread_self();
 	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
-		rd = pthread_rwlock_unlock(&zlog_env_lock);
-		if (rd) {
-			zc_error("pthread_rwlock_unlock fail, rd[%d]", rd);
-			rc = -1;
-			goto zlog_output_exit;
-		}
+		pthread_rwlock_unlock(&zlog_env_lock);
 		/* here between two lock's gap, other thread_table maybe create a thread */
-		rd = pthread_rwlock_wrlock(&zlog_env_lock);
-		if (rd) {
-			zc_error("pthread_rwlock_unlock fail, rd[%d]", rd);
-			rc = -1;
-			goto zlog_output_exit;
-		}
+		pthread_rwlock_wrlock(&zlog_env_lock);
 
 		/* change to wrlock, try to get thread first
 		 * to avoid oth thread make thread(buf&event) already
@@ -748,11 +724,7 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 	}
 
       zlog_output_exit:
-	rd = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rd) {
-		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
-		return -1;
-	}
+	pthread_rwlock_unlock(&zlog_env_lock);
 
 	/* will be wrlock, so after unlock */
 	if (need_reload) {

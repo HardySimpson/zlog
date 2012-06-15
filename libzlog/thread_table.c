@@ -109,6 +109,7 @@ void zlog_thread_table_rollback_msg_buf(zc_hashtable_t * threads)
 }
 
 /*******************************************************************************/
+#if 0
 zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t tid)
 {
 	zlog_thread_t *a_thread;
@@ -121,6 +122,7 @@ zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t 
 		return a_thread;
 	}
 }
+#endif
 
 zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads,
 				size_t buf_size_min, size_t buf_size_max)
