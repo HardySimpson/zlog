@@ -51,6 +51,7 @@ typedef struct {
 	zlog_event_cmd generate_cmd;
 
 	struct timeval time_stamp;
+	time_t last_sec;
 	struct tm local_time;	
 	char us[6 + 1];
 	char time_fmt_msus[MAXLEN_CFG_LINE + 1];

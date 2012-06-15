@@ -93,8 +93,13 @@ static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_t
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
-		localtime_r(&(a_thread->event->time_stamp.tv_sec),
-			    &(a_thread->event->local_time));
+		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
+			/* localtime_r is slow on linux, do it once per second */
+			/* thanks for nikuailema@gmail.com */
+			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
+			localtime_r(&(a_thread->event->time_stamp.tv_sec),
+				    &(a_thread->event->local_time));
+		}
 		sprintf(a_thread->event->us, "%6.6ld",
 			(long)a_thread->event->time_stamp.tv_usec);
 	}
@@ -117,8 +122,13 @@ static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thr
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
-		localtime_r(&(a_thread->event->time_stamp.tv_sec),
-			    &(a_thread->event->local_time));
+		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
+			/* localtime_r is slow on linux, do it once per second */
+			/* thanks for nikuailema@gmail.com */
+			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
+			localtime_r(&(a_thread->event->time_stamp.tv_sec),
+				    &(a_thread->event->local_time));
+		}
 		sprintf(a_thread->event->us, "%6.6ld",
 			(long)a_thread->event->time_stamp.tv_usec);
 	}

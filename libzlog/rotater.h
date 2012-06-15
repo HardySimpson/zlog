@@ -26,6 +26,13 @@ typedef struct zlog_rotater_s zlog_rotater_t;
 
 zlog_rotater_t *zlog_rotater_new(char *lock_file);
 void zlog_rotater_del(zlog_rotater_t *a_rot);
+
+/*
+ * return
+ * -1	fail
+ * 0	no rotate
+ * 1	rotate and success
+ */
 int zlog_rotater_rotate(zlog_rotater_t *a_rot,
 		char *file_path, long file_max_size, int file_max_count,
 		size_t msg_len);
