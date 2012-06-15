@@ -66,13 +66,6 @@ void zc_arraylist_del(zc_arraylist_t * a_list)
 	return;
 }
 
-void *zc_arraylist_get(zc_arraylist_t * a_list, int i)
-{
-	if (i >= a_list->len)
-		return NULL;
-	return a_list->array[i];
-}
-
 static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 {
 	void *tmp;

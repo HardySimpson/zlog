@@ -171,10 +171,16 @@ zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table,
 
 void *zc_hashtable_get(zc_hashtable_t * a_table, void *a_key)
 {
+	unsigned int i;
 	zc_hashtable_entry_t *p;
-	p = zc_hashtable_get_entry(a_table, a_key);
 
-	return p ? p->value : NULL;
+	i = a_table->hash(a_key) % a_table->tab_size;
+	for (p = (a_table->tab)[i]; p; p = p->next) {
+		if (a_table->equal(a_key, p->key))
+			return p->value;
+	}
+
+	return NULL;
 }
 
 int zc_hashtable_put(zc_hashtable_t * a_table, void *a_key, void *a_value)
@@ -328,19 +334,10 @@ int zc_hashtable_str_equal(void *key1, void *key2)
 
 unsigned int zc_hashtable_tid_hash(void *ptid)
 {
-	pthread_t tid;
-
-	tid = *((pthread_t *) ptid);
-	return (unsigned int)tid;
+	return (unsigned int) *((pthread_t *) ptid);
 }
 
 int zc_hashtable_tid_equal(void *ptid1, void *ptid2)
 {
-	pthread_t tid1;
-	pthread_t tid2;
-
-	tid1 = *((pthread_t *) ptid1);
-	tid2 = *((pthread_t *) ptid2);
-
-	return pthread_equal(tid1, tid2);
+	return pthread_equal(*((pthread_t *) ptid1), *((pthread_t *) ptid2));
 }

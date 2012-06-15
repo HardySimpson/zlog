@@ -166,12 +166,8 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 /*******************************************************************************/
 int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...)
 {
-	int rc = 0;
+	int rc;
 	va_list args;
-
-	if (format == NULL) {
-		return 0;
-	}
 
 	va_start(args, format);
 	rc = zlog_buf_vprintf(a_buf, format, args);
@@ -256,14 +252,10 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 {
-	int rc = 0;
+	int rc;
 	va_list ap;
 	size_t size_left;
 	int nwrite;
-
-	if (format == NULL) {
-		return 0;
-	}
 
 	if (a_buf->size_real < 0) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
@@ -320,12 +312,13 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 /*******************************************************************************/
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 {
-	int rc = 0;
 	size_t size_left;
 
+#if 0
 	if (str_len <= 0 || str == NULL) {
 		return 0;
 	}
+#endif
 
 	if (a_buf->size_real < 0) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
@@ -334,6 +327,7 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 
 	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
 	if (str_len > size_left - 1) {
+		int rc;
 		zc_debug("size_left not enough, resize");
 		rc = zlog_buf_resize(a_buf, str_len - size_left + 1);
 		if (rc > 0) {
@@ -369,9 +363,11 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	size_t source_len = 0;
 	size_t space_len = 0;
 
+#if 0
 	if (str_len <= 0 || str == NULL) {
 		return 0;
 	}
+#endif
 
 	if (a_buf->size_real < 0) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
@@ -454,13 +450,8 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 		      const struct tm *a_tm)
 {
-	int rc = 0;
 	size_t size_left;
 	size_t nwrite;
-
-	if (time_len <= 0) {
-		return 0;
-	}
 
 	if (a_buf->size_real < 0) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
@@ -469,6 +460,7 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 
 	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
 	if (time_len > size_left - 1) {
+		int rc;
 		zc_debug("size_left not enough, resize");
 		rc = zlog_buf_resize(a_buf, time_len - size_left + 1);
 		if (rc > 0) {
@@ -495,8 +487,7 @@ int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
 	*(a_buf->end) = '\0';
 
 	if (nwrite <= 0) {
-		zc_error
-		    ("strftime maybe failed or output 0 char, nwrite[%d], time_fmt[%s]",
+		zc_error("strftime maybe failed or output 0 char, nwrite[%d], time_fmt[%s]",
 		     nwrite, time_fmt);
 	}
 

@@ -88,7 +88,7 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 /* implementation of write function */
 static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
@@ -117,7 +117,7 @@ static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_t
 static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	int i;
-	int rc = 0;
+	int rc;
 
 	/* only when need fetch time, do it once */
 	if (!a_thread->event->time_stamp.tv_sec) {
@@ -158,7 +158,7 @@ static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thr
 
 static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 	zlog_mdc_kv_t *a_mdc_kv;
 
 	a_mdc_kv = zlog_mdc_get_kv(a_thread->mdc, a_spec->mdc_key);
@@ -177,7 +177,7 @@ static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 
 static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	rc = zlog_buf_append(a_buf, a_spec->str, a_spec->len);
 	if (rc) {
@@ -190,7 +190,7 @@ static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
-	int rc = 0;
+	int rc;
 
 	rc = zlog_buf_append(a_buf, a_thread->event->category_name,
 			     a_thread->event->category_name_len);
@@ -203,7 +203,9 @@ static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thre
 
 static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
+
+	zc_assert(a_thread->event->file, -1);
 
 	rc = zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
 	if (rc) {
@@ -215,19 +217,13 @@ static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 	char *p;
-	char *end;
 
-	end = (char*)a_thread->event->file + strlen(a_thread->event->file) - 1;
-	for (p = end; *p != '/' && p > a_thread->event->file; p--);
-		/* empty */
+	p = strrchr(a_thread->event->file, '/') + 1;
+	zc_assert(p, -1);
 
-	if (*p == '/') {
-		p++;
-	}
-
-	rc = zlog_buf_append(a_buf, p, end - p + 1);
+	rc = zlog_buf_append(a_buf, p, (char*)a_thread->event->file + a_thread->event->file_len - p);
 	if (rc) {
 		zc_error("zlog_buf_append maybe fail or overflow");
 		return rc;
@@ -237,11 +233,11 @@ static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_
 
 static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	rc = zlog_buf_printf(a_buf, "%ld", a_thread->event->line);
 	if (rc) {
-		zc_error("zlog_buf_append maybe fail or overflow");
+		zc_error("zlog_buf_printf maybe fail or overflow");
 		return rc;
 	}
 	return 0;
@@ -249,7 +245,9 @@ static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
+
+	zc_assert(a_thread->event->func, -1);
 
 	rc = zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
 	if (rc) {
@@ -262,7 +260,7 @@ static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	rc = zlog_buf_append(a_buf, a_thread->event->host_name, a_thread->event->host_name_len);
 	if (rc) {
@@ -274,7 +272,7 @@ static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thre
 
 static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	rc = zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
 	if (rc) {
@@ -286,7 +284,7 @@ static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	rc = zlog_buf_append(a_buf, "%", 1);
 	if (rc) {
@@ -298,7 +296,7 @@ static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	if (!a_thread->event->pid) {
 		a_thread->event->pid = getpid();
@@ -314,7 +312,7 @@ static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 
 static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
@@ -329,10 +327,11 @@ static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_list_get(a_spec->levels, a_thread->event->level);
+	zc_assert(a_level, -1);
 
 	rc = zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
 	if (rc) {
@@ -344,10 +343,11 @@ static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t *
 
 static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
+	int rc;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_list_get(a_spec->levels, a_thread->event->level);
+	zc_assert(a_level, -1);
 
 	rc = zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
 	if (rc) {
@@ -359,16 +359,14 @@ static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t *
 
 static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int rc = 0;
-
+	int rc;
 
 	if (a_thread->event->generate_cmd == ZLOG_FMT) {
 
 		if (a_thread->event->str_format == NULL) {
 			rc = zlog_buf_printf(a_buf, "format=(null)");
 			if (rc) {
-				zc_error
-				    ("zlog_buf_printf maybe fail or overflow");
+				zc_error ("zlog_buf_printf maybe fail or overflow");
 				return rc;
 			}
 			return 0;
@@ -456,8 +454,7 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 					      hex_buf + line_offset * 16 +
 					      byte_offset);
 					if (c >= 32 && c <= 126) {
-						rc = zlog_buf_printf(a_buf,
-								     "%c", c);
+						rc = zlog_buf_printf(a_buf, "%c", c);
 						if (rc) {
 							goto zlog_hex_exit;
 						}
@@ -509,20 +506,13 @@ int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 
 static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	int rc = 0;
-
 	/* no need to reprint %1.2d here */
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->msg_buf);
-	if (rc) {
-		zc_error("a_spec->gen_buf fail,or buffer is full");
-		return rc;
-	}
-	return 0;
+	return a_spec->write_buf(a_spec, a_thread, a_thread->msg_buf);
 }
 
 static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	int rc = 0;
+	int rc;
 
 	zlog_buf_restart(a_thread->pre_msg_buf);
 
@@ -556,7 +546,7 @@ int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 
 static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	int rc = 0;
+	int rc;
 
 	/* no need to reprint %1.2d here */
 	rc = a_spec->write_buf(a_spec, a_thread, a_thread->path_buf);
@@ -572,7 +562,7 @@ static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thr
 
 static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
-	int rc = 0;
+	int rc;
 
 	zlog_buf_restart(a_thread->pre_path_buf);
 
@@ -758,6 +748,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			} else if (STRNCMP(p, ==, "d()", 3)) {
 				/* with () but without detail time format,
 				 * keep a_spec->time_fmt=="" */
+				strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
 				p += 3;
 			} else {
 				nscan =

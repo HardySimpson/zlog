@@ -39,8 +39,7 @@
 
 #include "zc_defs.h"
 
-typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule,
-					zlog_thread_t * a_thread);
+typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 
 struct zlog_rule_s {
 	char category[MAXLEN_CFG_LINE + 1];
@@ -136,7 +135,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fflush(a_rule->static_file_stream)) {
 			zc_error("fflush[%p] fail, errno[%d]", a_rule->static_file_stream, errno);
@@ -174,7 +173,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fflush(a_rule->static_file_stream)) {
 			zc_error("fflush[%p] fail, errno[%d]", a_rule->static_file_stream, errno);
@@ -212,7 +211,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		}
 
 		a_rule->static_file_descriptor = open(a_rule->file_path,
-			a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+			O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 		if (a_rule->static_file_descriptor < 0) {
 			zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
 			rc = -1;
@@ -292,7 +291,7 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
@@ -340,7 +339,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count > a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
@@ -667,6 +666,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 			rc = -1;
 			goto zlog_rule_new_exit;
 		}
+
+		/* no need to fsync, as file is opened by O_SYNC, write immediately */
+		a_rule->fsync_period = 0;
+
 		p = file_path + 2;
 		a_rule->file_open_flags = O_SYNC;
 		/* fall through */
@@ -701,7 +704,13 @@ zlog_rule_t *zlog_rule_new(char *line,
 		}
 
 		/* try to figure out if the log file path is dynamic or static */
-		if (strchr(a_rule->file_path, '%') == NULL) {
+		if (strchr(a_rule->file_path, '%') == NULL
+			&& (a_rule->file_open_flags != O_SYNC)) {
+			/* no % means static, using cached FILE* to fwrite
+			 * but if O_SYNC('-' before path),
+			 * dynamic open write close each time is fast and safe
+			 */
+
 			if (a_rule->file_max_size <= 0) {
 				a_rule->output = zlog_rule_output_static_file_single;
 			} else {
@@ -710,7 +719,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			}
 
 			a_rule->static_file_descriptor = open(a_rule->file_path,
-				a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+				O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 			if (a_rule->static_file_descriptor < 0) {
 				rc = -1;
 				zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);

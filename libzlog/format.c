@@ -177,7 +177,7 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
  */
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 {
-	int rc = 0;
+	int rc;
 	int i;
 	zlog_spec_t *a_spec;
 
@@ -185,11 +185,10 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
 		rc = zlog_spec_gen_msg(a_spec, a_thread);
-		switch (rc) {
-		case -1:
+		if (rc < 0) {
 			zc_error("zlog_spec_gen_msg fail");
 			return -1;
-		case 1:
+		} else if (rc > 0) {
 			zc_error("zlog_spec_gen_msg, buffer is full");
 			break;
 		}
