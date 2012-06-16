@@ -1,5 +1,5 @@
-#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass extbook
@@ -29,18 +29,26 @@ theorems-ams
 eqs-within-sections
 figs-within-sections
 \end_modules
-\language english
+\maintain_unincluded_children false
+\language chinese-simplified
+\language_package default
 \inputencoding utf8-plain
+\fontencoding global
 \font_roman default
 \font_sans default
 \font_typewriter default
 \font_default_family default
+\use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
 
 \graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
 \paperfontsize 12
 \spacing single
 \use_hyperref true
@@ -60,22 +68,32 @@ figs-within-sections
 \use_geometry true
 \use_amsmath 1
 \use_esint 1
+\use_mhchem 1
+\use_mathdots 1
 \cite_engine basic
 \use_bibtopic false
+\use_indices false
 \paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index 索引
+\shortcut idx
+\color #008000
+\end_index
 \rightmargin 2cm
 \secnumdepth 2
 \tocdepth 2
 \paragraph_separation indent
-\defskip medskip
+\paragraph_indentation default
 \quotes_language english
 \papercolumns 1
 \papersides 2
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
 \end_header
 
 \begin_body
@@ -90,7 +108,7 @@ zlog使用攻略
 status collapsed
 
 \begin_layout Plain Layout
-适用于 zlog v1.0
+适用于 zlog v1.0.x
 \end_layout
 
 \end_inset
@@ -380,7 +398,7 @@ $ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd zlog-x.x.x/
+$ cd zlog-1.0.x/
 \end_layout
 
 \begin_layout LyX-Code
@@ -431,7 +449,7 @@ $ sudo ldconfig
 \end_layout
 
 \begin_layout LyX-Code
-$ tar -zxvf zlog-0.9.0.tar.gz
+$ tar -zxvf zlog-x.x.x.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
@@ -439,7 +457,7 @@ $ mkdir build && cd build
 \end_layout
 
 \begin_layout LyX-Code
-$ ../zlog-0.9.0/configure --prefix=[where u wanna install it] 
+$ ../zlog-1.0.x/configure --prefix=[where u wanna install it] 
 \backslash
 
 \end_layout
@@ -449,7 +467,7 @@ $ ../zlog-0.9.0/configure --prefix=[where u wanna install it]
 \end_layout
 
 \begin_layout LyX-Code
-$ cp ../zlog-0.9.0/test/*.conf ./test/
+$ cp ../zlog-1.0.x/test/*.conf ./test/
 \end_layout
 
 \begin_layout LyX-Code
@@ -510,15 +528,7 @@ $ ./autogen.sh
 \end_layout
 
 \begin_layout LyX-Code
-#include 
-\begin_inset Quotes eld
-\end_inset
-
-zlog.h
-\begin_inset Quotes erd
-\end_inset
-
-
+#include "zlog.h"
 \end_layout
 
 \begin_layout Standard
@@ -854,15 +864,7 @@ ZLOG_INFO(c, "hello, zlog");
 \end_layout
 
 \begin_layout Standard
-zlog会找到c的名字是
-\begin_inset Quotes eld
-\end_inset
-
-my_cat
-\begin_inset Quotes erd
-\end_inset
-
-，对应的配置文件中的规则是
+zlog会找到c的名字是"my_cat"，对应的配置文件中的规则是
 \end_layout
 
 \begin_layout LyX-Code
@@ -942,7 +944,7 @@ hello, zlog
 \end_layout
 
 \begin_layout Standard
-现在一个代码中的分类对应配置文件中的两条规则。log4j的用户可能会说：“这很好，但是只要在log4j里面放两个appender也能做的一样。“所以继续看下一个
+现在一个代码中的分类对应配置文件中的两条规则。log4j的用户可能会说："这很好，但是只要在log4j里面放两个appender也能做的一样。"所以继续看下一个
 例子：
 \end_layout
 
@@ -951,27 +953,11 @@ hello, zlog
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.WARN     
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_cat.WARN     "/var/log/aa.log"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.DEBUG    
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/bb.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_cat.DEBUG    "/var/log/bb.log"
 \end_layout
 
 \begin_layout Standard
@@ -1021,23 +1007,8 @@ ZLOG_DEBUG(c, "debug, zlog");
 \end_layout
 
 \begin_layout Standard
-syslog有一个通配符
-\begin_inset Quotes eld
-\end_inset
-
-*
-\begin_inset Quotes erd
-\end_inset
-
-，匹配所有的设施（facility）。zlog里面也一样，
-\begin_inset Quotes eld
-\end_inset
-
-*
-\begin_inset Quotes erd
-\end_inset
-
-匹配所有分类。这提供了一个很方便的办法来重定向你的系统中各个组件的错误。只要这么写：
+syslog有一个通配符"*"，匹配所有的设施（facility）。zlog里面也一样，"*"匹配所有分类。这提供了一个很方便的办法来重定向你的系统中各个组件的
+错误。只要这么写：
 \end_layout
 
 \begin_layout LyX-Code
@@ -1045,15 +1016,7 @@ syslog有一个通配符
 \end_layout
 
 \begin_layout LyX-Code
-*.error    
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/error.log
-\begin_inset Quotes erd
-\end_inset
-
-
+*.error    "/var/log/error.log"
 \end_layout
 
 \begin_layout Standard
@@ -1073,79 +1036,15 @@ c = zlog_get_category("my_cat");
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*      
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/my_cat.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_cat.*      "/var/log/my_cat.log"
 \end_layout
 
 \begin_layout LyX-Code
-my_.NOTICE    
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/my.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_.NOTICE    "/var/log/my.log"
 \end_layout
 
 \begin_layout Standard
-这两条规则都匹配c分类-
-\begin_inset Quotes eld
-\end_inset
-
-my_cat
-\begin_inset Quotes erd
-\end_inset
-
-。通配符
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
- 表示上级分类。 
-\begin_inset Quotes eld
-\end_inset
-
-my_
-\begin_inset Quotes erd
-\end_inset
-
-是
-\begin_inset Quotes eld
-\end_inset
-
-my_cat
-\begin_inset Quotes erd
-\end_inset
-
-和
-\begin_inset Quotes eld
-\end_inset
-
-my_dog
-\begin_inset Quotes erd
-\end_inset
-
-的上级分类。还有一个通配符是
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-，详见
+这两条规则都匹配c分类"my_cat"。通配符"_" 表示上级分类。 "my_"是"my_cat"和"my_dog"的上级分类。还有一个通配符是"!"，详见
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:分类匹配"
@@ -1308,36 +1207,25 @@ my_mice.*               @user_define;
 strict init
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
-如果
-\begin_inset Quotes eld
-\end_inset
-
-strict init
-\begin_inset Quotes erd
-\end_inset
-
-是true，zlog_init()将会严格检查所有的格式和规则，任何错误都会导致zlog_init() 失败并且返回-1。当
-\begin_inset Quotes eld
-\end_inset
-
-strict init
-\begin_inset Quotes erd
-\end_inset
-
-是false的时候，zlog_init()会忽略错误的格式和规则。 这个参数默认为true。
+如果"strict init"是true，zlog_init()将会严格检查所有的格式和规则，任何错误都会导致zlog_init() 失败并且返回-1。当"st
+rict init"是false的时候，zlog_init()会忽略错误的格式和规则。 这个参数默认为true。
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 reload conf period
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 这个选项让zlog能在一段时间间隔后自动重载配置文件。重载的间隔以每进程写日志的次数来定义。当写日志次数到了一定值后，内部将会调用zlog_reload()进行
 重载。每次zlog_reload()或者zlog_init()之后重新计数累加。因为zlog_reload()是原子性的，重载失败继续用当前的配置信息，所以自动
 重载是安全的。默认值是0，自动重载是关闭的。
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 buffer min
 \end_layout
@@ -1346,47 +1234,20 @@ buffer min
 buffer max
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
-zlog在堆上为每个线程申请缓存。“buffer min”是单个缓存的最小值，zlog_init()的时候申请这个长度的内存。写日志的时候，如果单条日志长度大于
-缓存，缓存会自动扩充，直到到“buffer max
-\begin_inset Quotes erd
-\end_inset
-
-。 单条日志再长超过“buffer max
-\begin_inset Quotes erd
-\end_inset
-
-就会被截断。如果 
-\begin_inset Quotes eld
-\end_inset
-
-buffer max
-\begin_inset Quotes erd
-\end_inset
-
- 是 0，意味着不限制缓存，每次扩充为原先的2倍，直到这个进程用完所有内存为止。缓存大小可以加上 KB, MB 或 GB这些单位。默认来说
-\begin_inset Quotes eld
-\end_inset
-
-buffer min
-\begin_inset Quotes erd
-\end_inset
-
-是 1K ， 
-\begin_inset Quotes eld
-\end_inset
-
-buffer max
-\begin_inset Quotes erd
-\end_inset
-
- 是2MB。
+zlog在堆上为每个线程申请缓存。"buffer min"是单个缓存的最小值，zlog_init()的时候申请这个长度的内存。写日志的时候，如果单条日志长度大于
+缓存，缓存会自动扩充，直到到"buffer max"。 单条日志再长超过"buffer max"就会被截断。如果 "buffer max" 是
+ 0，意味着不限制缓存，每次扩充为原先的2倍，直到这个进程用完所有内存为止。缓存大小可以加上 KB, MB 或 GB这些单位。默认来说"buffer
+ min"是 1K ， "buffer max" 是2MB。
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 rotate lock file
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 这个选项指定了一个锁文件，用来保证多进程情况下日志安全转档。zlog会在zlog_init()时候以读写权限打开这个文件。确认你执行程序的用户有权限创建和读写这
 个文件。转档日志的伪代码是：
@@ -1400,7 +1261,6 @@ write(log_file, a_log);
 if (log_file > 1M)
 \end_layout
 
-\begin_deeper
 \begin_layout LyX-Code
 if (pthread_mutex_lock succ && fcntl_lock(lock_file) succ)
 \end_layout
@@ -1425,7 +1285,6 @@ pthread_mutex_unlock
 \end_layout
 
 \end_deeper
-\end_deeper
 \begin_layout Standard
 mutex_lock用于多线程， fcntl_lock用于多进程。fcntl_lock是POSIX建议锁。详见man 3 fcntl。这个锁是全系统有效的。在某
 个进程意外死亡后，操作系统会释放此进程持有的锁。这就是我为什么用fcntl锁来保证安全转档。进程需要对锁文件有读写权限。
@@ -1441,10 +1300,12 @@ mutex_lock用于多线程， fcntl_lock用于多进程。fcntl_lock是POSIX建�
 志文件，确认这个锁文件对于多个用户都可读写。默认值是/tmp/zlog.lock。
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 default format
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 这个参数是缺省的日志格式，默认值为：
 \end_layout
@@ -1461,26 +1322,22 @@ default format
 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 file perms
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
-这个指定了创建日志文件的缺省访问权限。必须注意的是最后的产生的日志文件的权限为
-\begin_inset Quotes eld
-\end_inset
-
-file perms
-\begin_inset Quotes erd
-\end_inset
-
-& ~umask。默认为600，只允许当前用户读写。
+这个指定了创建日志文件的缺省访问权限。必须注意的是最后的产生的日志文件的权限为"file perms"& ~umask。默认为600，只允许当前用户读写。
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 fsync period
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 在每条规则写了一定次数的日志到文件后，zlog会调用fsync(3)来让操作系统马上把数据写到硬盘。次数是每条规则单独统计的，并且在zlog_reload()后
 会被清0。必须指出的是，在日志文件名是动态生成或者被转档的情况下，zlog不能保证把所有文件都搞定，zlog只fsync()那个时候刚刚write()的文件描述
@@ -1566,6 +1423,7 @@ reference "ite:同步IO文件"
 。默认值是0，由操作系统来决定什么时候刷缓存到文件。
 \end_layout
 
+\end_deeper
 \begin_layout Section
 日志等级自定义
 \end_layout
@@ -1602,27 +1460,12 @@ reference "sec:用户自定义等级"
 \end_layout
 
 \begin_layout LyX-Code
-(name) = 
-\begin_inset Quotes eld
-\end_inset
-
-(actual formats)
-\begin_inset Quotes erd
-\end_inset
-
-
+(name) = "(actual formats)"
 \end_layout
 
 \begin_layout Standard
-很好理解，(name)被后面的规则使用。(name)必须由数字和字母组成，下划线
-\begin_inset Quotes erd
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-也算字母。(actual format)前后需要有双引号。 (actual formats)可以由转换字符组成，见下一节。
+很好理解，(name)被后面的规则使用。(name)必须由数字和字母组成，下划线"_"也算字母。(actual format)前后需要有双引号。
+ (actual formats)可以由转换字符组成，见下一节。
 \end_layout
 
 \begin_layout Section
@@ -1693,7 +1536,7 @@ ZLOG_INFO(c, "hello, zlog");
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="19" columns="3">
-<features islongtable="true">
+<features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="50text%">
 <column alignment="center" valignment="top" width="40text%">
@@ -2193,14 +2036,7 @@ info
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Quotes eld
-\end_inset
-
-0x%x
-\begin_inset Quotes erd
-\end_inset
-
-,(unsigned int) pthread_t
+"0x%x",(unsigned int) pthread_t
 \end_layout
 
 \end_inset
@@ -2233,14 +2069,7 @@ info
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Quotes eld
-\end_inset
-
-%lu
-\begin_inset Quotes erd
-\end_inset
-
-, (unsigned long) pthread_t
+"%lu", (unsigned long) pthread_t
 \end_layout
 
 \end_inset
@@ -2350,7 +2179,7 @@ info
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="5">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="15text%">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="10text%">
@@ -2667,7 +2496,7 @@ name "sub:时间字符"
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="3" columns="3">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
 <column alignment="center" valignment="top" width="30text%">
@@ -2781,7 +2610,7 @@ name "sub:时间字符"
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="42" columns="3">
-<features islongtable="true">
+<features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
 <column alignment="center" valignment="top" width="30text%">
@@ -3449,11 +3278,7 @@ n
 \begin_inset Text
 
 \begin_layout Plain Layout
-"AM" 或 "PM"，根据当时的时间，根据locale显示相应的值，例如
-\begin_inset Quotes erd
-\end_inset
-
-上午“、”下午“ 。 中午是"PM"，凌晨是"AM"
+"AM" 或 "PM"，根据当时的时间，根据locale显示相应的值，例如"上午"、"下午" 。 中午是"PM"，凌晨是"AM"
 \end_layout
 
 \end_inset
@@ -4068,7 +3893,7 @@ zlog有6个默认的级别："DEBUG", "INFO", "NOTICE", "WARN", "ERROR"和"FATAL
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="2">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <row>
@@ -4205,21 +4030,13 @@ name "sub:分类匹配"
 \end_layout
 
 \begin_layout Standard
-分类必须由数字和字母组成，下划线
-\begin_inset Quotes erd
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-也算字母。
+分类必须由数字和字母组成，下划线"_"也算字母。
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="4">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="30text%">
 <column alignment="center" valignment="top" width="20col%">
 <column alignment="center" valignment="top" width="30col%">
@@ -4305,7 +4122,7 @@ NONE
 \begin_inset Text
 
 \begin_layout Plain Layout
-以_结尾的分类匹配纲、目分类
+以_结尾的分类匹配本级及下级分类
 \end_layout
 
 \end_inset
@@ -4343,7 +4160,7 @@ xx, yy
 \begin_inset Text
 
 \begin_layout Plain Layout
-不以_结尾的匹配目分类
+不以_结尾的匹配下级分类
 \end_layout
 
 \end_inset
@@ -4436,7 +4253,7 @@ aa(as it matches rules above)
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="7" columns="3">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="30text%">
@@ -4578,14 +4395,7 @@ LOG_USER(default), LOG_LOCAL[0-7]
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Quotes erd
-\end_inset
-
-文件路径
-\begin_inset Quotes erd
-\end_inset
-
-
+"文件路径"
 \end_layout
 
 \end_inset
@@ -4622,15 +4432,7 @@ LOG_USER(default), LOG_LOCAL[0-7]
 \begin_inset Text
 
 \begin_layout Plain Layout
--
-\begin_inset Quotes erd
-\end_inset
-
-文件路径
-\begin_inset Quotes erd
-\end_inset
-
-
+-"文件路径"
 \end_layout
 
 \end_inset
@@ -4702,15 +4504,8 @@ stdout, stderr, syslog
 
 \begin_deeper
 \begin_layout Standard
-可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 
-\begin_inset Quotes eld
-\end_inset
-
-%E(HOME)/log/out.log
-\begin_inset Quotes erd
-\end_inset
-
-，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见 
+可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 "%E(HOME)/log/out.log"，环境变量$HOME是/ho
+me/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:转换格式串"
@@ -4724,39 +4519,57 @@ reference "sec:转换格式串"
 zlog的文件功能极为强大，例如
 \end_layout
 
-\begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-/dev/console
-\begin_inset Quotes erd
-\end_inset
-
- #输出到控制台
+\begin_layout Enumerate
+输出到命名管道(FIFO)，必须在调用前由mkfifo(1)创建
 \end_layout
 
-\begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-/tmp/pipefile
-\begin_inset Quotes erd
-\end_inset
-
-#输出到命名管道(FIFO)，必须在调用前由mkfifo(1)创建
+\begin_deeper
+\begin_layout LyX-Code
+*.*    "/tmp/pipefile"
 \end_layout
 
-\begin_layout Standard
-\begin_inset Quotes eld
-\end_inset
-
-/dev/null
-\begin_inset Quotes erd
-\end_inset
-
- #输出到NULL，也就是不输出
+\end_deeper
+\begin_layout Enumerate
+输出到NULL，也就是不输出
 \end_layout
 
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "/dev/null"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+每线程一个日志，在程序运行的目录下
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "%T.log"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+输出到有进程号区分的日志，每天，在$HOME/log目录，每1GB转档一次，保持5个日志文件。
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "%E(HOME)/log/aa.%p.%d(%F).log",1GB * 5
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+aa_及下级分类，每个分类一个日志
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+aa_.*      "/var/log/%c.log"
+\end_layout
+
+\end_deeper
+\end_deeper
 \end_deeper
 \begin_layout Itemize
 文件转档
@@ -4768,16 +4581,10 @@ zlog的文件功能极为强大，例如
 \end_layout
 
 \begin_layout LyX-Code
-\begin_inset Quotes eld
-\end_inset
-
-%E(HOME)/log/out.log
-\begin_inset Quotes erd
-\end_inset
-
-,1M*3
+"%E(HOME)/log/out.log",1M * 3
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 如果out.log被写到1M大，转档动作为：
 \end_layout
@@ -4844,15 +4651,8 @@ name "ite:同步IO文件"
 
 \begin_deeper
 \begin_layout Standard
-在文件路径前加上一个
-\begin_inset Quotes erd
-\end_inset
-
--
-\begin_inset Quotes erd
-\end_inset
-
-就打开了同步IO选项。在打开文件(open)的时候，会以O_SYNC选项打开，这时候每次写日志操作都会等操作系统把数据写到硬盘后才返回。这个选项极为耗时：
+在文件路径前加上一个"-"就打开了同步IO选项。在打开文件(open)的时候，会以O_SYNC选项打开，这时候每次写日志操作都会等操作系统把数据写到硬盘后才返回
+。这个选项极为耗时：
 \end_layout
 
 \begin_layout LyX-Code
@@ -5016,22 +4816,14 @@ zlog的所有函数都是线程安全的，使用的时候只需要
 \end_layout
 
 \begin_layout LyX-Code
-#include 
-\begin_inset Quotes eld
-\end_inset
-
-zlog.h
-\begin_inset Quotes erd
-\end_inset
-
-
+#include "zlog.h"
 \end_layout
 
 \begin_layout Section
 初始化和清理
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -5058,7 +4850,7 @@ void zlog_fini(void);
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -5096,7 +4888,7 @@ zlog_fini()清理所有zlog API申请的内存，关闭它们打开的文件。�
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 返回值
 \end_layout
@@ -5112,7 +4904,7 @@ zlog_fini()清理所有zlog API申请的内存，关闭它们打开的文件。�
 分类(Category)操作
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -5131,7 +4923,7 @@ cname
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -5195,7 +4987,7 @@ cname
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 返回值
 \end_layout
@@ -5210,7 +5002,7 @@ cname
 写日志函数及宏
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -5385,7 +5177,7 @@ buflen
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -5458,15 +5250,7 @@ line
 \bar under
 func
 \bar default
- 填写为__func__或者__FUNCTION__，如果编译器支持的话，如果不支持，就填写为
-\begin_inset Quotes eld
-\end_inset
-
-<unkown>
-\begin_inset Quotes erd
-\end_inset
-
-。
+ 填写为__func__或者__FUNCTION__，如果编译器支持的话，如果不支持，就填写为"<unkown>"。
 \end_layout
 
 \begin_layout Standard
@@ -5621,7 +5405,7 @@ HZLOG_DEBUG(cat, buf, buf_len)
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 返回值
 \end_layout
@@ -5636,7 +5420,7 @@ HZLOG_DEBUG(cat, buf, buf_len)
 MDC操作
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -5675,7 +5459,7 @@ void zlog_clean_mdc(void);
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -5702,7 +5486,7 @@ value
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 返回值
 \end_layout
@@ -5725,7 +5509,7 @@ name "sec:dzlog接口"
 
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -5892,7 +5676,7 @@ buflen
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -6006,7 +5790,7 @@ HDZLOG_DEBUG(buf, buf_len)
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 返回值
 \end_layout
@@ -6022,7 +5806,7 @@ HDZLOG_DEBUG(buf, buf_len)
 用户自定义输出
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -6057,7 +5841,7 @@ record
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -6100,7 +5884,7 @@ msglen
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 返回值
 \end_layout
@@ -6116,7 +5900,7 @@ RROR指定的错误日志里面。
 调试和诊断
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 总览
 \end_layout
@@ -6127,7 +5911,7 @@ void zlog_profile(void);
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 描述
 \end_layout
@@ -6342,39 +6126,8 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout Standard
-你可以看到zlog_put_mdc()在表里面设置键
-\begin_inset Quotes eld
-\end_inset
-
-myname
-\begin_inset Quotes erd
-\end_inset
-
-对应值
-\begin_inset Quotes eld
-\end_inset
-
-Zhang
-\begin_inset Quotes erd
-\end_inset
-
-，然后在配置文件里面%M(myname)指出了在日志的哪个位置需要把值打出来。第二次，键
-\begin_inset Quotes eld
-\end_inset
-
-myname
-\begin_inset Quotes erd
-\end_inset
-
-的值被覆盖写成
-\begin_inset Quotes eld
-\end_inset
-
-Li
-\begin_inset Quotes erd
-\end_inset
-
-，然后日志里面也有相应的变化。
+你可以看到zlog_put_mdc()在表里面设置键"myname"对应值"Zhang"，然后在配置文件里面%M(myname)指出了在日志的哪个位置需要把值打
+出来。第二次，键"myname"的值被覆盖写成"Li"，然后日志里面也有相应的变化。
 \end_layout
 
 \begin_layout Standard
@@ -6382,63 +6135,23 @@ MDC什么时候有用呢？往往在用户需要在同样的日志行为区分�
 \end_layout
 
 \begin_layout LyX-Code
-zlog_put_mdc(
-\begin_inset Quotes eld
-\end_inset
-
-customer_name
-\begin_inset Quotes erd
-\end_inset
-
-, get_customer_name_from_db() );
+zlog_put_mdc("customer_name", get_customer_name_from_db() );
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-get in
-\begin_inset Quotes erd
-\end_inset
-
-); 
+ZLOG_INFO("get in"); 
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-pick product
-\begin_inset Quotes erd
-\end_inset
-
-); 
+ZLOG_INFO("pick product"); 
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-pay
-\begin_inset Quotes erd
-\end_inset
-
-);
+ZLOG_INFO("pay");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-get out
-\begin_inset Quotes erd
-\end_inset
-
-);
+ZLOG_INFO("get out");
 \end_layout
 
 \begin_layout Standard
@@ -6446,15 +6159,7 @@ get out
 \end_layout
 
 \begin_layout LyX-Code
-&format  
-\begin_inset Quotes eld
-\end_inset
-
-%M(customer_name) %m%n
-\begin_inset Quotes erd
-\end_inset
-
-
+&format  "%M(customer_name) %m%n"
 \end_layout
 
 \begin_layout Standard
@@ -6966,23 +6671,7 @@ my_cat.TRACE		>stdout;
 \end_layout
 
 \begin_layout Standard
-格式里面的转换字符
-\begin_inset Quotes eld
-\end_inset
-
-%V
-\begin_inset Quotes erd
-\end_inset
-
-会产生等级字符串的大写输出，
-\begin_inset Quotes eld
-\end_inset
-
-%v
-\begin_inset Quotes erd
-\end_inset
-
-会产生小写的等级字符串输出。
+格式里面的转换字符%V会产生等级字符串的大写输出，%v会产生小写的等级字符串输出。
 \end_layout
 
 \begin_layout Standard
@@ -6997,15 +6686,7 @@ my_cat.TRACE		>stdout;
 \begin_deeper
 \begin_layout LyX-Code
 zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,__LINE__,
- 30, 
-\begin_inset Quotes eld
-\end_inset
-
-test %d
-\begin_inset Quotes erd
-\end_inset
-
-, 1);
+ 30, "test %d", 1);
 \end_layout
 
 \begin_layout Standard
@@ -7210,23 +6891,7 @@ INFO info hello, zlog - info
 \end_layout
 
 \begin_layout Standard
-正是我们所期待的，配置文件只允许>=TRACE等级的日志输出到屏幕上。
-\begin_inset Quotes erd
-\end_inset
-
-%V
-\begin_inset Quotes erd
-\end_inset
-
-和
-\begin_inset Quotes eld
-\end_inset
-
-%v
-\begin_inset Quotes erd
-\end_inset
-
-也显示了正确的结果。
+正是我们所期待的，配置文件只允许>=TRACE等级的日志输出到屏幕上。%V和%v也显示了正确的结果。
 \end_layout
 
 \end_deeper

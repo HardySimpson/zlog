@@ -1,5 +1,5 @@
-#LyX 1.6.7 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass extbook
@@ -9,18 +9,26 @@ theorems-ams
 eqs-within-sections
 figs-within-sections
 \end_modules
+\maintain_unincluded_children false
 \language english
+\language_package default
 \inputencoding auto
+\fontencoding global
 \font_roman default
 \font_sans default
 \font_typewriter default
 \font_default_family default
+\use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
 
 \graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
 \paperfontsize 12
 \spacing single
 \use_hyperref true
@@ -39,21 +47,31 @@ figs-within-sections
 \use_geometry true
 \use_amsmath 1
 \use_esint 1
+\use_mhchem 1
+\use_mathdots 1
 \cite_engine basic
 \use_bibtopic false
+\use_indices false
 \paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index 索引
+\shortcut idx
+\color #008000
+\end_index
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
-\defskip medskip
+\paragraph_indentation default
 \quotes_language english
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
 \end_header
 
 \begin_body
@@ -68,7 +86,7 @@ by Hardy Simpson
 status collapsed
 
 \begin_layout Plain Layout
-This Guide is for zlog v1.0.
+This Guide is for zlog v1.0.x
 \end_layout
 
 \end_inset
@@ -397,7 +415,7 @@ $ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd zlog-x.x.x/
+$ cd zlog-1.0.x/
 \end_layout
 
 \begin_layout LyX-Code
@@ -508,15 +526,7 @@ To use zlog, only add one line below in source c file or cpp file.
 \end_layout
 
 \begin_layout LyX-Code
-#include 
-\begin_inset Quotes eld
-\end_inset
-
-zlog.h
-\begin_inset Quotes erd
-\end_inset
-
-
+#include "zlog.h"
 \end_layout
 
 \begin_layout Standard
@@ -864,15 +874,8 @@ ZLOG_INFO(c, "hello, zlog");
 \end_layout
 
 \begin_layout Standard
-zlog library will find the name of c is 
-\begin_inset Quotes eld
-\end_inset
-
-my_cat
-\begin_inset Quotes erd
-\end_inset
-
-, which has one rule in configure file.
+zlog library will find the name of c is "my_cat", which has one rule in
+ configure file.
  That is
 \end_layout
 
@@ -965,15 +968,8 @@ hello, zlog
 
 \begin_layout Standard
 Now one category in source code corresponds to two rules in configure file.
- Maybe log4j's user will say, 
-\begin_inset Quotes eld
-\end_inset
-
-That's good, but 2 appender for one logger will do the same thing
-\begin_inset Quotes erd
-\end_inset
-
-.
+ Maybe log4j's user will say, "That's good, but 2 appender for one logger
+ will do the same thing".
  So, Let's see the next example of configure file:
 \end_layout
 
@@ -982,27 +978,11 @@ That's good, but 2 appender for one logger will do the same thing
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.WARN     
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/aa.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_cat.WARN     "/var/log/aa.log"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.DEBUG    
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/bb.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_cat.DEBUG    "/var/log/bb.log"
 \end_layout
 
 \begin_layout Standard
@@ -1058,25 +1038,9 @@ At last you can see, category in zlog is more like facility in syslog.
 \end_layout
 
 \begin_layout Standard
-In syslog, there is a special wildcards 
-\begin_inset Quotes eld
-\end_inset
-
-*
-\begin_inset Quotes erd
-\end_inset
-
-, matches all facility.
+In syslog, there is a special wildcards "*", matches all facility.
  It does the same thing in zlog.
- 
-\begin_inset Quotes eld
-\end_inset
-
-*
-\begin_inset Quotes erd
-\end_inset
-
- matches all categories.
+ "*" matches all categories.
  That a convenient way to make all error comes from multipule compoments
  in your system redirect to one log file.
  Just write in configure file like this:
@@ -1087,15 +1051,7 @@ In syslog, there is a special wildcards
 \end_layout
 
 \begin_layout LyX-Code
-*.error    
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/error.log
-\begin_inset Quotes erd
-\end_inset
-
-
+*.error    "/var/log/error.log"
 \end_layout
 
 \begin_layout Standard
@@ -1116,90 +1072,18 @@ And in configure file, the rules is
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*      
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/my_cat.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_cat.*      "/var/log/my_cat.log"
 \end_layout
 
 \begin_layout LyX-Code
-my_.NOTICE    
-\begin_inset Quotes eld
-\end_inset
-
-/var/log/my.log
-\begin_inset Quotes erd
-\end_inset
-
-
+my_.NOTICE    "/var/log/my.log"
 \end_layout
 
 \begin_layout Standard
-This 2 rules both matches category 
-\begin_inset Quotes eld
-\end_inset
-
-c
-\begin_inset Quotes erd
-\end_inset
-
- with the name 
-\begin_inset Quotes eld
-\end_inset
-
-my_cat
-\begin_inset Quotes erd
-\end_inset
-
-.
- The wildcard 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
- is the way to represent super category.
- 
-\begin_inset Quotes eld
-\end_inset
-
-my_
-\begin_inset Quotes erd
-\end_inset
-
- is a super category to 
-\begin_inset Quotes eld
-\end_inset
-
-my_cat
-\begin_inset Quotes erd
-\end_inset
-
- and 
-\begin_inset Quotes eld
-\end_inset
-
-my_dog
-\begin_inset Quotes erd
-\end_inset
-
-.
- There is also another wildcard 
-\begin_inset Quotes eld
-\end_inset
-
-!
-\begin_inset Quotes erd
-\end_inset
-
-.
+This 2 rules both matches category "c" with the name "my_cat".
+ The wildcard "_" is the way to represent super category.
+ "my_" is a super category to "my_cat" and "my_dog".
+ There is also another wildcard "!".
  See 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1378,33 +1262,22 @@ Global section begins with [global].
 strict init
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
-If 
-\begin_inset Quotes eld
-\end_inset
-
-strict init
-\begin_inset Quotes erd
-\end_inset
-
-is true, zlog_init() will check sytnax of all formats and rules strictly,
- and any error will cause zlog_init() failed and return -1.
- When 
-\begin_inset Quotes eld
-\end_inset
-
-strict init
-\begin_inset Quotes erd
-\end_inset
-
-is false, zlog_init() will omit error syntax of formats and rules.
+If "strict init" is true, zlog_init() will check sytnax of all formats and
+ rules strictly, and any error will cause zlog_init() failed and return
+ -1.
+ When "strict init" is false, zlog_init() will omit error syntax of formats
+ and rules.
  The default is true.
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 reload conf period
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 This parameter supports zlog libraray reload configure file automaticlly
  after a period, which is measured by number of log times per process.
@@ -1416,6 +1289,7 @@ This parameter supports zlog libraray reload configure file automaticlly
  The defualt is 0, which means never reload automaticlly.
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 buffer min
 \end_layout
@@ -1424,70 +1298,27 @@ buffer min
 buffer max
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 zlog allocates a log buffer in each thread.
-\begin_inset Quotes eld
-\end_inset
-
-buffer min
-\begin_inset Quotes erd
-\end_inset
-
- indicates size of buffer malloced at init time.
+ "buffer min" indicates size of buffer malloced at init time.
  While loging, if one single log's content size is longer than buffer size
- now, zlog will expand buffer automaticly till 
-\begin_inset Quotes eld
-\end_inset
-
-buffer max
-\begin_inset Quotes erd
-\end_inset
-
-.
- Then, If the size is still longer than 
-\begin_inset Quotes eld
-\end_inset
-
-buffer max
-\begin_inset Quotes erd
-\end_inset
-
-, the log content will be truncated.
- If 
-\begin_inset Quotes eld
-\end_inset
-
-buffer max
-\begin_inset Quotes erd
-\end_inset
-
- is 0, it means buffer size is unlimited, and each time zlog will expand
- buffer twice its size, till process use up all it's memory.
+ now, zlog will expand buffer automaticly till "buffer max".
+ Then, If the size is still longer than "buffer max", the log content will
+ be truncated.
+ If "buffer max" is 0, it means buffer size is unlimited, and each time
+ zlog will expand buffer twice its size, till process use up all it's memory.
  The value of these 2 parameter can append with unit KB, MB or GB suffix,
  so 1024 equals 1KB.
- Default, 
-\begin_inset Quotes eld
-\end_inset
-
-buffer min
-\begin_inset Quotes erd
-\end_inset
-
- is 1K and 
-\begin_inset Quotes eld
-\end_inset
-
-buffer max
-\begin_inset Quotes erd
-\end_inset
-
- is 2MB.
+ Default, "buffer min" is 1K and "buffer max" is 2MB.
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 rotate lock file
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 This specifies a lock file for rotate a log safely between multi-process.
  zlog will open the file at zlog_init() with the premisson of read-write.
@@ -1558,10 +1389,12 @@ If you chose other path as lock file, for example, /tmp/zlog.lock, zlog will
  to create and read-write the same lock file.
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 default format
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 This parameter is used by rules without format specified.
  The default is
@@ -1579,29 +1412,25 @@ It will yield output like this:
 2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 file perms
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 This specifies all log file permission when they are created.
  Note that it is affect by user's umask.
- The final file permission will be 
-\begin_inset Quotes eld
-\end_inset
-
-file perms
-\begin_inset Quotes erd
-\end_inset
-
-& ~umask.
+ The final file permission will be "file perms" & ~umask.
  The default is 600, which just allowed user read and write.
 \end_layout
 
+\end_deeper
 \begin_layout Itemize
 fsync period
 \end_layout
 
+\begin_deeper
 \begin_layout Standard
 After a number of log times per rule(to file only), zlog will call fsync(3)
  after write() to tells the Operating System to actually write data on disk
@@ -1697,6 +1526,7 @@ reference "ite:synchronous-I/O-file"
  
 \end_layout
 
+\end_deeper
 \begin_layout Section
 Level
 \end_layout
@@ -1741,29 +1571,13 @@ This section begins with [formats], where user defined its prefer log pattern.
 \end_layout
 
 \begin_layout LyX-Code
-(name) = 
-\begin_inset Quotes eld
-\end_inset
-
-(actual formats)
-\begin_inset Quotes erd
-\end_inset
-
-
+(name) = "(actual formats)"
 \end_layout
 
 \begin_layout Standard
 It is easy to understand, (name) will be use in the next section [rules].
  The (name) of format must made up of letters and digits.
- The underscore 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-counts as a letter.
+ The underscore "_" counts as a letter.
  The (actual format) should be put into to double quotes.
  It can be built up with conversion patterns, as describled below.
 \end_layout
@@ -1848,7 +1662,7 @@ The recognized conversion characters are
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="19" columns="3">
-<features islongtable="true">
+<features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="50text%">
 <column alignment="center" valignment="top" width="40text%">
@@ -2373,14 +2187,7 @@ Used to output the hexadecimal form of the thread id that generated the
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Quotes eld
-\end_inset
-
-0x%x
-\begin_inset Quotes erd
-\end_inset
-
-,(unsigned int) pthread_t
+"0x%x",(unsigned int) pthread_t
 \end_layout
 
 \end_inset
@@ -2413,14 +2220,7 @@ Equivalent to %t, but the long form
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Quotes eld
-\end_inset
-
-%lu
-\begin_inset Quotes erd
-\end_inset
-
-, (unsigned long) pthread_t
+"%lu", (unsigned long) pthread_t
 \end_layout
 
 \end_inset
@@ -2550,7 +2350,7 @@ Below are various format modifier examples for the category conversion specifier
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="5">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="15text%">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="10text%">
@@ -2878,7 +2678,7 @@ There are 2 speical time words support by zlog itself, which comes from
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="3" columns="3">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
 <column alignment="center" valignment="top" width="30text%">
@@ -3002,7 +2802,7 @@ Other Character is supported by strftime(3) in library.
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="42" columns="3">
-<features islongtable="true">
+<features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="60text%">
 <column alignment="center" valignment="top" width="30text%">
@@ -4338,7 +4138,7 @@ There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="2">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <row>
@@ -4477,21 +4277,13 @@ name "sub:Category-Matching"
 \begin_layout Standard
 Category Matching is simple.
  The name of category is made up of letters and digits.
- The underscore 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-counts as a letter.
+ The underscore "_"counts as a letter.
 \end_layout
 
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="4">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="30text%">
 <column alignment="center" valignment="top" width="20col%">
 <column alignment="center" valignment="top" width="30col%">
@@ -4708,7 +4500,7 @@ Now, zlog supports some ways of output, the syntax is
 \begin_layout Standard
 \begin_inset Tabular
 <lyxtabular version="3" rows="7" columns="3">
-<features>
+<features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
 <column alignment="center" valignment="top" width="30text%">
@@ -4846,14 +4638,7 @@ to file
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset Quotes eld
-\end_inset
-
-(file path)
-\begin_inset Quotes erd
-\end_inset
-
-
+"(file path)"
 \end_layout
 
 \end_inset
@@ -4890,15 +4675,7 @@ synchronous I/O file
 \begin_inset Text
 
 \begin_layout Plain Layout
--
-\begin_inset Quotes eld
-\end_inset
-
-(file path)
-\begin_inset Quotes erd
-\end_inset
-
-
+-"(file path)"
 \end_layout
 
 \end_inset
@@ -4978,16 +4755,9 @@ can be absolute file path or relative file path.
 Conversion pattern
 \emph default
  can be used in file path.
- If the file path is 
-\begin_inset Quotes eld
-\end_inset
-
-%E(HOME)/log/out.log
-\begin_inset Quotes erd
-\end_inset
-
- and the program' environment $HOME is /home/harry, then the log file will
- be /home/harry/log/output.log at last.
+ If the file path is "%E(HOME)/log/out.log" and the program' environment
+ $HOME is /home/harry, then the log file will be /home/harry/log/output.log
+ at last.
  See 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -5002,37 +4772,53 @@ reference "sec:Conversion-pattern"
 file of zlog is powerful, for example
 \end_layout
 
+\begin_layout Enumerate
+output to named pipe(FIFO), must create by mkfifo(1) before use
+\end_layout
+
+\begin_deeper
 \begin_layout LyX-Code
-\begin_inset Quotes eld
-\end_inset
+*.*   "/tmp/pipefile"
+\end_layout
 
-/dev/console
-\begin_inset Quotes erd
-\end_inset
+\end_deeper
+\begin_layout Enumerate
+output to null, not do anythin at all
+\end_layout
 
- # output to console
+\begin_deeper
+\begin_layout LyX-Code
+*.*    "/dev/null"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+output to each tid a log, on the directory where process running
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "%T.log"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+output to file with pid name, every day, in $HOME/log directory, rotate
+ log at 1GB, keep 5 log files
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "%E(HOME)/log/aa.%p.%d(%F).log",1GB * 5
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+each category of aa_ super category, output log with category name
 \end_layout
 
 \begin_layout LyX-Code
-\begin_inset Quotes eld
-\end_inset
-
-/tmp/pipefile
-\begin_inset Quotes erd
-\end_inset
-
-# output to named pipe(FIFO), must create by mkfifo(1) before use
-\end_layout
-
-\begin_layout LyX-Code
-\begin_inset Quotes eld
-\end_inset
-
-/dev/null
-\begin_inset Quotes erd
-\end_inset
-
- # output to null, not do anythin at all
+aa_.*      "/var/log/%c.log"
 \end_layout
 
 \end_deeper
@@ -5048,14 +4834,7 @@ controls log file size and count.
 \end_layout
 
 \begin_layout LyX-Code
-\begin_inset Quotes eld
-\end_inset
-
-%E(HOME)/log/out.log
-\begin_inset Quotes erd
-\end_inset
-
-,1M*3
+"%E(HOME)/log/out.log",1M*3
 \end_layout
 
 \begin_layout Standard
@@ -5283,22 +5062,14 @@ All API of zlog are thread safe.
 \end_layout
 
 \begin_layout LyX-Code
-#include 
-\begin_inset Quotes eld
-\end_inset
-
-zlog.h
-\begin_inset Quotes erd
-\end_inset
-
-
+#include "zlog.h"
 \end_layout
 
 \begin_layout Section
 initialize and finish
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -5325,7 +5096,7 @@ void zlog_fini(void);
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -5380,7 +5151,7 @@ applied, close opened files.
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
 \end_layout
@@ -5397,7 +5168,7 @@ On success , zlog_init() and zlog_reload() return zero.
 category operation
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -5416,7 +5187,7 @@ cname
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -5450,97 +5221,26 @@ cname
 \end_layout
 
 \begin_layout Enumerate
-category string which ends with underscore 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
- matches super-category and sub-categories.
- For example, 
-\begin_inset Quotes eld
-\end_inset
-
-aa_
-\begin_inset Quotes erd
-\end_inset
-
- matches 
+category string which ends with underscore "_" matches super-category and
+ sub-categories.
+ For example, "aa_" matches 
 \bar under
 cname
 \bar default
- like 
-\begin_inset Quotes eld
-\end_inset
-
-aa
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes erd
-\end_inset
-
-aa_
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-, 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb_cc
-\begin_inset Quotes erd
-\end_inset
-
-.
+ like "aa", "aa_", "aa_bb", "aa_bb_cc".
 \end_layout
 
 \begin_layout Enumerate
-category string which does not ends with underscore 
-\begin_inset Quotes eld
-\end_inset
-
-_
-\begin_inset Quotes erd
-\end_inset
-
-matches 
+category string which does not ends with underscore "_"matches 
 \bar under
 cname
 \bar default
  accurately.
- For example, 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
- matches 
+ For example, "aa_bb" matches 
 \bar under
 cname
 \bar default
- of 
-\begin_inset Quotes eld
-\end_inset
-
-aa_bb
-\begin_inset Quotes erd
-\end_inset
-
-.
+ of "aa_bb".
 \end_layout
 
 \begin_layout Enumerate
@@ -5561,7 +5261,7 @@ zlog_fini() will clean up at last.
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
 \end_layout
@@ -5578,7 +5278,7 @@ On success, return the address of zlog_category_t.
 log functions and macros
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -5753,7 +5453,7 @@ buflen
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -5854,15 +5554,7 @@ line
 func
 \bar default
  is filled with __func__ or __FUNCTION__, if the compiler supports, otherwise
- it will be filled with 
-\begin_inset Quotes eld
-\end_inset
-
-<unkown>
-\begin_inset Quotes erd
-\end_inset
-
-.
+ it will be filled with "<unkown>".
 \end_layout
 
 \begin_layout Standard
@@ -6021,7 +5713,7 @@ HZLOG_DEBUG(cat, buf, buf_len)
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
 \end_layout
@@ -6038,7 +5730,7 @@ These functions returns nothing.
 MDC operation
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -6077,7 +5769,7 @@ void zlog_clean_mdc(void);
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -6107,7 +5799,7 @@ One thing should remeber is that the map bonds to a thread, thus in one
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
 \end_layout
@@ -6136,7 +5828,7 @@ name "sec:dzlog-API"
 
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -6303,7 +5995,7 @@ buflen
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -6433,7 +6125,7 @@ HDZLOG_DEBUG(buf, buf_len)
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
 \end_layout
@@ -6450,7 +6142,7 @@ On success , dzlog_init() and dzlog_set_category() return zero.
 User-defined Output
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -6485,7 +6177,7 @@ record
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -6534,7 +6226,7 @@ All settings of zlog_set_record() keeps available after zlog_reload().
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
 \end_layout
@@ -6551,7 +6243,7 @@ On success, zlog_set_record() returns zero.
 debug and profile
 \end_layout
 
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
 \end_layout
@@ -6562,7 +6254,7 @@ void zlog_profile(void);
 \end_layout
 
 \end_deeper
-\begin_layout List
+\begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
 \end_layout
@@ -6784,44 +6476,14 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout Standard
-You can see zlog_put_mdc() function set the map with key 
-\begin_inset Quotes eld
-\end_inset
-
-myname
-\begin_inset Quotes erd
-\end_inset
-
- and value 
-\begin_inset Quotes eld
-\end_inset
-
-Zhang
-\begin_inset Quotes erd
-\end_inset
-
-, and in configure file 
+You can see zlog_put_mdc() function set the map with key "myname" and value
+ "Zhang", and in configure file 
 \emph on
 %M(myname) 
 \emph default
 indicates where the value shows in each log.
- The second time, value of key 
-\begin_inset Quotes eld
-\end_inset
-
-myname
-\begin_inset Quotes erd
-\end_inset
-
- is overwriteen to 
-\begin_inset Quotes eld
-\end_inset
-
-Li
-\begin_inset Quotes erd
-\end_inset
-
-, and the log changes also.
+ The second time, value of key "myname" is overwriteen to "Li", and the
+ log changes also.
 \end_layout
 
 \begin_layout Standard
@@ -6831,63 +6493,23 @@ When should MDC be used? That mainly depends on when user need to seprate
 \end_layout
 
 \begin_layout LyX-Code
-zlog_put_mdc(
-\begin_inset Quotes eld
-\end_inset
-
-customer_name
-\begin_inset Quotes erd
-\end_inset
-
-, get_customer_name_from_db() );
+zlog_put_mdc("customer_name", get_customer_name_from_db() );
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-get in
-\begin_inset Quotes erd
-\end_inset
-
-); 
+ZLOG_INFO("get in"); 
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-pick product
-\begin_inset Quotes erd
-\end_inset
-
-); 
+ZLOG_INFO("pick product"); 
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-pay
-\begin_inset Quotes erd
-\end_inset
-
-);
+ZLOG_INFO("pay");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(
-\begin_inset Quotes eld
-\end_inset
-
-get out
-\begin_inset Quotes erd
-\end_inset
-
-);
+ZLOG_INFO("get out");
 \end_layout
 
 \begin_layout Standard
@@ -6895,15 +6517,7 @@ in .conf
 \end_layout
 
 \begin_layout LyX-Code
-&format  
-\begin_inset Quotes eld
-\end_inset
-
-%M(customer_name) %m%n
-\begin_inset Quotes erd
-\end_inset
-
-
+&format  "%M(customer_name) %m%n"
 \end_layout
 
 \begin_layout Standard
@@ -7442,23 +7056,8 @@ means that level >= TRACE, which is TRACE, INFO, NOTICE, WARN, ERROR, FATAL
 \end_layout
 
 \begin_layout Standard
-The conversion charactor 
-\begin_inset Quotes eld
-\end_inset
-
-%V
-\begin_inset Quotes erd
-\end_inset
-
-of format string generate captial of level string and 
-\begin_inset Quotes eld
-\end_inset
-
-%v
-\begin_inset Quotes erd
-\end_inset
-
- for lowercase of level string.
+The conversion charactor %V of format string generate captial of level string
+ and %v for lowercase of level string.
 \end_layout
 
 \begin_layout Standard
@@ -7474,15 +7073,7 @@ Using the new log level in source file, the direct way is like this
 \begin_deeper
 \begin_layout LyX-Code
 zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1,__LINE__,
- 30, 
-\begin_inset Quotes eld
-\end_inset
-
-test %d
-\begin_inset Quotes erd
-\end_inset
-
-, 1);
+ 30, "test %d", 1);
 \end_layout
 
 \begin_layout Standard
@@ -7689,19 +7280,7 @@ INFO info hello, zlog - info
 \begin_layout Standard
 That's just what we expect, the configure file only allows >=TRACE ouput
  to screen.
- And “%V
-\begin_inset Quotes erd
-\end_inset
-
- and 
-\begin_inset Quotes eld
-\end_inset
-
-%v
-\begin_inset Quotes erd
-\end_inset
-
- works well.
+ And %V and %v works well.
 \end_layout
 
 \end_deeper
