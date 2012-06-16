@@ -176,7 +176,7 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	} else {
 		rc = zlog_conf_build_without_file(a_conf);
 		if (rc) {
-			zc_error("zlog_conf_build_with_file fail");
+			zc_error("zlog_conf_build_without_file fail");
 			goto zlog_conf_new_exit;
 		}
 	}
@@ -378,6 +378,19 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		}
 
 		if (*section == 4) {
+			if (a_conf->reload_conf_period != 0
+				&& a_conf->fsync_period >= a_conf->reload_conf_period) {
+				/* as all rule will be rebuilt when conf is reload,
+				 * so fsync_period > reload_conf_period will never
+				 * cause rule to fsync it's file.
+				 * fsync_period will be meaningless and down speed,
+				 * so make it zero.
+				 */
+				zc_warn("fsync_period[%ld] >= reload_conf_period[%ld],"
+					"set fsync_period to zero");
+				a_conf->fsync_period = 0;
+			}
+
 			/* now build rotater and default_format
 			 * from the unchanging global setting,
 			 * for zlog_rule_new() */
