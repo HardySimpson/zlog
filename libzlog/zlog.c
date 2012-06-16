@@ -40,7 +40,7 @@ static zc_hashtable_t *zlog_env_categories;
 static zc_hashtable_t *zlog_env_records;
 static zlog_category_t *zlog_default_category;
 static volatile sig_atomic_t zlog_env_reload_conf_count;
-static int zlog_env_init_flag = 0;
+static int zlog_env_init_flag = -1;
 /*******************************************************************************/
 /* inner no need thread-safe */
 static void zlog_fini_inner(void)
@@ -209,7 +209,7 @@ int zlog_reload(char *confpath)
 		return -1;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("never zlog_init before");
 		rc = -1;
 		goto zlog_reload_exit_2;
@@ -301,7 +301,7 @@ void zlog_fini(void)
 		return;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before finish, must zlog_init fisrt");
 		goto zlog_fini_exit;
 	}
@@ -332,7 +332,7 @@ zlog_category_t *zlog_get_category(char *cname)
 		return NULL;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		a_category = NULL;
 		goto zlog_get_category_exit;
@@ -371,7 +371,7 @@ int dzlog_set_category(char *cname)
 		return -1;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		rc = -1;
 		goto dzlog_set_category_exit;
@@ -413,7 +413,7 @@ int zlog_put_mdc(char *key, char *value)
 		return -1;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		rc = -1;
 		goto zlog_put_mdc_exit;
@@ -481,7 +481,7 @@ char *zlog_get_mdc(char *key)
 		return NULL;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		goto zlog_get_mdc_exit;
 	}
@@ -522,7 +522,7 @@ void zlog_remove_mdc(char *key)
 		return;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		goto zlog_remove_mdc_exit;
 	}
@@ -557,7 +557,7 @@ void zlog_clean_mdc(void)
 		return;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		goto zlog_clean_mdc_exit;
 	}
@@ -594,7 +594,7 @@ static int zlog_output(zlog_category_t * a_category,
 
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		rc = -1;
 		goto zlog_output_exit;
@@ -667,7 +667,7 @@ static int dzlog_output(const char *file, size_t file_len, const char *func, siz
 
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		rc = -1;
 		goto zlog_output_exit;
@@ -828,7 +828,7 @@ int zlog_set_record(char *name, zlog_record_fn record_output)
 		return -1;
 	}
 
-	if (zlog_env_init_flag <= 0) {
+	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
 		goto zlog_set_record_exit;
 	}
