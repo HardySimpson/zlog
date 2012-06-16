@@ -636,7 +636,7 @@ c = zlog_get_category("my_cat");
 \end_layout
 
 \begin_layout LyX-Code
-if (!my_cat) {
+if (!c) {
 \end_layout
 
 \begin_layout LyX-Code
@@ -1656,7 +1656,7 @@ ZLOG_INFO(c, "hello, zlog");
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="18" columns="3">
+<lyxtabular version="3" rows="19" columns="3">
 <features islongtable="true">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="50text%">
@@ -2153,7 +2153,18 @@ info
 \begin_inset Text
 
 \begin_layout Plain Layout
-线程ID，来源于pthread_self().
+16进制表示的线程ID，来源于pthread_self()
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+0x%x
+\begin_inset Quotes erd
+\end_inset
+
+,(unsigned int) pthread_t
 \end_layout
 
 \end_inset
@@ -2162,7 +2173,47 @@ info
 \begin_inset Text
 
 \begin_layout Plain Layout
-7636
+0xba01e700
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%T
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+相当于%t,不过是以长整型表示的
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+%lu
+\begin_inset Quotes erd
+\end_inset
+
+, (unsigned long) pthread_t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+140633234859776
 \end_layout
 
 \end_inset

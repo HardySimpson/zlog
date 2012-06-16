@@ -211,16 +211,25 @@ static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	if (!a_thread->event->pid) a_thread->event->pid = getpid();
-	return zlog_buf_printf(a_buf, "%d", (int)a_thread->event->pid);
+	return zlog_buf_printf(a_buf, "%u", (unsigned int)a_thread->event->pid);
 }
 
-static int zlog_spec_write_tid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
 
-	return zlog_buf_printf(a_buf, "%ld", (long)a_thread->event->tid);
+	return zlog_buf_printf(a_buf, "0x%x", (unsigned int)a_thread->event->tid);
+}
+
+static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+
+	/* don't need to get tid again, as tmap_new_thread fetch it already */
+	/* and fork not change tid */
+
+	return zlog_buf_printf(a_buf, "%lu", (unsigned long)a_thread->event->tid);
 }
 
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -686,7 +695,10 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			a_spec->write_buf = zlog_spec_write_level_uppercase;
 			break;
 		case 't':
-			a_spec->write_buf = zlog_spec_write_tid;
+			a_spec->write_buf = zlog_spec_write_tid_hex;
+			break;
+		case 'T':
+			a_spec->write_buf = zlog_spec_write_tid_long;
 			break;
 		case '%':
 			a_spec->write_buf = zlog_spec_write_percent;
