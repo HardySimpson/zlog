@@ -1483,40 +1483,76 @@ fsync period
 
 \begin_layout Standard
 在每条规则写了一定次数的日志到文件后，zlog会调用fsync(3)来让操作系统马上把数据写到硬盘。次数是每条规则单独统计的，并且在zlog_reload()后
-会被清0。必须指出的是，在日志文件名是动态生成或者被转档的情况下，zlog不能保证把所有文件都搞定，他只fsync()那个时候刚刚write()的文件描述符。这
-提供了写日志速度和数据安全性之间的平衡。例子：
+会被清0。必须指出的是，在日志文件名是动态生成或者被转档的情况下，zlog不能保证把所有文件都搞定，zlog只fsync()那个时候刚刚write()的文件描述
+符。这提供了写日志速度和数据安全性之间的平衡。例子：
 \end_layout
 
 \begin_layout LyX-Code
-$ time ./test_press_zlog 10 10000
+$ time ./test_press_zlog 1 10 100000
 \end_layout
 
 \begin_layout LyX-Code
-real	0m0.742s 
+real	0m1.806s
 \end_layout
 
 \begin_layout LyX-Code
-user	0m0.770s 
+user	0m3.060s 
 \end_layout
 
 \begin_layout LyX-Code
-sys	 0m0.640s
+sys	 0m0.270s
 \end_layout
 
 \begin_layout LyX-Code
-$ time ./test_press_zlog 10 10000  #fsync period = 1K
+ 
 \end_layout
 
 \begin_layout LyX-Code
-real	0m4.190s 
+$ wc -l press.log  
 \end_layout
 
 \begin_layout LyX-Code
-user	0m1.080s 
+1000000 press.log  
 \end_layout
 
 \begin_layout LyX-Code
-sys 	0m1.240s
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000 #fsync period = 1K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m41.995s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m7.920s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.990s
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000 #fsync period = 10K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m6.856s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m4.360s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.550s
 \end_layout
 
 \begin_layout Standard

@@ -12,6 +12,17 @@ real	0m0.123s
 user	0m0.060s
 sys	0m0.130s
 -------------------------------------------------
+v1.0.7
+$ time ./test_press_zlog 1 10 100000
+real	0m1.783s
+user	0m3.000s
+sys	0m0.300s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m1.621s
+user	0m2.980s
+sys	0m0.120s
+-------------------------------------------------
 v1.0.6
 $ time ./test_press_zlog 1 10 100000
 real	0m1.814s

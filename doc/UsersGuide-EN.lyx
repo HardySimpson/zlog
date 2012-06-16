@@ -1616,35 +1616,71 @@ After a number of log times per rule(to file only), zlog will call fsync(3)
 \end_layout
 
 \begin_layout LyX-Code
-$ time ./test_press_zlog 10 10000
+$ time ./test_press_zlog 1 10 100000
 \end_layout
 
 \begin_layout LyX-Code
-real	0m0.742s 
+real	0m1.806s
 \end_layout
 
 \begin_layout LyX-Code
-user	0m0.770s 
+user	0m3.060s 
 \end_layout
 
 \begin_layout LyX-Code
-sys	 0m0.640s
+sys	 0m0.270s
 \end_layout
 
 \begin_layout LyX-Code
-$ time ./test_press_zlog 10 10000  #fsync period = 1K
+ 
 \end_layout
 
 \begin_layout LyX-Code
-real	0m4.190s 
+$ wc -l press.log  
 \end_layout
 
 \begin_layout LyX-Code
-user	0m1.080s 
+1000000 press.log  
 \end_layout
 
 \begin_layout LyX-Code
-sys 	0m1.240s 
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000 #fsync period = 1K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m41.995s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m7.920s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.990s
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000 #fsync period = 10K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m6.856s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m4.360s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.550s
 \end_layout
 
 \begin_layout Standard
