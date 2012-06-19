@@ -50,14 +50,7 @@ struct zlog_spec_s {
 	int len;
 
 	char time_fmt[MAXLEN_CFG_LINE + 1];
-	int ms_count;
-	size_t ms_offset[MAXLEN_CFG_LINE / 2 + 2];
-	int us_count;
-	size_t us_offset[MAXLEN_CFG_LINE / 2 + 2];
-	size_t time_len;
-
 	char mdc_key[MAXLEN_PATH + 1];
-
 	char print_fmt[MAXLEN_CFG_LINE + 1];
 	int left_adjust;
 	size_t max_width;
@@ -66,7 +59,6 @@ struct zlog_spec_s {
 	zc_arraylist_t *levels;
 
 	zlog_spec_write_fn write_buf;
-
 	zlog_spec_gen_fn gen_msg;
 	zlog_spec_gen_fn gen_path;
 };
@@ -75,70 +67,91 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 {
 	return;
 	zc_assert(a_spec,);
-	zc_profile(flag, "----spec[%p][%.*s][%s,%d][%s][%s]----",
+	zc_profile(flag, "----spec[%p][%.*s][%s][%s,%ld,%ld][%s]----",
 		a_spec,
 		a_spec->len, a_spec->str,
-		a_spec->time_fmt, a_spec->time_len,
-		a_spec->print_fmt,
+		a_spec->time_fmt,
+		a_spec->print_fmt, (long)a_spec->max_width, (long)a_spec->min_width,
 		a_spec->mdc_key);
 	return;
 }
 
 /*******************************************************************************/
 /* implementation of write function */
-static int zlog_spec_write_time_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	/* only when need fetch time, do it once */
+	/* do fetch time every event once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
+		sprintf(a_thread->event->us, "%6.6ld",
+			(long)a_thread->event->time_stamp.tv_usec);
+
 		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
 			/* localtime_r is slow on linux, do it once per second */
 			/* thanks for nikuailema@gmail.com */
+			a_thread->event->sec_changed = 1;
 			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
 			localtime_r(&(a_thread->event->time_stamp.tv_sec),
 				    &(a_thread->event->local_time));
+		} else {
+			a_thread->event->sec_changed = 0;
 		}
-		sprintf(a_thread->event->us, "%6.6ld",
-			(long)a_thread->event->time_stamp.tv_usec);
 	}
 
-	return zlog_buf_strftime(a_buf, a_spec->time_fmt, a_spec->time_len,
-			       &(a_thread->event->local_time));
+	/* strftime is slow too, do it once per second
+	 * or time_fmt changed(event go through another spec) */
+	if (a_thread->event->last_time_fmt != a_spec->time_fmt || a_thread->event->sec_changed) {
+		a_thread->event->last_time_fmt = a_spec->time_fmt;
+		a_thread->event->time_str_len = strftime(a_thread->event->time_str,
+			sizeof(a_thread->event->time_str),
+			a_spec->time_fmt, &(a_thread->event->local_time));
+	}
+
+	return zlog_buf_append(a_buf, a_thread->event->time_str, a_thread->event->time_str_len);
 }
 
-static int zlog_spec_write_time_msus(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	int i;
-
-	/* only when need fetch time, do it once */
+	/* do fetch time every event once */
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
+		sprintf(a_thread->event->us, "%6.6ld",
+			(long)a_thread->event->time_stamp.tv_usec);
+
 		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
 			/* localtime_r is slow on linux, do it once per second */
 			/* thanks for nikuailema@gmail.com */
+			a_thread->event->sec_changed = 1;
 			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
 			localtime_r(&(a_thread->event->time_stamp.tv_sec),
 				    &(a_thread->event->local_time));
+		} else {
+			a_thread->event->sec_changed = 0;
 		}
+	}
+	return zlog_buf_append(a_buf, a_thread->event->us, 3);
+}
+
+static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	/* do fetch time every event once */
+	if (!a_thread->event->time_stamp.tv_sec) {
+		gettimeofday(&(a_thread->event->time_stamp), NULL);
 		sprintf(a_thread->event->us, "%6.6ld",
 			(long)a_thread->event->time_stamp.tv_usec);
-	}
 
-	/* replace real microsec and millisec here */
-	strcpy(a_thread->event->time_fmt_msus, a_spec->time_fmt);
-	for (i = 0; i < a_spec->ms_count; i++) {
-		memcpy(a_thread->event->time_fmt_msus +
-		       a_spec->ms_offset[i], a_thread->event->us, 3);
+		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
+			/* localtime_r is slow on linux, do it once per second */
+			/* thanks for nikuailema@gmail.com */
+			a_thread->event->sec_changed = 1;
+			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
+			localtime_r(&(a_thread->event->time_stamp.tv_sec),
+				    &(a_thread->event->local_time));
+		} else {
+			a_thread->event->sec_changed = 0;
+		}
 	}
-
-	for (i = 0; i < a_spec->us_count; i++) {
-		memcpy(a_thread->event->time_fmt_msus +
-		       a_spec->us_offset[i], a_thread->event->us, 6);
-	}
-
-	return zlog_buf_strftime(a_buf, a_thread->event->time_fmt_msus,
-			       a_spec->time_len,
-			       &(a_thread->event->local_time));
+	return zlog_buf_append(a_buf, a_thread->event->us, 6);
 }
 
 static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -441,80 +454,11 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_t
 }
 
 /*******************************************************************************/
-static int zlog_spec_parse_time_fmt(zlog_spec_t * a_spec)
-{
-	char a_time[3 * MAXLEN_CFG_LINE + 1];
-	char a_time_fmt[3 * MAXLEN_CFG_LINE + 1];
-	char b_time_fmt[3 * MAXLEN_CFG_LINE + 1];
-	time_t a_tt;
-	struct tm a_tm;
-	char *p;
-	char *q;
-
-	memset(a_time_fmt, 0x00, sizeof(a_time_fmt));
-
-	/* replace %us to UUUUUU and mark position, later replace to real  microseconds */
-	a_spec->us_count = 0;
-	q = a_spec->time_fmt;
-	while (1) {
-		p = strstr(q, "%us");
-		if (!p) {
-			strcat(a_time_fmt, q);
-			break;
-		}
-
-		strncat(a_time_fmt, q, p - q);
-		a_spec->us_offset[a_spec->us_count++] = strlen(a_time_fmt);;
-		strcat(a_time_fmt, "UUUUUU");
-		q = p + 3;
-	}
-
-	memset(b_time_fmt, 0x00, sizeof(a_time_fmt));
-
-	/* replace %ms to MMM and mark position, later replace to real  milliseconds */
-	/* as strlen(%ms) == strlen(MMM), so that will not change postion of us */
-	a_spec->ms_count = 0;
-	q = a_spec->time_fmt;
-	q = a_time_fmt;
-	while (1) {
-		p = strstr(q, "%ms");
-		if (!p) {
-			strcat(b_time_fmt, q);
-			break;
-		}
-
-		strncat(b_time_fmt, q, p - q);
-		a_spec->ms_offset[a_spec->ms_count++] = strlen(b_time_fmt);;
-		strcat(b_time_fmt, "MMM");
-		q = p + 3;
-	}
-
-	if (strlen(b_time_fmt) > sizeof(a_spec->time_fmt) - 1) {
-		zc_error("after replace, b_time_fmt[%s] is overflow",
-			 b_time_fmt);
-		return -1;
-	} else {
-		strcpy(a_spec->time_fmt, b_time_fmt);
-	}
-
-	/* get time once, calc how long will be the time_string */
-	time(&a_tt);
-	localtime_r(&(a_tt), &(a_tm));
-
-	memset(a_time, 0x00, sizeof(a_time));
-	strftime(a_time, sizeof(a_time), a_spec->time_fmt, &a_tm);
-
-	/* in real world the timelen may be longer than now */
-	a_spec->time_len = strlen(a_time) + 10;
-	return 0;
-}
-
 static int zlog_spec_parse_print_fmt(zlog_spec_t * a_spec)
 {
 	/* -12.35 12 .35 */
-	char *p;
+	char *p, *q;
 	long i, j;
-	int nscan;
 
 	p = a_spec->print_fmt;
 	if (*p == '-') {
@@ -525,11 +469,9 @@ static int zlog_spec_parse_print_fmt(zlog_spec_t * a_spec)
 	}
 
 	i = j = 0;
-	nscan = sscanf(p, "%ld.%ld", &i, &j);
-	if (nscan < 1) {
-		zc_error("sscanf[%s]fail, errno[%d]", p, errno);
-		return -1;
-	}
+	sscanf(p, "%ld.", &i);
+	q = strchr(p, '.');
+	if (q) sscanf(q, ".%ld", &j);
 
 	a_spec->min_width = (size_t) i;
 	a_spec->max_width = (size_t) j;
@@ -617,20 +559,18 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 				}
 			}
 
+/*
 			rc = zlog_spec_parse_time_fmt(a_spec);
 			if (rc) {
 				zc_error("zlog_spec_parse_time_fmt fail");
 				rc = -1;
 				goto zlog_spec_init_exit;
 			}
+*/
 
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
-			if (a_spec->ms_count > 0 || a_spec->us_count > 0) {
-				a_spec->write_buf = zlog_spec_write_time_msus;
-			} else {
-				a_spec->write_buf = zlog_spec_write_time_direct;
-			}
+			a_spec->write_buf = zlog_spec_write_time;
 			break;
 		}
 
@@ -654,6 +594,20 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
 			a_spec->write_buf = zlog_spec_write_mdc;
+			break;
+		}
+
+		if (STRNCMP(p, ==, "ms", 2)) {
+			p += 2;
+			*pattern_next = p;
+			a_spec->len = p - a_spec->str;
+			a_spec->write_buf = zlog_spec_write_ms;
+			break;
+		} else if (STRNCMP(p, ==, "us", 2)) {
+			p += 2;
+			*pattern_next = p;
+			a_spec->len = p - a_spec->str;
+			a_spec->write_buf = zlog_spec_write_us;
 			break;
 		}
 

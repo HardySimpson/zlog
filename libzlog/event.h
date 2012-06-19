@@ -52,9 +52,13 @@ typedef struct {
 
 	struct timeval time_stamp;
 	time_t last_sec;
+	int sec_changed;
 	struct tm local_time;	
 	char us[6 + 1];
-	char time_fmt_msus[MAXLEN_CFG_LINE + 1];
+
+	char time_str[MAXLEN_CFG_LINE + 1];
+	size_t time_str_len;
+	char *last_time_fmt;
 
 	pid_t pid;
 	pthread_t tid;

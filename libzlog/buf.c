@@ -265,7 +265,11 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 	va_copy(ap, args);
 	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
 	nwrite = vsnprintf(a_buf->end, size_left, format, ap);
-	if (nwrite < 0) {
+	if (nwrite >= 0 && nwrite < size_left) {
+		a_buf->end += nwrite;
+		*(a_buf->end) = '\0';
+		return 0;
+	} else if (nwrite < 0) {
 		zc_error("vsnprintf fail, errno[%d]", errno);
 		zc_error("nwrite[%d], size_left[%ld], format[%s]", nwrite, size_left, format);
 		return -1;
@@ -300,10 +304,6 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 				return 0;
 			}
 		}
-	} else {
-		a_buf->end += nwrite;
-		*(a_buf->end) = '\0';
-		return 0;
 	}
 
 	return 0;
@@ -446,54 +446,5 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	*(a_buf->end) = '\0';
 	return 0;
 }
-/*******************************************************************************/
-int zlog_buf_strftime(zlog_buf_t * a_buf, const char *time_fmt, size_t time_len,
-		      const struct tm *a_tm)
-{
-	size_t size_left;
-	size_t nwrite;
-
-	if (a_buf->size_real < 0) {
-		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
-		return -1;
-	}
-
-	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-	if (time_len > size_left - 1) {
-		int rc;
-		zc_debug("size_left not enough, resize");
-		rc = zlog_buf_resize(a_buf, time_len - size_left + 1);
-		if (rc > 0) {
-			zc_error("conf limit to %ld, can't extend, so trucate",
-				 a_buf->size_max);
-			size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-			strftime(a_buf->end, size_left, time_fmt, a_tm);
-			a_buf->end += size_left - 1;
-			a_buf->end = '\0';
-			zlog_buf_truncate(a_buf);
-			return 1;
-		} else if (rc < 0) {
-			zc_error("zlog_buf_resize fail");
-			return -1;
-		} else {
-			zc_debug("zlog_buf_resize succ, to[%ld]",
-				 a_buf->size_real);
-		}
-	}
-
-	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-	nwrite = strftime(a_buf->end, size_left - 1, time_fmt, a_tm);
-	a_buf->end += nwrite;
-	*(a_buf->end) = '\0';
-
-	if (nwrite <= 0) {
-		zc_error("strftime maybe failed or output 0 char, nwrite[%d], time_fmt[%s]",
-		     nwrite, time_fmt);
-	}
-
-	return 0;
-}
-
-
 /*******************************************************************************/
 

@@ -185,6 +185,7 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
 		rc = zlog_spec_gen_msg(a_spec, a_thread);
+		if (rc == 0) continue;
 		if (rc < 0) {
 			zc_error("zlog_spec_gen_msg fail");
 			return -1;
