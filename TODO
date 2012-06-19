@@ -6,9 +6,14 @@
 [ ] 兼容性问题
     zlog.h内，__VA_ARGS__的跨平台
 [ ] 去除auto tools的使用，用redis那样的自行makefile
+[ ] c++接口的测试和实现
+[ ] spec,level采用直接数组的方式重写
+[ ] linux fsync->fdatasync, open..
 
 --- 1.0.7 ---
 [x] 自己实现部分的strftime，进一步提高效率--替换后发现vsnprintf消耗增加，未能超越原有strftime的效率
+[o] %t显示为16进制
+[o] 零碎的性能优化，10%把
 --- 1.0.6 ---
 [o] 每秒取一次localtime_r，加速1倍以上
 --- 1.0.5 ---

@@ -93,7 +93,7 @@ hello, zlog
  *  log format customization
  *  multiple output, include static file path, dynamic file path, stdout, stderr, syslog, user-defined ouput
  *  runtime mannully or automaticlly refreash configure(safely)
- *  high efficieny, about 200 times faster than syslog(3) with rsyslogd
+ *  high efficieny, 338'638 logs/second on my laptop, about 1000 times faster than syslog(3) with rsyslogd
  *  user-defined log level
  *  safely rotate log file on multiple-process or multiple-threads condition
  *  accurate to microseconds
