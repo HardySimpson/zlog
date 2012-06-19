@@ -1,12 +1,14 @@
 [p] 使用valgrind测试性能
-[p] 自己实现部分的strftime，进一步提高效率
 [ ] 增加man  age,  df, 案例
 [ ] 和rsyslog对接的问题
 [ ] hzlog的可定制话
 [ ] 分类匹配的可定制化
 [ ] 兼容性问题
     zlog.h内，__VA_ARGS__的跨平台
+[ ] 去除auto tools的使用，用redis那样的自行makefile
 
+--- 1.0.7 ---
+[x] 自己实现部分的strftime，进一步提高效率--替换后发现vsnprintf消耗增加，未能超越原有strftime的效率
 --- 1.0.6 ---
 [o] 每秒取一次localtime_r，加速1倍以上
 --- 1.0.5 ---

@@ -53,6 +53,18 @@ AC_ARG_ENABLE(test,
 
 AM_CONDITIONAL(ENABLE_TEST, test x$enable_test = xyes)
 
+AC_ARG_ENABLE(doc,
+	[AC_HELP_STRING([--enable-doc], [Create pdf from lyx])],
+	enable_doc=yes)
+
+# Checks for lyx
+AC_PATH_PROG(LYX, lyx, )
+if test x$LYX = x; then
+        enable_doc=no
+fi
+
+AM_CONDITIONAL(ENABLE_DOC, test x$enable_doc = xyes)
+
 AC_CONFIG_FILES([
 zlog.pc
 Makefile
