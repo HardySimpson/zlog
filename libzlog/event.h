@@ -61,7 +61,15 @@ typedef struct {
 	char *last_time_fmt;
 
 	pid_t pid;
+	char pid_str[30 + 1];
+	size_t pid_str_len;
+
 	pthread_t tid;
+	char tid_str[30 + 1];
+	size_t tid_str_len;
+
+	char tid_hex_str[30 + 1];
+	size_t tid_hex_str_len;
 } zlog_event_t;
 
 zlog_event_t *zlog_event_new(void);

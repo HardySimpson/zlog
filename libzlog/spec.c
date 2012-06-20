@@ -223,8 +223,12 @@ static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	if (!a_thread->event->pid) a_thread->event->pid = getpid();
-	return zlog_buf_printf(a_buf, "%u", (unsigned int)a_thread->event->pid);
+	pid_t pid;
+	if ((pid = getpid()) != a_thread->event->pid) {
+		a_thread->event->pid = pid;
+		a_thread->event->pid_str_len = sprintf(a_thread->event->pid_str, "%u", pid);
+	}
+	return zlog_buf_append(a_buf, a_thread->event->pid_str, a_thread->event->pid_str_len);
 }
 
 static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -232,8 +236,7 @@ static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
-
-	return zlog_buf_printf(a_buf, "0x%x", (unsigned int)a_thread->event->tid);
+	return zlog_buf_append(a_buf, a_thread->event->tid_hex_str, a_thread->event->tid_hex_str_len);
 }
 
 static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -241,8 +244,7 @@ static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thre
 
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
-
-	return zlog_buf_printf(a_buf, "%lu", (unsigned long)a_thread->event->tid);
+	return zlog_buf_append(a_buf, a_thread->event->tid_str, a_thread->event->tid_str_len);
 }
 
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)

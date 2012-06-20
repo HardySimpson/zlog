@@ -82,6 +82,9 @@ zlog_event_t *zlog_event_new(void)
 	 */
 	a_event->tid = pthread_self();
 
+	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
+	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "0x%x", (unsigned int)a_event->tid);
+
       zlog_event_new_exit:
 	if (rc) {
 		zlog_event_del(a_event);
