@@ -141,8 +141,3 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp,
 	else
 		return zc_arraylist_insert_inner(a_list, i, data);
 }
-
-int zc_arraylist_len(zc_arraylist_t * a_list)
-{
-	return a_list->len;
-}

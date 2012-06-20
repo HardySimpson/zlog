@@ -128,7 +128,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	nwrite = fwrite(a_thread->msg_buf->start, a_thread->msg_buf->end - a_thread->msg_buf->start,
+	nwrite = fwrite(zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf),
 			1, a_rule->static_file_stream);
 	if (nwrite != 1) {
 		zc_error("fwrite fail, errno[%d]", errno);
@@ -166,8 +166,8 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-	nwrite = fwrite(a_thread->msg_buf->start, len, 1, a_rule->static_file_stream);
+	len = zlog_buf_len(a_thread->msg_buf);
+	nwrite = fwrite(zlog_buf_str(a_thread->msg_buf), len, 1, a_rule->static_file_stream);
 	if (nwrite != 1) {
 		zc_error("fwrite fail, errno[%d]", errno);
 		return -1;
@@ -284,7 +284,7 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	nwrite = write(fd, a_thread->msg_buf->start, a_thread->msg_buf->end - a_thread->msg_buf->start);
+	nwrite = write(fd, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf));
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
@@ -309,8 +309,8 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 {
 	int rc;
 	ssize_t nwrite;
-	size_t len;
 	int fd;
+	size_t len;
 
 	rc = zlog_rule_gen_path(a_rule, a_thread);
 	if (rc) {
@@ -331,8 +331,8 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	len = a_thread->msg_buf->end - a_thread->msg_buf->start;
-	nwrite = write(fd, a_thread->msg_buf->start, len);
+	len = zlog_buf_len(a_thread->msg_buf);
+	nwrite = write(fd, zlog_buf_str(a_thread->msg_buf), len);
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		close(fd);
@@ -397,8 +397,8 @@ static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 
 	if (a_rule->record_output) {
 		rc = a_rule->record_output(a_rule->record_param,
-				a_thread->msg_buf->start,
-				a_thread->msg_buf->end - a_thread->msg_buf->start);
+				zlog_buf_str(a_thread->msg_buf),
+				zlog_buf_len(a_thread->msg_buf));
 		if (rc) {
 			zc_error("a_rule->record fail");
 			return -1;
@@ -423,8 +423,7 @@ static int zlog_rule_output_stdout(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	nwrite = write(STDOUT_FILENO, a_thread->msg_buf->start,
-			a_thread->msg_buf->end - a_thread->msg_buf->start);
+	nwrite = write(STDOUT_FILENO, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf));
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		return -1;
@@ -445,8 +444,7 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	nwrite = write(STDERR_FILENO, a_thread->msg_buf->start,
-			a_thread->msg_buf->end - a_thread->msg_buf->start);
+	nwrite = write(STDERR_FILENO, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf));
 	if (nwrite < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		return -1;

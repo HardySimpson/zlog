@@ -41,7 +41,7 @@ int zc_arraylist_add(zc_arraylist_t * a_list, void *data);
 int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp,
 			 void *data);
 
-int zc_arraylist_len(zc_arraylist_t * a_list);
+#define zc_arraylist_len(a_list)  (a_list->len)
 
 #define zc_arraylist_get(a_list, i) \
 	 ((i >= a_list->len) ? NULL : a_list->array[i])

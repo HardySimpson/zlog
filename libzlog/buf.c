@@ -81,7 +81,7 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag)
 			a_buf->size_min, a_buf->size_max,
 			a_buf->size_real,
 			a_buf->truncate_str,
-			a_buf->start, a_buf->end - a_buf->start);
+			a_buf->start, a_buf->tail - a_buf->start);
 	return;
 }
 /*******************************************************************************/
@@ -150,8 +150,10 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 		rc = -1;
 		goto zlog_buf_new_exit;
 	}
-	a_buf->end = a_buf->start;
+	a_buf->tail = a_buf->start;
 	a_buf->size_real = a_buf->size_min;
+	a_buf->end_plus_1 = a_buf->start + a_buf->size_real;
+	a_buf->end = a_buf->end_plus_1 - 1;
 
       zlog_buf_new_exit:
 	if (rc) {
@@ -185,11 +187,11 @@ static void zlog_buf_truncate(zlog_buf_t * a_buf)
 	if ((a_buf->truncate_str)[0] == '\0')
 		return;
 
-	p = (a_buf->end - a_buf->truncate_str_len);
+	p = (a_buf->tail - a_buf->truncate_str_len);
 	if (p < a_buf->start)
 		p = a_buf->start;
 
-	len = a_buf->end - p;
+	len = a_buf->tail - p;
 
 	memcpy(p, a_buf->truncate_str, len);
 
@@ -229,22 +231,26 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 	}
 
 
-	len = a_buf->end - a_buf->start;
+	len = a_buf->tail - a_buf->start;
 
 	p = realloc(a_buf->start, new_size);
 	if (!p) {
 		zc_error("realloc fail, errno[%d]", errno);
 		free(a_buf->start);
 		a_buf->start = NULL;
+		a_buf->tail = NULL;
 		a_buf->end = NULL;
+		a_buf->end_plus_1 = NULL;
 		/* set size_real = -1, so other func know buf is unavailiable */
 		a_buf->size_real = -1;
 		return -1;
 	} else {
 		a_buf->start = p;
-		a_buf->end = p + len;
-		memset(a_buf->end, 0x00, new_size - len);
+		a_buf->tail = p + len;
+		memset(a_buf->tail, 0x00, new_size - len);
 		a_buf->size_real = new_size;
+		a_buf->end_plus_1 = a_buf->start + new_size;
+		a_buf->end = a_buf->end_plus_1 - 1;
 	}
 
 	return rc;
@@ -263,11 +269,11 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 	}
 
 	va_copy(ap, args);
-	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-	nwrite = vsnprintf(a_buf->end, size_left, format, ap);
+	size_left = a_buf->end_plus_1 - a_buf->tail;
+	nwrite = vsnprintf(a_buf->tail, size_left, format, ap);
 	if (nwrite >= 0 && nwrite < size_left) {
-		a_buf->end += nwrite;
-		*(a_buf->end) = '\0';
+		a_buf->tail += nwrite;
+		*(a_buf->tail) = '\0';
 		return 0;
 	} else if (nwrite < 0) {
 		zc_error("vsnprintf fail, errno[%d]", errno);
@@ -279,10 +285,10 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 		if (rc > 0) {
 			zc_error("conf limit to %ld, can't extend, so truncate", a_buf->size_max);
 			va_copy(ap, args);
-			size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-			vsnprintf(a_buf->end, size_left, format, ap);
-			a_buf->end += size_left - 1;
-			*(a_buf->end) = '\0';
+			size_left = a_buf->end_plus_1 - a_buf->start;
+			vsnprintf(a_buf->tail, size_left, format, ap);
+			a_buf->tail += size_left - 1;
+			*(a_buf->tail) = '\0';
 			zlog_buf_truncate(a_buf);
 			return 1;
 		} else if (rc < 0) {
@@ -292,15 +298,15 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 			zc_debug("zlog_buf_resize succ, to[%ld]", a_buf->size_real);
 
 			va_copy(ap, args);
-			size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-			nwrite = vsnprintf(a_buf->end, size_left, format, ap);
+			size_left = a_buf->end_plus_1 - a_buf->tail;
+			nwrite = vsnprintf(a_buf->tail, size_left, format, ap);
 			if (nwrite < 0) {
 				zc_error("vsnprintf fail, errno[%d]", errno);
 				zc_error("nwrite[%d], size_left[%ld], format[%s]", nwrite, size_left, format);
 				return -1;
 			} else {
-				a_buf->end += nwrite;
-				*(a_buf->end) = '\0';
+				a_buf->tail += nwrite;
+				*(a_buf->tail) = '\0';
 				return 0;
 			}
 		}
@@ -312,7 +318,6 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 /*******************************************************************************/
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 {
-	size_t size_left;
 
 #if 0
 	if (str_len <= 0 || str == NULL) {
@@ -325,31 +330,31 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 		return -1;
 	}
 
-	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-	if (str_len > size_left - 1) {
+	if (str_len > a_buf->end - a_buf->tail) {
 		int rc;
 		zc_debug("size_left not enough, resize");
-		rc = zlog_buf_resize(a_buf, str_len - size_left + 1);
+		rc = zlog_buf_resize(a_buf, a_buf->end - a_buf->tail);
 		if (rc > 0) {
+			size_t len_left;
 			zc_error("conf limit to %ld, can't extend, so output",
 				 a_buf->size_max);
-			memcpy(a_buf->end, str, size_left - 1);
-			a_buf->end += size_left - 1;
-			*(a_buf->end) = '\0';
+			len_left = a_buf->end - a_buf->tail;
+			memcpy(a_buf->tail, str, len_left);
+			a_buf->tail += len_left;
+			*(a_buf->tail) = '\0';
 			zlog_buf_truncate(a_buf);
 			return 1;
 		} else if (rc < 0) {
 			zc_error("zlog_buf_resize fail");
 			return -1;
 		} else {
-			zc_debug("zlog_buf_resize succ, to[%ld]",
-				 a_buf->size_real);
+			zc_debug("zlog_buf_resize succ, to[%ld]", a_buf->size_real);
 		}
 	}
 
-	memcpy(a_buf->end, str, str_len);
-	a_buf->end += str_len;
-	*(a_buf->end) = '\0';
+	memcpy(a_buf->tail, str, str_len);
+	a_buf->tail += str_len;
+	*(a_buf->tail) = '\0';
 	return 0;
 }
 
@@ -358,7 +363,6 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 		int left_adjust, size_t min_width, size_t max_width)
 {
 	int rc = 0;
-	size_t size_left;
 	size_t append_len = 0;
 	size_t source_len = 0;
 	size_t space_len = 0;
@@ -395,15 +399,12 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	/*  |-space_len---|-source_len-|  right_adjust */
 	/*  |-(size_real-1)---|           size not enough */
 
-	size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-	if (append_len > size_left - 1) {
+	if (append_len > a_buf->end -a_buf->tail) {
 		zc_debug("size_left not enough, resize");
-		rc = zlog_buf_resize(a_buf, append_len - size_left + 1);
+		rc = zlog_buf_resize(a_buf, append_len - (a_buf->end -a_buf->tail));
 		if (rc > 0) {
 			zc_error("conf limit to %ld, can't extend, so output", a_buf->size_max);
-
-			size_left = a_buf->size_real - (a_buf->end - a_buf->start);
-			append_len = size_left - 1;
+			append_len = (a_buf->end - a_buf->tail);
 			if (left_adjust) {
 				if (source_len < append_len) {
 					space_len = append_len - source_len;
@@ -411,8 +412,8 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 					source_len = append_len;
 					space_len = 0;
 				}
-				memset(a_buf->end + source_len, ' ', space_len);
-				memcpy(a_buf->end, str, source_len);
+				memset(a_buf->tail + source_len, ' ', space_len);
+				memcpy(a_buf->tail, str, source_len);
 			} else {
 				if (space_len < append_len) {
 					source_len = append_len - space_len;
@@ -420,11 +421,11 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 					space_len = append_len;
 					source_len = 0;
 				}
-				memset(a_buf->end, ' ', space_len);
-				memcpy(a_buf->end + space_len, str, source_len);
+				memset(a_buf->tail, ' ', space_len);
+				memcpy(a_buf->tail + space_len, str, source_len);
 			}
-			a_buf->end += append_len;
-			*(a_buf->end) = '\0';
+			a_buf->tail += append_len;
+			*(a_buf->tail) = '\0';
 			zlog_buf_truncate(a_buf);
 			return 1;
 		} else if (rc < 0) {
@@ -436,14 +437,14 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	}
 
 	if (left_adjust) {
-		memset(a_buf->end + source_len, ' ', space_len);
-		memcpy(a_buf->end, str, source_len);
+		memset(a_buf->tail + source_len, ' ', space_len);
+		memcpy(a_buf->tail, str, source_len);
 	} else {
-		memset(a_buf->end, ' ', space_len);
-		memcpy(a_buf->end + space_len, str, source_len);
+		memset(a_buf->tail, ' ', space_len);
+		memcpy(a_buf->tail + space_len, str, source_len);
 	}
-	a_buf->end += append_len;
-	*(a_buf->end) = '\0';
+	a_buf->tail += append_len;
+	*(a_buf->tail) = '\0';
 	return 0;
 }
 /*******************************************************************************/

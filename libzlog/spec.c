@@ -417,9 +417,9 @@ static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_th
 		/* buf is full, try printf */
 	}
 
-	return zlog_buf_adjust_append(a_thread->msg_buf, a_thread->pre_msg_buf->start,
-			a_thread->pre_msg_buf->end - a_thread->pre_msg_buf->start,
-			a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
+	return zlog_buf_adjust_append(a_thread->msg_buf,
+		zlog_buf_str(a_thread->pre_msg_buf), zlog_buf_len(a_thread->pre_msg_buf),
+		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
 }
 
 /*******************************************************************************/
@@ -448,9 +448,9 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_t
 		/* buf is full, try printf */
 	}
 
-	return zlog_buf_adjust_append(a_thread->path_buf, a_thread->pre_path_buf->start,
-			a_thread->pre_path_buf->end - a_thread->pre_path_buf->start,
-			a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
+	return zlog_buf_adjust_append(a_thread->path_buf,
+		zlog_buf_str(a_thread->pre_path_buf), zlog_buf_len(a_thread->pre_path_buf),
+		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
 }
 
 /*******************************************************************************/
