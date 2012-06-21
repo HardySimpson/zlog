@@ -10,6 +10,9 @@
 [ ] spec,level采用直接数组的方式重写
 [ ] linux fsync->fdatasync, open..
 
+--- 1.1.0 ---
+[o] 增加%D，缓存strftime的结果
+[o] 缓存pid, tid的字符串形式
 --- 1.0.7 ---
 [x] 自己实现部分的strftime，进一步提高效率--替换后发现vsnprintf消耗增加，未能超越原有strftime的效率
 [o] %t显示为16进制

@@ -36,34 +36,6 @@
 	"             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F    0123456789ABCDEF"
 
 /*******************************************************************************/
-/* write buf, according to each spec's Conversion Characters */
-typedef int (*zlog_spec_write_fn) (zlog_spec_t * a_spec,
-			 	zlog_thread_t * a_thread,
-			 	zlog_buf_t * a_buf);
-
-/* gen a_thread->msg or gen a_thread->path by using write_fn */
-typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec,
-				zlog_thread_t * a_thread);
-
-struct zlog_spec_s {
-	char *str;
-	int len;
-
-	char time_fmt[MAXLEN_CFG_LINE + 1];
-	char mdc_key[MAXLEN_PATH + 1];
-
-	char print_fmt[MAXLEN_CFG_LINE + 1];
-	int left_adjust;
-	size_t max_width;
-	size_t min_width;
-
-	zc_arraylist_t *levels;
-
-	zlog_spec_write_fn write_buf;
-	zlog_spec_gen_fn gen_msg;
-	zlog_spec_gen_fn gen_path;
-};
-
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 {
 	return;
@@ -78,6 +50,8 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 }
 
 /*******************************************************************************/
+/* implementation of write function */
+
 #define zlog_spec_fetch_time  do {\
 	if (!a_thread->event->time_stamp.tv_sec) {  \
 		gettimeofday(&(a_thread->event->time_stamp), NULL);   \
@@ -106,7 +80,6 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 	}   \
 } while(0) 
 
-/* implementation of write function */
 static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	/* do fetch time every event once */
@@ -386,11 +359,6 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 /*******************************************************************************/
 /* implementation of gen function */
 
-int zlog_spec_gen_msg(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	return a_spec->gen_msg(a_spec, a_thread);
-}
-
 static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
 	/* no need to reprint %1.2d here */
@@ -417,11 +385,6 @@ static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_th
 }
 
 /*******************************************************************************/
-int zlog_spec_gen_path(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	return a_spec->gen_path(a_spec, a_thread);
-}
-
 static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 {
 	/* no need to reprint %1.2d here */
@@ -552,15 +515,6 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 					goto zlog_spec_init_exit;
 				}
 			}
-
-/*
-			rc = zlog_spec_parse_time_fmt(a_spec);
-			if (rc) {
-				zc_error("zlog_spec_parse_time_fmt fail");
-				rc = -1;
-				goto zlog_spec_init_exit;
-			}
-*/
 
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
