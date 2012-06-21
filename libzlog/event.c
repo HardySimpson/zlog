@@ -55,7 +55,6 @@ void zlog_event_del(zlog_event_t * a_event)
 
 zlog_event_t *zlog_event_new(void)
 {
-	int rc = 0;
 	zlog_event_t *a_event;
 
 	a_event = calloc(1, sizeof(zlog_event_t));
@@ -68,10 +67,9 @@ zlog_event_t *zlog_event_new(void)
 	 * at the zlog_init we gethostname,
 	 * u don't always change your hostname, eh?
 	 */
-	rc = gethostname(a_event->host_name, sizeof(a_event->host_name) - 1);
-	if (rc) {
-		zc_error("gethostname fail, rc[%d], errno[%d]", rc, errno);
-		goto zlog_event_new_exit;
+	if (gethostname(a_event->host_name, sizeof(a_event->host_name) - 1)) {
+		zc_error("gethostname fail, errno[%d]", errno);
+		goto err;
 	}
 
 	a_event->host_name_len = strlen(a_event->host_name);
@@ -85,14 +83,11 @@ zlog_event_t *zlog_event_new(void)
 	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
 	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "0x%x", (unsigned int)a_event->tid);
 
-      zlog_event_new_exit:
-	if (rc) {
-		zlog_event_del(a_event);
-		return NULL;
-	} else {
-		zlog_event_profile(a_event, ZC_DEBUG);
-		return a_event;
-	}
+	zlog_event_profile(a_event, ZC_DEBUG);
+	return a_event;
+err:
+	zlog_event_del(a_event);
+	return NULL;
 }
 
 /*******************************************************************************/
@@ -115,18 +110,12 @@ void zlog_event_set(zlog_event_t * a_event,
 	a_event->line = line;
 	a_event->level = level;
 
-	a_event->generate_cmd = generate_cmd;
-	switch (generate_cmd) {
-	case ZLOG_HEX:
-		a_event->hex_buf = hex_buf;
-		a_event->hex_buf_len = hex_buf_len;
-		break;
-	case ZLOG_FMT:
+	if ((a_event->generate_cmd = generate_cmd) == ZLOG_FMT) {
 		a_event->str_format = str_format;
 		va_copy(a_event->str_args, str_args);
-		break;
-	default:
-		break;
+	} else {
+		a_event->hex_buf = hex_buf;
+		a_event->hex_buf_len = hex_buf_len;
 	}
 
 	/* pid should fetch eveytime, as no one knows,

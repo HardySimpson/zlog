@@ -66,7 +66,6 @@ static int zlog_level_list_set_default(zc_arraylist_t *levels)
 
 zc_arraylist_t *zlog_level_list_new(void)
 {
-	int rc = 0;
 	zc_arraylist_t *levels;
 
 	levels = zc_arraylist_new((zc_arraylist_del_fn)zlog_level_del);
@@ -75,27 +74,21 @@ zc_arraylist_t *zlog_level_list_new(void)
 		return NULL;
 	}
 
-	rc = zlog_level_list_set_default(levels);
-	if (rc) {
+	if (zlog_level_list_set_default(levels)) {
 		zc_error("zlog_level_set_default fail");
-		rc = -1;
-		goto zlog_level_init_exit;
+		goto err;
 	}
 
-      zlog_level_init_exit:
-	if (rc) {
-		zc_arraylist_del(levels);
-		return NULL;
-	} else {
-		zlog_level_list_profile(levels, ZC_DEBUG);
-		return levels;
-	}
+	zlog_level_list_profile(levels, ZC_DEBUG);
+	return levels;
+err:
+	zc_arraylist_del(levels);
+	return NULL;
 }
 
 /*******************************************************************************/
 int zlog_level_list_set(zc_arraylist_t *levels, char *line)
 {
-	int rc = 0;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_new(line);
@@ -104,21 +97,16 @@ int zlog_level_list_set(zc_arraylist_t *levels, char *line)
 		return -1;
 	}
 
-	rc = zc_arraylist_set(levels, a_level->int_level, a_level);
-	if (rc) {
+	if (zc_arraylist_set(levels, a_level->int_level, a_level)) {
 		zc_error("zc_arraylist_set fail");
-		rc = -1;
-		goto zlog_level_list_set_exit;
+		goto err;
 	}
 
-      zlog_level_list_set_exit:
-	if (rc) {
-		zc_error("line[%s]", line);
-		zlog_level_del(a_level);
-		return -1;
-	} else {
-		return 0;
-	}
+	return 0;
+err:
+	zc_error("line[%s]", line);
+	zlog_level_del(a_level);
+	return -1;
 }
 
 zlog_level_t *zlog_level_list_get(zc_arraylist_t *levels, int l)
@@ -132,14 +120,14 @@ zlog_level_t *zlog_level_list_get(zc_arraylist_t *levels, int l)
 	}
 
 	a_level = zc_arraylist_get(levels, l);
-	if (!a_level) {
+	if (a_level) {
+		return a_level;
+	} else {
 		/* empty slot */
 		zc_error("l[%d] in (0,254), but has no level defined,"
 			"see configure file define, set to UNKOWN", l);
-		a_level = zc_arraylist_get(levels, 254);
+		return zc_arraylist_get(levels, 254);
 	}
-
-	return a_level;
 }
 
 /*******************************************************************************/

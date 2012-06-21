@@ -230,15 +230,13 @@ static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t *
 
 static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-
 	if (a_thread->event->generate_cmd == ZLOG_FMT) {
-
-		if (a_thread->event->str_format == NULL) {
-			return zlog_buf_printf(a_buf, "format=(null)");
-		} else {
+		if (a_thread->event->str_format) {
 			return zlog_buf_vprintf(a_buf,
-					      a_thread->event->str_format,
-					      a_thread->event->str_args);
+				      a_thread->event->str_format,
+				      a_thread->event->str_args);
+		} else {
+			return zlog_buf_printf(a_buf, "format=(null)");
 		}
 	} else if (a_thread->event->generate_cmd == ZLOG_HEX) {
 		int rc;
@@ -449,7 +447,6 @@ void zlog_spec_del(zlog_spec_t * a_spec)
  */
 zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylist_t *levels)
 {
-	int rc = 0;
 	char *p;
 	int nscan = 0;
 	int nread = 0;
@@ -477,11 +474,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		if (nscan == 1) {
 			a_spec->gen_msg = zlog_spec_gen_msg_reformat;
 			a_spec->gen_path = zlog_spec_gen_path_reformat;
-			rc = zlog_spec_parse_print_fmt(a_spec);
-			if (rc) {
+			if (zlog_spec_parse_print_fmt(a_spec)) {
 				zc_error("zlog_spec_parse_print_fmt fail");
-				rc = -1;
-				goto zlog_spec_init_exit;
+				goto err;
 			}
 		} else {
 			nread = 1; /* skip the % char */
@@ -509,10 +504,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 				}
 				p += nread;
 				if (*(p - 1) != ')') {
-					zc_error("in string[%s] can't find match \')\'",
-						 a_spec->str);
-					rc = -1;
-					goto zlog_spec_init_exit;
+					zc_error("in string[%s] can't find match \')\'", a_spec->str);
+					goto err;
 				}
 			}
 
@@ -523,8 +516,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		}
 
 		if (*p == 'M') {
-			nscan =
-			    sscanf(p, "M(%[^)])%n", a_spec->mdc_key, &nread);
+			nscan = sscanf(p, "M(%[^)])%n", a_spec->mdc_key, &nread);
 			if (nscan != 1) {
 				nread = 0;
 				if (STRNCMP(p, ==, "M()", 3)) {
@@ -533,10 +525,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			}
 			p += nread;
 			if (*(p - 1) != ')') {
-				zc_error("in string[%s] can't find match \')\'",
-					 a_spec->str);
-				rc = -1;
-				goto zlog_spec_init_exit;
+				zc_error("in string[%s] can't find match \')\'", a_spec->str);
+				goto err;
 			}
 
 			*pattern_next = p;
@@ -609,10 +599,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			a_spec->write_buf = zlog_spec_write_percent;
 			break;
 		default:
-			zc_error("str[%s] in wrong format, p[%c]", a_spec->str,
-				 *p);
-			rc = -1;
-			goto zlog_spec_init_exit;
+			zc_error("str[%s] in wrong format, p[%c]", a_spec->str, *p);
+			goto err;
 		}
 		break;
 	default:
@@ -629,13 +617,10 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		a_spec->gen_path = zlog_spec_gen_path_direct;
 	}
 
-      zlog_spec_init_exit:
-	if (rc) {
-		zlog_spec_del(a_spec);
-		return NULL;
-	} else {
-		zlog_spec_profile(a_spec, ZC_DEBUG);
-		return a_spec;
-	}
+	zlog_spec_profile(a_spec, ZC_DEBUG);
+	return a_spec;
+err:
+	zlog_spec_del(a_spec);
+	return NULL;
 }
 

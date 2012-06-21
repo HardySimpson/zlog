@@ -23,11 +23,13 @@
 #include "zc_defs.h"
 
 typedef struct zlog_mdc_s zlog_mdc_t;
+struct zlog_mdc_s {
+	zc_hashtable_t *tab;
+};
 
 zlog_mdc_t *zlog_mdc_new(void);
 void zlog_mdc_del(zlog_mdc_t * a_mdc);
 void zlog_mdc_profile(zlog_mdc_t *a_mdc, int flag);
-
 
 void zlog_mdc_clean(zlog_mdc_t * a_mdc);
 int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value);

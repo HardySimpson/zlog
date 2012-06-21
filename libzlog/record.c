@@ -38,7 +38,6 @@ void zlog_record_del(zlog_record_t *a_record)
 zlog_record_t *zlog_record_new(char *name, zlog_record_fn output)
 {
 	zlog_record_t *a_record;
-	int rc = 0;
 
 	zc_assert(name, NULL);
 	zc_assert(output, NULL);
@@ -51,18 +50,15 @@ zlog_record_t *zlog_record_new(char *name, zlog_record_fn output)
 
 	if (strlen(name) > sizeof(a_record->name) - 1) {
 		zc_error("name[%s] is too long", name);
-		goto _exit;
+		goto err;
 	}
 
 	strcpy(a_record->name, name);
 	a_record->output = output;
 
-      _exit:
-	if (rc) {
-		zlog_record_del(a_record);
-		return NULL;
-	} else {
-		zlog_record_profile(a_record, ZC_DEBUG);
-		return a_record;
-	}
+	zlog_record_profile(a_record, ZC_DEBUG);
+	return a_record;
+err:
+	zlog_record_del(a_record);
+	return NULL;
 }

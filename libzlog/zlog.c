@@ -630,8 +630,7 @@ static int zlog_output(zlog_category_t * a_category,
 
 	rc = zlog_category_output(a_category, a_thread);
 	if (rc) {
-		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file,
-			 line);
+		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line);
 		goto zlog_output_exit;
 	}
 

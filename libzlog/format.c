@@ -29,12 +29,6 @@
 #include "spec.h"
 #include "format.h"
 
-struct zlog_format_s {
-	char name[MAXLEN_CFG_LINE + 1];	
-	char pattern[MAXLEN_CFG_LINE + 1];
-	zc_arraylist_t *pattern_specs;
-};
-
 void zlog_format_profile(zlog_format_t * a_format, int flag)
 {
 	int i;
@@ -68,7 +62,6 @@ void zlog_format_del(zlog_format_t * a_format)
 
 zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 {
-	int rc = 0;
 	int nscan = 0;
 	zlog_format_t *a_format = NULL;
 	int nread = 0;
@@ -95,80 +88,66 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 	nscan = sscanf(line, " %[^= \t] = %n", a_format->name, &nread);
 	if (nscan != 1) {
 		zc_error("format[%s], syntax wrong", line);
-		rc = -1;
-		goto zlog_format_new_exit;
+		goto err;
 	}
 
 	if (*(line + nread) != '"') {
 		zc_error("the 1st char of pattern is not \", line+nread[%s]", line+nread);
-		rc = -1;
-		goto zlog_format_new_exit;
+		goto err;
 	}
 
 	for (p = a_format->name; *p != '\0'; p++) {
 		if ((!isalnum(*p)) && (*p != '_')) {
-			zc_error("a_format->name[%s] character is not in [a-Z][0-9][_]",
-				 a_format->name);
-			rc = -1;
-			goto zlog_format_new_exit;
+			zc_error("a_format->name[%s] character is not in [a-Z][0-9][_]", a_format->name);
+			goto err;
 		}
 	}
-
 
 	p_start = line + nread + 1;
 	p_end = strrchr(p_start, '"');
 	if (!p_end) {
 		zc_error("there is no \" at end of pattern, line[%s]", line);
-		rc = -1;
-		goto zlog_format_new_exit;
+		goto err;
 	}
 
 	if (p_end - p_start > sizeof(a_format->pattern) - 1) {
 		zc_error("pattern is too long");
-		goto zlog_format_new_exit;
+		goto err;
 	}
 	memset(a_format->pattern, 0x00, sizeof(a_format->pattern));
 	memcpy(a_format->pattern, p_start, p_end - p_start);
 
-	rc = zc_str_replace_env(a_format->pattern, sizeof(a_format->pattern));
-	if (rc) {
+	if (zc_str_replace_env(a_format->pattern, sizeof(a_format->pattern))) {
 		zc_error("zc_str_replace_env fail");
-		goto zlog_format_new_exit;
+		goto err;
 	}
 
 	a_format->pattern_specs =
 	    zc_arraylist_new((zc_arraylist_del_fn) zlog_spec_del);
 	if (!(a_format->pattern_specs)) {
 		zc_error("zc_arraylist_new fail");
-		rc = -1;
-		goto zlog_format_new_exit;
+		goto err;
 	}
 
 	for (p = a_format->pattern; *p != '\0'; p = q) {
 		a_spec = zlog_spec_new(p, &q, levels);
 		if (!a_spec) {
 			zc_error("zlog_spec_new fail");
-			rc = -1;
-			goto zlog_format_new_exit;
+			goto err;
 		}
 
-		rc = zc_arraylist_add(a_format->pattern_specs, a_spec);
-		if (rc) {
+		if (zc_arraylist_add(a_format->pattern_specs, a_spec)) {
 			zlog_spec_del(a_spec);
 			zc_error("zc_arraylist_add fail");
-			rc = -1;
-			goto zlog_format_new_exit;
+			goto err;
 		}
 	}
 
-      zlog_format_new_exit:
-	if (rc) {
-		zlog_format_del(a_format);
-		return NULL;
-	} else {
-		zlog_format_profile(a_format, ZC_DEBUG);
-		return a_format;
-	}
+	zlog_format_profile(a_format, ZC_DEBUG);
+	return a_format;
+err:
+	zlog_format_del(a_format);
+	return NULL;
 }
 
 /*******************************************************************************/
@@ -184,8 +163,7 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 	zlog_buf_restart(a_thread->msg_buf);
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
-		rc = zlog_spec_gen_msg(a_spec, a_thread);
-		if (rc == 0) continue;
+		if ((rc = zlog_spec_gen_msg(a_spec, a_thread)) == 0) continue;
 		if (rc < 0) {
 			zc_error("zlog_spec_gen_msg fail");
 			return -1;
@@ -196,12 +174,4 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 	}
 
 	return 0;
-}
-
-/* return 1	true
- * return 0	false
- */
-int zlog_format_has_name(zlog_format_t * a_format, char *name)
-{
-	return STRCMP(a_format->name, ==, name);
 }

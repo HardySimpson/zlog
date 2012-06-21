@@ -5,10 +5,13 @@
 [ ] 分类匹配的可定制化
 [ ] 兼容性问题
     zlog.h内，__VA_ARGS__的跨平台
-[ ] 去除auto tools的使用，用redis那样的自行makefile
 [ ] c++接口的测试和实现
 [ ] spec,level采用直接数组的方式重写
 [ ] linux fsync->fdatasync, open..
+[ ] 去除auto tools的使用，自行makefile[redis]
+[ ] 去掉rc的使用[redis]
+[ ] 对ZLOG_FMT和ZLOG_HEX清算
+[ ] async file输出的增加
 
 --- 1.1.0 ---
 [o] 增加%D，缓存strftime的结果

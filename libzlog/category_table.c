@@ -67,15 +67,13 @@ zc_hashtable_t *zlog_category_table_new(void)
 /*******************************************************************************/
 int zlog_category_table_update_rules(zc_hashtable_t * categories, zc_arraylist_t * new_rules)
 {
-	int rc = 0;
 	zc_hashtable_entry_t *a_entry;
 	zlog_category_t *a_category;
 
 	zc_assert(categories, -1);
 	zc_hashtable_foreach(categories, a_entry) {
 		a_category = (zlog_category_t *) a_entry->value;
-		rc = zlog_category_update_rules(a_category, new_rules);
-		if (rc) {
+		if (zlog_category_update_rules(a_category, new_rules)) {
 			zc_error("zlog_category_update_rules fail, try rollback");
 			return -1;
 		}
@@ -113,15 +111,14 @@ void zlog_category_table_rollback_rules(zc_hashtable_t * categories)
 zlog_category_t *zlog_category_table_fetch_category(zc_hashtable_t * categories,
 			char *category_name, zc_arraylist_t * rules)
 {
-	int rc = 0;
 	zlog_category_t *a_category;
 
 	zc_assert(categories, NULL);
+
 	/* 1st find category in global category map */
 	a_category = zc_hashtable_get(categories, category_name);
-	if (a_category) {
-		return a_category;
-	}
+	if (a_category) return a_category;
+
 	/* else not fount, create one */
 	a_category = zlog_category_new(category_name, rules);
 	if (!a_category) {
@@ -129,19 +126,15 @@ zlog_category_t *zlog_category_table_fetch_category(zc_hashtable_t * categories,
 		return NULL;
 	}
 
-	rc = zc_hashtable_put(categories, a_category->name, a_category);
-	if (rc) {
+	if(zc_hashtable_put(categories, a_category->name, a_category)) {
 		zc_error("zc_hashtable_put fail");
-		goto zlog_category_table_fetch_category_exit;
+		goto err;
 	}
 
-      zlog_category_table_fetch_category_exit:
-	if (rc) {
-		zlog_category_del(a_category);
-		return NULL;
-	} else {
-		return a_category;
-	}
+	return a_category;
+err:
+	zlog_category_del(a_category);
+	return NULL;
 }
 
 /*******************************************************************************/

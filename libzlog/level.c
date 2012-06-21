@@ -78,7 +78,6 @@ static int syslog_level_atoi(char *str)
 /* line: TRACE = 10, LOG_ERR */
 zlog_level_t *zlog_level_new(char *line)
 {
-	int rc = 0;
 	zlog_level_t *a_level = NULL;
 	int i;
 	int nscan;
@@ -91,8 +90,7 @@ zlog_level_t *zlog_level_new(char *line)
 	memset(str, 0x00, sizeof(str));
 	memset(sl, 0x00, sizeof(sl));
 
-	nscan = sscanf(line, " %[^= \t] = %d ,%s",
-		str, &l, sl);
+	nscan = sscanf(line, " %[^= \t] = %d ,%s", str, &l, sl);
 	if (nscan < 2) {
 		zc_error("level[%s], syntax wrong", line);
 		return NULL;
@@ -124,8 +122,7 @@ zlog_level_t *zlog_level_new(char *line)
 		a_level->syslog_level = syslog_level_atoi(sl);
 		if (a_level->syslog_level == -187) {
 			zc_error("syslog_level_atoi fail");
-			rc = -1;
-			goto zlog_level_new_exit;
+			goto err;
 		}
 	}
 
@@ -138,8 +135,7 @@ zlog_level_t *zlog_level_new(char *line)
 	if (str[i] != '\0') {
 		/* overflow */
 		zc_error("not enough space for str, str[%s] > %d", str, i);
-		rc = -1;
-		goto zlog_level_new_exit;
+		goto err;
 	} else {
 		(a_level->str_uppercase)[i] = '\0';
 		(a_level->str_lowercase)[i] = '\0';
@@ -147,13 +143,10 @@ zlog_level_t *zlog_level_new(char *line)
 
 	a_level->str_len = i;
 
-      zlog_level_new_exit:
-	if (rc) {
-		zc_error("line[%s]", line);
-		zlog_level_del(a_level);
-		return NULL;
-	} else {
-		zlog_level_profile(a_level, ZC_DEBUG);
-		return a_level;
-	}
+	//zlog_level_profile(a_level, ZC_DEBUG);
+	return a_level;
+err:
+	zc_error("line[%s]", line);
+	zlog_level_del(a_level);
+	return NULL;
 }

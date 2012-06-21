@@ -88,38 +88,26 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag)
 void zlog_buf_del(zlog_buf_t * a_buf)
 {
 	zc_assert(a_buf,);
-	if (a_buf->start) {
-		free(a_buf->start);
-	}
+	if (a_buf->start) free(a_buf->start);
 	free(a_buf);
 	zc_debug("zlog_buf_del[%p]", a_buf);
 	return;
 }
 
-static int zlog_buf_set_size(zlog_buf_t * a_buf, size_t buf_size_min,
-			     size_t buf_size_max)
+zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max, const char *truncate_str)
 {
+	zlog_buf_t *a_buf;
+
 	if (buf_size_min == 0) {
 		zc_error("buf_size_min == 0, not allowed");
-		return -1;
+		return NULL;
 	}
+
 	if (buf_size_max != 0 && buf_size_max < buf_size_min) {
-		zc_error("buf_size_max[%ld] < buf_size_min[%ld] && buf_size_max != 0",
-			 a_buf->size_max, a_buf->size_min);
-		return -1;
+		zc_error("buf_size_max[%lu] < buf_size_min[%lu] && buf_size_max != 0",
+			 (unsigned long)buf_size_max, (unsigned long)buf_size_min);
+		return NULL;
 	}
-
-	a_buf->size_min = buf_size_min;
-	a_buf->size_max = buf_size_max;
-
-	return 0;
-}
-
-zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
-			 const char *truncate_str)
-{
-	int rc = 0;
-	zlog_buf_t *a_buf;
 
 	a_buf = calloc(1, sizeof(*a_buf));
 	if (!a_buf) {
@@ -130,39 +118,32 @@ zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
 	if (truncate_str) {
 		if (strlen(truncate_str) > sizeof(a_buf->truncate_str) - 1) {
 			zc_error("truncate_str[%s] overflow", truncate_str);
-			rc = -1;
-			goto zlog_buf_new_exit;
+			goto err;
 		} else {
 			strcpy(a_buf->truncate_str, truncate_str);
 		}
 		a_buf->truncate_str_len = strlen(truncate_str);
 	}
 
-	rc = zlog_buf_set_size(a_buf, buf_size_min, buf_size_max);
-	if (rc) {
-		zc_error("zlog_buf_set_size fail");
-		goto zlog_buf_new_exit;
-	}
-
-	a_buf->start = calloc(1, a_buf->size_min);
+	a_buf->start = calloc(1, buf_size_min);
 	if (!a_buf->start) {
 		zc_error("calloc fail, errno[%d]", errno);
-		rc = -1;
-		goto zlog_buf_new_exit;
+		goto err;
 	}
+
 	a_buf->tail = a_buf->start;
 	a_buf->size_real = a_buf->size_min;
 	a_buf->end_plus_1 = a_buf->start + a_buf->size_real;
 	a_buf->end = a_buf->end_plus_1 - 1;
+	a_buf->size_min = buf_size_min;
+	a_buf->size_max = buf_size_max;
 
-      zlog_buf_new_exit:
-	if (rc) {
-		zlog_buf_del(a_buf);
-		return NULL;
-	} else {
-		zlog_buf_profile(a_buf, ZC_DEBUG);
-		return a_buf;
-	}
+	zlog_buf_profile(a_buf, ZC_DEBUG);
+	return a_buf;
+
+err:
+	zlog_buf_del(a_buf);
+	return NULL;
 }
 
 /*******************************************************************************/
@@ -174,7 +155,6 @@ int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...)
 	va_start(args, format);
 	rc = zlog_buf_vprintf(a_buf, format, args);
 	va_end(args);
-
 	return rc;
 }
 
@@ -184,17 +164,11 @@ static void zlog_buf_truncate(zlog_buf_t * a_buf)
 	char *p;
 	size_t len;
 
-	if ((a_buf->truncate_str)[0] == '\0')
-		return;
-
+	if ((a_buf->truncate_str)[0] == '\0') return;
 	p = (a_buf->tail - a_buf->truncate_str_len);
-	if (p < a_buf->start)
-		p = a_buf->start;
-
+	if (p < a_buf->start) p = a_buf->start;
 	len = a_buf->tail - p;
-
 	memcpy(p, a_buf->truncate_str, len);
-
 	return;
 }
 
@@ -230,9 +204,7 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 		}
 	}
 
-
 	len = a_buf->tail - a_buf->start;
-
 	p = realloc(a_buf->start, new_size);
 	if (!p) {
 		zc_error("realloc fail, errno[%d]", errno);
@@ -258,7 +230,6 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 {
-	int rc;
 	va_list ap;
 	size_t size_left;
 	int nwrite;
@@ -280,6 +251,7 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 		zc_error("nwrite[%d], size_left[%ld], format[%s]", nwrite, size_left, format);
 		return -1;
 	} else if (nwrite >= size_left) {
+		int rc;
 		zc_debug("nwrite[%d]>=size_left[%ld],format[%s],resize", nwrite, size_left, format);
 		rc = zlog_buf_resize(a_buf, nwrite - size_left + 1);
 		if (rc > 0) {
@@ -362,7 +334,6 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 		int left_adjust, size_t min_width, size_t max_width)
 {
-	int rc = 0;
 	size_t append_len = 0;
 	size_t source_len = 0;
 	size_t space_len = 0;
@@ -399,7 +370,8 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	/*  |-space_len---|-source_len-|  right_adjust */
 	/*  |-(size_real-1)---|           size not enough */
 
-	if (append_len > a_buf->end -a_buf->tail) {
+	if (append_len > a_buf->end - a_buf->tail) {
+		int rc = 0;
 		zc_debug("size_left not enough, resize");
 		rc = zlog_buf_resize(a_buf, append_len - (a_buf->end -a_buf->tail));
 		if (rc > 0) {

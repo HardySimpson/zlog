@@ -24,10 +24,6 @@
 #include "mdc.h"
 #include "zc_defs.h"
 
-struct zlog_mdc_s {
-	zc_hashtable_t *tab;
-};
-
 void zlog_mdc_profile(zlog_mdc_t *a_mdc, int flag)
 {
 	zc_hashtable_entry_t *a_entry;
@@ -48,9 +44,7 @@ void zlog_mdc_profile(zlog_mdc_t *a_mdc, int flag)
 void zlog_mdc_del(zlog_mdc_t * a_mdc)
 {
 	zc_assert(a_mdc,);
-	if (a_mdc->tab) {
-		zc_hashtable_del(a_mdc->tab);
-	}
+	if (a_mdc->tab) zc_hashtable_del(a_mdc->tab);
 	free(a_mdc);
 	zc_debug("zlog_mdc_del[%p]", a_mdc);
 	return;
@@ -82,7 +76,6 @@ static zlog_mdc_kv_t *zlog_mdc_kv_new(char *key, char *value)
 
 zlog_mdc_t *zlog_mdc_new(void)
 {
-	int rc = 0;
 	zlog_mdc_t *a_mdc;
 
 	a_mdc = calloc(1, sizeof(zlog_mdc_t));
@@ -92,29 +85,24 @@ zlog_mdc_t *zlog_mdc_new(void)
 	}
 
 	a_mdc->tab = zc_hashtable_new(20,
-				      zc_hashtable_str_hash,
-				      zc_hashtable_str_equal, NULL,
-				      (zc_hashtable_del_fn) zlog_mdc_kv_del);
+			      zc_hashtable_str_hash,
+			      zc_hashtable_str_equal, NULL,
+			      (zc_hashtable_del_fn) zlog_mdc_kv_del);
 	if (!a_mdc->tab) {
 		zc_error("zc_hashtable_new fail");
-		rc = -1;
-		goto zlog_mdc_new_exit;
+		goto err;
 	}
 
-      zlog_mdc_new_exit:
-	if (rc) {
-		zlog_mdc_del(a_mdc);
-		return NULL;
-	} else {
-		zlog_mdc_profile(a_mdc, ZC_DEBUG);
-		return a_mdc;
-	}
+	zlog_mdc_profile(a_mdc, ZC_DEBUG);
+	return a_mdc;
+err:
+	zlog_mdc_del(a_mdc);
+	return NULL;
 }
 
 /*******************************************************************************/
 int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value)
 {
-	int rc = 0;
 	zlog_mdc_kv_t *a_mdc_kv;
 
 	a_mdc_kv = zlog_mdc_kv_new(key, value);
@@ -123,8 +111,7 @@ int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value)
 		return -1;
 	}
 
-	rc = zc_hashtable_put(a_mdc->tab, a_mdc_kv->key, a_mdc_kv);
-	if (rc) {
+	if (zc_hashtable_put(a_mdc->tab, a_mdc_kv->key, a_mdc_kv)) {
 		zc_error("zc_hashtable_put fail");
 		zlog_mdc_kv_del(a_mdc_kv);
 		return -1;

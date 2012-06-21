@@ -52,19 +52,15 @@ void zlog_rotater_profile(zlog_rotater_t * a_rotater, int flag)
 /*******************************************************************************/
 void zlog_rotater_del(zlog_rotater_t *a_rotater)
 {
-	int rc = 0;
-
 	zc_assert(a_rotater,);
 
 	if (a_rotater->lock_fd) {
-		rc = close(a_rotater->lock_fd);
-		if (rc) {
+		if (close(a_rotater->lock_fd)) {
 			zc_error("close fail, errno[%d]", errno);
 		}
 	}
 
-	rc = pthread_mutex_destroy(&(a_rotater->lock_mutex));
-	if (rc) {
+	if (pthread_mutex_destroy(&(a_rotater->lock_mutex))) {
 		zc_error("pthread_mutex_destroy fail, errno[%d]", errno);
 	}
 
@@ -75,7 +71,6 @@ void zlog_rotater_del(zlog_rotater_t *a_rotater)
 
 zlog_rotater_t *zlog_rotater_new(char *lock_file)
 {
-	int rc = 0;
 	int fd = 0;
 	zlog_rotater_t *a_rotater;
 
@@ -87,8 +82,7 @@ zlog_rotater_t *zlog_rotater_new(char *lock_file)
 		return NULL;
 	}
 
-	rc = pthread_mutex_init(&(a_rotater->lock_mutex), NULL);
-	if (rc) {
+	if (pthread_mutex_init(&(a_rotater->lock_mutex), NULL)) {
 		zc_error("pthread_mutex_init fail, errno[%d]", errno);
 		free(a_rotater);
 		return NULL;
@@ -103,21 +97,17 @@ zlog_rotater_t *zlog_rotater_new(char *lock_file)
 		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
-		rc = -1;
-		goto zlog_rotater_new_exit;
+		goto err;
 	}
 
 	a_rotater->lock_fd = fd;
 	a_rotater->lock_file = lock_file;
 
-      zlog_rotater_new_exit:
-	if (rc) {
-		zlog_rotater_del(a_rotater);
-		return NULL;
-        } else {
-		zlog_rotater_profile(a_rotater, ZC_DEBUG);
-		return a_rotater;
-	}
+	zlog_rotater_profile(a_rotater, ZC_DEBUG);
+	return a_rotater;
+err:
+	zlog_rotater_del(a_rotater);
+	return NULL;
 }
 
 
@@ -130,7 +120,6 @@ typedef struct {
 static zlog_rotater_onefile_t *zlog_rotater_onefile_new(char *base_file_path,
 							char *real_file_path)
 {
-	int rc = 0;
 	int nwrite;
 	char tmp[MAXLEN_PATH + 1];
 	zlog_rotater_onefile_t *a_file;
@@ -149,54 +138,43 @@ static zlog_rotater_onefile_t *zlog_rotater_onefile_new(char *base_file_path,
 	}
 
 	/* ok, set the path */
-	nwrite =
-	    snprintf(a_file->path, sizeof(a_file->path), "%s", real_file_path);
+	nwrite = snprintf(a_file->path, sizeof(a_file->path), "%s", real_file_path);
 	if (nwrite < 0 || nwrite >= sizeof(a_file->path)) {
-		zc_error("not enough space for a_file->path, nwrite=[%d]",
-			 nwrite);
-		rc = -1;
-		goto zlog_rotater_onefile_new_exit;
+		zc_error("not enough space for a_file->path, nwrite=[%d]", nwrite);
+		goto err;
 	}
 
 	/* compare and set index, need check */
 	if (STRCMP(base_file_path, !=, real_file_path)) {
-
 		/* scan aa.123 to index=123 */
 		sscanf(real_file_path + strlen(base_file_path) + 1, "%d",
 		       &(a_file->index));
 
 		/* check, we do not need file like aa.001 */
 		memset(&tmp, 0x00, sizeof(tmp));
-		nwrite =
-		    snprintf(tmp, sizeof(tmp), "%s.%d", base_file_path,
-			     a_file->index);
+		nwrite = snprintf(tmp, sizeof(tmp), "%s.%d", base_file_path, a_file->index);
 		if (nwrite < 0 || nwrite >= sizeof(tmp)) {
 			zc_error("not enough space for tmp, nwrite=[%d]",
 				 nwrite);
-			rc = -1;
-			goto zlog_rotater_onefile_new_exit;
+			goto err;
 		}
 
 		if (STRCMP(real_file_path, !=, tmp)) {
 			zc_error
 			    ("real_file_path[%s] format is not aa.1, maybe aa.001",
 			     real_file_path);
-			rc = -1;
-			goto zlog_rotater_onefile_new_exit;
+			goto err;
 		}		/* else ok that's right */
 	} else {
 		a_file->index = 0;
 	}
 
-      zlog_rotater_onefile_new_exit:
-	if (rc) {
-		free(a_file);
-		return NULL;
-	} else {
-		zc_debug("new onefile at [%p]", a_file);
-		zc_debug("a_file->path[%s]", a_file->path);
-		return a_file;
-	}
+	zc_debug("new onefile at [%p]", a_file);
+	zc_debug("a_file->path[%s]", a_file->path);
+	return a_file;
+err:
+	free(a_file);
+	return NULL;
 }
 
 static void zlog_rotater_onefile_del(zlog_rotater_onefile_t * a_file)
@@ -221,7 +199,6 @@ static int zlog_rotater_onefile_cmp(zlog_rotater_onefile_t * a_file_1,
 
 static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 {
-	int rc = 0;
 	struct flock fl;
 
 	fl.l_type = F_WRLCK;
@@ -229,8 +206,7 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 	fl.l_whence = SEEK_SET;
 	fl.l_len = 0;
 
-	rc = pthread_mutex_trylock(&(a_rotater->lock_mutex));
-	if (rc) {
+	if (pthread_mutex_trylock(&(a_rotater->lock_mutex))) {
 		if (errno == EBUSY) {
 			zc_warn("pthread_mutex_trylock fail, as lock_mutex is locked by other threads");
 		} else {
@@ -240,19 +216,16 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 		return -1;
 	}
 
-	rc = fcntl(a_rotater->lock_fd, F_SETLK, &fl);
-	if (rc == -1) {
+	if (fcntl(a_rotater->lock_fd, F_SETLK, &fl)) {
 		if (errno == EAGAIN || errno == EACCES) {
 			/* lock by other process, that's right, go on */
 			/* EAGAIN on linux */
 			/* EACCES on AIX */
 			zc_warn("fcntl lock fail, as file is lock by other process");
 		} else {
-			zc_error("lock fd[%d] fail, errno[%d]", a_rotater->lock_fd,
-				 errno);
+			zc_error("lock fd[%d] fail, errno[%d]", a_rotater->lock_fd, errno);
 		}
-		rc = pthread_mutex_unlock(&(a_rotater->lock_mutex));
-		if (rc) {
+		if (pthread_mutex_unlock(&(a_rotater->lock_mutex))) {
 			zc_error("pthread_mutex_unlock fail, errno[%d]", errno);
 		}
 		return -1;
@@ -264,7 +237,6 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 {
 	int rc = 0;
-	int rd = 0;
 	struct flock fl;
 
 	fl.l_type = F_UNLCK;
@@ -272,20 +244,17 @@ static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 	fl.l_whence = SEEK_SET;
 	fl.l_len = 0;
 
-	rc = fcntl(a_rotater->lock_fd, F_SETLK, &fl);
-	if (rc == -1) {
-		rd = -1;
-		zc_error("unlock fd[%s] fail, errno[%d]", a_rotater->lock_fd,
-			 errno);
+	if (fcntl(a_rotater->lock_fd, F_SETLK, &fl)) {
+		rc = -1;
+		zc_error("unlock fd[%s] fail, errno[%d]", a_rotater->lock_fd, errno);
 	}
 
-	rc = pthread_mutex_unlock(&(a_rotater->lock_mutex));
-	if (rc) {
-		rd = -1;
+	if (pthread_mutex_unlock(&(a_rotater->lock_mutex))) {
+		rc = -1;
 		zc_error("pthread_mutext_unlock fail, errno[%d]", errno);
 	}
 
-	return rd;
+	return rc;
 }
 
 #if 0
@@ -328,36 +297,30 @@ int zlog_rotater_lsmv(char *base_file_path, int file_max_count)
 	zlog_rotater_onefile_t *a_file;
 	int i;
 
-	files =
-	    zc_arraylist_new((zc_arraylist_del_fn) zlog_rotater_onefile_del);
-	if (!files) {
-		zc_error("zc_arraylist_new fail");
-		return -1;
-	}
-
-	/* scan file which is aa.[0-9]* and aa */
-	rc = glob(base_file_path, GLOB_ERR | GLOB_MARK | GLOB_NOSORT, NULL,
-		  &glob_buf);
-	if (rc) {
-		zc_error("glob err 1, rc=[%d], errno[%d]", rc, errno);
-		rc = -1;
-		goto zlog_rotater_lsmv_exit;
-	}
-
 	memset(&tmp, 0x00, sizeof(tmp));
 	nwrite = snprintf(tmp, sizeof(tmp), "%s.[0-9]*", base_file_path);
 	if (nwrite < 0 || nwrite >= sizeof(tmp)) {
 		zc_error("not enough space for tmp, nwrite=[%d]", nwrite);
-		rc = -1;
-		goto zlog_rotater_lsmv_exit;
+		return -1;
 	}
 
-	rc = glob(tmp, GLOB_ERR | GLOB_MARK | GLOB_NOSORT | GLOB_APPEND, NULL,
-		  &glob_buf);
+	/* scan file which is aa.[0-9]* and aa */
+	rc = glob(base_file_path, GLOB_ERR | GLOB_MARK | GLOB_NOSORT, NULL, &glob_buf);
+	if (rc) {
+		zc_error("glob err 1, rc=[%d], errno[%d]", rc, errno);
+		return -1;
+	}
+
+	files = zc_arraylist_new((zc_arraylist_del_fn) zlog_rotater_onefile_del);
+	if (!files) {
+		zc_error("zc_arraylist_new fail");
+		goto err;
+	}
+
+	rc = glob(tmp, GLOB_ERR | GLOB_MARK | GLOB_NOSORT | GLOB_APPEND, NULL, &glob_buf);
 	if (rc != 0 && rc != GLOB_NOMATCH) {
 		zc_error("glob err 2, rc=[%d], errno[%d]", rc, errno);
-		rc = -1;
-		goto zlog_rotater_lsmv_exit;
+		goto err;
 	}
 
 	pathv = glob_buf.gl_pathv;
@@ -372,17 +335,15 @@ int zlog_rotater_lsmv(char *base_file_path, int file_max_count)
 		a_file = zlog_rotater_onefile_new(base_file_path, *pathv);
 		if (!a_file) {
 			zc_error("zlog_rotater_onefile_new fail");
-			rc = -1;
-			goto zlog_rotater_lsmv_exit;
+			goto err;
 		}
 
 		rc = zc_arraylist_sortadd(files,
-					  (zc_arraylist_cmp_fn)
-					  zlog_rotater_onefile_cmp, a_file);
+				  (zc_arraylist_cmp_fn)
+				  zlog_rotater_onefile_cmp, a_file);
 		if (rc) {
 			zc_error("zc_arraylist_sortadd fail");
-			rc = -1;
-			goto zlog_rotater_lsmv_exit;
+			goto err;
 		}
 	}
 
@@ -390,8 +351,7 @@ int zlog_rotater_lsmv(char *base_file_path, int file_max_count)
 		a_file = zc_arraylist_get(files, i);
 		if (!a_file) {
 			zc_error("zc_arraylist_get fail");
-			rc = -1;
-			goto zlog_rotater_lsmv_exit;
+			goto err;
 		}
 
 		if (file_max_count > 0 && i >= file_max_count - 1) {
@@ -399,37 +359,31 @@ int zlog_rotater_lsmv(char *base_file_path, int file_max_count)
 			rc = unlink(a_file->path);
 			if (rc) {
 				zc_error("unlink fail, errno[%d]", errno);
-				rc = -1;
-				goto zlog_rotater_lsmv_exit;
+				goto err;
 			}
 			continue;
 		}
 
 		memset(&tmp, 0x00, sizeof(tmp));
-		nwrite =
-		    snprintf(tmp, sizeof(tmp), "%s.%d", base_file_path,
-			     a_file->index + 1);
+		nwrite = snprintf(tmp, sizeof(tmp), "%s.%d", base_file_path, a_file->index + 1);
 		if (nwrite < 0 || nwrite >= sizeof(tmp)) {
-			zc_error("not enough space for tmp, nwrite=[%d]",
-				 nwrite);
-			rc = -1;
-			goto zlog_rotater_lsmv_exit;
+			zc_error("not enough space for tmp, nwrite=[%d]", nwrite);
+			goto err;
 		}
 
-		rc = rename(a_file->path, tmp);
-		if (rc) {
+		if (rename(a_file->path, tmp)) {
 			zc_error("rename fail, errno[%d]", errno);
-			rc = -1;
-			goto zlog_rotater_lsmv_exit;
+			goto err;
 		}
 	}
 
-      zlog_rotater_lsmv_exit:
-
+	if (files) zc_arraylist_del(files);
 	globfree(&glob_buf);
-	zc_arraylist_del(files);
-
-	return rc;
+	return 0;
+err:
+	if (files) zc_arraylist_del(files);
+	globfree(&glob_buf);
+	return -1;
 }
 
 int zlog_rotater_rotate(zlog_rotater_t *a_rotater, 
@@ -437,7 +391,6 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		size_t msg_len)
 {
 	int rc = 0;
-	int rd = 0;
 	struct stat info;
 
 	zc_assert(file_path, -1);
@@ -448,26 +401,23 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		return 0;
 	}
 
-	rc = stat(file_path, &info);
-	if (rc) {
+	if (stat(file_path, &info)) {
 		zc_warn("stat [%s] fail, errno[%d], maybe in rotating", file_path, errno);
 		return 0;
-	} else {
-		/* file not so big, return */
-		if (info.st_size + msg_len < file_max_size) return 0;
 	}
 
-	rd = zlog_rotater_trylock(a_rotater);
-	if (rd) {
+	/* file not so big, return */
+	if (info.st_size + msg_len < file_max_size) return 0;
+
+	if (zlog_rotater_trylock(a_rotater)) {
 		zc_warn("zlog_rotater_trylock fail, maybe lock by other process or threads");
 		return 0;
 	}
 
-	rc = stat(file_path, &info);
-	if (rc) {
+	if (stat(file_path, &info)) {
 		rc = -1;
 		zc_error("stat [%s] fail, errno[%d]", file_path, errno);
-		goto zlog_rotater_rotate_exit;
+		goto exit;
 	}
 
 	if (info.st_size + msg_len <= file_max_size) {
@@ -475,7 +425,7 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		 * may alread rotate by oth process or thread,
 		 * return */
 		rc = 0;
-		goto zlog_rotater_rotate_exit;
+		goto exit;
 	}
 
 	/* begin list and move files */
@@ -483,16 +433,15 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 	if (rc) {
 		zc_error("zlog_rotater_file_ls_mv [%s] fail, return", file_path);
 		rc = -1;
-		goto zlog_rotater_rotate_exit;
+		goto exit;
 	} else if (rc == 0) {
 		rc = 1;
 		zc_debug("zlog_rotater_file_ls_mv success");
 	}
 
-      zlog_rotater_rotate_exit:
+exit:
 	/* unlock file */
-	rd = zlog_rotater_unlock(a_rotater);
-	if (rd) {
+	if (zlog_rotater_unlock(a_rotater)) {
 		zc_error("zlog_rotater_unlock fail");
 	}
 

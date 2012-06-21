@@ -105,7 +105,6 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
 
 zlog_conf_t *zlog_conf_new(char *conf_file)
 {
-	int rc = 0;
 	int nwrite = 0;
 	int has_conf_file = 0;
 	zlog_conf_t *a_conf;
@@ -128,8 +127,7 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	}
 	if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
 		zc_error("not enough space for path name, nwrite=[%d], errno[%d]", nwrite, errno);
-		rc = -1;
-		goto zlog_conf_new_exit;
+		goto err;
 	}
 
 	/* set default configuration start */
@@ -150,50 +148,41 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 	a_conf->levels = zlog_level_list_new();
 	if (!a_conf->levels) {
 		zc_error("zlog_level_list_new fail");
-		rc = -1;
-		goto zlog_conf_new_exit;
+		goto err;
 	} 
 	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!a_conf->formats) {
 		zc_error("zc_arraylist_new fail");
-		rc = -1;
-		goto zlog_conf_new_exit;
+		goto err;
 	}
 
 	a_conf->rules = zc_arraylist_new((zc_arraylist_del_fn) zlog_rule_del);
 	if (!a_conf->rules) {
 		zc_error("init rule_list fail");
-		rc = -1;
-		goto zlog_conf_new_exit;
+		goto err;
 	}
 
 	if (has_conf_file) {
-		rc = zlog_conf_build_with_file(a_conf);
-		if (rc) {
+		if (zlog_conf_build_with_file(a_conf)) {
 			zc_error("zlog_conf_build_with_file fail");
-			goto zlog_conf_new_exit;
+			goto err;
 		}
 	} else {
-		rc = zlog_conf_build_without_file(a_conf);
-		if (rc) {
+		if (zlog_conf_build_without_file(a_conf)) {
 			zc_error("zlog_conf_build_without_file fail");
-			goto zlog_conf_new_exit;
+			goto err;
 		}
 	}
 
-      zlog_conf_new_exit:
-	if (rc) {
-		zlog_conf_del(a_conf);
-		return NULL;
-	} else {
-		zlog_conf_profile(a_conf, ZC_DEBUG);
-		return a_conf;
-	}
+	zlog_conf_profile(a_conf, ZC_DEBUG);
+	return a_conf;
+err:
+	zlog_conf_del(a_conf);
+	return NULL;
 }
 /*******************************************************************************/
 static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 {
-	int rc = 0;
 	zlog_rule_t *default_rule;
 
 	a_conf->default_format = zlog_format_new(a_conf->default_format_line, a_conf->levels);
@@ -222,8 +211,7 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 	}
 
 	/* add default rule */
-	rc = zc_arraylist_add(a_conf->rules, default_rule);
-	if (rc) {
+	if (zc_arraylist_add(a_conf->rules, default_rule)) {
 		zlog_rule_del(default_rule);
 		zc_error("zc_arraylist_add fail");
 		return -1;
@@ -251,8 +239,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 	int section = 0;
 	/* [global:1] [levels:2] [formats:3] [rules:4] */
 
-	rc = lstat(a_conf->file, &a_stat);
-	if (rc) {
+	if (lstat(a_conf->file, &a_stat)) {
 		zc_error("lstat conf file[%s] fail, errno[%d]", a_conf->file,
 			 errno);
 		return -1;
@@ -316,21 +303,19 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 		 */
 		rc = zlog_conf_parse_line(a_conf, line, &section);
 		if (rc < 0) {
-			zc_error("parse configure file[%s]line_no[%ld] fail",
-				a_conf->file, line_no);
+			zc_error("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
 			zc_error("line[%s]", line);
-			goto zlog_conf_read_config_exit;
+			goto exit;
 		} else if (rc > 0) {
-			zc_warn("parse configure file[%s]line_no[%ld] fail",
-				a_conf->file, line_no);
+			zc_warn("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
 			zc_warn("line[%s]", line);
 			zc_warn("as strict init is set to false, ignore and go on");
 			rc = 0;
+			continue;
 		}
 	}
 
-      zlog_conf_read_config_exit:
-
+exit:
 	fclose(fp);
 	return rc;
 }
@@ -338,7 +323,6 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 /* section [global:1] [levels:2] [formats:3] [rules:4] */
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 {
-	int rc = 0;
 	int nscan = 0;
 	int nread = 0;
 	char name[MAXLEN_CFG_LINE + 1];
@@ -458,8 +442,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		}
 		break;
 	case 2:
-		rc = zlog_level_list_set(a_conf->levels, line);
-		if (rc) {
+		if (zlog_level_list_set(a_conf->levels, line)) {
 			zc_error("zlog_level_list_set fail");
 			if (a_conf->strict_init) return -1;
 		}
@@ -471,8 +454,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			if (a_conf->strict_init) return -1;
 			else break;
 		}
-		rc = zc_arraylist_add(a_conf->formats, a_format);
-		if (rc) {
+		if (zc_arraylist_add(a_conf->formats, a_format)) {
 			zlog_format_del(a_format);
 			zc_error("zc_arraylist_add fail");
 			return -1;
@@ -492,8 +474,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			if (a_conf->strict_init) return -1;
 			else break;
 		}
-		rc = zc_arraylist_add(a_conf->rules, a_rule);
-		if (rc) {
+		if (zc_arraylist_add(a_conf->rules, a_rule)) {
 			zlog_rule_del(a_rule);
 			zc_error("zc_arraylist_add fail");
 			return -1;

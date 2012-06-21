@@ -25,7 +25,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <unistd.h>
 #include <pthread.h>
 
@@ -39,45 +38,6 @@
 
 #include "zc_defs.h"
 
-typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread);
-
-struct zlog_rule_s {
-	char category[MAXLEN_CFG_LINE + 1];
-	int level;
-	char compare_char;
-	/* 
-	 * [*] log all level
-	 * [.] log level >= rule level, default
-	 * [=] log level == rule level 
-	 * [!] log level != rule level
-	 */
-
-	char file_path[MAXLEN_PATH + 1];
-	zc_arraylist_t *dynamic_file_specs;
-	int static_file_descriptor;
-	FILE *static_file_stream;
-	pthread_rwlock_t static_reopen_lock;
-
-	unsigned int file_perms;
-	int file_open_flags;
-	long file_max_size;
-	int file_max_count;
-
-	size_t fsync_period;
-	volatile sig_atomic_t fsync_count;
-
-	zc_arraylist_t *levels;
-	int syslog_facility;
-
-	zlog_format_t *format;
-	zlog_rotater_t *rotater;
-
-	zlog_rule_output_fn output;
-
-	char record_name[MAXLEN_PATH + 1];
-	char record_param[MAXLEN_PATH + 1];
-	zlog_record_fn record_output;
-};
 
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 {
