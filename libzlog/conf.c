@@ -34,7 +34,7 @@
 #include "zc_defs.h"
 
 /*******************************************************************************/
-#define ZLOG_CONF_DEFAULT_FORMAT "default = \"%d(%F %T) %V [%p:%F:%L] %m%n\""
+#define ZLOG_CONF_DEFAULT_FORMAT "default = \"%D %V [%p:%F:%L] %m%n\""
 #define ZLOG_CONF_DEFAULT_RULE "*.*        >stdout"
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MIN 1024
 #define ZLOG_CONF_DEFAULT_BUF_SIZE_MAX (2 * 1024 * 1024)

@@ -52,10 +52,10 @@ typedef struct {
 
 	struct timeval time_stamp;
 	time_t last_sec;
-	int sec_changed;
 	struct tm local_time;	
 	char us[6 + 1];
 
+	char D_time_str[10 + 1 + 8 + 1]; /* YYYY-mm-dd HH:mm:ss */
 	char time_str[MAXLEN_CFG_LINE + 1];
 	size_t time_str_len;
 	char *last_time_fmt;

@@ -51,6 +51,7 @@ struct zlog_spec_s {
 
 	char time_fmt[MAXLEN_CFG_LINE + 1];
 	char mdc_key[MAXLEN_PATH + 1];
+
 	char print_fmt[MAXLEN_CFG_LINE + 1];
 	int left_adjust;
 	size_t max_width;
@@ -77,30 +78,43 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 }
 
 /*******************************************************************************/
+#define zlog_spec_fetch_time  do {\
+	if (!a_thread->event->time_stamp.tv_sec) {  \
+		gettimeofday(&(a_thread->event->time_stamp), NULL);   \
+		sprintf(a_thread->event->us, "%6.6ld",   \
+			(long)a_thread->event->time_stamp.tv_usec);   \
+   \
+		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {   \
+			/* localtime_r is slow on linux, do it once per second */   \
+			/* thanks for nikuailema@gmail.com */   \
+			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;   \
+			localtime_r(&(a_thread->event->time_stamp.tv_sec),   \
+				    &(a_thread->event->local_time));   \
+   \
+			/* strftime %D time fmt per second*/   \
+			strftime(a_thread->event->D_time_str,   \
+				sizeof(a_thread->event->D_time_str),  \
+				"%F %T", &(a_thread->event->local_time) ); \
+   \
+			/* strftime %d() per second */   \
+			if (a_thread->event->last_time_fmt) {   \
+				a_thread->event->time_str_len = strftime(a_thread->event->time_str,   \
+				sizeof(a_thread->event->time_str),   \
+				a_thread->event->last_time_fmt, &(a_thread->event->local_time));   \
+			}   \
+		}   \
+	}   \
+} while(0) 
+
 /* implementation of write function */
 static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	/* do fetch time every event once */
-	if (!a_thread->event->time_stamp.tv_sec) {
-		gettimeofday(&(a_thread->event->time_stamp), NULL);
-		sprintf(a_thread->event->us, "%6.6ld",
-			(long)a_thread->event->time_stamp.tv_usec);
+	zlog_spec_fetch_time;
 
-		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
-			/* localtime_r is slow on linux, do it once per second */
-			/* thanks for nikuailema@gmail.com */
-			a_thread->event->sec_changed = 1;
-			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
-			localtime_r(&(a_thread->event->time_stamp.tv_sec),
-				    &(a_thread->event->local_time));
-		} else {
-			a_thread->event->sec_changed = 0;
-		}
-	}
-
-	/* strftime is slow too, do it once per second
-	 * or time_fmt changed(event go through another spec) */
-	if (a_thread->event->last_time_fmt != a_spec->time_fmt || a_thread->event->sec_changed) {
+	/* strftime %d() is slow too, do it when 
+	 * time_fmt changed(event go through another spec) */
+	if (a_thread->event->last_time_fmt != a_spec->time_fmt) {
 		a_thread->event->last_time_fmt = a_spec->time_fmt;
 		a_thread->event->time_str_len = strftime(a_thread->event->time_str,
 			sizeof(a_thread->event->time_str),
@@ -110,47 +124,25 @@ static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 	return zlog_buf_append(a_buf, a_thread->event->time_str, a_thread->event->time_str_len);
 }
 
+static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	/* do fetch time every event once */
+	zlog_spec_fetch_time;
+
+	return zlog_buf_append(a_buf, a_thread->event->D_time_str, 19);
+}
+
 static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	/* do fetch time every event once */
-	if (!a_thread->event->time_stamp.tv_sec) {
-		gettimeofday(&(a_thread->event->time_stamp), NULL);
-		sprintf(a_thread->event->us, "%6.6ld",
-			(long)a_thread->event->time_stamp.tv_usec);
-
-		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
-			/* localtime_r is slow on linux, do it once per second */
-			/* thanks for nikuailema@gmail.com */
-			a_thread->event->sec_changed = 1;
-			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
-			localtime_r(&(a_thread->event->time_stamp.tv_sec),
-				    &(a_thread->event->local_time));
-		} else {
-			a_thread->event->sec_changed = 0;
-		}
-	}
+	zlog_spec_fetch_time;
 	return zlog_buf_append(a_buf, a_thread->event->us, 3);
 }
 
 static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	/* do fetch time every event once */
-	if (!a_thread->event->time_stamp.tv_sec) {
-		gettimeofday(&(a_thread->event->time_stamp), NULL);
-		sprintf(a_thread->event->us, "%6.6ld",
-			(long)a_thread->event->time_stamp.tv_usec);
-
-		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {
-			/* localtime_r is slow on linux, do it once per second */
-			/* thanks for nikuailema@gmail.com */
-			a_thread->event->sec_changed = 1;
-			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;
-			localtime_r(&(a_thread->event->time_stamp.tv_sec),
-				    &(a_thread->event->local_time));
-		} else {
-			a_thread->event->sec_changed = 0;
-		}
-	}
+	zlog_spec_fetch_time;
 	return zlog_buf_append(a_buf, a_thread->event->us, 6);
 }
 
@@ -619,6 +611,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		switch (*p) {
 		case 'c':
 			a_spec->write_buf = zlog_spec_write_category;
+			break;
+		case 'D':
+			a_spec->write_buf = zlog_spec_write_time_D;
 			break;
 		case 'F':
 			a_spec->write_buf = zlog_spec_write_srcfile;

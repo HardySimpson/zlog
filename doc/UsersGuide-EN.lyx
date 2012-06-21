@@ -298,7 +298,7 @@ type "mailto:"
 \end_layout
 
 \begin_layout Section
-zlog 1.0 Release Notes:
+zlog 1.1 Release Notes:
 \end_layout
 
 \begin_layout Enumerate
@@ -344,15 +344,30 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-zlog 1.0 is not compatible with zlog 0.9.
- I change zlog() in zlog.h for more arguments, as __func__ which points the
- function where the log takes place.
- I change zlog.conf also, which is divided into some sections for more clarity.
- If The user of zlog 0.9 want to update to zlog 1.0, he should re-compile
- his source code(but need not to change it), as all macros of zlog 1.0 are
- the same as zlog 0.9.
+zlog 1.1 is binary compatible with zlog 1.0.
+ Just two difference in configure file
 \end_layout
 
+\begin_deeper
+\begin_layout Enumerate
+%d(%ms, %us) is not correct any more.
+ %d.%ms is correct.
+ %ms and %us are brought up to conversion characters.
+\end_layout
+
+\begin_layout Enumerate
+Add %D as default time string, which produce output like "2012-04-05 08:09:10".
+\end_layout
+
+\begin_layout Standard
+These two increase zlog's performence about 30%.
+ If you are user of zlog 1.0.x and are dynamic linked with it, There is no
+ need for re-compile you program, just replace the library, and change your
+ configure file a little.
+ 
+\end_layout
+
+\end_deeper
 \begin_layout Chapter
 What is not zlog?
 \end_layout
@@ -1144,7 +1159,7 @@ rotate lock file = /tmp/zlog.lock
 \end_layout
 
 \begin_layout LyX-Code
-default format = "%d(%F %T.%l) %-6P (%c:%F:%L) - %m%n"
+default format = "%D.%ms %-6P (%c:%F:%L) - %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -1184,7 +1199,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-normal = "%d(%F %T.%l) %m%n"
+normal = "%d(%F %T) %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -1404,7 +1419,7 @@ This parameter is used by rules without format specified.
 \end_layout
 
 \begin_layout LyX-Code
-"%d(%F %T) %V [%p:%F:%L] %m%n"
+"%D %V [%p:%F:%L] %m%n"
 \end_layout
 
 \begin_layout Standard
@@ -1664,11 +1679,11 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="19" columns="3">
+<lyxtabular version="3" rows="21" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
-<column alignment="center" valignment="top" width="50text%">
-<column alignment="center" valignment="top" width="40text%">
+<column alignment="left" valignment="top" width="50text%">
+<column alignment="left" valignment="top" width="40text%">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -1679,7 +1694,7 @@ conversion char
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1688,7 +1703,7 @@ effect
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1708,7 +1723,7 @@ example
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1718,7 +1733,7 @@ Used to output the category of the logging event.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1738,7 +1753,7 @@ aa_bb
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1747,12 +1762,7 @@ Used to output the date of the logging event.
  enclosed between parenthesis.
  For example, %d(%F) or %d(%m-%d %T).
  If no date format specifier is given then %d(%F %T) format is assumed.
- The date format specifier admits the same syntax as the strftime(3), but
- add %us and 
-\end_layout
-
-\begin_layout Plain Layout
-%ms for millisecond and microsecond.
+ The date format specifier admits the same syntax as the strftime(3).
  see 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1765,7 +1775,7 @@ for more detail.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1792,29 +1802,91 @@ for more detail.
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E
+%D
 \end_layout
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %d(%F %T), but faster
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012-02-14 17:03:12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
 <cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the environment variable.
- The key of environment variable should be enclose between parenthesis.Vaule
- is fixed at zlog_init().
- So the log path contains only %E is through to be static log path.Logging
- will be faster than dynamic log path.
+%ms
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E(HOME) /home/harry
+The millisecond, 3-digit integer string
+\end_layout
+
+\begin_layout Plain Layout
+comes from gettimeofday(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+013
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%us
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The microsecond, 6-digit integer string
+\end_layout
+
+\begin_layout Plain Layout
+comes from gettimeofday(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+002323
 \end_layout
 
 \end_inset
@@ -1830,7 +1902,7 @@ Used to output the environment variable.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1843,7 +1915,7 @@ Used to output the file name where the logging request was issued.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1871,7 +1943,7 @@ or, under some compiler
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1881,7 +1953,7 @@ Used to output the source file name, the string after the last '/' of $F.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1901,7 +1973,7 @@ test_hello.c
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1910,7 +1982,7 @@ Used to output the hostname of system, which is from gethostname(2)
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1930,7 +2002,7 @@ zlog-dev
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1940,7 +2012,7 @@ Used to output the line number from where the logging request was issued,
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1960,7 +2032,7 @@ Used to output the line number from where the logging request was issued,
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1970,7 +2042,7 @@ Used to output the application supplied message associated with the logging
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1990,7 +2062,7 @@ hello, zlog
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2010,7 +2082,7 @@ reference "sec:MDC"
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2030,7 +2102,7 @@ reference "sec:MDC"
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2040,7 +2112,7 @@ Outputs unix newline character, I do not support windows line separator
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2062,7 +2134,7 @@ n
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2072,7 +2144,7 @@ Used to output the id of the process that generated the logging event, which
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2092,7 +2164,7 @@ Used to output the id of the process that generated the logging event, which
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2103,7 +2175,7 @@ Used to output the funtion name where the logging request was issued.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2123,7 +2195,7 @@ main
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2132,7 +2204,7 @@ Used to output the level of the logging event, capital.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2152,7 +2224,7 @@ INFO
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2161,7 +2233,7 @@ Used to output the level of the logging event, lowercase.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2181,7 +2253,7 @@ info
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2195,7 +2267,7 @@ Used to output the hexadecimal form of the thread id that generated the
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2215,7 +2287,7 @@ Used to output the hexadecimal form of the thread id that generated the
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2228,7 +2300,7 @@ Equivalent to %t, but the long form
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2248,7 +2320,7 @@ Equivalent to %t, but the long form
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2257,7 +2329,7 @@ the sequence %% outputs a single percent sign.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2277,7 +2349,7 @@ the sequence %% outputs a single percent sign.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2286,7 +2358,7 @@ parse as a wrong syntax, will cause zlog_init() fail
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2674,131 +2746,7 @@ d.
 \end_layout
 
 \begin_layout Standard
-There are 2 speical time words support by zlog itself, which comes from
- gettimeofday(2)
-\end_layout
-
-\begin_layout Standard
-\begin_inset Tabular
-<lyxtabular version="3" rows="3" columns="3">
-<features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="10text%">
-<column alignment="center" valignment="top" width="40text%">
-<column alignment="center" valignment="top" width="30text%">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-word
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-effect
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-example
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-%ms
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-The millisecond, 3-digit integer string
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-013
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-%us
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-The microsecond, 6-digit integer string
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-002323
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Other Character is supported by strftime(3) in library.
+All Character is supported by strftime(3) in library.
  The Character support on my linux system are
 \end_layout
 
@@ -4963,7 +4911,7 @@ It is optional.
 \end_layout
 
 \begin_layout LyX-Code
-default format = "%d(%F %T) %V [%p:%F:%L] %m%n"
+default format = "%D %V [%p:%F:%L] %m%n"
 \end_layout
 
 \end_deeper
@@ -6462,7 +6410,7 @@ $ cat test_mdc.conf
 \end_layout
 
 \begin_layout LyX-Code
-mdc_format=     "%d(%F %X.%ms) %-6V (%c:%F:%L) [%M(myname)] - %m%n"
+mdc_format=     "%D.%ms %-6V (%c:%F:%L) [%M(myname)] - %m%n"
 \end_layout
 
 \begin_layout LyX-Code

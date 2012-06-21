@@ -108,7 +108,7 @@ zlog使用攻略
 status collapsed
 
 \begin_layout Plain Layout
-适用于 zlog v1.0.x
+适用于 zlog v1.1.x
 \end_layout
 
 \end_inset
@@ -313,7 +313,7 @@ type "mailto:"
 \end_layout
 
 \begin_layout Section
-zlog 1.0 发布说明
+zlog 1.1 发布说明
 \end_layout
 
 \begin_layout Enumerate
@@ -346,10 +346,23 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-zlog1.0和0.9不是兼容的。因为我增加了__func__，这样在C99情况下能打印函数名。我还改了配置文件的格式，对配置文件分节，更加清晰易懂。如果你是zlo
-g0.9的用户，想要升级到1.0，那就需要重新编译你的程序链接新的库（你的源代码倒不用改，因为几个输出日志的宏和0.9还是一样）。
+zlog 1.1在库方面是和zlog 1.0二进制兼容的，在配置文件方面有两个的改动，
 \end_layout
 
+\begin_deeper
+\begin_layout Enumerate
+%d(%ms,%us)不再是合法的，%d.%ms是合法的。%ms毫秒和%us微秒提出来作为单独的转换字符串。
+\end_layout
+
+\begin_layout Enumerate
+增加了默认时间串%D，输出"2012-02-14 17:03:12"这样的时间。
+\end_layout
+
+\begin_layout Standard
+之所以改变这些，是为了简化代码，以及能提升30%的性能。所以如果你是从1.0.x升级，如果使用动态库的话，无须重新编译程序，只要稍微改动一下配置文件即可。
+\end_layout
+
+\end_deeper
 \begin_layout Chapter
 zlog不是什么？
 \end_layout
@@ -1093,7 +1106,7 @@ rotate lock file = /tmp/zlog.lock
 \end_layout
 
 \begin_layout LyX-Code
-default format = "%d(%F %T.%l) %-6P (%c:%F:%L) - %m%n"
+default format = "%D.%us %-6P (%c:%F:%L) - %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -1129,7 +1142,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-normal = "%d(%F %T.%l) %m%n"
+normal = "%D %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -1313,7 +1326,7 @@ default format
 \end_layout
 
 \begin_layout LyX-Code
-"%d(%F %T) %V [%p:%F:%L] %m%n"
+"%D %V [%p:%F:%L] %m%n"
 \end_layout
 
 \begin_layout Standard
@@ -1537,7 +1550,7 @@ ZLOG_INFO(c, "hello, zlog");
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="19" columns="3">
+<lyxtabular version="3" rows="21" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="center" valignment="top" width="50text%">
@@ -1615,11 +1628,7 @@ aa_bb
 
 \begin_layout Plain Layout
 打日志的时间。这个后面要跟一对小括号()内含说明具体的日期格式。就像%d(%F)或者%d(%m-%d %T)。如果不跟小括号，默认是%d(%F
- %T)。括号内的格式和 strftime(3)的格式一致，就是增加了%us表示微秒，还有
-\end_layout
-
-\begin_layout Plain Layout
-%ms表示毫秒。详见
+ %T)。括号内的格式和 strftime(3)的格式一致。详见
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sub:时间字符"
@@ -1643,7 +1652,7 @@ reference "sub:时间字符"
 \end_layout
 
 \begin_layout Plain Layout
-%d(%T.ms) 17:17:42.035
+%d(%T) 17:17:42.035
 \end_layout
 
 \begin_layout Plain Layout
@@ -1658,7 +1667,7 @@ reference "sub:时间字符"
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E
+%D
 \end_layout
 
 \end_inset
@@ -1667,8 +1676,7 @@ reference "sub:时间字符"
 \begin_inset Text
 
 \begin_layout Plain Layout
-环境变量，后面也要跟小括号，内涵环境变量的键。变量的值在zlog_init()的时候就求出来了。所以只含有%E的文件名被认为是静态路径文件，相比动态路径文件写日
-志会有一定的性能提升。
+相当于%d(%F %T)，zlog默认时间串，在性能上比%d有一定的提升
 \end_layout
 
 \end_inset
@@ -1677,7 +1685,73 @@ reference "sub:时间字符"
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E(HOME) /home/harry
+2012-02-14 17:03:12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%ms
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+毫秒，3位数字字符串
+\end_layout
+
+\begin_layout Plain Layout
+取自gettimeofday(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+013
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%us
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+微秒，6位数字字符串
+\end_layout
+
+\begin_layout Plain Layout
+取自gettimeofday(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+002323
 \end_layout
 
 \end_inset
@@ -2492,121 +2566,7 @@ name "sub:时间字符"
 \end_layout
 
 \begin_layout Standard
-其中2个是zlog特有的，取自gettimeofday(2)
-\end_layout
-
-\begin_layout Standard
-\begin_inset Tabular
-<lyxtabular version="3" rows="3" columns="3">
-<features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="10text%">
-<column alignment="center" valignment="top" width="30text%">
-<column alignment="center" valignment="top" width="30text%">
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-词
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-效果
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family roman
-\series medium
-\shape up
-\size normal
-\emph off
-\bar no
-\noun off
-\color none
-例子
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-%ms
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-毫秒，3位数字字符串
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-013
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-%us
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-微秒，6位数字字符串
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-002323
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-其他的字符都是由strftime(2)生成的，在我的linux操作系统上支持的是：
+所有字符都是由strftime(2)生成的，在我的linux操作系统上支持的是：
 \end_layout
 
 \begin_layout Standard
