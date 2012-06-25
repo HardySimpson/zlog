@@ -9,13 +9,16 @@
 [ ] spec,level采用直接数组的方式重写
 [ ] linux fsync->fdatasync, open..
 [ ] 去除auto tools的使用，自行makefile[redis]
-[ ] 去掉rc的使用[redis]
-[ ] 对ZLOG_FMT和ZLOG_HEX清算
 [ ] async file输出的增加
+[ ] rcat
+[ ] rule_name
+[ ] 增加trace级别
 
 --- 1.1.0 ---
 [o] 增加%D，缓存strftime的结果
 [o] 缓存pid, tid的字符串形式
+[o] 去掉rc的使用[redis]
+[o] 对ZLOG_FMT和ZLOG_HEX清算,部分成功
 --- 1.0.7 ---
 [x] 自己实现部分的strftime，进一步提高效率--替换后发现vsnprintf消耗增加，未能超越原有strftime的效率
 [o] %t显示为16进制

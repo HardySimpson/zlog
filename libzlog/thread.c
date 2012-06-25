@@ -70,7 +70,6 @@ void zlog_thread_del(zlog_thread_t * a_thread)
 
 zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 {
-	int rc = 0;
 	zlog_thread_t *a_thread;
 
 	a_thread = calloc(1, sizeof(zlog_thread_t));
@@ -82,65 +81,51 @@ zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 	a_thread->mdc = zlog_mdc_new();
 	if (!a_thread->mdc) {
 		zc_error("zlog_mdc_new fail");
-		rc = -1;
-		goto zlog_thread_init_exit;
+		goto err;
 	}
 
 	a_thread->event = zlog_event_new();
 	if (!a_thread->event) {
 		zc_error("zlog_event_new fail");
-		rc = -1;
-		goto zlog_thread_init_exit;
+		goto err;
 	}
 
-	a_thread->pre_path_buf =
-	    zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
+	a_thread->pre_path_buf = zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
 	if (!a_thread->pre_path_buf) {
 		zc_error("zlog_buf_new fail");
-		rc = -1;
-		goto zlog_thread_init_exit;
+		goto err;
 	}
 
-	a_thread->path_buf =
-	    zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
+	a_thread->path_buf = zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
 	if (!a_thread->path_buf) {
 		zc_error("zlog_buf_new fail");
-		rc = -1;
-		goto zlog_thread_init_exit;
+		goto err;
 	}
 
-	a_thread->pre_msg_buf =
-	    zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
+	a_thread->pre_msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->pre_msg_buf) {
 		zc_error("zlog_buf_new fail");
-		rc = -1;
-		goto zlog_thread_init_exit;
+		goto err;
 	}
 
 	a_thread->msg_buf =
 	    zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->msg_buf) {
 		zc_error("zlog_buf_new fail");
-		rc = -1;
-		goto zlog_thread_init_exit;
+		goto err;
 	}
 
-      zlog_thread_init_exit:
 
-	if (rc) {
-		zlog_thread_del(a_thread);
-		return NULL;
-	} else {
-		zlog_thread_profile(a_thread, ZC_DEBUG);
-		return a_thread;
-	}
+	zlog_thread_profile(a_thread, ZC_DEBUG);
+	return a_thread;
+err:
+	zlog_thread_del(a_thread);
+	return NULL;
 }
 
 /*******************************************************************************/
 int zlog_thread_update_msg_buf(zlog_thread_t * a_thread, size_t buf_size_min, size_t buf_size_max)
 {
-	int rc = 0;
-
 	zc_assert(a_thread, -1);
 
 	/* 1st, mv msg_buf msg_buf_backup */
@@ -154,27 +139,22 @@ int zlog_thread_update_msg_buf(zlog_thread_t * a_thread, size_t buf_size_min, si
 	a_thread->pre_msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->pre_msg_buf) {
 		zc_error("zlog_buf_new fail");
-		rc = -1;
-		goto zlog_thread_update_msg_buf_exit;
+		goto err;
 	}
 
 	a_thread->msg_buf = zlog_buf_new(buf_size_min, buf_size_max, "..." FILE_NEWLINE);
 	if (!a_thread->msg_buf) {
 		zc_error("zlog_buf_new fail");
-		rc = -1;
-		goto zlog_thread_update_msg_buf_exit;
+		goto err;
 	}
 
-      zlog_thread_update_msg_buf_exit:
-	if (rc) {
-		if (a_thread->pre_msg_buf) zlog_buf_del(a_thread->pre_msg_buf);
-		if (a_thread->msg_buf) zlog_buf_del(a_thread->msg_buf);
-		a_thread->pre_msg_buf = NULL;
-		a_thread->msg_buf = NULL;
-		return -1;
-	} else {
-		return 0;
-	}
+	return 0;
+err:
+	if (a_thread->pre_msg_buf) zlog_buf_del(a_thread->pre_msg_buf);
+	if (a_thread->msg_buf) zlog_buf_del(a_thread->msg_buf);
+	a_thread->pre_msg_buf = NULL;
+	a_thread->msg_buf = NULL;
+	return -1;
 }
 
 void zlog_thread_commit_msg_buf(zlog_thread_t * a_thread)

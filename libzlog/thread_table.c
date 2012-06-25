@@ -65,15 +65,13 @@ zc_hashtable_t *zlog_thread_table_new(void)
 /*******************************************************************************/
 int zlog_thread_table_update_msg_buf(zc_hashtable_t * threads, size_t buf_size_min, size_t buf_size_max)
 {
-	int rc = 0;
 	zc_hashtable_entry_t *a_entry;
 	zlog_thread_t *a_thread;
 
 	zc_assert(threads, -1);
 	zc_hashtable_foreach(threads, a_entry) {
 		a_thread = (zlog_thread_t *) a_entry->value;
-		rc = zlog_thread_update_msg_buf(a_thread, buf_size_min, buf_size_max);
-		if (rc) {
+		if (zlog_thread_update_msg_buf(a_thread, buf_size_min, buf_size_max)) {
 			zc_error("zlog_thread_update_msg_buf fail, try rollback");
 			return -1;
 		}
@@ -127,7 +125,6 @@ zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t 
 zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads,
 				size_t buf_size_min, size_t buf_size_max)
 {
-	int rc = 0;
 	zlog_thread_t *a_thread;
 
 	a_thread = zlog_thread_new(buf_size_min, buf_size_max);
@@ -136,20 +133,16 @@ zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads,
 		return NULL;
 	}
 
-	rc = zc_hashtable_put(threads,
+	if (zc_hashtable_put(threads,
 			(void *)&(a_thread->event->tid),
-			(void *)a_thread);
-	if (rc) {
+			(void *)a_thread)) {
 		zc_error("zc_hashtable_put fail");
-		goto zlog_thread_table_new_exit;
+		goto err;
 	}
 
-      zlog_thread_table_new_exit:
-	if (rc) {
-		zlog_thread_del(a_thread);
-		return NULL;
-	} else {
-		return a_thread;
-	}
+	return a_thread;
+err:
+	zlog_thread_del(a_thread);
+	return NULL;
 }
 /*******************************************************************************/
