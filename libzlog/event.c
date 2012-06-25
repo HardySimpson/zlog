@@ -91,11 +91,10 @@ err:
 }
 
 /*******************************************************************************/
-void zlog_event_set(zlog_event_t * a_event,
+void zlog_event_set_fmt(zlog_event_t * a_event,
 			char *category_name, size_t category_name_len,
 			const char *file, size_t file_len, const char *func, size_t func_len,  long line, int level,
-			const void *hex_buf, size_t hex_buf_len, const char *str_format, va_list str_args,
-			int generate_cmd)
+			const char *str_format, va_list str_args)
 {
 	/*
 	 * category_name point to zlog_category_output's category.name
@@ -110,13 +109,44 @@ void zlog_event_set(zlog_event_t * a_event,
 	a_event->line = line;
 	a_event->level = level;
 
-	if ((a_event->generate_cmd = generate_cmd) == ZLOG_FMT) {
-		a_event->str_format = str_format;
-		va_copy(a_event->str_args, str_args);
-	} else {
-		a_event->hex_buf = hex_buf;
-		a_event->hex_buf_len = hex_buf_len;
-	}
+	a_event->generate_cmd = ZLOG_FMT;
+	a_event->str_format = str_format;
+	va_copy(a_event->str_args, str_args);
+
+	/* pid should fetch eveytime, as no one knows,
+	 * when does user fork his process
+	 * so clean here, and fetch at spec.c
+	 */
+	a_event->pid = (pid_t) 0;
+
+	/* in a event's life cycle, time will be get when spec need,
+	 * and keep unchange though all event's life cycle
+	 */
+	memset(&(a_event->time_stamp), 0x00, sizeof(a_event->time_stamp));
+	return;
+}
+
+void zlog_event_set_hex(zlog_event_t * a_event,
+			char *category_name, size_t category_name_len,
+			const char *file, size_t file_len, const char *func, size_t func_len,  long line, int level,
+			const void *hex_buf, size_t hex_buf_len)
+{
+	/*
+	 * category_name point to zlog_category_output's category.name
+	 */
+	a_event->category_name = category_name;
+	a_event->category_name_len = category_name_len;
+
+	a_event->file = (char *) file;
+	a_event->file_len = file_len;
+	a_event->func = (char *) func;
+	a_event->func_len = func_len;
+	a_event->line = line;
+	a_event->level = level;
+
+	a_event->generate_cmd = ZLOG_HEX;
+	a_event->hex_buf = hex_buf;
+	a_event->hex_buf_len = hex_buf_len;
 
 	/* pid should fetch eveytime, as no one knows,
 	 * when does user fork his process

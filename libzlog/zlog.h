@@ -42,23 +42,35 @@ void zlog_remove_mdc(char *key);
 void zlog_clean_mdc(void);
 
 void zlog(zlog_category_t * category,
-	const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const char *file, size_t filelen,
+	const char *func, size_t funclen,
+	long line, int level,
 	const char *format, ...);
 void vzlog(zlog_category_t * category,
-	const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const char *file, size_t filelen,
+	const char *func, size_t funclen,
+	long line, int level,
 	const char *format, va_list args);
 void hzlog(zlog_category_t * category,
-	const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+	const char *file, size_t filelen,
+	const char *func, size_t funclen,
+	long line, int level,
 	const void *buf, size_t buflen);
 
 int dzlog_init(char *confpath, char *cname);
 int dzlog_set_category(char *cname);
 
-void dzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+void dzlog(const char *file, size_t filelen,
+	const char *func, size_t funclen,
+	long line, int level,
 	const char *format, ...);
-void vdzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+void vdzlog(const char *file, size_t filelen,
+	const char *func, size_t funclen,
+	long line, int level,
 	const char *format, va_list args);
-void hdzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
+void hdzlog(const char *file, size_t filelen,
+	const char *func, size_t funclen,
+	long line, int level,
 	const void *buf, size_t buflen);
 
 typedef int (*zlog_record_fn)(char *param, char *msg, size_t msglen);
