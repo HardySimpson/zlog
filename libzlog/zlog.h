@@ -25,6 +25,7 @@ extern "C" {
 #endif
 
 #include <stdarg.h>
+#include <string.h>
 
 typedef struct zlog_category_s zlog_category_t;
 
