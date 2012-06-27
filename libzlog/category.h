@@ -39,6 +39,8 @@ void zlog_category_commit_rules(zlog_category_t * a_category);
 void zlog_category_rollback_rules(zlog_category_t * a_category);
 
 
-int zlog_category_output(zlog_category_t * a_cat, zlog_thread_t * a_thread);
+int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread);
+
+int zlog_category_should_ouput(zlog_category_t * a_category, int level);
 
 #endif

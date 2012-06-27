@@ -616,6 +616,10 @@ void vzlog(zlog_category_t * a_category,
 		goto exit;
 	}
 
+	if (!zlog_category_should_ouput(a_category, level)) {
+		goto exit;
+	}
+
 	tid = pthread_self();
 	a_thread = zlog_thread_table_get_thread(zlog_env_threads, tid);
 	if (!a_thread) {
