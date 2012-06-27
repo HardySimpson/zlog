@@ -318,11 +318,11 @@ zc_hashtable_entry_t *zc_hashtable_next(zc_hashtable_t * a_table,
 
 unsigned int zc_hashtable_str_hash(void *str)
 {
-	unsigned int h = 0;
+	unsigned int h = 5381;
 	const char *p = (const char *)str;
 
 	while (*p != '\0')
-		h = h * 129 + (unsigned int)(*p++);
+		h = ((h << 5) + h) + (*p++); /* hash * 33 + c */
 
 	return h;
 }
