@@ -152,10 +152,12 @@ static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_
 {
 	char *p;
 
-	p = strrchr(a_thread->event->file, '/') + 1;
-	zc_assert(p, -1);
-
-	return zlog_buf_append(a_buf, p, (char*)a_thread->event->file + a_thread->event->file_len - p);
+	if ((p = strrchr(a_thread->event->file, '/')) != NULL) {
+		return zlog_buf_append(a_buf, p + 1,
+			(char*)a_thread->event->file + a_thread->event->file_len - p - 1);
+	} else {
+		return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+	}
 }
 
 static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
