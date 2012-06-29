@@ -42,3 +42,4 @@ doc/obj.think
 doc/zlog.3
 doc/zlogtest.xls
 test/press*
+test/*.png

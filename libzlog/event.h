@@ -61,6 +61,7 @@ typedef struct {
 	char *last_time_fmt;
 
 	pid_t pid;
+	pid_t last_pid;
 	char pid_str[30 + 1];
 	size_t pid_str_len;
 
