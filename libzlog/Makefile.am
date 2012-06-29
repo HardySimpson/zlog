@@ -34,8 +34,8 @@ libzlog_la_SOURCES =	\
 	mdc.h		\
 	thread.c	\
 	thread.h	\
-	thread_table.c	\
-	thread_table.h	\
+	thread_list.c	\
+	thread_list.h	\
 	record.c	\
 	record.h	\
 	record_table.c	\

@@ -15,6 +15,8 @@
 [ ] 增加trace级别
 
 --- 1.1.0 ---
+[p] 在一开始就判断是否需要输出,建立bit位来判断
+[x] 使用pthread_key_t线程私有变量来存储zlog_thread_t，仅有1%不到的提高，放弃424/422
 [o] 增加%D，缓存strftime的结果
 [o] 缓存pid, tid的字符串形式
 [o] 去掉rc的使用[redis]

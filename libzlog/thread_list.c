@@ -18,59 +18,55 @@
  */
 
 #include <errno.h>
+#include <pthread.h>
 #include "zc_defs.h"
-#include "thread_table.h"
+#include "thread_list.h"
 
 
-void zlog_thread_table_profile(zc_hashtable_t * threads, int flag)
+void zlog_thread_list_profile(zc_arraylist_t * threads, int flag)
 {
-	zc_hashtable_entry_t *a_entry;
+	int i;
 	zlog_thread_t *a_thread;
 
 	zc_assert(threads,);
-	zc_profile(flag, "--thread_table[%p]--", threads);
-	zc_hashtable_foreach(threads, a_entry) {
-		a_thread = (zlog_thread_t *) a_entry->value;
+	zc_profile(flag, "--thread_list[%p]--", threads);
+	zc_arraylist_foreach(threads, i,  a_thread) {
 		zlog_thread_profile(a_thread, flag);
 	}
 	return;
 }
 
 /*******************************************************************************/
-void zlog_thread_table_del(zc_hashtable_t * threads)
+void zlog_thread_list_del(zc_arraylist_t * threads)
 {
 	zc_assert(threads,);
-	zc_hashtable_del(threads);
-	zc_debug("zlog_thread_table_del[%p]", threads);
+	zc_arraylist_del(threads);
+	zc_debug("zlog_thread_list_del[%p]", threads);
 	return;
 }
 
-zc_hashtable_t *zlog_thread_table_new(void)
+zc_arraylist_t *zlog_thread_list_new(void)
 {
-	zc_hashtable_t *threads;
+	zc_arraylist_t *threads;
 
-	threads = zc_hashtable_new(20,
-			 (zc_hashtable_hash_fn) zc_hashtable_tid_hash,
-			 (zc_hashtable_equal_fn) zc_hashtable_tid_equal,
-			 NULL, (zc_hashtable_del_fn) zlog_thread_del);
+	threads = zc_arraylist_new((zc_arraylist_del_fn)zlog_thread_del);
 	if (!threads) {
-		zc_error("zc_hashtable_new fail");
+		zc_error("zc_arraylist_new fail");
 		return NULL;
 	} else {
-		zlog_thread_table_profile(threads, ZC_DEBUG);
+		zlog_thread_list_profile(threads, ZC_DEBUG);
 		return threads;
 	}
 }
 
 /*******************************************************************************/
-int zlog_thread_table_update_msg_buf(zc_hashtable_t * threads, size_t buf_size_min, size_t buf_size_max)
+int zlog_thread_list_update_msg_buf(zc_arraylist_t * threads, size_t buf_size_min, size_t buf_size_max)
 {
-	zc_hashtable_entry_t *a_entry;
+	int i;
 	zlog_thread_t *a_thread;
 
 	zc_assert(threads, -1);
-	zc_hashtable_foreach(threads, a_entry) {
-		a_thread = (zlog_thread_t *) a_entry->value;
+	zc_arraylist_foreach(threads, i, a_thread) {
 		if (zlog_thread_update_msg_buf(a_thread, buf_size_min, buf_size_max)) {
 			zc_error("zlog_thread_update_msg_buf fail, try rollback");
 			return -1;
@@ -80,63 +76,50 @@ int zlog_thread_table_update_msg_buf(zc_hashtable_t * threads, size_t buf_size_m
 	return 0;
 }
 
-void zlog_thread_table_commit_msg_buf(zc_hashtable_t * threads)
+void zlog_thread_list_commit_msg_buf(zc_arraylist_t * threads)
 {
-	zc_hashtable_entry_t *a_entry;
+	int i;
 	zlog_thread_t *a_thread;
 
 	zc_assert(threads,);
-	zc_hashtable_foreach(threads, a_entry) {
-		a_thread = (zlog_thread_t *) a_entry->value;
+	zc_arraylist_foreach(threads, i, a_thread) {
 		zlog_thread_commit_msg_buf(a_thread);
 	}
 	return;
 }
 
-void zlog_thread_table_rollback_msg_buf(zc_hashtable_t * threads)
+void zlog_thread_list_rollback_msg_buf(zc_arraylist_t * threads)
 {
-	zc_hashtable_entry_t *a_entry;
+	int i;
 	zlog_thread_t *a_thread;
 
 	zc_assert(threads,);
-	zc_hashtable_foreach(threads, a_entry) {
-		a_thread = (zlog_thread_t *) a_entry->value;
+	zc_arraylist_foreach(threads, i, a_thread) {
 		zlog_thread_rollback_msg_buf(a_thread);
 	}
 	return;
 }
 
 /*******************************************************************************/
-#if 0
-zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t tid)
+zlog_thread_t *zlog_thread_list_new_thread(zc_arraylist_t * threads, pthread_key_t key,
+		size_t buf_size_min, size_t buf_size_max)
 {
-	zlog_thread_t *a_thread;
-
-	a_thread = zc_hashtable_get(threads, (void *)&tid);
-	if (!a_thread) {
-		zc_debug("thread[%ld] not found, maybe not create", tid);
-		return NULL;
-	} else {
-		return a_thread;
-	}
-}
-#endif
-
-zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads,
-				size_t buf_size_min, size_t buf_size_max)
-{
-	zlog_thread_t *a_thread;
-
+	int rc;
+	zlog_thread_t *a_thread; 
 	a_thread = zlog_thread_new(buf_size_min, buf_size_max);
 	if (!a_thread) {
 		zc_error("zlog_thread_new fail");
 		return NULL;
 	}
 
-	if (zc_hashtable_put(threads,
-			(void *)&(a_thread->event->tid),
-			(void *)a_thread)) {
-		zc_error("zc_hashtable_put fail");
+	if (zc_arraylist_add(threads, a_thread)) {
+		zc_error("zc_arraylist_put fail");
+		goto err;
+	}
+
+	rc = pthread_setspecific(key, a_thread);
+	if (rc) {
+		zc_error("pthread_setspecific fail, rc[%d]");
 		goto err;
 	}
 

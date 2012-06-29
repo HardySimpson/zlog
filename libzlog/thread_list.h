@@ -17,26 +17,22 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __zlog_thread_table_h
-#define __zlog_thread_table_h
+#ifndef __zlog_thread_list_h
+#define __zlog_thread_list_h
 
+#include <pthread.h>
 #include "zc_defs.h"
 #include "thread.h"
 
+zc_arraylist_t *zlog_thread_list_new(void);
+void zlog_thread_list_del(zc_arraylist_t *threads);
+void zlog_thread_list_profile(zc_arraylist_t *threads, int flag);
 
-zc_hashtable_t *zlog_thread_table_new(void);
-void zlog_thread_table_del(zc_hashtable_t *threads);
-void zlog_thread_table_profile(zc_hashtable_t *threads, int flag);
+int zlog_thread_list_update_msg_buf(zc_arraylist_t * threads, size_t buf_size_min, size_t buf_size_max);
+void zlog_thread_list_commit_msg_buf(zc_arraylist_t * threads);
+void zlog_thread_list_rollback_msg_buf(zc_arraylist_t * threads);
 
-int zlog_thread_table_update_msg_buf(zc_hashtable_t * threads, size_t buf_size_min, size_t buf_size_max);
-void zlog_thread_table_commit_msg_buf(zc_hashtable_t * threads);
-void zlog_thread_table_rollback_msg_buf(zc_hashtable_t * threads);
-
-zlog_thread_t *zlog_thread_table_new_thread(zc_hashtable_t * threads, size_t buf_size_min,
-				    size_t buf_size_max);
-zlog_thread_t *zlog_thread_table_get_thread(zc_hashtable_t * threads, pthread_t tid);
-
-#define zlog_thread_table_get_thread(threads, tid) \
-	zc_hashtable_get(threads, (void*) & (tid))
+zlog_thread_t *zlog_thread_list_new_thread(zc_arraylist_t * threads, pthread_key_t key,
+			size_t buf_size_min, size_t buf_size_max);
 
 #endif
