@@ -116,7 +116,7 @@ zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 	}
 
 
-	zlog_thread_profile(a_thread, ZC_DEBUG);
+	//zlog_thread_profile(a_thread, ZC_DEBUG);
 	return a_thread;
 err:
 	zlog_thread_del(a_thread);

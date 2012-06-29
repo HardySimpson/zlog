@@ -102,7 +102,8 @@ static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 	/* do fetch time every event once */
 	zlog_spec_fetch_time;
 
-	return zlog_buf_append(a_buf, a_thread->event->D_time_str, 19);
+	return zlog_buf_append(a_buf, a_thread->event->D_time_str,
+			 	sizeof(a_thread->event->D_time_str) - 1);
 }
 
 static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)

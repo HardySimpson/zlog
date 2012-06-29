@@ -143,7 +143,7 @@ zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels)
 		}
 	}
 
-	zlog_format_profile(a_format, ZC_DEBUG);
+	//zlog_format_profile(a_format, ZC_DEBUG);
 	return a_format;
 err:
 	zlog_format_del(a_format);

@@ -93,7 +93,7 @@ zlog_mdc_t *zlog_mdc_new(void)
 		goto err;
 	}
 
-	zlog_mdc_profile(a_mdc, ZC_DEBUG);
+	//zlog_mdc_profile(a_mdc, ZC_DEBUG);
 	return a_mdc;
 err:
 	zlog_mdc_del(a_mdc);

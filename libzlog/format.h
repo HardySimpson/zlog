@@ -36,7 +36,6 @@ void zlog_format_del(zlog_format_t * a_format);
 void zlog_format_profile(zlog_format_t * a_format, int flag);
 
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread);
-int zlog_format_has_name(zlog_format_t * a_format, char *name);
 
 #define zlog_format_has_name(a_format, fname) \
 	STRCMP(a_format->name, ==, fname)

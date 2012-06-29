@@ -103,7 +103,7 @@ zlog_rotater_t *zlog_rotater_new(char *lock_file)
 	a_rotater->lock_fd = fd;
 	a_rotater->lock_file = lock_file;
 
-	zlog_rotater_profile(a_rotater, ZC_DEBUG);
+	//zlog_rotater_profile(a_rotater, ZC_DEBUG);
 	return a_rotater;
 err:
 	zlog_rotater_del(a_rotater);

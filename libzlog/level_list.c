@@ -79,7 +79,7 @@ zc_arraylist_t *zlog_level_list_new(void)
 		goto err;
 	}
 
-	zlog_level_list_profile(levels, ZC_DEBUG);
+	//zlog_level_list_profile(levels, ZC_DEBUG);
 	return levels;
 err:
 	zc_arraylist_del(levels);

@@ -48,6 +48,7 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
 
 #define zlog_buf_len(a_buf) (a_buf->tail - a_buf->start)
 #define zlog_buf_str(a_buf) (a_buf->start)
+#define zlog_buf_seal(a_buf) do {*(a_buf)->tail = '\0';} while (0)
 
 int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...);
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);

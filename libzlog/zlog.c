@@ -361,7 +361,7 @@ zlog_category_t *zlog_get_category(char *cname)
 		goto err;
 	}
 
-	zc_debug("------zlog_get_category[%s] fail, end------ ", cname);
+	zc_debug("------zlog_get_category[%s] success, end------ ", cname);
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
 	if (rc) {
 		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);

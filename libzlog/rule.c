@@ -308,8 +308,9 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 	 */
 
 	a_level = zlog_level_list_get(a_rule->levels, a_thread->event->level);
+	zlog_buf_seal(a_thread->msg_buf);
 	syslog(a_rule->syslog_facility | a_level->syslog_level,
-		"%s", zlog_buf_str(a_thread->msg_buf));
+		"%s",  zlog_buf_str(a_thread->msg_buf));
 	return 0;
 }
 
@@ -321,6 +322,7 @@ static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 	}
 
 	if (a_rule->record_output) {
+		zlog_buf_seal(a_thread->msg_buf);
 		if (a_rule->record_output(a_rule->record_param,
 				zlog_buf_str(a_thread->msg_buf),
 				zlog_buf_len(a_thread->msg_buf))) {
@@ -694,7 +696,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		goto err;
 	}
 
-	zlog_rule_profile(a_rule, ZC_DEBUG);
+	//zlog_rule_profile(a_rule, ZC_DEBUG);
 	return a_rule;
 err:
 	zlog_rule_del(a_rule);
