@@ -6,18 +6,19 @@
 [ ] 兼容性问题
     zlog.h内，__VA_ARGS__的跨平台
 [ ] c++接口的测试和实现
-[ ] spec,level采用直接数组的方式重写
 [ ] linux fsync->fdatasync, open..
 [ ] 去除auto tools的使用，自行makefile[redis]
 [ ] async file输出的增加
 [ ] rcat
 [ ] rule_name
 [ ] 增加trace级别
+[ ] hex那段重写,内置到buf内
+[ ] format,spec,level采用直接数组的方式重写
 
 --- 1.1.0 ---
-[ ] 把__LINE__ 变成string, 需要改接口
-[ ] 寻找快速的方法把pid变成字符串
-[x] 建立bit位来判断,目前的实现已经足够快了
+[x] 把__LINE__ 变成string, 需要改接口
+[x] 建立bit位来判断,无锁判断
+[o] 寻找快速的方法把us, srcline变成字符串
 [o] 在一开始就判断是否需要输出,
 [o] 使用pthread_key_t线程私有变量来存储zlog_thread_t，仅有1%不到的提高
 [o] 增加%D，缓存strftime的结果

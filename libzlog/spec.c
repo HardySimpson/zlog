@@ -33,7 +33,7 @@
 
 #define ZLOG_DEFAULT_TIME_FMT "%F %T"
 #define	ZLOG_HEX_HEAD  \
-	"             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F    0123456789ABCDEF"
+	"\n             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F    0123456789ABCDEF"
 
 /*******************************************************************************/
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
@@ -55,8 +55,6 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 #define zlog_spec_fetch_time  do {\
 	if (!a_thread->event->time_stamp.tv_sec) {  \
 		gettimeofday(&(a_thread->event->time_stamp), NULL);   \
-		sprintf(a_thread->event->us, "%6.6ld",   \
-			(long)a_thread->event->time_stamp.tv_usec);   \
    \
 		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {   \
 			/* localtime_r is slow on linux, do it once per second */   \
@@ -110,14 +108,14 @@ static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zl
 {
 	/* do fetch time every event once */
 	zlog_spec_fetch_time;
-	return zlog_buf_append(a_buf, a_thread->event->us, 3);
+	return zlog_buf_printf_dec32(a_buf, (a_thread->event->time_stamp.tv_usec / 1000), 3);
 }
 
 static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	/* do fetch time every event once */
 	zlog_spec_fetch_time;
-	return zlog_buf_append(a_buf, a_thread->event->us, 6);
+	return zlog_buf_printf_dec32(a_buf, a_thread->event->time_stamp.tv_usec, 6);
 }
 
 static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -164,12 +162,12 @@ static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_
 static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
-	return zlog_buf_printf(a_buf, "%ld", a_thread->event->line);
+	return zlog_buf_printf_dec64(a_buf, a_thread->event->line, 0);
 }
 
 static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	zc_assert(a_thread->event->func, -1);
+	zc_assert(a_thread->event->func, 0);
 	return zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
 }
 
@@ -246,7 +244,7 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 				      a_thread->event->str_format,
 				      a_thread->event->str_args);
 		} else {
-			return zlog_buf_printf(a_buf, "format=(null)");
+			return zlog_buf_append(a_buf, "format=(null)", sizeof("format=(null)")-1);
 		}
 	} else if (a_thread->event->generate_cmd == ZLOG_HEX) {
 		int rc;
@@ -255,22 +253,11 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 
 		/* thread buf start == null or len <= 0 */
 		if (a_thread->event->hex_buf == NULL) {
-			rc = zlog_buf_printf(a_buf, "hex_buf=(null)");
-			goto zlog_hex_exit;
-		} else if (a_thread->event->hex_buf_len <= 0) {
-			rc = zlog_buf_printf(a_buf, "(hex_buf_len=%ld) <= 0",
-					    (long) a_thread->event->hex_buf_len);
+			rc = zlog_buf_append(a_buf, "buf=(null)", sizeof("buf=(null)")-1);
 			goto zlog_hex_exit;
 		}
 
-		rc = zlog_buf_printf(a_buf, "hex_buf_len=[%ld]\n",
-				     (long) a_thread->event->hex_buf_len);
-		if (rc) {
-			goto zlog_hex_exit;
-		}
-
-		rc = zlog_buf_append(a_buf, ZLOG_HEX_HEAD,
-				     sizeof(ZLOG_HEX_HEAD)-1);
+		rc = zlog_buf_append(a_buf, ZLOG_HEX_HEAD, sizeof(ZLOG_HEX_HEAD)-1);
 		if (rc) {
 			goto zlog_hex_exit;
 		}
@@ -282,67 +269,48 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 			unsigned char c;
 
 			rc = zlog_buf_append(a_buf, "\n", 1);
-			if (rc) {
-				goto zlog_hex_exit;
-			}
+			if (rc)  goto zlog_hex_exit;
 
-			rc = zlog_buf_printf(a_buf, "%010.10ld   ",
-					     line_offset + 1);
-			if (rc) {
-				goto zlog_hex_exit;
-			}
+			rc = zlog_buf_printf_dec64(a_buf, line_offset + 1, 10);
+			if (rc)  goto zlog_hex_exit;
+			rc = zlog_buf_append(a_buf, "   ", 3);
+			if (rc)  goto zlog_hex_exit;
 
 			for (byte_offset = 0; byte_offset < 16; byte_offset++) {
-				if (line_offset * 16 + byte_offset <
-				    a_thread->event->hex_buf_len) {
-					c = *((unsigned char *)a_thread->event->
-					      hex_buf + line_offset * 16 +
-					      byte_offset);
-					rc = zlog_buf_printf(a_buf, "%02x ", c);
-					if (rc) {
-						goto zlog_hex_exit;
-					}
+				if (line_offset * 16 + byte_offset < a_thread->event->hex_buf_len) {
+					c = *((unsigned char *)a_thread->event->hex_buf
+						+ line_offset * 16 + byte_offset);
+					rc = zlog_buf_printf_hex(a_buf, c, 2);
+					if (rc) goto zlog_hex_exit;
+					rc = zlog_buf_append(a_buf, " ", 1);
+					if (rc) goto zlog_hex_exit;
 				} else {
 					rc = zlog_buf_append(a_buf, "   ", 3);
-					if (rc) {
-						goto zlog_hex_exit;
-					}
+					if (rc)  goto zlog_hex_exit;
 				}
 			}
 
 			rc = zlog_buf_append(a_buf, "  ", 2);
-			if (rc) {
-				goto zlog_hex_exit;
-			}
+			if (rc) goto zlog_hex_exit;
 
 			for (byte_offset = 0; byte_offset < 16; byte_offset++) {
-				if (line_offset * 16 + byte_offset <
-				    a_thread->event->hex_buf_len) {
-					c = *((unsigned char *)a_thread->event->
-					      hex_buf + line_offset * 16 +
-					      byte_offset);
+				if (line_offset * 16 + byte_offset < a_thread->event->hex_buf_len) {
+					c = *((unsigned char *)a_thread->event->hex_buf
+						+ line_offset * 16 + byte_offset);
 					if (c >= 32 && c <= 126) {
-						rc = zlog_buf_printf(a_buf, "%c", c);
-						if (rc) {
-							goto zlog_hex_exit;
-						}
+						rc = zlog_buf_append(a_buf,(char*)&c, 1);
+						if (rc)  goto zlog_hex_exit;
 					} else {
-						rc = zlog_buf_append(a_buf, ".",
-								     1);
-						if (rc) {
-							goto zlog_hex_exit;
-						}
+						rc = zlog_buf_append(a_buf, ".", 1);
+						if (rc)  goto zlog_hex_exit;
 					}
 				} else {
 					rc = zlog_buf_append(a_buf, " ", 1);
-					if (rc) {
-						goto zlog_hex_exit;
-					}
+					if (rc)  goto zlog_hex_exit;
 				}
 			}
 
-			if (line_offset * 16 + byte_offset >=
-			    a_thread->event->hex_buf_len) {
+			if (line_offset * 16 + byte_offset >= a_thread->event->hex_buf_len) {
 				break;
 			}
 

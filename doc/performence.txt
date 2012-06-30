@@ -14,14 +14,14 @@ sys	0m0.130s
 -------------------------------------------------
 v1.1.0
 $ time ./test_press_zlog 1 10 100000
-real	0m1.427s
-user	0m2.270s
-sys	0m0.320s
+real	0m1.107s
+user	0m1.500s
+sys	0m0.340s
 
 $ time ./test_press_zlog2 1 10 100000
-real	0m1.295s
-user	0m2.140s
-sys	0m0.160s
+real	0m0.898s
+user	0m1.480s
+sys	0m0.150s
 -------------------------------------------------
 v1.0.7
 $ time ./test_press_zlog 1 10 100000

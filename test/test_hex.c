@@ -78,9 +78,10 @@ int main(int argc, char** argv)
 	FILE	*fp;
 	char	*dmp;
 	long	dmp_len = 0;
+	int	ntimes;
 
-	if (argc != 2) {
-		printf("useage: test_hex [file]\n");
+	if (argc != 3) {
+		printf("useage: test_hex [file] [ntimes]\n");
 		exit(1);
 	}
 
@@ -89,6 +90,8 @@ int main(int argc, char** argv)
 		printf("fopen[%s] fail\n", argv[1]);
 		exit(1);
 	}
+
+	ntimes = atoi(argv[2]);
 	
 	zlog_category_t *zc;
 
@@ -108,9 +111,8 @@ int main(int argc, char** argv)
 
 	rc = ReadTotalFile(fp, &dmp, &dmp_len);
 
+	while(ntimes--) HZLOG_DEBUG(zc, dmp, dmp_len);
 
-	HZLOG_DEBUG(zc, dmp, dmp_len);
-rc = system("ps -o \"pid,ppid,pcpu,pmem,rssize,start_time,args\" | grep test_hex");
 	fclose(fp);
 	free(dmp);
 

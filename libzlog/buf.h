@@ -22,6 +22,7 @@
 
 #include <stdarg.h>
 #include <time.h>
+#include <stdint.h>
 
 typedef struct zlog_buf_s {
 	char *start;
@@ -44,17 +45,22 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
 
 #define zlog_buf_restart(a_buf) do { \
 	a_buf->tail = a_buf->start; \
-} while(0);
+} while(0)
 
 #define zlog_buf_len(a_buf) (a_buf->tail - a_buf->start)
 #define zlog_buf_str(a_buf) (a_buf->start)
 #define zlog_buf_seal(a_buf) do {*(a_buf)->tail = '\0';} while (0)
 
-int zlog_buf_printf(zlog_buf_t * a_buf, const char *format, ...);
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
 
 int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 			int left_adjust, size_t min_width, size_t max_width);
+
+int zlog_buf_printf_num(zlog_buf_t * a_buf, uint64_t ui64, int is_hex, int width);
+
+int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width);
+int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width);
+int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width);
 
 #endif
