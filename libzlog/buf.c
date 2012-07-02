@@ -449,6 +449,7 @@ int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width)
 		return -1;
 	}
 
+
 	p = tmp + ZLOG_INT32_LEN;
 	do {
 		/* the "(uint32_t)" cast disables the BCC's warning */
@@ -467,7 +468,7 @@ int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width)
 #endif
 
 	/* zero or space padding */
-	num_len = (tmp + ZLOG_INT64_LEN) - p;
+	num_len = (tmp + ZLOG_INT32_LEN) - p;
 
 	if (width > num_len) {
 		zero_len = width - num_len;
