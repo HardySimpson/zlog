@@ -12,12 +12,13 @@
 [ ] rcat
 [ ] rule_name
 [ ] 增加trace级别
-[ ] hex那段重写,内置到buf内
 [ ] format,spec,level采用直接数组的方式重写
 
 --- 1.1.0 ---
+[ ] hex那段重写,内置到buf内
+[ ] spec改为switch循环, 如果可能的话rule也照样
 [x] 把__LINE__ 变成string, 需要改接口
-[x] 建立bit位来判断,无锁判断
+[o] 建立bit位来判断,无锁判断
 [o] 寻找快速的方法把us, srcline变成字符串
 [o] 在一开始就判断是否需要输出,
 [o] 使用pthread_key_t线程私有变量来存储zlog_thread_t，仅有1%不到的提高

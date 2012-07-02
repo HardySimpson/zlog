@@ -865,8 +865,6 @@ void zlog(zlog_category_t * category,
 	zlog_thread_t *a_thread;
 	va_list args;
 
-	zc_error("%d", ((category->level_bitmap[level/8] >> (7 - level % 8)) & 0x01));
-	zc_error("%d", zlog_category_needless_level(category, level));
 	if (zlog_category_needless_level(category, level)) return;
 
 	pthread_rwlock_rdlock(&zlog_env_lock);

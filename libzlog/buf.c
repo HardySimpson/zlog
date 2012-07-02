@@ -293,11 +293,11 @@ int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width)
 
 	p = tmp + ZLOG_INT32_LEN;
 	do {
-		*--p = (u_char) (ui32 % 10 + '0');
+		*--p = (unsigned char) (ui32 % 10 + '0');
 	} while (ui32 /= 10);
 
 	/* zero or space padding */
-	num_len = (tmp + ZLOG_INT64_LEN) - p;
+	num_len = (tmp + ZLOG_INT32_LEN) - p;
 
 	if (width > num_len) {
 		zero_len = width - num_len;
@@ -377,12 +377,12 @@ int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width)
 		ui32 = (uint32_t) ui64;
 
 		do {
-			*--p = (u_char) (ui32 % 10 + '0');
+			*--p = (unsigned char) (ui32 % 10 + '0');
 		} while (ui32 /= 10);
 
 	} else {
 		do {
-			*--p = (u_char) (ui64 % 10 + '0');
+			*--p = (unsigned char) (ui64 % 10 + '0');
 		} while (ui64 /= 10);
 	}
 
