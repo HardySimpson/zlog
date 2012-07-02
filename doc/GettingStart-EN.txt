@@ -106,8 +106,8 @@ hello, zlog
 6. Links:
 
 Download: https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-GettingStart: doc/GettingStart-CN.txt GettingStart-EN.txt
-UsersGuide: doc/UsersGuide-CN.pdf UsersGuide-EN.pdf
+GettingStart: https://github.com/HardySimpson/zlog/wiki/Getting-Start
+UsersGuide-En: https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf
 SourceCode: git@github.com:HardySimpson/zlog.git
 Mail List: https://github.com/HardySimpson/zlog/issues
 Homepage(in English): http://hardysimpson.github.com/zlog

@@ -102,8 +102,8 @@ hello, zlog
 
 6.相关链接
 软件下载：https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-上手指南：doc目录下 GettingStart-CN.txt GettingStart-EN.txt
-使用攻略：doc目录下 UsersGuide-CN.pdf UsersGuide-EN.pdf
+上手指南：https://github.com/HardySimpson/zlog/wiki/%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97
+使用攻略：https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf
 源代码：git@github.com:HardySimpson/zlog.git
 问题讨论区：https://github.com/HardySimpson/zlog/issues
 英文主页：http://hardysimpson.github.com/zlog
