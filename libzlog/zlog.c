@@ -604,14 +604,22 @@ void vzlog(zlog_category_t * category,
 {
 	zlog_thread_t *a_thread;
 
+	/* The bitmap determination here is not under the protection of rdlock.
+	 * It may be changed by other CPU by zlog_reload() halfway.
+	 *
+	 * Old or strange value may be read here,
+	 * but it is safe, the bitmap is valid as long as category exist,
+	 * And will be the right value after zlog_reload()
+	 *
+	 * For speed up, if one log will not be ouput,
+	 * There is no need to aquire rdlock.
+	 */
+	if (zlog_category_needless_level(category, level)) return;
+
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
-		goto exit;
-	}
-
-	if (!zlog_category_should_ouput(category, level)) {
 		goto exit;
 	}
 
@@ -665,14 +673,12 @@ void hzlog(zlog_category_t *category,
 {
 	zlog_thread_t *a_thread;
 
+	if (zlog_category_needless_level(category, level)) return;
+
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
-		goto exit;
-	}
-
-	if (!zlog_category_should_ouput(category, level)) {
 		goto exit;
 	}
 
@@ -727,6 +733,8 @@ void vdzlog(const char *file, size_t filelen,
 {
 	zlog_thread_t *a_thread;
 
+	if (zlog_category_needless_level(zlog_default_category, level)) return;
+
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag < 0) {
@@ -738,10 +746,6 @@ void vdzlog(const char *file, size_t filelen,
 	if (!zlog_default_category) {
 		zc_error("zlog_default_category is null,"
 			"dzlog_init() or dzlog_set_cateogry() is not called above");
-		goto exit;
-	}
-
-	if (!zlog_category_should_ouput(zlog_default_category, level)) {
 		goto exit;
 	}
 
@@ -794,6 +798,8 @@ void hdzlog(const char *file, size_t filelen,
 {
 	zlog_thread_t *a_thread;
 
+	if (zlog_category_needless_level(zlog_default_category, level)) return;
+
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag < 0) {
@@ -805,10 +811,6 @@ void hdzlog(const char *file, size_t filelen,
 	if (!zlog_default_category) {
 		zc_error("zlog_default_category is null,"
 			"dzlog_init() or dzlog_set_cateogry() is not called above");
-		goto exit;
-	}
-
-	if (!zlog_category_should_ouput(zlog_default_category, level)) {
 		goto exit;
 	}
 
@@ -863,14 +865,14 @@ void zlog(zlog_category_t * category,
 	zlog_thread_t *a_thread;
 	va_list args;
 
+	zc_error("%d", ((category->level_bitmap[level/8] >> (7 - level % 8)) & 0x01));
+	zc_error("%d", zlog_category_needless_level(category, level));
+	if (zlog_category_needless_level(category, level)) return;
+
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag < 0) {
 		zc_error("before use, must zlog_init first!!!");
-		goto exit;
-	}
-
-	if (!zlog_category_should_ouput(category, level)) {
 		goto exit;
 	}
 
@@ -924,6 +926,8 @@ void dzlog(const char *file, size_t filelen, const char *func, size_t funclen, l
 	zlog_thread_t *a_thread;
 	va_list args;
 
+	if (zlog_category_needless_level(zlog_default_category, level)) return;
+
 	pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (zlog_env_init_flag < 0) {
@@ -935,10 +939,6 @@ void dzlog(const char *file, size_t filelen, const char *func, size_t funclen, l
 	if (!zlog_default_category) {
 		zc_error("zlog_default_category is null,"
 			"dzlog_init() or dzlog_set_cateogry() is not called above");
-		goto exit;
-	}
-
-	if (!zlog_category_should_ouput(zlog_default_category, level)) {
 		goto exit;
 	}
 

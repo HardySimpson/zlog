@@ -39,7 +39,6 @@ typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thre
 
 struct zlog_rule_s {
 	char category[MAXLEN_CFG_LINE + 1];
-	int level;
 	char compare_char;
 	/* 
 	 * [*] log all level
@@ -47,6 +46,8 @@ struct zlog_rule_s {
 	 * [=] log level == rule level 
 	 * [!] log level != rule level
 	 */
+	int level;
+	unsigned char level_bitmap[32];
 
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_file_specs;
@@ -115,8 +116,6 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 		break;   \
 	}   \
 } while(0) 
-#endif
-
 #define zlog_rule_should_output(a_rule, l, result) do { \
 	switch (a_rule->compare_char) {    \
 	case '*' :    \
@@ -133,6 +132,11 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 		break;    \
 	}    \
 } while(0)
+#endif
+
+
+#define zlog_rule_should_output(a_rule, l) \
+	((a_rule->level_bitmap[l/8] >> (7 - l % 8)) & 0x01)
 
 
 #endif

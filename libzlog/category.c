@@ -53,6 +53,18 @@ void zlog_category_del(zlog_category_t * a_category)
 	return;
 }
 
+/* overlap one rule's level bitmap to cateogry,
+ * so category can judge whether a log level will be output by itself
+ * It is safe when configure is reloaded, when rule will be released an recreated
+ */
+static void zlog_cateogry_overlap_bitmap(zlog_category_t * a_category, zlog_rule_t *a_rule)
+{
+	int i;
+	for(i = 0; i < sizeof(a_rule->level_bitmap); i++) {
+		a_category->level_bitmap[i] |= a_rule->level_bitmap[i];
+	}
+}
+
 static int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist_t * rules)
 {
 	int i;
@@ -63,6 +75,8 @@ static int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist
 
 	/* before set, clean last fit rules first */
 	if (a_category->fit_rules) zc_arraylist_del(a_category->fit_rules);
+
+	memset(a_category->level_bitmap, 0x00, sizeof(a_category->level_bitmap));
 
 	a_category->fit_rules = zc_arraylist_new(NULL);
 	if (!(a_category->fit_rules)) {
@@ -78,6 +92,7 @@ static int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist
 				zc_error("zc_arrylist_add fail");
 				goto err;
 			}
+			zlog_cateogry_overlap_bitmap(a_category, a_rule);
 			count++;
 		}
 
@@ -93,6 +108,7 @@ static int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist
 				zc_error("zc_arrylist_add fail");
 				goto err;
 			}
+			zlog_cateogry_overlap_bitmap(a_category, wastebin_rule);
 			count++;
 		} else {
 			zc_debug("category[%s], no match rules & no wastebin_rule", a_category->name);
@@ -149,6 +165,9 @@ int zlog_category_update_rules(zlog_category_t * a_category, zc_arraylist_t * ne
 	if (a_category->fit_rules_backup) zc_arraylist_del(a_category->fit_rules_backup);
 	a_category->fit_rules_backup = a_category->fit_rules;
 	a_category->fit_rules = NULL;
+
+	memcpy(a_category->level_bitmap_backup, a_category->level_bitmap,
+			sizeof(a_category->level_bitmap));
 	
 	/* 2nd, obtain new_rules to fit_rules */
 	if (zlog_category_obtain_rules(a_category, new_rules)) {
@@ -173,6 +192,8 @@ void zlog_category_commit_rules(zlog_category_t * a_category)
 
 	zc_arraylist_del(a_category->fit_rules_backup);
 	a_category->fit_rules_backup = NULL;
+	memset(a_category->level_bitmap_backup, 0x00,
+			sizeof(a_category->level_bitmap_backup));
 	return;
 }
 
@@ -197,6 +218,12 @@ void zlog_category_rollback_rules(zlog_category_t * a_category)
 		a_category->fit_rules = a_category->fit_rules_backup;
 		a_category->fit_rules_backup = NULL;
 	}
+
+	memcpy(a_category->level_bitmap, a_category->level_bitmap_backup,
+			sizeof(a_category->level_bitmap));
+	memset(a_category->level_bitmap_backup, 0x00,
+			sizeof(a_category->level_bitmap_backup));
+	
 	return; /* always success */
 }
 
@@ -224,11 +251,10 @@ int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread)
 
 int zlog_category_should_ouput(zlog_category_t * a_category, int level)
 {
-	int i, r;
+	int i;
 	zlog_rule_t *a_rule;
 	zc_arraylist_foreach(a_category->fit_rules, i, a_rule) {
-		zlog_rule_should_output(a_rule, level, r);
-		if (r) return 1;
+		if (zlog_rule_should_output(a_rule, level)) return 1;
 	}
 
 	return 0;

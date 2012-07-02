@@ -519,6 +519,30 @@ zlog_rule_t *zlog_rule_new(char *line,
 	}
 	a_rule->level = zlog_level_list_atoi(a_rule->levels, p);
 
+	/* level_bit is a bitmap represents which level can be output 
+	 * 32bytes, [0-255] levels, see level.c
+	 * which bit field is 1 means allow output and 0 not
+	 */
+	switch (a_rule->compare_char) {
+	case '=':
+		memset(a_rule->level_bitmap, 0x00, sizeof(a_rule->level_bitmap));
+		a_rule->level_bitmap[a_rule->level / 8] |= (1 << (7 - a_rule->level % 8));
+		break;
+	case '!':
+		memset(a_rule->level_bitmap, 0xFF, sizeof(a_rule->level_bitmap));
+		a_rule->level_bitmap[a_rule->level / 8] &= ~(1 << (7 - a_rule->level % 8));
+		break;
+	case '*':
+		memset(a_rule->level_bitmap, 0xFF, sizeof(a_rule->level_bitmap));
+		break;
+	case '.':
+		memset(a_rule->level_bitmap, 0x00, sizeof(a_rule->level_bitmap));
+		a_rule->level_bitmap[a_rule->level / 8] |= ~(0xFF << (8 - a_rule->level % 8));
+		memset(a_rule->level_bitmap + a_rule->level / 8 + 1, 0xFF,
+				sizeof(a_rule->level_bitmap) -  a_rule->level / 8 - 1);
+		break;
+	}
+
 	/* action               ["%H/log/aa.log", 20MB * 12 ; MyTemplate]
 	 * output               ["%H/log/aa.log", 20MB * 12]
 	 * format               [MyTemplate]
