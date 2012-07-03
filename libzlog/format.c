@@ -156,20 +156,16 @@ err:
  */
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
 {
-	int rc;
 	int i;
 	zlog_spec_t *a_spec;
 
 	zlog_buf_restart(a_thread->msg_buf);
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
-		if ((rc = zlog_spec_gen_msg(a_spec, a_thread)) == 0) continue;
-		if (rc < 0) {
-			zc_error("zlog_spec_gen_msg fail");
+		if (zlog_spec_gen_msg(a_spec, a_thread) == 0) {
+			continue;
+		} else {
 			return -1;
-		} else if (rc > 0) {
-			zc_error("zlog_spec_gen_msg, buffer is full");
-			break;
 		}
 	}
 

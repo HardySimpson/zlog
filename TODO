@@ -16,7 +16,7 @@
 
 --- 1.1.0 ---
 [ ] hex那段重写,内置到buf内
-[ ] spec改为switch循环, 如果可能的话rule也照样
+[x] spec改为switch循环, 如果可能的话rule也照样, 发现switch的效率不如函数指针
 [x] 把__LINE__ 变成string, 需要改接口
 [o] 建立bit位来判断,无锁判断
 [o] 寻找快速的方法把us, srcline变成字符串

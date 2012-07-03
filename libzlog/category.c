@@ -237,26 +237,8 @@ int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread)
 
 	/* go through all match rules to output */
 	zc_arraylist_foreach(a_category->fit_rules, i, a_rule) {
-		//zlog_rule_output(a_rule, a_thread);
-		if (zlog_rule_output(a_rule, a_thread)) {
-			zc_error("hzb_log_rule_output fail");
-			rc = -1;
-			/* one rule fail, maybe other will success */
-			continue;
-		}
+		rc = zlog_rule_output(a_rule, a_thread);
 	}
 
 	return rc;
 }
-
-int zlog_category_should_ouput(zlog_category_t * a_category, int level)
-{
-	int i;
-	zlog_rule_t *a_rule;
-	zc_arraylist_foreach(a_category->fit_rules, i, a_rule) {
-		if (zlog_rule_should_output(a_rule, level)) return 1;
-	}
-
-	return 0;
-}
-

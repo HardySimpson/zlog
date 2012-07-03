@@ -47,7 +47,7 @@ struct zlog_rule_s {
 	 * [!] log level != rule level
 	 */
 	int level;
-	unsigned char level_bitmap[32];
+	unsigned char level_bitmap[32]; /* for category determine whether ouput or not */
 
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_file_specs;
@@ -91,52 +91,6 @@ int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule);
 
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
-
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
-#if 0
-#define zlog_rule_output(a_rule, a_thread) do { \
-	switch (a_rule->compare_char) {   \
-	case '*' :   \
-		a_rule->output(a_rule, a_thread);   \
-		break;   \
-	case '.' :   \
-		if (a_thread->event->level >= a_rule->level) {   \
-			a_rule->output(a_rule, a_thread);   \
-		}   \
-		break;   \
-	case '=' :   \
-		if (a_thread->event->level == a_rule->level) {   \
-			a_rule->output(a_rule, a_thread);   \
-		}   \
-		break;   \
-	case '!' :   \
-		if (a_thread->event->level != a_rule->level) {   \
-			a_rule->output(a_rule, a_thread);   \
-		}   \
-		break;   \
-	}   \
-} while(0) 
-#define zlog_rule_should_output(a_rule, l, result) do { \
-	switch (a_rule->compare_char) {    \
-	case '*' :    \
-		result = 1;    \
-		break;    \
-	case '.' :    \
-		(l >= a_rule->level) ? (result = 1) : (result = 0);    \
-		break;    \
-	case '=' :    \
-		(l == a_rule->level) ? (result = 1) : (result = 0);    \
-		break;    \
-	case '!' :    \
-		(l != a_rule->level) ? (result = 1) : (result = 0);    \
-		break;    \
-	}    \
-} while(0)
-#endif
-
-
-#define zlog_rule_should_output(a_rule, l) \
-	((a_rule->level_bitmap[l/8] >> (7 - l % 8)) & 0x01)
-
 
 #endif
