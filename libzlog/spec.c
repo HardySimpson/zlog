@@ -143,8 +143,11 @@ static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thre
 
 static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	zc_assert(a_thread->event->file, -1);
-	return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+	if (!a_thread->event->file) {
+		return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
+	} else {
+		return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+	}
 }
 
 static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -155,7 +158,11 @@ static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_
 		return zlog_buf_append(a_buf, p + 1,
 			(char*)a_thread->event->file + a_thread->event->file_len - p - 1);
 	} else {
-		return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+		if (!a_thread->event->file) {
+			return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
+		} else {
+			return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+		}
 	}
 }
 
@@ -167,8 +174,11 @@ static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 
 static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	zc_assert(a_thread->event->func, 0);
-	return zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
+	if (!a_thread->event->file) {
+		return zlog_buf_append(a_buf, "(func=null)", sizeof("(func=null)") - 1);
+	} else {
+		return zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
+	}
 }
 
 
