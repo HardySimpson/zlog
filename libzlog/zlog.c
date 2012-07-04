@@ -48,13 +48,14 @@ static void zlog_fini_inner(void)
 {
 	pthread_key_delete(zlog_thread_key);
 	if (zlog_env_threads) zlog_thread_list_del(zlog_env_threads);
-	if (zlog_env_categories) zlog_category_table_del(zlog_env_categories);
-	if (zlog_env_records) zlog_record_table_del(zlog_env_records);
-	if (zlog_env_conf) zlog_conf_del(zlog_env_conf);
 	zlog_env_threads = NULL;
+	if (zlog_env_categories) zlog_category_table_del(zlog_env_categories);
 	zlog_env_categories = NULL;
-	zlog_env_conf = NULL;
 	zlog_default_category = NULL;
+	if (zlog_env_records) zlog_record_table_del(zlog_env_records);
+	zlog_env_records = NULL;
+	if (zlog_env_conf) zlog_conf_del(zlog_env_conf);
+	zlog_env_conf = NULL;
 	return;
 }
 
