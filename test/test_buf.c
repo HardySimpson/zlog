@@ -32,34 +32,10 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-#if 0
-	zlog_buf_printf(a_buf, "1234567890");
-	zc_error("a_buf->start[%s]", a_buf->start);
-	zc_error("------------");
-
-	zlog_buf_restart(a_buf);
-	zlog_buf_printf(a_buf, "123456789012345");
-	zc_error("a_buf->start[%s]", a_buf->start);
-	zc_error("------------");
-
-	zlog_buf_restart(a_buf);
-	zlog_buf_printf(a_buf, "1234567890123456789");
-	zc_error("a_buf->start[%s]", a_buf->start);
-	zc_error("------------");
-
-	zlog_buf_restart(a_buf);
-	zlog_buf_printf(a_buf, "12345678901234567890");
-	zc_error("a_buf->start[%s]", a_buf->start);
-	zc_error("------------");
-
-	zlog_buf_restart(a_buf);
-	zlog_buf_printf(a_buf, "1234567890123456789012345");
-	zc_error("a_buf->start[%s]", a_buf->start);
-	zc_error("------------");
-
 	aa = "123456789";
 	zlog_buf_append(a_buf, aa, strlen(aa));
 	zc_error("a_buf->start[%s]", a_buf->start);
+	fwrite(a_buf->start, zlog_buf_len(a_buf), 1, stdout);
 	zc_error("------------");
 
 	aa = "0";
@@ -106,7 +82,6 @@ int main(int argc, char** argv)
 			zc_error("------------");
 		}
 	}
-#endif
 
 	aa = "1234567890";
 	zc_error("left[0],max[%d],min[%d]", 15, 5);
