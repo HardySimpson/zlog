@@ -40,7 +40,6 @@ int zlog_category_update_rules(zlog_category_t * a_category, zc_arraylist_t * ne
 void zlog_category_commit_rules(zlog_category_t * a_category);
 void zlog_category_rollback_rules(zlog_category_t * a_category);
 
-
 int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread);
 
 #define zlog_category_needless_level(a_category, lv) \

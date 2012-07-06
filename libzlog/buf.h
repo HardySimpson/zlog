@@ -21,7 +21,6 @@
 #define __zlog_buf_h
 
 #include <stdarg.h>
-#include <time.h>
 #include <stdint.h>
 
 typedef struct zlog_buf_s {
@@ -38,10 +37,18 @@ typedef struct zlog_buf_s {
 	size_t truncate_str_len;
 } zlog_buf_t;
 
-zlog_buf_t *zlog_buf_new(size_t buf_size_min, size_t buf_size_max,
-			 const char *truncate_str);
+
+zlog_buf_t *zlog_buf_new(size_t min, size_t max, const char *truncate_str);
 void zlog_buf_del(zlog_buf_t * a_buf);
 void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
+
+int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
+int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
+int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
+			int left_adjust, size_t in_width, size_t out_width);
+int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width);
+int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width);
+int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width);
 
 #define zlog_buf_restart(a_buf) do { \
 	a_buf->tail = a_buf->start; \
@@ -50,17 +57,5 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
 #define zlog_buf_len(a_buf) (a_buf->tail - a_buf->start)
 #define zlog_buf_str(a_buf) (a_buf->start)
 #define zlog_buf_seal(a_buf) do {*(a_buf)->tail = '\0';} while (0)
-
-int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
-int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
-
-int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
-			int left_adjust, size_t min_width, size_t max_width);
-
-int zlog_buf_printf_num(zlog_buf_t * a_buf, uint64_t ui64, int is_hex, int width);
-
-int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width);
-int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width);
-int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width);
 
 #endif

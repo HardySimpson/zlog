@@ -1452,7 +1452,7 @@ reference "ite:同步IO文件"
 \end_layout
 
 \begin_layout Standard
-(level int)必须在[1,253]这个范围内，越大越着重要。(syslog level)是可选的，如果不设默认为LOG_DEBUG。
+(level int)必须在[1,253]这个范围内，越大越重要。(syslog level)是可选的，如果不设默认为LOG_DEBUG。
 \end_layout
 
 \begin_layout Standard

@@ -13,8 +13,8 @@ exe = 		\
 	test_record	\
 	test_press_zlog		\
 	test_press_zlog2	\
-	test_press_printf	\
-	test_press_printf2	\
+	test_press_fwrite	\
+	test_press_fwrite2	\
 	test_press_syslog	\
 	test_syslog	\
 	test_default \
