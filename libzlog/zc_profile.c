@@ -50,7 +50,7 @@ int zc_profile_inner(int flag, const char *file, const long line, const char *fm
 
 	static char *debug_log = NULL;
 	static char *error_log = NULL;
-	static volatile sig_atomic_t init_flag = 0;
+	static size_t init_flag = 0;
 
 	if (!init_flag) {
 		init_flag = 1;

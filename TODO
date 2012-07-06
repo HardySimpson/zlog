@@ -15,9 +15,11 @@
 [ ] format,spec,level采用直接数组的方式重写
 [ ] hex那段重写,内置到buf内
 
+--- 1.1.1 ---
+[o] 修正rule.c, 不使用FILE*, 避免日志交错
 --- 1.1.0 ---
-[x] spec改为switch循环, 如果可能的话rule也照样, 发现switch的效率不如函数指针
-[x] 把__LINE__ 变成string, 需要改接口
+[x] spec改为switch循环, 如果可能的话rule也照样--发现switch的效率不如函数指针
+[x] 把__LINE__ 变成string--需要改接口
 [o] 建立bit位来判断,无锁判断
 [o] 寻找快速的方法把us, srcline变成字符串
 [o] 在一开始就判断是否需要输出,
@@ -83,7 +85,7 @@
 [o] zlog-gen-conf
 [o] rotate控制个数
 --- 废弃想法 ---
-[x] 使用writev来写日志，提高效率，达到一次形成，多次输出的目的
+[x] 使用writev来写日志，提高效率，达到一次形成，多次输出的目的, writev内部也是开buffermemcpy
 [x] 尝试信号量的方法来打成线程安全的转档互斥问题
 [x] zlog.h变长参数宏的问题（参考glib的log解决）
 [x] rule的dynamic] file可以从format获取

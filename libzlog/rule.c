@@ -45,7 +45,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s,%p,(%d,%p)(%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s,%p,(%d)(%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
@@ -54,7 +54,6 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->file_path,
 		a_rule->dynamic_file_specs,
 		a_rule->static_file_descriptor,
-		a_rule->static_file_stream,
 
 		a_rule->file_open_flags,
 		a_rule->file_max_size,
@@ -84,17 +83,16 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	if (fwrite(zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf),
-			1, a_rule->static_file_stream) != 1) {
-		zc_error("fwrite fail, errno[%d]", errno);
+	if (write(a_rule->static_file_descriptor,
+			zlog_buf_str(a_thread->msg_buf),
+			zlog_buf_len(a_thread->msg_buf)) < 0) {
+		zc_error("write fail, errno[%d]", errno);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fflush(a_rule->static_file_stream)) {
-			zc_error("fflush[%p] fail, errno[%d]", a_rule->static_file_stream, errno);
-		} else if (fsync(a_rule->static_file_descriptor)) {
+		if (fsync(a_rule->static_file_descriptor)) {
 			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
 		}
 	}
@@ -115,16 +113,16 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 	pthread_rwlock_rdlock(&(a_rule->static_reopen_lock));
 
 	len = zlog_buf_len(a_thread->msg_buf);
-	if (fwrite(zlog_buf_str(a_thread->msg_buf), len, 1, a_rule->static_file_stream) != 1) {
-		zc_error("fwrite fail, errno[%d]", errno);
+	if (write(a_rule->static_file_descriptor,
+			zlog_buf_str(a_thread->msg_buf),
+			zlog_buf_len(a_thread->msg_buf)) < 0) {
+		zc_error("write fail, errno[%d]", errno);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fflush(a_rule->static_file_stream)) {
-			zc_error("fflush[%p] fail, errno[%d]", a_rule->static_file_stream, errno);
-		} else if (fsync(a_rule->static_file_descriptor)) {
+		if (fsync(a_rule->static_file_descriptor)) {
 			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
 		}
 	}
@@ -148,20 +146,15 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 			return -1;
 		}
 
-		if (fclose(a_rule->static_file_stream)) {
-			zc_error("fclose fail, maybe cause by write, errno[%d]", errno);
+		if (close(a_rule->static_file_descriptor)) {
+			zc_error("close fail, maybe cause by write, errno[%d]", errno);
 		}
 
 		a_rule->static_file_descriptor = open(a_rule->file_path,
-			O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+			O_WRONLY | O_APPEND | O_CREAT | a_rule->file_open_flags,
+			a_rule->file_perms);
 		if (a_rule->static_file_descriptor < 0) {
 			zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
-			goto err;
-		}
-
-		a_rule->static_file_stream = fdopen(a_rule->static_file_descriptor, "a");
-		if (!a_rule->static_file_stream) {
-			zc_error("fdopen fd[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
 			goto err;
 		}
 
@@ -216,10 +209,10 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	fd = open(a_thread->path_buf->start,
+	fd = open(zlog_buf_str(a_thread->path_buf),
 		a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_thread->path_buf->start, errno);
+		zc_error("open file[%s] fail, errno[%d]", zlog_buf_str(a_thread->path_buf), errno);
 		return -1;
 	}
 
@@ -257,10 +250,10 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	fd = open(a_thread->path_buf->start,
+	fd = open(zlog_buf_str(a_thread->path_buf),
 		a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
 	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_thread->path_buf->start, errno);
+		zc_error("open file[%s] fail, errno[%d]", zlog_buf_str(a_thread->path_buf), errno);
 		return -1;
 	}
 
@@ -282,7 +275,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 	}
 
 	if (zlog_rotater_rotate(a_rule->rotater,
-				a_thread->path_buf->start,
+				zlog_buf_str(a_thread->path_buf),
 				a_rule->file_max_size,
 				a_rule->file_max_count,
 				len) < 0) {
@@ -633,13 +626,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		}
 
 		/* try to figure out if the log file path is dynamic or static */
-		if (strchr(a_rule->file_path, '%') == NULL
-			&& (a_rule->file_open_flags != O_SYNC)) {
-			/* no % means static, using cached FILE* to fwrite
-			 * but if O_SYNC('-' before path),
-			 * dynamic open write close each time is fast and safe
-			 */
-
+		if (strchr(a_rule->file_path, '%') == NULL) {
 			if (a_rule->file_max_size <= 0) {
 				a_rule->output = zlog_rule_output_static_file_single;
 			} else {
@@ -648,15 +635,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 			}
 
 			a_rule->static_file_descriptor = open(a_rule->file_path,
-				O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
+				O_WRONLY | O_APPEND | O_CREAT | a_rule->file_open_flags,
+				a_rule->file_perms);
 			if (a_rule->static_file_descriptor < 0) {
 				zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
-				goto err;
-			}
-
-			a_rule->static_file_stream = fdopen(a_rule->static_file_descriptor, "a");
-			if (!a_rule->static_file_stream) {
-				zc_error("fdopen fd[%d] fail, errno[%d]", a_rule->static_file_descriptor, errno);
 				goto err;
 			}
 
@@ -734,9 +716,9 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 		zc_arraylist_del(a_rule->dynamic_file_specs);
 		a_rule->dynamic_file_specs = NULL;
 	}
-	if (a_rule->static_file_stream) {
-		if (fclose(a_rule->static_file_stream)) {
-			zc_error("fclose fail, maybe cause by write, errno[%d]", errno);
+	if (a_rule->static_file_descriptor) {
+		if (close(a_rule->static_file_descriptor)) {
+			zc_error("close fail, maybe cause by write, errno[%d]", errno);
 		}
 	}
 	free(a_rule);

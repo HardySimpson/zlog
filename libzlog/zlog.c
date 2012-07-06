@@ -40,7 +40,7 @@ static zc_arraylist_t *zlog_env_threads;
 static zc_hashtable_t *zlog_env_categories;
 static zc_hashtable_t *zlog_env_records;
 static zlog_category_t *zlog_default_category;
-static volatile sig_atomic_t zlog_env_reload_conf_count;
+static size_t zlog_env_reload_conf_count;
 static int zlog_env_init_flag = -1;
 /*******************************************************************************/
 /* inner no need thread-safe */

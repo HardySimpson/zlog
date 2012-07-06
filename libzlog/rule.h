@@ -61,7 +61,7 @@ struct zlog_rule_s {
 	int file_max_count;
 
 	size_t fsync_period;
-	volatile sig_atomic_t fsync_count;
+	size_t fsync_count;
 
 	zc_arraylist_t *levels;
 	int syslog_facility;
