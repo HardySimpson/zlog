@@ -219,19 +219,23 @@ target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout Standard
-GettingStart: doc/GettingStart-CN.txt GettingStart-EN.txt 
-\end_layout
-
-\begin_layout Standard
-UsersGuide: doc/UsersGuide-CN.pdf UsersGuide-EN.pdf
-\end_layout
-
-\begin_layout Standard
 SourceCode: 
 \begin_inset CommandInset href
 LatexCommand href
 name "git@github.com:HardySimpson/zlog.git"
 target "git@github.com:HardySimpson/zlog.git"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+User's Guide(pdf): 
+\begin_inset CommandInset href
+LatexCommand href
+name "https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf"
+target "https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf"
 
 \end_inset
 
@@ -254,6 +258,7 @@ target "https://github.com/HardySimpson/zlog/issues"
 Homepage(in English): 
 \begin_inset CommandInset href
 LatexCommand href
+name "http://hardysimpson.github.com/zlog"
 target "http://hardysimpson.github.com/zlog"
 
 \end_inset

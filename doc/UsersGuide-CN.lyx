@@ -6,6 +6,7 @@
 \begin_preamble
 \usepackage[cm-default]{fontspec}
 \usepackage{xunicode}
+\usepackage[utf8]{inputenc}
 \usepackage{xltxtra}
 \setmainfont[ItalicFont=KaiTi]{SimSun}
 %\setmainfont[ItalicFont=KaiTi]{YaHei Consolas Hybrid}
@@ -233,19 +234,23 @@ target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout Standard
-上手指南：doc/GettingStart-CN.txt GettingStart-EN.txt
-\end_layout
-
-\begin_layout Standard
-使用攻略：doc/UsersGuide-CN.pdf UsersGuide-EN.pdf
-\end_layout
-
-\begin_layout Standard
 源代码：
 \begin_inset CommandInset href
 LatexCommand href
 name "git@github.com:HardySimpson/zlog.git"
 target "git@github.com:HardySimpson/zlog.git"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+用户手册(pdf)：
+\begin_inset CommandInset href
+LatexCommand href
+name "https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf"
+target "https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf"
 
 \end_inset
 
@@ -268,7 +273,8 @@ target "https://github.com/HardySimpson/zlog/issues"
 英文主页：
 \begin_inset CommandInset href
 LatexCommand href
-target "http://hardysimpson.github.com/zlog"
+name "http://hardysimpson.github.com/zlog/"
+target "http://hardysimpson.github.com/zlog/"
 
 \end_inset
 

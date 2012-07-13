@@ -106,7 +106,7 @@ hello, zlog
 使用攻略：https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf
 源代码：git@github.com:HardySimpson/zlog.git
 问题讨论区：https://github.com/HardySimpson/zlog/issues
-英文主页：http://hardysimpson.github.com/zlog
+英文主页：http://hardysimpson.github.com/zlog/
 中文主页：http://www.oschina.net/p/zlog
 作者博客：http://my.oschina.net/HardySimpson/blog
 邮箱：HardySimpson1984@gmail.com
