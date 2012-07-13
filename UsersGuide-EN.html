@@ -1,0 +1,1665 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+            "http://www.w3.org/TR/REC-html40/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>zlog User's Guide
+</TITLE>
+
+<META http-equiv="Content-Type" content="text/html; charset=ISO-8859-15">
+<META name="GENERATOR" content="hevea 1.10">
+<STYLE type="text/css">
+.li-itemize{margin:1ex 0ex;}
+.li-enumerate{margin:1ex 0ex;}
+.dd-description{margin:0ex 0ex 1ex 4ex;}
+.dt-description{margin:0ex;}
+.toc{list-style:none;}
+.thefootnotes{text-align:left;margin:0ex;}
+.dt-thefootnotes{margin:0em;}
+.dd-thefootnotes{margin:0em 0em 0em 2em;}
+.footnoterule{margin:1em auto 1em 0px;width:50%;}
+.caption{padding-left:2ex; padding-right:2ex; margin-left:auto; margin-right:auto}
+.title{margin:2ex auto;text-align:center}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+DIV TABLE{margin-left:inherit;margin-right:inherit;}
+PRE{text-align:left;margin-left:0ex;margin-right:auto;}
+BLOCKQUOTE{margin-left:4ex;margin-right:4ex;text-align:left;}
+TD P{margin:0px;}
+.boxed{border:1px solid black}
+.textboxed{border:1px solid black}
+.vbar{border:none;width:2px;background-color:black;}
+.hbar{border:none;height:2px;width:100%;background-color:black;}
+.hfill{border:none;height:1px;width:200%;background-color:black;}
+.vdisplay{border-collapse:separate;border-spacing:2px;width:auto; empty-cells:show; border:2px solid red;}
+.vdcell{white-space:nowrap;padding:0px;width:auto; border:2px solid green;}
+.display{border-collapse:separate;border-spacing:2px;width:auto; border:none;}
+.dcell{white-space:nowrap;padding:0px;width:auto; border:none;}
+.dcenter{margin:0ex auto;}
+.vdcenter{border:solid #FF8000 2px; margin:0ex auto;}
+.minipage{text-align:left; margin-left:0em; margin-right:auto;}
+.marginpar{border:solid thin black; width:20%; text-align:left;}
+.marginparleft{float:left; margin-left:0ex; margin-right:1ex;}
+.marginparright{float:right; margin-left:1ex; margin-right:0ex;}
+.theorem{text-align:left;margin:1ex auto 1ex 0ex;}
+.part{margin:2ex auto;text-align:center}
+</STYLE>
+</HEAD>
+<BODY >
+<!--HEVEA command line is: /usr/bin/hevea book.hva UsersGuide-EN.tex -->
+<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog User&#X2019;s Guide</H1><H3 CLASS="titlerest">by Hardy Simpson<SUP><A NAME="text1" HREF="#note1">1</A></SUP><SUP><A NAME="text2" HREF="#note2">2</A></SUP></H3></TD></TR>
+</TABLE><!--TOC chapter Contents-->
+<H1 CLASS="chapter"><!--SEC ANCHOR -->Contents</H1><!--SEC END --><UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc1">Chapter 1  What is zlog?</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc2">1.1  zlog 1.1 Release Notes:</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc3">Chapter 2  What is not zlog?</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc4">Chapter 3  Hello World</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc5">3.1  Build and Installation zlog</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc6">3.2  Call and Link zlog in User&#X2019;s application </A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc7">3.3  Hello World Example</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc8">3.4  Simpler Hello World Example</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc9">Chapter 4  Syslog model</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc10">4.1  Category, Rule and Format</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc11">4.2  The difference between syslog model and log4j model</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc12">4.3  Expand syslog model</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc13">Chapter 5  Configure File</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc14">5.1  Global</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc15">5.2  Level</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc16">5.3  Formats</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc17">5.4  Conversion pattern</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc18">5.4.1  Conversion Characters</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc19">5.4.2  Format Modifier </A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc20">5.4.3  Time Character</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc21">5.5  Rules</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc22">5.5.1  Level Matching</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc23">5.5.2  Category Matching</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc24">5.5.3  Output Action</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc25">5.6  Configure File Tools</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc26">Chapter 6  zlog API</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc27">6.1  initialize and finish</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc28">6.2  category operation</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc29">6.3  log functions and macros</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc30">6.4  MDC operation</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc31">6.5  dzlog API</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc32">6.6  User-defined Output</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc33">6.7  debug and profile</A>
+</LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc34">Chapter 7  Advance Using</A>
+<UL CLASS="toc"><LI CLASS="li-toc">
+<A HREF="#htoc35">7.1  MDC</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc36">7.2  Profile zlog Itself</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc37">7.3  User-defined Level</A>
+</LI><LI CLASS="li-toc"><A HREF="#htoc38">7.4  User-defined Output</A>
+</LI></UL>
+</LI></UL><!--TOC chapter What is zlog?-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc1">Chapter 1</A>  What is zlog?</H1><!--SEC END --><P>zlog is a reliable, high efficent, thread safe, flexsible, clear model,
+pure c logging library</P><P>Actually, in the c world there is NO good logging library for application
+like logback in java or log4cxx in c++. printf can work, but can not
+be easily redirected or reformat, syslog is slow and is designed for
+system use.</P><P>So I write zlog.</P><P>It is faster, safer and more powerful than log4c. So it can be widely
+used.</P><P>zlog has feartures below:
+</P><UL CLASS="itemize"><LI CLASS="li-itemize">
+syslog model, better than log4j model
+</LI><LI CLASS="li-itemize">log format customization
+</LI><LI CLASS="li-itemize">multiple output, include static file path, dynamic file path, stdout,
+stderr, syslog, user-defined ouput
+</LI><LI CLASS="li-itemize">runtime mannully or automaticlly refreash configure(safely)
+</LI><LI CLASS="li-itemize">high efficieny, 338&#X2019;638 logs/second on my laptop, about 1000 times
+faster than syslog(3) with rsyslogd
+</LI><LI CLASS="li-itemize">user-defined log level
+</LI><LI CLASS="li-itemize">safely rotate log file on multiple-process or multiple-threads condition
+</LI><LI CLASS="li-itemize">accurate to microseconds
+</LI><LI CLASS="li-itemize">dzlog, a default category log API for easy use
+</LI><LI CLASS="li-itemize">MDC, a log4j style key-value map
+</LI><LI CLASS="li-itemize">self debugable, can output zlog&#X2019;s self debug&amp;error log at runtime
+</LI><LI CLASS="li-itemize">Not depend on any other 3rd party library, just base on POSIX system(and
+a C99 compliant vsnprintf).
+</LI></UL><P>
+Links:</P><P>Download: <A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A></P><P>SourceCode: <A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>User&#X2019;s Guide(pdf): <A HREF="https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf">https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf</A></P><P>Mail List: <A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>Homepage(in English): <A HREF="http://hardysimpson.github.com/zlog">http://hardysimpson.github.com/zlog</A></P><P>Homepage(in Chinese): <A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>Author&#X2019;s Blog(in Chinese): <A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>Author&#X2019;s Email: <A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section zlog 1.1 Release Notes:-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc2">1.1</A>  zlog 1.1 Release Notes:</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+zlog is based on POSIX-compatible system. I just have GNU/linux and
+AIX envrionment and test to compile and run zlog on them. Still I
+think zlog will work well on FreeBSD, NetBSD, OpenBSD, OpenSolaris,
+Mac OS X etc. Test run zlog on any system is welcome.
+</LI><LI CLASS="li-enumerate">in zlog, I use a feature of C99 compliant vsnprintf. That is, if the
+buffer size of destination is not long enough, vsnprintf will return
+the the number of characters (not includ- ing the trailing &#X2019;\0&#X2019;)
+which would have been written to the final string if enough space
+had been available. If the vsnprintf on your sysem is not work like
+that, zlog can not know the right buffer size when a single log is
+longer than buffer. Fortunately, glibc 2.1,libc on AIX, libc on freebsd...
+work in the right way, while glibc 2.0 is not. In this case, user
+should crack zlog himself with a C99 compliant vsnprintf. I suggest
+<A HREF="http://sourceforge.net/projects/ctrio/">ctrio</A>, or <A HREF="http://www.jhweiss.de/software/snprintf.html">C99-snprintf</A>.
+The file buf.c should be cracked, good luck!
+</LI><LI CLASS="li-enumerate">zlog 1.1 is binary compatible with zlog 1.0. Just two difference in
+configure file<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
+%d(%ms, %us) is not correct any more. %d.%ms is correct. %ms
+and %us are brought up to conversion characters.
+</LI><LI CLASS="li-enumerate">Add %D as default time string, which produce output like "2012-04-05
+08:09:10".
+</LI></OL><P>These two increase zlog&#X2019;s performence about 30%. If you are user
+of zlog 1.0.x and are dynamic linked with it, There is no need for
+re-compile you program, just replace the library, and change your
+configure file a little. </P></LI></OL><!--TOC chapter What is not zlog?-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc3">Chapter 2</A>  What is not zlog?</H1><!--SEC END --><P>The goal of zlog is becoming a simple, fast log library for application.
+It will not support too much output like send log to other machine
+through net or save it to database. It will not parse content of log
+and filter them.</P><P>The reason is obvious: library is called by application, all time
+log library takes is part of application&#X2019;s time. And database inserting
+or log content parsing takes a long time. Thest will speed down application.
+These operation should be done in a different process or on a different
+machine.</P><P>If you want all these features, I recommend rsyslog, a excellent syslog
+daemon implementation. It is a independent process receives logs from
+other process or machines, and parse and store logs. Still, it has
+a distance from user application.</P><P>Now user-defined output is support by zlog. People just need to implement
+one ouput function, to transfer log to other process or other machine.
+And leave work of category matching and log format to zlog library. </P><!--TOC chapter Hello World-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section Build and Installation zlog-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc5">3.1</A>  Build and Installation zlog</H2><!--SEC END --><P>Download:<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A>
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ tar -zxvf zlog-latest-stable.tar.gz</TT><P><TT>$ cd zlog-1.0.x/</TT></P><P><TT>$ ./configure --prefix=</TT><TT>[</TT><TT>where u wanna install it</TT><TT>]</TT><TT> \</TT></P><P><TT>      --enable-test </TT></P><P><TT>$ make </TT></P><P><TT>$ sudo make install
+</TT></P></DD></DL></DIV><P>
+If &#X2013;enable-test is used, then all the test program under test directory
+will be built. These are also good example codes which show how to
+use zlog.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+# add one line</TT><P><TT>$ sudo vi /etc/ld.so.conf</TT></P><P><TT>/usr/local/lib</TT></P><P><TT>$ sudo ldconfig
+</TT></P></DD></DL></DIV><P>
+Before running a real program, make sure libzlog.so is in the directory
+where the system&#X2019;s dynamic lib loader can find it. The command metioned
+above is for linux. Other system should find its own way.
+</P><UL CLASS="itemize"><LI CLASS="li-itemize">
+For developer of zlog library. If zlog is built in other path other
+than source path(parallel building), you need to copy all configure
+file to build path by hand, to run test program successfully. Otherwise,
+test program can not find its configure file.</LI></UL><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cp $(top_srcdir)/test/</TT><TT>*</TT><TT>.conf $(top_builddir)/test/</TT><P><TT>$ cd $(top_builddir)/test/</TT></P><P><TT>$ ./test_hello</TT></P><P><TT>hello, zlog</TT></P></DD></DL></DIV><UL CLASS="itemize"><LI CLASS="li-itemize">
+For developer of zlog library. If zlog is downloaded from github,
+there will be no configure shell. It is generated from configure.ac
+by auto tools. You need autoconf, automake in your environment.</LI></UL><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ git clone git@github.com:HardySimpson/zlog.git</TT><P><TT>unzip it..</TT></P><P><TT>$ cd zlog</TT></P><P><TT>$ ./autogen.sh
+</TT></P></DD></DL></DIV><P>
+Then configure is generated and next steps is the same as begin of
+this section.</P><!--TOC section Call and Link zlog in User&#X2019;s application -->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">3.2</A>  Call and Link zlog in User&#X2019;s application </H2><!--SEC END --><P>To use zlog, only add one line below in source c file or cpp file.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+#include "zlog.h"
+</TT></DD></DL></DIV><P>
+If your system has pkgconfig then you can just add this to your makefile
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+CFLAGS += $(shell pkg-config --cflags zlog)</TT><P><TT>LDFLAGS += $(shell pkg-config --libs zlog)
+</TT></P></DD></DL></DIV><P>
+If has not, the hand-made link command is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cc -c -o app.o app.c -I/usr/local/include</TT><P><TT>    # -I</TT><TT>[</TT><TT>where zlog.h is put</TT><TT>]</TT></P><P><TT>$ cc -o app app.o -L/usr/local/lib -lzlog -lpthread</TT></P><P><TT>    # -L</TT><TT>[</TT><TT>where libzlog.so</TT><TT>]</TT><TT>
+</TT></P></DD></DL></DIV><!--TOC section Hello World Example-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc7">3.3</A>  Hello World Example<A NAME="sec:Hello-World-Example"></A></H2><!--SEC END --><P>This example can be found in $(top_builddir)/test/test_hello.c,
+test_hello.conf
+</P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+write a new c source file:<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ vi test_hello.c</TT><P><TT>#include &lt;stdio.h&gt; </TT></P><P><TT>#include "zlog.h"</TT></P><P><TT> </TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+int rc;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>c;</TT></P><P><TT>rc = zlog_init("test_hello.conf");</TT></P><P><TT>if (rc) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("init failed\n");</TT><P><TT>return -1;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>c = zlog_get_category("my_cat");</TT></P><P><TT>if (!c) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>ZLOG_INFO(c, "hello, zlog");</TT></P><P><TT>zlog_fini();</TT></P><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+} 
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">write a configure file in the same path as test_hello.c:<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ vi test_hello.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.DEBUG    &gt;stdout; simple
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">compile and run it!<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cc -c -o test_hello.o test_hello.c -I/usr/local/include</TT><P><TT>$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog</TT></P><P><TT>$ ./test_hello</TT></P><P><TT>hello, zlog
+</TT></P></DD></DL></DIV></LI></OL><!--TOC section Simpler Hello World Example-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc8">3.4</A>  Simpler Hello World Example</H2><!--SEC END --><P>This example can be found in $(top_builddir)/test/test_default.c,
+test_default.conf. The source code is 
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+#include &lt;stdio.h&gt;</TT><P><TT>#include "zlog.h"</TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+int rc;</TT><P><TT>rc = dzlog_init("test_default.conf", "my_cat");</TT></P><P><TT>if (rc) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("init failed\n");</TT><P><TT>return -1;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>DZLOG_INFO("hello, zlog");</TT></P><P><TT>zlog_fini();</TT></P><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+} 
+</TT></P></DD></DL></DIV><P>
+The configure file test_default.conf equals test_hello.conf, and
+the output of test_default equals test_hello. The difference is,
+test_default use dzlog API, which has a default <EM>zlog_cateogy_t</EM>
+inside and easy for use. See <A HREF="#sec:dzlog-API">6.5</A> for more details.</P><!--TOC chapter Syslog model-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc9">Chapter 4</A>  Syslog model</H1><!--SEC END --><!--TOC section Category, Rule and Format-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc10">4.1</A>  Category, Rule and Format</H2><!--SEC END --><P>In zlog, There are 3 important concepts: category, rule and format.</P><P>Category is designed for different input. In source code category
+is a (zlog_cateogory_t *) variable. In program, get different
+category for log will distinguish them from each other.</P><P>Format describes detail log pattern, like with or without time stamp,
+source file, source line.</P><P>Rule consists of category, level, output file(or other channel) and
+format. In brief, if category string in rule of configure file equals
+the name of category variable in source, they match.</P><P>So when excute this sentence in source file
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+zlog_category_t </TT><TT>*</TT><TT>c;</TT><P><TT>c = zlog_get_category("my_cat");</TT></P><P><TT>ZLOG_INFO(c, "hello, zlog");
+</TT></P></DD></DL></DIV><P>
+zlog library will find the name of c is "my_cat",
+which has one rule in configure file. That is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>rules</TT><TT>]</TT><P><TT>my_cat.DEBUG    &gt;stdout; simple
+</TT></P></DD></DL></DIV><P>
+Then library will check if level is right to decide whether the log
+will be output or not. As INFO&gt;=DEBUG. So log will be
+output, and as the rule said, it will be output to stdout(standard
+output) in the format of simple, which described above
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>formats</TT><TT>]</TT><P><TT>simple = "%m%n" 
+</TT></P></DD></DL></DIV><P>
+At last show in screen
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+hello, zlog
+</TT></DD></DL></DIV><P>
+That&#X2019;s the whole story. The only thing user need to do is writing
+message. Where the log will be output, or in which format, is done
+by zlog library.</P><!--TOC section The difference between syslog model and log4j model-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc11">4.2</A>  The difference between syslog model and log4j model</H2><!--SEC END --><P>OK, then, Does it have anything to do with syslog? Till Now, the model
+is more like log4j. As in log4j, there are concepts of logger, appender
+and layout. The difference is, in log4j, each logger in source code
+must corresponds to one logger in configure file, and just has one
+definite level. One-to-one relationship is the only choice for log4j,
+log4cxx, log4cpp, log4cplus log4net and etc...</P><P>But log4j model is NOT flexible, they invent filters to make up for
+it, and that make things more worse. So let&#X2019;s get back to syslog model,
+which is designed excellently.</P><P>Continue our example in last section. If in the zlog configure file,
+there are 2 rules:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>rules</TT><TT>]</TT><P><TT>my_cat.DEBUG     &gt;stdout; simple</TT></P><P><TT>my_cat.INFO      &gt;stdout;
+</TT></P></DD></DL></DIV><P>
+Then they will generate 2 log to stdout:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+hello, zlog</TT><P><TT>2012-05-29 10:41:36 INFO </TT><TT>[</TT><TT>11288:test_hello.c:41</TT><TT>]</TT><TT> hello, zlog
+</TT></P></DD></DL></DIV><P>
+Now one category in source code corresponds to two rules in configure
+file. Maybe log4j&#X2019;s user will say, "That&#X2019;s good, but 2 appender
+for one logger will do the same thing". So, Let&#X2019;s see the
+next example of configure file:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>rules</TT><TT>]</TT><P><TT>my_cat.WARN     "/var/log/aa.log"</TT></P><P><TT>my_cat.DEBUG    "/var/log/bb.log"
+</TT></P></DD></DL></DIV><P>
+And the source code is:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+ZLOG_INFO(c, "info, zlog");</TT><P><TT>ZLOG_DEBUG(c, "debug, zlog");
+</TT></P></DD></DL></DIV><P>
+Then, in aa.log, there is just one log
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+2012-05-29 10:41:36 INFO </TT><TT>[</TT><TT>11288:test_hello.c:41</TT><TT>]</TT><TT> info, zlog
+</TT></DD></DL></DIV><P>
+But in bb.log, there will be two
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+2012-05-29 10:41:36 INFO </TT><TT>[</TT><TT>11288:test_hello.c:41</TT><TT>]</TT><TT> info, zlog</TT><P><TT>2012-05-29 10:41:36 DEBUG </TT><TT>[</TT><TT>11288:test_hello.c:42</TT><TT>]</TT><TT> debug, zlog
+</TT></P></DD></DL></DIV><P>
+From this example, you can find the difference. Log4j can not do it
+easily. In zlog, one category may correspond to mutiple rules, and
+each rules can have different level and different output and different
+format. That gives user a easy, clear way to filter and multi-ouput
+all his logs on demand.</P><!--TOC section Expand syslog model-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc12">4.3</A>  Expand syslog model</H2><!--SEC END --><P>At last you can see, category in zlog is more like facility in syslog.
+Unfortunately, facility in sylog is a int, and the value of facility
+must be chose from a few system-defined range. zlog do it better,
+make it a variable which comes from a string.</P><P>In syslog, there is a special wildcards "*", matches
+all facility. It does the same thing in zlog. "*"
+matches all categories. That a convenient way to make all error comes
+from multipule compoments in your system redirect to one log file.
+Just write in configure file like this:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>rules</TT><TT>]</TT><P><TT>*</TT><TT>.error    "/var/log/error.log"
+</TT></P></DD></DL></DIV><P>
+The exciting and unique feature of zlog is, sub-category matching.
+If in your source code is this:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+c = zlog_get_category("my_cat");
+</TT></DD></DL></DIV><P>
+And in configure file, the rules is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>rules</TT><TT>]</TT><P><TT>my_cat.</TT><TT>*</TT><TT>      "/var/log/my_cat.log"</TT></P><P><TT>my_.NOTICE    "/var/log/my.log"
+</TT></P></DD></DL></DIV><P>
+This 2 rules both matches category "c" with the
+name "my_cat". The wildcard "_"
+is the way to represent super category. "my_" is
+a super category to "my_cat" and "my_dog".
+There is also another wildcard "!". See <A HREF="#sub:Category-Matching">5.5.2</A>
+for more detail.</P><!--TOC chapter Configure File-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc13">Chapter 5</A>  Configure File</H1><!--SEC END --><P>Most actions of zlog library are dependent upon configure file: where
+to output the log, how log is rotate, the output format, etc... Configure
+File is a special language tells how library works. I design it as
+clear as I can. Here is a example of zlog.conf:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+# comments</TT><P><TT>[</TT><TT>global</TT><TT>]</TT></P><P><TT>strict init = true</TT></P><P><TT>reload conf period = 1M</TT></P><P><TT>buffer min = 1024</TT></P><P><TT>buffer max = 2MB</TT></P><P><TT>rotate lock file = /tmp/zlog.lock</TT></P><P><TT>default format = "%D.%ms %-6P (%c:%F:%L) - %m%n"</TT></P><P><TT>file perms = 600</TT></P><P><TT>fsync period = 1K</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>levels</TT><TT>]</TT></P><P><TT>TRACE = 10</TT></P><P><TT>CRIT = 130, LOG_CRIT</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>normal = "%d(%F %T) %m%n"</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>default.</TT><TT>*</TT><TT>               &gt;stdout; simple</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>                     "%12.2E(HOME)/log/%c.log", 1MB</TT><TT>*</TT><TT>12; simple</TT></P><P><TT>my_.INFO                &gt;stderr;</TT></P><P><TT>my_cat.!ERROR           "/var/log/aa.log"</TT></P><P><TT>my_dog.=DEBUG           &gt;syslog, LOG_LOCAL0; simple</TT></P><P><TT>my_mice.</TT><TT>*</TT><TT>               $user_define;
+</TT></P></DD></DL></DIV><P>
+Note on units: when memory size or large number is needed, it is possible
+to specify it in the usual form of 1k 5GB 4M and so forth:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+# 1k =&gt; 1000 bytes </TT><P><TT># 1kb =&gt; 1024 bytes </TT></P><P><TT># 1m =&gt; 1000000 bytes </TT></P><P><TT># 1mb =&gt; 1024</TT><TT>*</TT><TT>1024 bytes</TT></P><P><TT># 1g =&gt; 1000000000 bytes </TT></P><P><TT># 1gb =&gt; 1024</TT><TT>*</TT><TT>1024</TT><TT>*</TT><TT>1024 byte
+</TT></P></DD></DL></DIV><P>
+units are case insensitive so 1GB 1Gb 1gB are all the same.</P><!--TOC section Global-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc14">5.1</A>  Global</H2><!--SEC END --><P>Global section begins with [global]. [] means a section&#X2019;s
+beginning, and the order of sections must be unchanged, follow the
+global-levels-formats-rules. This section can be ommit.The syntax
+is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+(key) = (value)</TT></DD></DL></DIV><UL CLASS="itemize"><LI CLASS="li-itemize">
+strict init<P>If "strict init" is true, zlog_init() will check
+sytnax of all formats and rules strictly, and any error will cause
+zlog_init() failed and return -1. When "strict init"
+is false, zlog_init() will omit error syntax of formats and rules.
+The default is true.</P></LI><LI CLASS="li-itemize">reload conf period<P>This parameter supports zlog libraray reload configure file automaticlly
+after a period, which is measured by number of log times per process.
+When the number reaches the value, it calls zlog_reload() internally.
+The number is reset to zero at the last zlog_reload() or zlog_init().
+As zlog_reload() is atomic, when zlog_reload() fails, zlog still
+run with the current configure. So automaticlly reloading configure
+is safe. The defualt is 0, which means never reload automaticlly.</P></LI><LI CLASS="li-itemize">buffer min
+</LI><LI CLASS="li-itemize">buffer max<P>zlog allocates a log buffer in each thread. "buffer min"
+indicates size of buffer malloced at init time. While loging, if one
+single log&#X2019;s content size is longer than buffer size now, zlog will
+expand buffer automaticly till "buffer max". Then,
+If the size is still longer than "buffer max", the
+log content will be truncated. If "buffer max" is
+0, it means buffer size is unlimited, and each time zlog will expand
+buffer twice its size, till process use up all it&#X2019;s memory. The value
+of these 2 parameter can append with unit KB, MB or GB suffix, so
+1024 equals 1KB. Default, "buffer min" is 1K and
+"buffer max" is 2MB.</P></LI><LI CLASS="li-itemize">rotate lock file<P>This specifies a lock file for rotate a log safely between multi-process.
+zlog will open the file at zlog_init() with the premisson of read-write.
+The pseudo-code of rotating a log file is:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+write(log_file, a_log)</TT><P><TT>if (log_file &gt; 1M) 
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+if (pthread_mutex_lock succ &amp;&amp; fcntl_lock(lock_file) succ) 
+</TT><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+if (log_file &gt; 1M) rotate(log_file);</TT><P><TT>fcntl_unlock(lock_file);</TT></P><P><TT>pthread_mutex_unlock;
+</TT></P></DD></DL></DIV></DD></DL></DIV></DD></DL></DIV><P>mutex_lock is for multi-thread and fcntl_lock is for multi-process.
+fcntl_lock is the POSIX advisory record locking. See man 3 fcntl
+for details. The lock is system-wide, and when a process died unexpected
+unexpectedly, operating system release all lock owned by the process.
+That&#X2019;s why I chose fcntl lock for rotating log safely. Process need
+read-write permisson of lock_file to lock it.</P><P>By default, rotate lock file = self. In this way, zlog do not create
+any lock file and set the configure file as the lock file. As fcntl
+is advisory, it does not really forbid people to change and store
+his configure file. Generally speaking, one log file will not be rotated
+by processes run by different operating system user, so using configure
+file as lock file is safe.</P><P>If you chose other path as lock file, for example, /tmp/zlog.lock,
+zlog will create it at zlog_init(). Make sure your program has permission
+to create and read-write the file. If processes run by different operating
+system users who need to write and rotater the same log file, make
+sure that each program has permission to create and read-write the
+same lock file.</P></LI><LI CLASS="li-itemize">default format<P>This parameter is used by rules without format specified. The default
+is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+"%D %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
+</TT></DD></DL></DIV><P>It will yield output like this:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+2012-02-14 17:03:12 INFO </TT><TT>[</TT><TT>3758:test_hello.c:39</TT><TT>]</TT><TT> hello, zlog
+</TT></DD></DL></DIV></LI><LI CLASS="li-itemize">file perms<P>This specifies all log file permission when they are created. Note
+that it is affect by user&#X2019;s umask. The final file permission will
+be "file perms" &amp; ~umask. The default
+is 600, which just allowed user read and write.</P></LI><LI CLASS="li-itemize">fsync period<P>After a number of log times per rule(to file only), zlog will call
+fsync(3) after write() to tells the Operating System to actually write
+data on disk immediately. The number is counted by each rule and will
+be reset to 0 after zlog_reload(). Note that when the file&#X2019;s path
+is dynamic generated or is rotated, zlog do not guarantee fsync()
+hit all files. It just fsync() the file descriptor that has been write()
+to at the boundary time. It offers a balance between speed and data
+safety. A example:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ time ./test_press_zlog 1 10 100000</TT><P><TT>real	0m1.806s</TT></P><P><TT>user	0m3.060s </TT></P><P><TT>sys	 0m0.270s</TT></P><P><TT> </TT></P><P><TT>$ wc -l press.log  </TT></P><P><TT>1000000 press.log  </TT></P><P><TT> </TT></P><P><TT>$ time ./test_press_zlog 1 10 100000 #fsync period = 1K</TT></P><P><TT>real	0m41.995s </TT></P><P><TT>user	0m7.920s </TT></P><P><TT>sys	 0m0.990s</TT></P><P><TT> </TT></P><P><TT>$ time ./test_press_zlog 1 10 100000 #fsync period = 10K</TT></P><P><TT>real	0m6.856s </TT></P><P><TT>user	0m4.360s </TT></P><P><TT>sys	 0m0.550s
+</TT></P></DD></DL></DIV><P>If you want extreme safety but not care about speed, using synchronous
+I/O file, see <A HREF="#ite:synchronous-I/O-file">5.5.3</A>.The defualt is 0, which
+means let the operating system flush the output buffer when it wants. </P></LI></UL><!--TOC section Level-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc15">5.2</A>  Level</H2><!--SEC END --><P>This section begins with [levels], which make user can defined
+his own levels, and suggest to be used with user-defined macros in
+source file. This section can be ommit.</P><P>The syntax is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+(level string) = (level int), (syslog level, optional)
+</TT></DD></DL></DIV><P>
+level int should in [1,253], more larger, more important. syslog
+level is optional, if not set, use LOG_DEBUG</P><P>see <A HREF="#sec:User-defined-Level">7.3</A> for more details.</P><!--TOC section Formats-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc16">5.3</A>  Formats</H2><!--SEC END --><P>This section begins with [formats], where user defined its prefer
+log pattern. The syntax is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+(name) = "(actual formats)"
+</TT></DD></DL></DIV><P>
+It is easy to understand, (name) will be use in the next section [rules].
+The (name) of format must made up of letters and digits. The underscore
+"_" counts as a letter. The (actual format) should
+be put into to double quotes. It can be built up with conversion patterns,
+as describled below.</P><!--TOC section Conversion pattern-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc17">5.4</A>  Conversion pattern<A NAME="sec:Conversion-pattern"></A></H2><!--SEC END --><P>The conversion pattern is closely related to the conversion pattern
+of the printf function in C. A conversion pattern is composed of literal
+text and format control expressions called conversion specifiers.</P><P>Conversion pattern is used in both filepath of rule and pattern of
+format.</P><P>You are free to insert any literal text within the conversion pattern.</P><P>Each conversion specifier starts with a percent sign (%) and is followed
+by optional format modifiers and a conversion character. The conversion
+character specifies the type of data, e.g. category, level, date,
+thread id. The format modifiers control such things as field width,
+padding, left and right justification. The following is a simple example.</P><P>Let the conversion pattern be
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+"%d(%m-%d %T) %-5P </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n".
+</TT></DD></DL></DIV><P>
+Then the statements
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+ZLOG_INFO(c, "hello, zlog");
+</TT></DD></DL></DIV><P>
+would yield the output
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+02-14 17:17:42 INFO  </TT><TT>[</TT><TT>4935:test_hello.c:39</TT><TT>]</TT><TT> hello, zlog
+</TT></DD></DL></DIV><P>
+Note that there is no explicit separator between text and conversion
+specifiers. The pattern parser knows when it has reached the end of
+a conversion specifier when it reads a conversion character. In the
+example above the conversion specifier %-5p means the level of the
+logging event should be left justified to a width of five characters. </P><!--TOC subsection Conversion Characters-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc18">5.4.1</A>  Conversion Characters</H3><!--SEC END --><P>The recognized conversion characters are</P><P>
+
+
+</P><BLOCKQUOTE CLASS="table"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV><DIV CLASS="center"><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">conversion char</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">effect</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">example</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the category of the logging event.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa_bb</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the date of the logging event. The date conversion
+specifier may be followed by a date format specifier enclosed between
+parenthesis. For example, %d(%F) or %d(%m-%d %T). If no date
+format specifier is given then %d(%F %T) format is assumed. The
+date format specifier admits the same syntax as the strftime(3). see
+<A HREF="#sub:Time-Character">5.4.3</A>for more detail.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T.ms) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %d(%F %T), but faster</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012-02-14 17:03:12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%ms</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The millisecond, 3-digit integer string</DIV><P>comes from gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">013</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%us</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The microsecond, 6-digit integer string</DIV><P>comes from gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">002323</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the file name where the logging request was issued.
+The file name comes from __FILE__ macro. Some compiler take __FILE__
+as the absolute path. Use $f to strip path and remain file name.
+Or complier has option to switch.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">test_hello.c</DIV><P>or, under some compiler</P><P>/home/zlog/src/test/test_hello.c</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%f</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the source file name, the string after the last &#X2019;/&#X2019;
+of $F. It will cause a little performance loss in each log event.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">test_hello.c</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%H</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the hostname of system, which is from gethostname(2)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">zlog-dev</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%L</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the line number from where the logging request was
+issued, which comes from __LINE__ macro</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">135</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%m</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the application supplied message associated with the
+logging event.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">hello, zlog</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%M</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the MDC (mapped diagnostic context) associated with
+the thread that generated the logging event. The M conversion character
+must be followed by the key for the map placed between parenthesis,
+as in %M(clientNumber) where clientNumber is the key. The value in
+the MDC corresponding to the key will be output.See <A HREF="#sec:MDC">7.1</A>
+for more detail.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%M(clientNumber) 12345</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%n</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Outputs unix newline character, I do not support windows line separator
+now.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">\n</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%p</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the id of the process that generated the logging event,
+which comes from getpid().</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2134</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%U</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the funtion name where the logging request was issued.
+It comes from __func__(C99) or __FUNCION__(gcc) macro, with
+the support of complier.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">main</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%V</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the level of the logging event, capital.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">INFO</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%v</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the level of the logging event, lowercase.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">info</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%t</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the hexadecimal form of the thread id that generated
+the logging event, which comes from pthread_self().</DIV><P>"0x%x",(unsigned int) pthread_t</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">0xba01e700</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%T</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %t, but the long form</DIV><P>"%lu", (unsigned long) pthread_t</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">140633234859776</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%%</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">the sequence %% outputs a single percent sign.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%[other char]</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">parse as a wrong syntax, will cause zlog_init() fail</DIV></TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
+<TR><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
+</TABLE>
+
+</DIV><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE><!--TOC subsection Format Modifier -->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc19">5.4.2</A>  Format Modifier </H3><!--SEC END --><P>By default the relevant information is output as is. However, with
+the aid of format modifiers it is possible to change the minimum field
+width, the maximum field width and justification. It will cause a
+little performance loss in each log event.</P><P>The optional format modifier is placed between the percent sign and
+the conversion character.</P><P>The first optional format modifier is the left justification flag
+which is just the minus (-) character. Then comes the optional minimum
+field width modifier. This is a decimal constant that represents the
+minimum number of characters to output. If the data item requires
+fewer characters, it is padded on either the left or the right until
+the minimum width is reached. The default is to pad on the left (right
+justify) but you can specify right padding with the left justification
+flag. The padding character is space. If the data item is larger than
+the minimum field width, the field is expanded to accommodate the
+data. The value is never truncated.</P><P>This behavior can be changed using the maximum field width modifier
+which is designated by a period followed by a decimal constant. If
+the data item is longer than the maximum field, then the extra characters
+are removed from the beginning of the data item and not from the end.
+For example, it the maximum field width is eight and the data item
+is ten characters long, then the last two characters of the data item
+are dropped. This behavior equals the printf function in C where truncation
+is done from the end.</P><P>Below are various format modifier examples for the category conversion
+specifier.</P><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">format modifier</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">left justify</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">minimum width</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">maximum width</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">comment</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%20c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">false</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">20</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">none</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">Left pad with spaces if the category name is less than 20 characters
+long.</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%-20c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">true</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">20</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">none</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">Right pad with spaces if the category name is less than 20 characters
+long.</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%.30c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">NA</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">none</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">30</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">Truncate from the end if the category name is longer than 30 characters.</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%20.30c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">false</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">20</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">30</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">Left pad with spaces if the category name is shorter than 20 characters.
+However, if category name is longer than 30 characters, then truncate
+from the end.</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%-20.30c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">true</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">20</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">30</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">Right pad with spaces if the category name is shorter than 20 characters.
+However, if category name is longer than 30 characters, then truncate
+from the end.</DIV></TD></TR>
+</TABLE><!--TOC subsection Time Character-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc20">5.4.3</A>  Time Character<A NAME="sub:Time-Character"></A></H3><!--SEC END --><P>Here is the Time Character support by Conversion Character <EM>d.</EM> </P><P>All Character is supported by strftime(3) in library. The Character
+support on my linux system are</P><P>
+
+
+</P><BLOCKQUOTE CLASS="table"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV><DIV CLASS="center"><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">character</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">effect</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">example</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%a</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The abbreviated weekday name according to the current locale.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Wed</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%A</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The full weekday name according to the current locale.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Wednesday</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%b</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The abbreviated month name according to the current locale.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Mar</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%B</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The full month name according to the current locale.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">March</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The preferred date and time representation for the current locale.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Thu Feb 16 14:16:35 2012</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%C</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The century number (year/100) as a 2-digit integer. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">20</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The day of the month as a decimal number (range 01 to 31).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">06</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %m/%d/%y. (Yecch &#X2014; for Americans only.
+Americans should note that in other countries %d/%m/%y is rather
+common. This means that in international context this format is ambiguous
+and should not be used.) (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">02/16/12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%e</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Like %d, the day of the month as a decimal number, but a leading
+zero is replaced by a space. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">6</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %Y-%m-%d (the ISO 8601 date format). (C99)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012-02-16</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%G</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The ISO 8601 week-based year (see NOTES) with century as a decimal
+number. The 4-digit year corre- sponding to the ISO week number (see
+%V). This has the same format and value as %Y, except that if the
+ISO week number belongs to the previous or next year, that year is
+used instead. (TZ)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%g</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Like %G, but without century, that is, with a 2-digit year (00-99).
+(TZ)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%h</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %b. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Feb</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%H</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The hour as a decimal number using a 24-hour clock (range 00 to 23).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">14</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%I</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The hour as a decimal number using a 12-hour clock (range 01 to 12).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">02</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%j</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The day of the year as a decimal number (range 001 to 366).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">047</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%k</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The hour (24-hour clock) as a decimal number (range 0 to 23); single
+digits are preceded by a blank. (See also %H.) (TZ)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">15</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%l</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The hour (12-hour clock) as a decimal number (range 1 to 12); single
+digits are preceded by a blank. (See also %I.) (TZ)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">3</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%m</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The month as a decimal number (range 01 to 12).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">02</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%M</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The minute as a decimal number (range 00 to 59).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">11</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%n</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">A newline character. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">\n</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%p</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Either "AM" or "PM" according
+to the given time value, or the corresponding strings for the current
+locale. Noon is treated as "PM" and midnight as
+"AM".</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">PM</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%P</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Like %p but in lowercase: "am" or "pm"
+or a corresponding string for the current locale. (GNU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">pm</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%r</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The time in a.m. or p.m. notation. In the POSIX locale this is equivalent
+to %I:%M:%S %p. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">03:11:54 PM</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%R</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The time in 24-hour notation (%H:%M). (SU) For a version including
+the seconds, see %T below.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">15:11</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%s</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00
+UTC. (TZ)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">1329376487</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%S</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The second as a decimal number (range 00 to 60). (The range is up
+to 60 to allow for occasional leap seconds.)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">54</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%t</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">A tab character. (SU)</DIV></TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%T</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The time in 24-hour notation (%H:%M:%S). (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">15:14:47</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%u</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The day of the week as a decimal, range 1 to 7, Monday being 1. See
+also %w. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">4</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%U</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The week number of the current year as a decimal number, range 00
+to 53, starting with the first Sun- day as the first day of week 01.
+See also %V and %W.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">07</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%V</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The ISO 8601 week number (see NOTES) of the current year as a decimal
+number, range 01 to 53, where week 1 is the first week that has at
+least 4 days in the new year. See also %U and %W. (SU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">07</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%w</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The day of the week as a decimal, range 0 to 6, Sunday being 0. See
+also %u.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">4</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%W</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The week number of the current year as a decimal number, range 00
+to 53, starting with the first Mon- day as the first day of week 01.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">07</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%x</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The preferred date representation for the current locale without the
+time.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">02/16/12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%X</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The preferred time representation for the current locale without the
+date.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">15:14:47</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%y</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The year as a decimal number without a century (range 00 to 99).</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%Y</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The year as a decimal number including the century.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%z</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The time-zone as hour offset from GMT. Required to emit RFC 822-conformant
+dates (using "%a, %d %b %Y %H:%M:%S %z").
+(GNU)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">+0800</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%Z</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The timezone or name or abbreviation.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">CST</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%%</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">A literal &#X2019;%&#X2019; character.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
+</TABLE>
+
+</DIV><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV></BLOCKQUOTE><!--TOC section Rules-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc21">5.5</A>  Rules</H2><!--SEC END --><P>This section begins with [rules]. It decide how log actions are
+filtered, formated and output. This section can be omit, too, but
+there will be no log output anymore, hehe. The syntax is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+(category).(level)    (output), (option,optional); (format name, optional)
+</TT></DD></DL></DIV><P>
+When zlog_init() is called, all rules will be read to memory. When
+zlog_get_category() is called, mutiple rules will be assigned to
+each category, in the way <A HREF="#sub:Category-Matching">5.5.2</A> describe. When
+do the real logging, as ZLOG_INFO() is called, the level between
+matches rules and INFO will be checked and decide whether this single
+log will be output through the rule. When zlog_reload() is called,
+configure file will be re-read to memory, include rules. And all category&#X2019;s
+rule will be re-caculated.</P><!--TOC subsection Level Matching-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc22">5.5.1</A>  Level Matching</H3><!--SEC END --><P>There are six default level in zlog, "DEBUG", "INFO",
+"NOTICE", "WARN", "ERROR"
+and "FATAL". As all other log library, aa.DEBUG
+means all log of level that is greater than or equals to DEBUG will
+be output. Still, there are more expressions. Levels in configure
+file are case insensitive, both capital or lowercase is accepted.</P><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD ALIGN=center NOWRAP>example expression</TD><TD ALIGN=center NOWRAP>meaning</TD></TR>
+<TR><TD ALIGN=center NOWRAP>*</TD><TD ALIGN=center NOWRAP>all [source level]</TD></TR>
+<TR><TD ALIGN=center NOWRAP>aa.debug</TD><TD ALIGN=center NOWRAP>[source level]&gt;=debug</TD></TR>
+<TR><TD ALIGN=center NOWRAP>aa.=debug</TD><TD ALIGN=center NOWRAP>[source level]==debug</TD></TR>
+<TR><TD ALIGN=center NOWRAP>aa.!debug</TD><TD ALIGN=center NOWRAP>[source level]!=debug</TD></TR>
+</TABLE><P>User can define his own level, see<A HREF="#sec:User-defined-Level">7.3</A>.</P><!--TOC subsection Category Matching-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc23">5.5.2</A>  Category Matching<A NAME="sub:Category-Matching"></A></H3><!--SEC END --><P>Category Matching is simple. The name of category is made up of letters
+and digits. The underscore "_"counts as a letter.</P><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">summarize</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">category string from configure file</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">category matches</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">category not matches</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">* matches all</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">*.*</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa, aa_bb, aa_cc, xx, yy ...</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">NONE</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">string end with underline matches super-category and sub-categories</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa_.*</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa, aa_bb, aa_cc, aa_bb_cc</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">xx, yy</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">string not end with underline accurately matches category</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa.*</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa_bb, aa_cc, aa_bb_cc</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">! matches category that has no rule matched</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">!.*</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">xx</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa(as it matches rules above)</DIV></TD></TR>
+</TABLE><!--TOC subsection Output Action-->
+<H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc24">5.5.3</A>  Output Action</H3><!--SEC END --><P>Now, zlog supports some ways of output, the syntax is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+(output action), (output option); (format name, optional)
+</TT></DD></DL></DIV><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left NOWRAP>output</TD><TD VALIGN=top ALIGN=center NOWRAP>output action</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">output option</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>to standard out</TD><TD VALIGN=top ALIGN=center NOWRAP>&gt;stdout</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">no meaning</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>to standard error</TD><TD VALIGN=top ALIGN=center NOWRAP>&gt;stderr</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">no meaning</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>to syslog</TD><TD VALIGN=top ALIGN=center NOWRAP>&gt;syslog</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]</DIV><P>This is not optional.</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>to file</TD><TD VALIGN=top ALIGN=center NOWRAP>"(file path)"</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">file limitation, can be:</DIV><P>1000, 1k, 2M, 1G...</P><P>3m*2, 4k*3...</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>synchronous I/O file</TD><TD VALIGN=top ALIGN=center NOWRAP>-"(file path)"</TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>user-defined output</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">param of record function</DIV></TD></TR>
+</TABLE><UL CLASS="itemize"><LI CLASS="li-itemize">
+stdout, stderr, syslog<P>As table describes, only syslog&#X2019;s output option is meaningful and
+must be set.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
+file path<P>can be absolute file path or relative file path. It is quoted by double
+quotation marks. <EM>Conversion pattern</EM> can be used in file path.
+If the file path is "%E(HOME)/log/out.log" and
+the program&#X2019; environment $HOME is /home/harry, then the log file
+will be /home/harry/log/output.log at last. See <A HREF="#sec:Conversion-pattern">5.4</A>
+for more details.</P><P>file of zlog is powerful, for example
+</P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+output to named pipe(FIFO), must create by mkfifo(1) before use<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>   "/tmp/pipefile"
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">output to null, not do anythin at all<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>    "/dev/null"
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">output to each tid a log, on the directory where process running<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     "%T.log"
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">output to file with pid name, every day, in $HOME/log directory,
+rotate log at 1GB, keep 5 log files<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     "%E(HOME)/log/aa.%p.%d(%F).log",1GB </TT><TT>*</TT><TT> 5
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">each category of aa_ super category, output log with category name</LI></OL><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+aa_.</TT><TT>*</TT><TT>      "/var/log/%c.log"
+</TT></DD></DL></DIV></LI><LI CLASS="li-itemize">rotate action <P>controls log file size and count. zlog rotate log file when the file
+is too large by this value. Let the action is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+"%E(HOME)/log/out.log",1M</TT><TT>*</TT><TT>3
+</TT></DD></DL></DIV><P>After a out.log is filled by programs to 1M, the rotation is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+out.log -&gt; out.log.1</TT><P><TT>out.log(new create) 
+</TT></P></DD></DL></DIV><P>If the new log is full again, the rotation is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+out.log.1 -&gt; out.log.2</TT><P><TT>out.log -&gt; out.log.1</TT></P><P><TT>out.log(new create)
+</TT></P></DD></DL></DIV><P>The next time rotation will delete the oldest log, as *3 means just
+allows 3 file exist
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+unlink(out.log.2)</TT><P><TT>out.log.1 -&gt; out.log.2</TT></P><P><TT>out.log -&gt; out.log.1</TT></P><P><TT>out.log(new create)
+</TT></P></DD></DL></DIV><P>So the oldest log has the biggest serial number. If *3 is not written,
+it means rotation will be continue and no old log will be deleted.</P></LI><LI CLASS="li-itemize">synchronous I/O file<A NAME="ite:synchronous-I/O-file"></A><P>Putting a minus signe &#X2019;-&#X2019; set the synchronous I/O opition. log file
+is opend with O_SYNC and every single log action will return until
+Operation System write data to disk. It is painfully slow:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ time ./test_press_zlog 100 1000</TT><P><TT>real	0m0.732s</TT></P><P><TT>user	0m1.030s</TT></P><P><TT>sys	 0m1.080s</TT></P><P><TT>$ time ./test_press_zlog 100 1000  # synchronous I/O open</TT></P><P><TT>real	0m20.646s</TT></P><P><TT>user	0m2.570s</TT></P><P><TT>sys	 0m6.950s
+</TT></P></DD></DL></DIV></LI></UL></LI><LI CLASS="li-itemize">format name<P>It is optional. If not set, use zlog default format in global setting,
+which is:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>global</TT><TT>]</TT><P><TT>default format = "%D %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-itemize">see <A HREF="#sec:User-defined-Output">7.4</A> for more details for $.
+</LI></UL><!--TOC section Configure File Tools-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc25">5.6</A>  Configure File Tools</H2><!--SEC END --><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ zlog-chk-conf -h </TT><P><TT>Useage: zlog-chk-conf </TT><TT>[</TT><TT>conf files</TT><TT>]</TT><TT>... 	</TT></P><P><TT>-q,	suppress non-error message 	</TT></P><P><TT>-h,	show help message
+</TT></P></DD></DL></DIV><P>
+zlog-chk-conf try to read conf files, and check their syntax, and
+output to screen whether it is correct. I suggest using this tools
+each time you create or change a configure file. It will output like
+this
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ ./zlog-chk-conf zlog.conf</TT><P><TT>03-08 15:35:44 ERROR (10595:rule.c:391) sscanf </TT><TT>[</TT><TT>aaa</TT><TT>]</TT><TT> fail, category or level is null </TT></P><P><TT>03-08 15:35:44 ERROR (10595:conf.c:155) zlog_rule_new fail </TT><TT>[</TT><TT>aaa</TT><TT>]</TT><TT> </TT></P><P><TT>03-08 15:35:44 ERROR (10595:conf.c:258) parse configure file</TT><TT>[</TT><TT>zlog.conf</TT><TT>]</TT><TT> line</TT><TT>[</TT><TT>126</TT><TT>]</TT><TT> fail </TT></P><P><TT>03-08 15:35:44 ERROR (10595:conf.c:306) zlog_conf_read_config fail </TT></P><P><TT>03-08 15:35:44 ERROR (10595:conf.c:366) zlog_conf_build fail </TT></P><P><TT>03-08 15:35:44 ERROR (10595:zlog.c:66) conf_file</TT><TT>[</TT><TT>zlog.conf</TT><TT>]</TT><TT>, init conf fail </TT></P><P><TT>03-08 15:35:44 ERROR (10595:zlog.c:131) zlog_init_inner</TT><TT>[</TT><TT>zlog.conf</TT><TT>]</TT><TT> fail</TT></P><P><TT>  </TT></P><P><TT>---</TT><TT>[</TT><TT>zlog.conf</TT><TT>]</TT><TT> syntax error, see error message above
+</TT></P></DD></DL></DIV><P>
+It tells you that line 126 in you configure file, zlog.conf, is wrong,
+and the 1st line further tells you that [aaa] is not a right rule.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT></DL></DIV><!--TOC chapter zlog API-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc26">Chapter 6</A>  zlog API</H1><!--SEC END --><P>All API of zlog are thread safe. To use them, just need to
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+#include "zlog.h"
+</TT></DD></DL></DIV><!--TOC section initialize and finish-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc27">6.1</A>  initialize and finish</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+int zlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT><P><TT>int zlog_reload(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT></P><P><TT>void zlog_fini(void);
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog_init() read configuration from file confpath. If
+confpath is NULL, it looks environment variable ZLOG_CONF_PATH
+for configure file. If $ZLOG_CONF_PATH is NULL also, all log will
+be output to stdout with inner format. Only the first time call zlog_init()
+per process is effective, other times will fail and do nothing.</P><P>zlog_reload() is designed to reload configure file. From the confpath
+it re-calculate category-rule relationship, rebuild thread buffers,
+and reset user-defined ouput function to rules. It can be called at
+runtime when configure file is changed or using another configure
+file. It can be called unlimit times. If confpath is NULL,
+it reloads the last configure file zlog_init() or zlog_reload()
+specified. If zlog_reload() failed, the current configuration in
+memory will remain unchanged. So zlog_reload() is atomic.</P><P>zlog_fini() release all memory zlog API<EM> </EM>applied, close opened
+files. It can be called unlimit times.</P></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>On success , zlog_init() and zlog_reload() return zero. On error,
+zlog_init() and zlog_reload() return -1, and detail error log will
+be record to a log file ZLOG_PROFILE_ERROR indicates.</P></DD></DL><!--TOC section category operation-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc28">6.2</A>  category operation</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+typedef struct zlog_category_s zlog_category_t;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zlog_get_category(char </TT><TT>*</TT><TT>cname</TT><TT>);
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog_get_category() get a category from zlog&#X2019;s cateogory_table
+for future log, if none, create it. Then It goes throuh all rules
+in configure memory, which comes from configure file, And find matched
+rules corresponds to cname.</P><P>That&#X2019;s how category string in rules matches cname:
+</P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+* matches all cname.
+</LI><LI CLASS="li-enumerate">category string which ends with underscore "_"
+matches super-category and sub-categories. For example, "aa_"
+matches cname like "aa", "aa_",
+"aa_bb", "aa_bb_cc".
+</LI><LI CLASS="li-enumerate">category string which does not ends with underscore "_"matches
+cname accurately. For example, "aa_bb"
+matches cname of "aa_bb".
+</LI><LI CLASS="li-enumerate">! matches cname that has no rule matched.
+</LI></OL><P>The rules of each category will be automaticlly re-caculate when zlog_reload()
+is called.No need to worry about category&#X2019;s memory release,<EM>
+</EM>zlog_fini() will clean up at last.</P></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>On success, return the address of zlog_category_t. On error, return
+NULL, and detail error log will be record to a log file ZLOG_PROFILE_ERROR
+indicates.</P></DD></DL><!--TOC section log functions and macros-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc29">6.3</A>  log functions and macros</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+void zlog(zlog_category_t </TT><TT>*</TT><TT> </TT><TT>category</TT><TT>, </TT><P><TT>          const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>, </TT></P><P><TT>          long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>format</TT><TT>, ...); </TT></P><P><TT>void vzlog(zlog_category_t </TT><TT>*</TT><TT> </TT><TT>category</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>, </TT></P><P><TT>          long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>format</TT><TT>, va_list </TT><TT>args</TT><TT>); </TT></P><P><TT>void hzlog(zlog_category_t </TT><TT>*</TT><TT> </TT><TT>category</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>          const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>, </TT></P><P><TT>          long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>          const void </TT><TT>*</TT><TT>buf</TT><TT>, size_t </TT><TT>buflen</TT><TT>); </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>These 3 functions are the real log function producing user message,
+which corresponds to %m is configure file. category comes
+from zlog_get_category() described above.</P><P>zlog() and vzlog()<EM> </EM>produce output according to a format
+like printf(3) and vprintf(3).</P><P>vzlog()<EM> </EM>is equivalent to zlog(), respectively, except that
+it is called with a va_list instead of a variable number of arguments.
+vzlog() invokes the va_copy macro, the value of args remain
+unchanged after the call. See stdarg(3). </P><P>hzlog()<EM> </EM>is a little different, it produce output like this,
+the hexadecimal representation of buf<EM> </EM>and output
+len is buf_len
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+hex_buf_len=</TT><TT>[</TT><TT>5365</TT><TT>]</TT><TT>  </TT><P><TT>             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F      0123456789ABCDEF</TT></P><P><TT>0000000001   23 21 20 2f 62 69 6e 2f 62 61 73 68 0a 0a 23 20   #! /bin/bash..#</TT></P><P><TT>0000000002   74 65 73 74 5f 68 65 78 20 2d 20 74 65 6d 70 6f   test_hex - tempo</TT></P><P><TT>0000000003   72 61 72 79 20 77 72 61 70 70 65 72 20 73 63 72   rary wrapper scr
+</TT></P></DD></DL></DIV><P>The parameter file and line are usually filled
+with __FILE__ and __LINE__ macro. These indicate where log
+event happens. The parameter func is filled with __func__
+or __FUNCTION__, if the compiler supports, otherwise it will be
+filled with "&lt;unkown&gt;".</P><P>level<EM> </EM>is a int, which usually is in
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+typedef enum {                 
+</TT><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+ZLOG_LEVEL_DEBUG = 20,</TT><P><TT>ZLOG_LEVEL_INFO = 40,</TT></P><P><TT>ZLOG_LEVEL_NOTICE = 60,</TT></P><P><TT>ZLOG_LEVEL_WARN = 80,</TT></P><P><TT>ZLOG_LEVEL_ERROR = 100,</TT></P><P><TT>ZLOG_LEVEL_FATAL = 120
+</TT></P></DD></DL></DIV><P><TT><TT>
+} zlog_level;
+</TT></TT></P></DD></DL></DIV><P>Each fuction has its macros for easy use. For example,
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+#define ZLOG_FATAL(cat, format, args...) \         </TT><P><TT>zlog(cat, __FILE__, sizeof(__FILE__)-1, \</TT></P><P><TT>__func__, sizeof(__func__)-1, __LINE__, \</TT></P><P><TT>ZLOG_LEVEL_FATAL, format, ##args) 
+</TT></P></DD></DL></DIV><P>The full list of macros is:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+/</TT><TT>*</TT><TT> zlog macros </TT><TT>*</TT><TT>/</TT><P><TT>ZLOG_FATAL(cat, format, ...)</TT></P><P><TT>ZLOG_ERROR(cat, format, ...)</TT></P><P><TT>ZLOG_WARN(cat, format, ...)</TT></P><P><TT>ZLOG_NOTICE(cat, format, ...)</TT></P><P><TT>ZLOG_INFO(cat, format, ...)</TT></P><P><TT>ZLOG_DEBUG(cat, format, ...)</TT></P><P><TT> </TT></P><P><TT>/</TT><TT>*</TT><TT> vzlog macros </TT><TT>*</TT><TT>/</TT></P><P><TT>VZLOG_FATAL(cat, format, args)</TT></P><P><TT>VZLOG_ERROR(cat, format, args)</TT></P><P><TT>VZLOG_WARN(cat, format, args)</TT></P><P><TT>VZLOG_NOTICE(cat, format, args)</TT></P><P><TT>VZLOG_INFO(cat, format, args)</TT></P><P><TT>VZLOG_DEBUG(cat, format, args)</TT></P><P><TT> </TT></P><P><TT>/</TT><TT>*</TT><TT> hzlog macros </TT><TT>*</TT><TT>/</TT></P><P><TT>HZLOG_FATAL(cat, buf, buf_len)</TT></P><P><TT>HZLOG_ERROR(cat, buf, buf_len)</TT></P><P><TT>HZLOG_WARN(cat, buf, buf_len)</TT></P><P><TT>HZLOG_NOTICE(cat, buf, buf_len)</TT></P><P><TT>HZLOG_INFO(cat, buf, buf_len)</TT></P><P><TT>HZLOG_DEBUG(cat, buf, buf_len) 
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>These functions returns nothing. But if there is anything wrong happens,
+detail error log will be record to a log file ZLOG_PROFILE_ERROR
+indicates.</P></DD></DL><!--TOC section MDC operation-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc30">6.4</A>  MDC operation</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+int zlog_put_mdc(char </TT><TT>*</TT><TT>key</TT><TT>, char </TT><TT>*</TT><TT>value</TT><TT>);</TT><P><TT>char </TT><TT>*</TT><TT>zlog_get_mdc(char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_remove_mdc(char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_clean_mdc(void);
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>MDC(Mapped Diagnostic Context) is a thread key-value map, so it has
+nothing to do with category.</P><P>key and value are all strings, which should
+be no longer than MAXLEN_PATH(1024). If the input is longer than
+MAXLEN_PATH(1024), the input will be truncated.</P><P>One thing should remeber is that the map bonds to a thread, thus in
+one thread if you set a key-value pair will not affect other threads.</P></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>zlog_put_mdc() returns 0 for success, -1 for fail. zlog_get_mdc()
+returns poiter of value for success, NULL for fail or key
+not exist. If there is anything wrong happens, detail error log will
+be record to a log file ZLOG_PROFILE_ERROR indicates.</P></DD></DL><!--TOC section dzlog API-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc31">6.5</A>  dzlog API<A NAME="sec:dzlog-API"></A></H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+int dzlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>, char </TT><TT>*</TT><TT>cname</TT><TT>);</TT><P><TT>int dzlog_set_category(char </TT><TT>*</TT><TT>cname</TT><TT>); </TT></P><P><TT>void dzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>           long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>format</TT><TT>, ...); </TT></P><P><TT>void vdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>format</TT><TT>, va_list </TT><TT>args</TT><TT>); </TT></P><P><TT>void hdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const void </TT><TT>*</TT><TT>buf</TT><TT>, size_t </TT><TT>buflen</TT><TT>);
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>dzlog consists of some simlple fuctions that omit <EM>zlog_category_t</EM>.
+It use a default category inside and put the category under the protect
+of lock. It is thread safe also. Omit category means that users need
+not to create, save, tranfer <EM>zlog_category_t</EM> variables. Still,
+user can get and use other category through normal API at the same
+time for flexibility.</P><P>dzlog_init() is just as zlog_init(), but need a cname
+for inner default category. zlog_reload() and zlog_fini() can be
+used as before, to refresh conf_file, or release all.</P><P>dzlog_set_category()<EM> </EM>is designed for change default category.
+The last default category is instead by new one, and still don&#X2019;t worry
+about memory releasing, all category will be clean up at zlog_fini().</P><P>Macros are defined in zlog.h. They are the general way in simple logging.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+DZLOG_FATAL(format, ...)</TT><P><TT>DZLOG_ERROR(format, ...)</TT></P><P><TT>DZLOG_WARN(format, ...)</TT></P><P><TT>DZLOG_NOTICE(format, ...)</TT></P><P><TT>DZLOG_INFO(format, ...)</TT></P><P><TT>DZLOG_DEBUG(format, ...)</TT></P><P><TT> </TT></P><P><TT>VDZLOG_FATAL(format, args)</TT></P><P><TT>VDZLOG_ERROR(format, args)</TT></P><P><TT>VDZLOG_WARN(format, args)</TT></P><P><TT>VDZLOG_NOTICE(format, args)</TT></P><P><TT>VDZLOG_INFO(format, args)</TT></P><P><TT>VDZLOG_DEBUG(format, args)</TT></P><P><TT> </TT></P><P><TT>HDZLOG_FATAL(buf, buf_len)</TT></P><P><TT>HDZLOG_ERROR(buf, buf_len)</TT></P><P><TT>HDZLOG_WARN(buf, buf_len)</TT></P><P><TT>HDZLOG_NOTICE(buf, buf_len)</TT></P><P><TT>HDZLOG_INFO(buf, buf_len)</TT></P><P><TT>HDZLOG_DEBUG(buf, buf_len)
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>On success , dzlog_init() and dzlog_set_category() return zero.
+On error, dzlog_init() and dzlog_set_category() return -1, and
+detail error log will be record to a log file ZLOG_PROFILE_ERROR
+indicates.</P></DD></DL><!--TOC section User-defined Output-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc32">6.6</A>  User-defined Output</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(char </TT><TT>*</TT><TT>param</TT><TT>, char </TT><TT>*</TT><TT>msg</TT><TT>, size_t </TT><TT>msglen</TT><TT>);</TT><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
+</TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog allows user defines his own output function. The output function
+bonds to specail kind of rule in configure file. A typical rule is:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, param; simple
+</TT></DD></DL></DIV><P>zlog_set_record() do the bonding operation. rules with the $name
+will be output through user-defined function record. The
+function has the type of zlog_record_fn. param comes
+from rule. msg and msglen are zlog formated
+log message and its length.</P><P>All settings of zlog_set_record() keeps available after zlog_reload().</P></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>On success, zlog_set_record() returns zero. On error, it returns
+-1, and detail error log will be record to a log file ZLOG_PROFILE_ERROR
+indicates.</P></DD></DL><!--TOC section debug and profile-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc33">6.7</A>  debug and profile</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+void zlog_profile(void);
+</TT></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>environment variable ZLOG_PROFILE_ERROR indicates zlog&#X2019;s error log
+path.</P><P>environment variable ZLOG_PROFILE_DEBUG indicates zlog&#X2019;s debug log
+path.</P><P>zlog_profile() print all information in memory to zlog&#X2019;s error log
+file at runtime. User can compare it to configure file, to find out
+possible errors. </P></DD></DL><!--TOC chapter Advance Using-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc34">Chapter 7</A>  Advance Using</H1><!--SEC END --><!--TOC section MDC-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc35">7.1</A>  MDC<A NAME="sec:MDC"></A></H2><!--SEC END --><P>What is MDC? In log4j it is short for Mapped Diagnostic Context. That
+sounds like a complicate terminology. MDC is just a key-value map.
+Once you set it by function, library will print it to file every time
+a log event happens, or become part of log file path. Let&#X2019;s see a
+example in $(top_builddir)/test/test_mdc.c.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat test_mdc.c</TT><P><TT>#include &lt;stdio.h&gt;</TT></P><P><TT>#include &lt;stdlib.h&gt;</TT></P><P><TT>#include &lt;sys/types.h&gt;</TT></P><P><TT>#include &lt;unistd.h&gt;</TT></P><P><TT>#include &lt;string.h&gt;</TT></P><P><TT>#include "zlog.h"</TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+int rc;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zc;</TT></P><P><TT>rc = zlog_init("test_mdc.conf");</TT></P><P><TT>if (rc) { 
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("init failed\n");</TT><P><TT>return -1;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>zc = zlog_get_category("my_cat");</TT></P><P><TT>if (!zc) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>ZLOG_INFO(zc, "1.hello, zlog");</TT></P><P><TT>zlog_put_mdc("myname", "Zhang");</TT></P><P><TT>ZLOG_INFO(zc, "2.hello, zlog");</TT></P><P><TT>zlog_put_mdc("myname", "Li");</TT></P><P><TT>ZLOG_INFO(zc, "3.hello, zlog"); </TT></P><P><TT>zlog_fini(); </TT></P><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+} 
+</TT></P></DD></DL></DIV><P>
+The configure file is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat test_mdc.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>mdc_format=     "%D.%ms %-6V (%c:%F:%L) </TT><TT>[</TT><TT>%M(myname)</TT><TT>]</TT><TT> - %m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>             &gt;stdout; mdc_format
+</TT></P></DD></DL></DIV><P>
+And the output is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ ./test_mdc</TT><P><TT>2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) </TT><TT>[</TT><TT>]</TT><TT> - 1.hello, zlog </TT></P><P><TT>2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:51) </TT><TT>[</TT><TT>Zhang</TT><TT>]</TT><TT> - 2.hello, zlog </TT></P><P><TT>2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:55) </TT><TT>[</TT><TT>Li</TT><TT>]</TT><TT> - 3.hello, zlog
+</TT></P></DD></DL></DIV><P>
+You can see zlog_put_mdc() function set the map with key "myname"
+and value "Zhang", and in configure file <EM>%M(myname)
+</EM>indicates where the value shows in each log. The second time, value
+of key "myname" is overwriteen to "Li",
+and the log changes also.</P><P>When should MDC be used? That mainly depends on when user need to
+seprate same log action with different scenes. For example, in .c
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+zlog_put_mdc("customer_name", get_customer_name_from_db() );</TT><P><TT>ZLOG_INFO("get in"); </TT></P><P><TT>ZLOG_INFO("pick product"); </TT></P><P><TT>ZLOG_INFO("pay");</TT></P><P><TT>ZLOG_INFO("get out");
+</TT></P></DD></DL></DIV><P>
+in .conf
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+&amp;format  "%M(customer_name) %m%n"
+</TT></DD></DL></DIV><P>
+When program process two customer at the same time, the output maybe:
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+Zhang get in</TT><P><TT>Li get in</TT></P><P><TT>Zhang pick product</TT></P><P><TT>Zhang pay</TT></P><P><TT>Li pick product</TT></P><P><TT>Li pay</TT></P><P><TT>Zhang get out</TT></P><P><TT>Li get out
+</TT></P></DD></DL></DIV><P>
+Now you can distinguish two one customer from another, by use grep
+afterwards
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ grep Zhang aa.log &gt; Zhang.log</TT><P><TT>$ grep Li aa.log &gt;Li.log
+</TT></P></DD></DL></DIV><P>
+Or, there is another way, sperate them to different log file when
+log action is taken, in .conf
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT> "mdc_%M(customer_name).log";
+</TT></DD></DL></DIV><P>
+It will produce 3 log
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+mdc_.log mdc_Zhang.log mdc_Li.log
+</TT></DD></DL></DIV><P>
+That&#X2019;s a quick way, if user kown what he is doing.</P><P>About MDC, another thing is that map belongs to thread, each thread
+has it&#X2019;s own map. In one thread zlog_mdc_put() will not affect other
+thread&#X2019;s map. Still, if you just want to distinguish on thread from
+another, use %t in conversion charactor is enough.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT></DL></DIV><!--TOC section Profile zlog Itself-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc36">7.2</A>  Profile zlog Itself<A NAME="sec:Profile-zlog-Itself"></A></H2><!--SEC END --><P>OK, till now, I suspect that zlog library never fails, it help user&#X2019;s
+application to write log and debug user&#X2019;s application. But if zlog
+itself has some problem, how to find it out? Other program debug through
+log library, and how can a log library debug itself? The answer is
+the same, zlog library has its own log. This profile log is usually
+shut down, and can be open by set environment variables.
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ export ZLOG_PROFILE_DEBUG=/tmp/zlog.debug.log</TT><P><TT>$ export ZLOG_PROFILE_ERROR=/tmp/zlog.error.log
+</TT></P></DD></DL></DIV><P>
+profile log just has 2 levels, debug and error. After Settion, run
+test_hello program in <A HREF="#sec:Hello-World-Example">3.3</A>, then the debug
+log is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ more zlog.debug.log </TT><P><TT>03-13 09:46:56 DEBUG (7503:zlog.c:115) ------zlog_init start, compile time</TT><TT>[</TT><TT>Mar 13 2012 11:28:56</TT><TT>]</TT><TT>------ </TT></P><P><TT>03-13 09:46:56 DEBUG (7503:spec.c:825) spec:</TT><TT>[</TT><TT>0x7fdf96b7c010</TT><TT>]</TT><TT>[</TT><TT>%d(%F %T)</TT><TT>]</TT><TT>[</TT><TT>%F %T 29</TT><TT>]</TT><TT>[</TT><TT>]</TT><TT> </TT></P><P><TT>03-13 09:46:56 DEBUG (7503:spec.c:825) spec:</TT><TT>[</TT><TT>0x7fdf96b52010</TT><TT>]</TT><TT>[</TT><TT> </TT><TT>]</TT><TT>[</TT><TT> 0</TT><TT>]</TT><TT>[</TT><TT>]</TT><TT> </TT></P><P><TT>......</TT></P><P><TT>03-13 09:52:40 DEBUG (8139:zlog.c:291) ------zlog_fini end------
+</TT></P></DD></DL></DIV><P>
+zlog.error.log is not created, as no error occurs.</P><P>As you can see, debug log shows how zlog is inited and finished, but
+no debug log is writen when ZLOG_INFO() is executed. That&#X2019;s for efficency.</P><P>If there is anything wrong with zlog library, all will show in zlog.error.log,
+for example, using a wrong printf syntax in zlog()
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+ZLOG_INFO(zc, "%l", 1);
+</TT></DD></DL></DIV><P>
+Then run the program, the zlog.error.log should be
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat zlog.error.log </TT><P><TT>03-13 10:04:58 ERROR (10102:buf.c:189) vsnprintf fail, errno</TT><TT>[</TT><TT>0</TT><TT>]</TT><TT> </TT></P><P><TT>03-13 10:04:58 ERROR (10102:buf.c:191) nwrite</TT><TT>[</TT><TT>-1</TT><TT>]</TT><TT>, size_left</TT><TT>[</TT><TT>1024</TT><TT>]</TT><TT>, format</TT><TT>[</TT><TT>%l</TT><TT>]</TT><TT> </TT></P><P><TT>03-13 10:04:58 ERROR (10102:spec.c:329) zlog_buf_vprintf maybe fail or overflow </TT></P><P><TT>03-13 10:04:58 ERROR (10102:spec.c:467) a_spec-&gt;gen_buf fail </TT></P><P><TT>03-13 10:04:58 ERROR (10102:format.c:160) zlog_spec_gen_msg fail </TT></P><P><TT>03-13 10:04:58 ERROR (10102:rule.c:265) zlog_format_gen_msg fail </TT></P><P><TT>03-13 10:04:58 ERROR (10102:category.c:164) hzb_log_rule_output fail </TT></P><P><TT>03-13 10:04:58 ERROR (10102:zlog.c:632) zlog_output fail, srcfile</TT><TT>[</TT><TT>test_hello.c</TT><TT>]</TT><TT>, srcline</TT><TT>[</TT><TT>41</TT><TT>]</TT><TT>
+</TT></P></DD></DL></DIV><P>
+Now, user could find the reason why the expect log doesn&#X2019;t generate,
+and fix the wrong printf syntax.</P><P>Runtime profile will make efficency lost. Normally, I keep ZLOG_PROFILE_ERROR
+on and ZLOG_PROFILE_DEBUG off at my environment. </P><P>There is still another way to profile zlog libraray. As we all know,
+zlog_init() read configure file to memory . Through all log actions,
+the configure structure memory keeps unchanged. There is possibility
+that this memory is damaged by other fuctions in user&#X2019;s application,
+or the memory doesn&#X2019;t equal what configure file describes. So I design
+a function to show this memory at runtime, print it to ZLOG_PROFILE_ERROR.</P><P>see $(top_builddir)/test/test_profile.c
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat test_profile.c</TT><P><TT>#include &lt;stdio.h&gt;</TT></P><P><TT>#include "zlog.h"</TT></P><P><TT> </TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+int rc;</TT><P><TT>rc = dzlog_init("test_profile.conf", "my_cat");</TT></P><P><TT>if (rc) { 
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("init failed\n");</TT><P><TT>return -1;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>DZLOG_INFO("hello, zlog");</TT></P><P><TT>zlog_profile();</TT></P><P><TT>zlog_fini(); </TT></P><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+} 
+</TT></P></DD></DL></DIV><P>
+zlog_profile() is the function. The configure file is simple
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat test_profile.conf </TT><P><TT>[</TT><TT>formats</TT><TT>]</TT><TT> </TT></P><P><TT>simple = "%m%n"   </TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>                &gt;stdout; simple 
+</TT></P></DD></DL></DIV><P>
+Then zlog.error.log is
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat /tmp/zlog.error.log</TT><P><TT>06-01 11:21:26 WARN  (7063:zlog.c:783) ------zlog_profile start------ </TT></P><P><TT>06-01 11:21:26 WARN  (7063:zlog.c:784) init_flag:</TT><TT>[</TT><TT>1</TT><TT>]</TT><TT> </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:75) -conf</TT><TT>[</TT><TT>0x2333010</TT><TT>]</TT><TT>- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:76) --global-- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:77) ---file</TT><TT>[</TT><TT>test_profile.conf</TT><TT>]</TT><TT>,mtime</TT><TT>[</TT><TT>2012-06-01 11:20:44</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:78) ---strict init</TT><TT>[</TT><TT>1</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:79) ---buffer min</TT><TT>[</TT><TT>1024</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:80) ---buffer max</TT><TT>[</TT><TT>2097152</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:82) ---default_format--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:format.c:48) ---format</TT><TT>[</TT><TT>0x235ef60</TT><TT>]</TT><TT>[</TT><TT>default = %d(%F %T) %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n(0x233b810)</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:85) ---file perms</TT><TT>[</TT><TT>0600</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:conf.c:87) ---rotate lock file</TT><TT>[</TT><TT>/tmp/zlog.lock</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:rotater.c:48) --rotater</TT><TT>[</TT><TT>0x233b7d0</TT><TT>]</TT><TT>[</TT><TT>0x233b7d0,/tmp/zlog.lock,4</TT><TT>]</TT><TT>-- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level_list.c:37) --level_list</TT><TT>[</TT><TT>0x2335490</TT><TT>]</TT><TT>-- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level.c:37) ---level</TT><TT>[</TT><TT>0x23355c0</TT><TT>]</TT><TT>[</TT><TT>0,</TT><TT>*</TT><TT>,</TT><TT>*</TT><TT>,1,6</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level.c:37) ---level</TT><TT>[</TT><TT>0x23375e0</TT><TT>]</TT><TT>[</TT><TT>20,DEBUG,debug,5,7</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level.c:37) ---level</TT><TT>[</TT><TT>0x2339600</TT><TT>]</TT><TT>[</TT><TT>40,INFO,info,4,6</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level.c:37) ---level</TT><TT>[</TT><TT>0x233b830</TT><TT>]</TT><TT>[</TT><TT>60,NOTICE,notice,6,5</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level.c:37) ---level</TT><TT>[</TT><TT>0x233d850</TT><TT>]</TT><TT>[</TT><TT>80,WARN,warn,4,4</TT><TT>]</TT><TT>--- </TT></P><P><TT>06-01 11:21:26 WARN  (7063:level.c:37) ---level</TT><TT>[</TT><TT>0x233fc80</TT><TT>]</TT><TT>[</TT><TT>100,ERROR,error,5,3</TT><TT>]</TT><TT>---
+</TT></P></DD></DL></DIV><!--TOC section User-defined Level-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc37">7.3</A>  User-defined Level<A NAME="sec:User-defined-Level"></A></H2><!--SEC END --><P>Here I write down all steps of how user define own levels.
+</P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+define levels in configure file.<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat $(top_builddir)/test/test_level.conf</TT><P><TT>[</TT><TT>global</TT><TT>]</TT></P><P><TT>default format  =               "%V %v %m%n"</TT></P><P><TT>[</TT><TT>levels</TT><TT>]</TT></P><P><TT>TRACE = 30, LOG_DEBUG</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.TRACE            &gt;stdout;
+</TT></P></DD></DL></DIV><P>The inner default levels are(no need to write them in conf file):
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+DEBUG = 20, LOG_DEBUG</TT><P><TT>INFO = 40, LOG_INFO</TT></P><P><TT>NOTICE = 60, LOG_NOTICE</TT></P><P><TT>WARN = 80, LOG_WARNING</TT></P><P><TT>ERROR = 100, LOG_ERR</TT></P><P><TT>FATAL = 120, LOG_ALERT</TT></P><P><TT>UNKNOWN = 254, LOG_ERR
+</TT></P></DD></DL></DIV><P>Now in zlog, a integer(30) and a level string(TRACE) represents a
+level. Note that this integer must be in [1,253], other number
+is illegal. More larger, more important.Now TRACE is more important
+than DEBUG(30&gt;20), and less important than INFO(30&lt;40).
+After the definition, TRACE can be used in rule of configure file.
+This sentence
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+my_cat.TRACE		&gt;stdout; 
+</TT></DD></DL></DIV><P>means that level &gt;= TRACE, which is TRACE, INFO, NOTICE,
+WARN, ERROR, FATAL will be written to standard output.</P><P>The conversion charactor %V of format string generate captial of
+level string and %v for lowercase of level string.</P><P>Besides, in level defination LOG_DEBUG means when use &gt;syslog
+in rule, all TRACE log will output as syslog&#X2019; s LOG_DEBUG level.</P></LI><LI CLASS="li-enumerate">Using the new log level in source file, the direct way is like this<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+zlog(cat, __FILE__, sizeof(__FILE__)-1, \</TT><P><TT>__func__, sizeof(__func__)-1,__LINE__, \</TT></P><P><TT>30, "test %d", 1);
+</TT></P></DD></DL></DIV><P>For easy use, create a .h file 
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat $(top_builddir)/test/test_level.h</TT><P><TT>#ifndef __test_level_h</TT></P><P><TT>#define __test_level_h</TT></P><P><TT> </TT></P><P><TT>#include "zlog.h"</TT></P><P><TT> </TT></P><P><TT>enum {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+ZLOG_LEVEL_TRACE = 30,</TT><P><TT>/</TT><TT>*</TT><TT> must equals conf file setting </TT><TT>*</TT><TT>/ 
+</TT></P></DD></DL></DIV><P><TT>
+};</TT></P><P><TT>#define ZLOG_TRACE(cat, format, ...) \</TT></P><P><TT>        zlog(cat, __FILE__, sizeof(__FILE__)-1, \</TT></P><P><TT>        __func__, sizeof(__func__)-1, __LINE__, \</TT></P><P><TT>        ZLOG_LEVEL_TRACE, format, ## __VA_ARGS__) </TT></P><P><TT>#endif
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">Now, ZLOG_TRACE can be used int .c file<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat $(top_builddir)/test/test_level.c</TT><P><TT>#include &lt;stdio.h&gt; </TT></P><P><TT>#include "test_level.h"</TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+int rc;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zc;</TT></P><P><TT> </TT></P><P><TT>rc = zlog_init("test_level.conf");</TT></P><P><TT>if (rc) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("init failed\n");</TT><P><TT>return -1;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>zc = zlog_get_category("my_cat");</TT></P><P><TT>if (!zc) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>ZLOG_TRACE(zc, "hello, zlog - trace");</TT></P><P><TT>ZLOG_DEBUG(zc, "hello, zlog - debug");</TT></P><P><TT>ZLOG_INFO(zc, "hello, zlog - info");</TT></P><P><TT>zlog_fini(); </TT></P><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+} 
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">Now we can see the output<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT>INFO info hello, zlog - info 
+</TT></P></DD></DL></DIV><P>That&#X2019;s just what we expect, the configure file only allows &gt;=TRACE
+ouput to screen. And %V and %v works well.</P></LI></OL><!--TOC section User-defined Output-->
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>Here I write down all steps of how user define own output function.
+</P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
+defined output in rules of configure file.<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, myparam;simple
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">set a ouput function for myoutput, then using it<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+#include &lt;stdio.h&gt;</TT><P><TT>#include "zlog.h"</TT></P><P><TT>int output(char </TT><TT>*</TT><TT>str2, char </TT><TT>*</TT><TT>msg, size_t msg_len)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%ld</TT><TT>]</TT><TT>\n", str2, msg, (long)msg_len);</TT><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT> </TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+int rc;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zc;
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+rc = zlog_init("test_record.conf");</TT><P><TT>if (rc) {</TT></P><P><TT>printf("init failed\n");</TT></P><P><TT>return -1;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>zlog_set_record("myoutput", output);</TT></P><P><TT>zc = zlog_get_category("my_cat");</TT></P><P><TT>if (!zc) {
+</TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
+
+
+
+
+</TT><TT></TT></DT><DD CLASS="dd-list"><TT>
+printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
+</TT></P></DD></DL></DIV><P><TT>
+}</TT></P><P><TT>ZLOG_INFO(zc, "hello, zlog");</TT></P><P><TT>zlog_fini();</TT></P><P><TT>return 0;
+</TT></P></DD></DL></DIV><P><TT>
+} 
+</TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">Now we can see the user-defined output() works!<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>myparam</TT><TT>]</TT><TT>[</TT><TT>hello, zlog</TT><P><TT>]</TT><TT>[</TT><TT>12</TT><TT>]</TT><TT> 
+</TT></P></DD></DL></DIV><P>As you can see, msglen is 12, and msg formated by zlog contains a
+newline character.</P></LI></OL><!--CUT END -->
+<!--BEGIN STICKYNOTES document-->
+<HR CLASS="footnoterule"><DL CLASS="thefootnotes"><DT CLASS="dt-thefootnotes">
+<A NAME="note1" HREF="#text1">1</A></DT><DD CLASS="dd-thefootnotes">This Guide is for zlog v1.0.x
+</DD><DT CLASS="dt-thefootnotes"><A NAME="note2" HREF="#text2">2</A></DT><DD CLASS="dd-thefootnotes">If you have comments or error corrections, post a issue on github,
+or write email to <A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A>
+</DD></DL>
+<!--END NOTES-->
+<!--HTMLFOOT-->
+<!--ENDHTML-->
+<!--FOOTER-->
+<HR SIZE=2><BLOCKQUOTE CLASS="quote"><EM>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+</EM><A HREF="http://hevea.inria.fr/index.html"><EM>H</EM><EM><FONT SIZE=2><sup>E</sup></FONT></EM><EM>V</EM><EM><FONT SIZE=2><sup>E</sup></FONT></EM><EM>A</EM></A><EM>.</EM></BLOCKQUOTE></BODY>
+</HTML>
