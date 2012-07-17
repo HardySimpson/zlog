@@ -128,15 +128,15 @@ What is zlog?
 \end_layout
 
 \begin_layout Standard
-zlog is a reliable, high efficent, thread safe, flexsible, clear model,
- pure c logging library
+zlog is a reliable, high-performance, thread safe, flexible, clear-model,
+ pure C logging library
 \end_layout
 
 \begin_layout Standard
-Actually, in the c world there is NO good logging library for application
+Actually, in the C world there is NO good logging library for application
  like logback in java or log4cxx in c++.
- printf can work, but can not be easily redirected or reformat, syslog is
- slow and is designed for system use.
+ printf can work, but can not be easily redirected or reformat.
+ syslog is slow and is designed for system use.
 \end_layout
 
 \begin_layout Standard
@@ -170,7 +170,7 @@ runtime mannully or automaticlly refreash configure(safely)
 \end_layout
 
 \begin_layout Itemize
-high efficieny, 338'638 logs/second on my laptop, about 1000 times faster
+high-performance, 250'000 logs/second on my laptop, about 1000 times faster
  than syslog(3) with rsyslogd
 \end_layout
 
@@ -4689,6 +4689,27 @@ stdout, stderr, syslog
 \begin_layout Standard
 As table describes, only syslog's output option is meaningful and must be
  set.
+\end_layout
+
+\begin_layout Standard
+It is remarkable that DO NEVER use >stdout or >stderr when your program
+ is a daemon process.
+ As daemon process always close its fd of 1, and when >stdout is set, zlog
+ will output log like this
+\end_layout
+
+\begin_layout LyX-Code
+write(STDOUT_FILENO, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg
+_buf))
+\end_layout
+
+\begin_layout Standard
+Then what will happen? The log will be written to the file whose fd is now
+ 1.
+ I have received mail that tells me zlog write log to his configure file...
+ So remeber, daemon process should not set any rule output to stdout, or
+ stderr.
+ It will generate undefined behavior.
 \end_layout
 
 \end_deeper

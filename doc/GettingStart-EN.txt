@@ -1,11 +1,10 @@
 0. What is zlog?
 
-zlog is a reliable, high efficent, thread safe, flexsible, clear model, pure c logging library.
+zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C logging library.
 
-  Actually, in the c world there is NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be easily redirected or reformat, syslog is slow and is designed for system use. 
+  Actually, in the C world there is NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be easily redirected or reformat. syslog is slow and is designed for system use. 
   So I write zlog. 
   It is faster, safer and more powerful than log4c. So it can be widely used. 
-
 
 1. Install
 
@@ -93,7 +92,7 @@ hello, zlog
  *  log format customization
  *  multiple output, include static file path, dynamic file path, stdout, stderr, syslog, user-defined ouput
  *  runtime mannully or automaticlly refreash configure(safely)
- *  high efficieny, 338'638 logs/second on my laptop, about 1000 times faster than syslog(3) with rsyslogd
+ *  high-performance, 250'000 logs/second on my laptop, about 1000 times faster than syslog(3) with rsyslogd
  *  user-defined log level
  *  safely rotate log file on multiple-process or multiple-threads condition
  *  accurate to microseconds

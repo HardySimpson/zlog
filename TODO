@@ -14,7 +14,12 @@
 [ ] 增加trace级别
 [ ] format,spec,level采用直接数组的方式重写
 [ ] hex那段重写,内置到buf内
+[ ] gettid()
+[ ] 性能对比, log4x, pantheios, glog
+[ ] perl, python, go支持
 
+--- 1.1.2 ---
+[o] 修正rule.c, path_buf封顶
 --- 1.1.1 ---
 [o] 修正rule.c, 不使用FILE*, 避免日志交错
 --- 1.1.0 ---

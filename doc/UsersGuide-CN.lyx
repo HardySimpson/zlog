@@ -100,7 +100,7 @@ figs-within-sections
 \begin_body
 
 \begin_layout Title
-zlog使用攻略
+zlog使用手册
 \end_layout
 
 \begin_layout Author
@@ -187,7 +187,7 @@ syslog分类模型，比log4j模型更加直接了当
 \end_layout
 
 \begin_layout Itemize
-高性能，在我的笔记本上达到338'638条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
+高性能，在我的笔记本上达到25万条日志每秒, 大概是syslog(3)配合rsyslogd的1000倍速度 
 \end_layout
 
 \begin_layout Itemize
@@ -246,7 +246,7 @@ target "git@github.com:HardySimpson/zlog.git"
 \end_layout
 
 \begin_layout Standard
-用户手册(pdf)：
+使用手册(pdf)：
 \begin_inset CommandInset href
 LatexCommand href
 name "https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf"
@@ -4457,6 +4457,27 @@ stdout, stderr, syslog
 \begin_deeper
 \begin_layout Standard
 如表格描述，其中只有sylog的附加选项是有意义并必须写的。
+\end_layout
+
+\begin_layout Standard
+值得注意的是，zlog在写日志的时候会用这样的语句
+\end_layout
+
+\begin_layout LyX-Code
+write(STDOUT_FILENO, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg
+_buf))
+\end_layout
+
+\begin_layout Standard
+而如果你的程序是个守护进程，在启动的时候把STDOUT_FILENO，也就是1的文件描述符关掉的话，会发生什么结果呢？
+\end_layout
+
+\begin_layout Standard
+日志会被写到新的1的文件描述符所代表的文件里面！我收到过邮件，说zlog把日志写到自己的配置文件里面去了！
+\end_layout
+
+\begin_layout Standard
+所以，千万不要在守护进程的规则里面加上>stdout或>stderr。这会产生不可预料的结果……
 \end_layout
 
 \end_deeper

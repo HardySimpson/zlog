@@ -91,7 +91,7 @@ hello, zlog
  *  日志格式定制，类似于log4j的pattern layout
  *  多种输出，包括动态文件、静态文件、stdout、stderr、syslog、用户自定义输出函数
  *  运行时手动、自动刷新配置文件（同时保证安全）
- *  高性能，在我的笔记本上达到338'638条日志每秒, 大概是syslog(3)配合rsyslogd的200倍速度 
+ *  高性能，在我的笔记本上达到25万条日志每秒, 大概是syslog(3)配合rsyslogd的1000倍速度 
  *  用户自定义等级
  *  多线程和多进程环境下保证安全转档
  *  精确到微秒
@@ -103,7 +103,7 @@ hello, zlog
 6.相关链接
 软件下载：https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 上手指南：https://github.com/HardySimpson/zlog/wiki/%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97
-使用攻略：https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf
+使用手册：https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf
 源代码：git@github.com:HardySimpson/zlog.git
 问题讨论区：https://github.com/HardySimpson/zlog/issues
 英文主页：http://hardysimpson.github.com/zlog/

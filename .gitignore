@@ -41,5 +41,9 @@ doc/*.pdf
 doc/obj.think
 doc/zlog.3
 doc/zlogtest.xls
+doc/*.haux
+doc/*.html
+doc/*.htoc
+doc/*.tex
 test/press*
 test/*.png
