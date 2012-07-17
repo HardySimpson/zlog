@@ -2,7 +2,7 @@
             "http://www.w3.org/TR/REC-html40/loose.dtd">
 <HTML>
 <HEAD>
-<TITLE>zlog使用攻略
+<TITLE>zlog使用手册
 </TITLE>
 
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -46,8 +46,8 @@ TD P{margin:0px;}
 </STYLE>
 </HEAD>
 <BODY >
-<!--HEVEA command line is: /usr/bin/hevea book.hva UsersGuide-CN.tex -->
-<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog使用攻略</H1><H3 CLASS="titlerest">难易 著<SUP><A NAME="text1" HREF="#note1">1</A></SUP><SUP><A NAME="text2" HREF="#note2">2</A></SUP></H3></TD></TR>
+<!--HEVEA command line is: /usr/bin/hevea book.hva -s UsersGuide-CN.tex -->
+<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog使用手册</H1><H3 CLASS="titlerest">难易 著<SUP><A NAME="text1" HREF="#note1">1</A></SUP><SUP><A NAME="text2" HREF="#note2">2</A></SUP></H3></TD></TR>
 </TABLE><!--TOC chapter Contents-->
 <H1 CLASS="chapter"><!--SEC ANCHOR -->Contents</H1><!--SEC END --><UL CLASS="toc"><LI CLASS="li-toc">
 <A HREF="#htoc1">Chapter 1  zlog是什么？</A>
@@ -120,7 +120,7 @@ syslog分类模型，比log4j模型更加直接了当
 </LI><LI CLASS="li-itemize">自诊断，可以在运行时输出zlog自己的日志和配置状态
 </LI><LI CLASS="li-itemize">不依赖其他库，只要是个POSIX系统就成(当然还要一个C99兼容的vsnprintf)
 </LI></UL><P>
-相关链接：</P><P>软件下载：<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A></P><P>源代码：<A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>用户手册(pdf)：<A HREF="https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf">https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf</A></P><P>问题讨论区：<A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>英文主页：<A HREF="http://hardysimpson.github.com/zlog">http://hardysimpson.github.com/zlog</A></P><P>中文主页：<A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>作者博客：<A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>邮箱：<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section zlog 1.1 发布说明-->
+相关链接：</P><P>软件下载：<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A></P><P>源代码：<A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>使用手册(pdf)：<A HREF="https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf">https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf</A></P><P>问题讨论区：<A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>英文主页：<A HREF="http://hardysimpson.github.com/zlog/">http://hardysimpson.github.com/zlog/</A></P><P>中文主页：<A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>作者博客：<A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>邮箱：<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section zlog 1.1 发布说明-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc2">1.1</A>  zlog 1.1 发布说明</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog是基于POSIX的。目前我手上有的环境只有AIX和linux。在其他的系统下（FreeBSD, NetBSD, OpenBSD,
 OpenSolaris, Mac OS X...）估计也能行，有问题欢迎探讨。
@@ -667,7 +667,15 @@ aa.DEBUG意味着任何大于等于DEBUG级别的日志会被输出。当然还�
 <TR><TD VALIGN=top ALIGN=left NOWRAP>同步IO文件</TD><TD VALIGN=top ALIGN=center NOWRAP>-"文件路径"</TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
 <TR><TD VALIGN=top ALIGN=left NOWRAP>用户自定义输出</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">param</DIV></TD></TR>
 </TABLE><UL CLASS="itemize"><LI CLASS="li-itemize">
-stdout, stderr, syslog<P>如表格描述，其中只有sylog的附加选项是有意义并必须写的。</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
+stdout, stderr, syslog<P>如表格描述，其中只有sylog的附加选项是有意义并必须写的。</P><P>值得注意的是，zlog在写日志的时候会用这样的语句
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread-&gt;msg_buf))
+</TT></DD></DL></DIV><P>而如果你的程序是个守护进程，在启动的时候把STDOUT_FILENO，也就是1的文件描述符关掉的话，会发生什么结果呢？</P><P>日志会被写到新的1的文件描述符所代表的文件里面！我收到过邮件，说zlog把日志写到自己的配置文件里面去了！</P><P>所以，千万不要在守护进程的规则里面加上&gt;stdout或&gt;stderr。这会产生不可预料的结果……</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
 文件路径<P>可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 "%E(HOME)/log/out.log"，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见
 <A HREF="#sec:=008F6C=006362=00683C=005F0F=004E32">5.4</A>。</P><P>zlog的文件功能极为强大，例如
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">

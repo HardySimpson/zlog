@@ -46,7 +46,7 @@ TD P{margin:0px;}
 </STYLE>
 </HEAD>
 <BODY >
-<!--HEVEA command line is: /usr/bin/hevea book.hva UsersGuide-EN.tex -->
+<!--HEVEA command line is: /usr/bin/hevea book.hva -s UsersGuide-EN.tex -->
 <!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog User&#X2019;s Guide</H1><H3 CLASS="titlerest">by Hardy Simpson<SUP><A NAME="text1" HREF="#note1">1</A></SUP><SUP><A NAME="text2" HREF="#note2">2</A></SUP></H3></TD></TR>
 </TABLE><!--TOC chapter Contents-->
 <H1 CLASS="chapter"><!--SEC ANCHOR -->Contents</H1><!--SEC END --><UL CLASS="toc"><LI CLASS="li-toc">
@@ -902,7 +902,21 @@ and digits. The underscore "_"counts as a letter.</P><TABLE BORDER=1 CELLSPACING
 <TR><TD VALIGN=top ALIGN=left NOWRAP>user-defined output</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">param of record function</DIV></TD></TR>
 </TABLE><UL CLASS="itemize"><LI CLASS="li-itemize">
 stdout, stderr, syslog<P>As table describes, only syslog&#X2019;s output option is meaningful and
-must be set.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
+must be set.</P><P>It is remarkable that DO NEVER use &gt;stdout or &gt;stderr
+when your program is a daemon process. As daemon process always close
+its fd of 1, and when &gt;stdout is set, zlog will output
+log like this
+</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread-&gt;msg_buf))
+</TT></DD></DL></DIV><P>Then what will happen? The log will be written to the file whose fd
+is now 1. I have received mail that tells me zlog write log to his
+configure file... So remeber, daemon process should not set any rule
+output to stdout, or stderr. It will generate undefined behavior.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
 file path<P>can be absolute file path or relative file path. It is quoted by double
 quotation marks. <EM>Conversion pattern</EM> can be used in file path.
 If the file path is "%E(HOME)/log/out.log" and
