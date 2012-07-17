@@ -192,6 +192,8 @@ static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 		}
 	}
 
+	zlog_buf_seal(a_thread->path_buf); /* path must end with \0 */
+
 	return 0;
 }
 
