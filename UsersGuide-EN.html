@@ -105,10 +105,10 @@ TD P{margin:0px;}
 </LI><LI CLASS="li-toc"><A HREF="#htoc38">7.4  User-defined Output</A>
 </LI></UL>
 </LI></UL><!--TOC chapter What is zlog?-->
-<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc1">Chapter 1</A>  What is zlog?</H1><!--SEC END --><P>zlog is a reliable, high efficent, thread safe, flexsible, clear model,
-pure c logging library</P><P>Actually, in the c world there is NO good logging library for application
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc1">Chapter 1</A>  What is zlog?</H1><!--SEC END --><P>zlog is a reliable, high efficent, thread safe, flexible, clear-model,
+pure C logging library</P><P>Actually, in the C world there is NO good logging library for application
 like logback in java or log4cxx in c++. printf can work, but can not
-be easily redirected or reformat, syslog is slow and is designed for
+be easily redirected or reformat. syslog is slow and is designed for
 system use.</P><P>So I write zlog.</P><P>It is faster, safer and more powerful than log4c. So it can be widely
 used.</P><P>zlog has feartures below:
 </P><UL CLASS="itemize"><LI CLASS="li-itemize">
@@ -117,7 +117,7 @@ syslog model, better than log4j model
 </LI><LI CLASS="li-itemize">multiple output, include static file path, dynamic file path, stdout,
 stderr, syslog, user-defined ouput
 </LI><LI CLASS="li-itemize">runtime mannully or automaticlly refreash configure(safely)
-</LI><LI CLASS="li-itemize">high efficieny, 338&#X2019;638 logs/second on my laptop, about 1000 times
+</LI><LI CLASS="li-itemize">high efficieny, 250&#X2019;000 logs/second on my laptop, about 1000 times
 faster than syslog(3) with rsyslogd
 </LI><LI CLASS="li-itemize">user-defined log level
 </LI><LI CLASS="li-itemize">safely rotate log file on multiple-process or multiple-threads condition
