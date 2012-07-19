@@ -74,7 +74,13 @@ void hdzlog(const char *file, size_t filelen,
 	long line, int level,
 	const void *buf, size_t buflen);
 
-typedef int (*zlog_record_fn)(char *param, char *msg, size_t msglen);
+typedef struct zlog_msg_s {
+	char *buf;
+	size_t len;
+	char *path;
+} zlog_msg_t;
+
+typedef int (*zlog_record_fn)(zlog_msg_t *msg);
 int zlog_set_record(char *name, zlog_record_fn record);
 
 /******* useful macros, can be redefined at user's h file **********/

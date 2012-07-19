@@ -100,7 +100,17 @@ figs-within-sections
 \begin_body
 
 \begin_layout Title
-zlog使用手册
+zlog
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+星星之火，可以燎原——毛泽东
+\end_layout
+
+\end_inset
+
+使用手册
 \end_layout
 
 \begin_layout Author
@@ -119,7 +129,16 @@ status collapsed
 status collapsed
 
 \begin_layout Plain Layout
-有问题，在github上开个issue，或者写邮件到
+有问题，在github上
+\begin_inset CommandInset href
+LatexCommand href
+name "开个issue"
+target "https://github.com/HardySimpson/zlog/issues/new"
+type "mailto:"
+
+\end_inset
+
+，或者写邮件到
 \begin_inset CommandInset href
 LatexCommand href
 name "HardySimpson1984@gmail.com"
@@ -4437,7 +4456,7 @@ $name
 \begin_inset Text
 
 \begin_layout Plain Layout
-param
+"path" 动态或者静态的用于record输出
 \end_layout
 
 \end_inset
@@ -5816,19 +5835,31 @@ HDZLOG_DEBUG(buf, buf_len)
 
 \begin_deeper
 \begin_layout LyX-Code
-typedef int (*zlog_record_fn)(char *
-\bar under
-param
-\bar default
-, char *
+typedef struct zlog_msg_s {
+\end_layout
+
+\begin_layout LyX-Code
+        char *buf;
+\end_layout
+
+\begin_layout LyX-Code
+        size_t len;
+\end_layout
+
+\begin_layout LyX-Code
+        char *path;
+\end_layout
+
+\begin_layout LyX-Code
+} zlog_msg_t;
+\end_layout
+
+\begin_layout LyX-Code
+typedef int (*zlog_record_fn)(zlog_msg_t *
 \bar under
 msg
 \bar default
-, size_t 
-\bar under
-msglen
-\bar default
-);
+); 
 \end_layout
 
 \begin_layout LyX-Code
@@ -5855,7 +5886,7 @@ zlog允许用户自定义输出函数。输出函数需要绑定到某条特殊�
 \end_layout
 
 \begin_layout LyX-Code
-*.*     $name, param; simple
+*.*     $name, "record path %c %D"; simple
 \end_layout
 
 \begin_layout Standard
@@ -5867,17 +5898,33 @@ name
 \bar under
 record
 \bar default
-。这个函数需要为zlog_record_fn的格式。 
+。这个函数需要为zlog_record_fn的格式。
+\end_layout
+
+\begin_layout Standard
+zlog_msg_t结构的各个成员描述如下：
+\end_layout
+
+\begin_layout Standard
+
 \bar under
-param
+path
 \bar default
-来自规则的逗号后的字符串。
+来自规则的逗号后的字符串，这个字符串会被动态的解析，输出当前的
 \bar under
-msg
+path
+\bar default
+，就像动态文件路径一样。
+\end_layout
+
+\begin_layout Standard
+
+\bar under
+buf
 \bar default
 和
 \bar under
-msglen
+len
 \bar default
  是zlog格式化后的日志信息和长度。
 \end_layout
@@ -6951,7 +6998,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*      $myoutput, myparam;simple
+my_cat.*      $myoutput, " mypath %c %D";simple
 \end_layout
 
 \end_deeper
@@ -6969,7 +7016,7 @@ my_cat.*      $myoutput, myparam;simple
 \end_layout
 
 \begin_layout LyX-Code
-int output(char *str2, char *msg, size_t msg_len)
+int output(zlog_msg_t *msg)
 \end_layout
 
 \begin_layout LyX-Code
@@ -7093,7 +7140,11 @@ return 0;
 
 \begin_deeper
 \begin_layout LyX-Code
-[mystd]:[myparam][hello, zlog
+$ ./test_record  
+\end_layout
+
+\begin_layout LyX-Code
+[mystd]:[ mypath my_cat 2012-07-19 12:23:08][hello, zlog
 \end_layout
 
 \begin_layout LyX-Code
@@ -7105,5 +7156,47 @@ return 0;
 \end_layout
 
 \end_deeper
+\begin_layout Enumerate
+用户自定义输出可以干很多神奇的事情，就像某个用户(flw@newsmth.net)的需求
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+日志文件名为 foo.log 
+\end_layout
+
+\begin_layout Enumerate
+如果 foo.log 超过 100M，则生成一个新文件，其中包含的就是 foo.log 目前的内容 而 foo.log 则变为空，重新开始增长
+\end_layout
+
+\begin_layout Enumerate
+如果距离上次生成文件时已经超过 5 分钟，则即使不到 100M，也应当生成一个新文件 
+\end_layout
+
+\begin_layout Enumerate
+新文件名称可以自定义，比如加上设备名作为前缀、日期时间串作为后缀 
+\end_layout
+
+\begin_layout Enumerate
+我希望这个新文件可以被压缩，以节省磁盘空间或者网络带宽。
+\end_layout
+
+\begin_layout Standard
+但愿他能顺利写出这个需求的代码！在多进程或者多线程的情况下！上帝保佑他！
+\end_layout
+
+\end_deeper
+\begin_layout Chapter
+尾声
+\end_layout
+
+\begin_layout Standard
+好酒！所有人生问题的终极起源和终极答案。
+\end_layout
+
+\begin_layout Right Address
+荷马.辛普森
+\end_layout
+
 \end_body
 \end_document

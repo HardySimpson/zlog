@@ -62,7 +62,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->syslog_facility,
 
 		a_rule->record_name,
-		a_rule->record_param,
+		a_rule->record_path,
 		a_rule->record_output,
 		a_rule->format);
 
@@ -178,33 +178,28 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 /* return path	success
  * return NULL	fail
  */
-static int zlog_rule_gen_path(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
-{
-	int i;
-	zlog_spec_t *a_spec;
-
-	zlog_buf_restart(a_thread->path_buf);
-
-	zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {
-		if (zlog_spec_gen_path(a_spec, a_thread)) {
-			zc_error("zlog_spec_gen_path fail");
-			return -1;
-		}
-	}
-
-	zlog_buf_seal(a_thread->path_buf); /* path must end with \0 */
-
-	return 0;
-}
+#define zlog_rule_gen_path(a_rule, a_thread) do {    \
+	int i;    \
+	zlog_spec_t *a_spec;    \
+    \
+	zlog_buf_restart(a_thread->path_buf);    \
+    \
+	zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {    \
+zc_error("%d", i); \
+		if (zlog_spec_gen_path(a_spec, a_thread)) {    \
+			zc_error("zlog_spec_gen_path fail");    \
+			return -1;    \
+		}    \
+	}    \
+    \
+	zlog_buf_seal(a_thread->path_buf);    \
+} while(0)
 
 static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
 	int fd;
 
-	if (zlog_rule_gen_path(a_rule, a_thread)) {
-		zc_error("zlog_rule_gen_path fail");
-		return -1;
-	}
+	zlog_rule_gen_path(a_rule, a_thread);
 
 	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
 		zc_error("zlog_format_output fail");
@@ -242,10 +237,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 	int fd;
 	size_t len;
 
-	if (zlog_rule_gen_path(a_rule, a_thread)) {
-		zc_error("zlog_rule_gen_path fail");
-		return -1;
-	}
+	zlog_rule_gen_path(a_rule, a_thread);
 
 	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
 		zc_error("zlog_format_output fail");
@@ -309,24 +301,57 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 	return 0;
 }
 
-static int zlog_rule_output_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
+static int zlog_rule_output_static_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
+	zlog_msg_t msg;
+
+	if (!a_rule->record_output) {
+		zc_error("user defined record funcion for [%s] not set, no output",
+			a_rule->record_name);
+		return -1;
+	}
+
 	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
 		zc_error("zlog_format_gen_msg fail");
 		return -1;
 	}
+	zlog_buf_seal(a_thread->msg_buf);
 
-	if (a_rule->record_output) {
-		zlog_buf_seal(a_thread->msg_buf);
-		if (a_rule->record_output(a_rule->record_param,
-				zlog_buf_str(a_thread->msg_buf),
-				zlog_buf_len(a_thread->msg_buf))) {
-			zc_error("a_rule->record fail");
-			return -1;
-		}
-	} else {
-		zc_error("user defined record funcion for [%s,%s] not set, no output",
-			a_rule->record_name, a_rule->record_param);
+	msg.buf = zlog_buf_str(a_thread->msg_buf);
+	msg.len = zlog_buf_len(a_thread->msg_buf);
+	msg.path = a_rule->record_path;
+
+	if (a_rule->record_output(&msg)) {
+		zc_error("a_rule->record fail");
+		return -1;
+	}
+	return 0;
+}
+
+static int zlog_rule_output_dynamic_record(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
+{
+	zlog_msg_t msg;
+
+	if (!a_rule->record_output) {
+		zc_error("user defined record funcion for [%s] not set, no output",
+			a_rule->record_name);
+		return -1;
+	}
+
+	zlog_rule_gen_path(a_rule, a_thread);
+
+	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
+		zc_error("zlog_format_gen_msg fail");
+		return -1;
+	}
+	zlog_buf_seal(a_thread->msg_buf);
+
+	msg.buf = zlog_buf_str(a_thread->msg_buf);
+	msg.len = zlog_buf_len(a_thread->msg_buf);
+	msg.path = zlog_buf_str(a_thread->path_buf);
+
+	if (a_rule->record_output(&msg)) {
+		zc_error("a_rule->record fail");
 		return -1;
 	}
 	return 0;
@@ -695,8 +720,61 @@ zlog_rule_t *zlog_rule_new(char *line,
 		break;
 	case '$' :
 		sscanf(file_path + 1, "%s", a_rule->record_name);
-		sscanf(file_limit, " %[^; ]", a_rule->record_param);
-		a_rule->output = zlog_rule_output_record;
+
+		p = strchr(file_limit, '"');
+		if (!p) {
+			zc_error("record_path not start with \", [%s]", file_limit);
+			goto err;
+		}
+		p++; /* skip 1st " */
+
+		q = strrchr(p, '"');
+		if (!q) {
+			zc_error("matching \" not found in conf line[%s]", p);
+			goto err;
+		}
+		len = q - p;
+		if (len > sizeof(a_rule->record_path) - 1) {
+			zc_error("record_path too long %ld > %ld", len, sizeof(a_rule->record_path) - 1);
+			goto err;
+		}
+		memcpy(a_rule->record_path, p, len);
+
+		/* replace any environment variables like %E(HOME) */
+		rc = zc_str_replace_env(a_rule->record_path, sizeof(a_rule->record_path));
+		if (rc) {
+			zc_error("zc_str_replace_env fail");
+			goto err;
+		}
+
+		/* try to figure out if the log file path is dynamic or static */
+		if (strchr(a_rule->record_path, '%') == NULL) {
+			a_rule->output = zlog_rule_output_static_record;
+		} else {
+			zlog_spec_t *a_spec;
+
+			a_rule->output = zlog_rule_output_dynamic_record;
+
+			a_rule->dynamic_file_specs = zc_arraylist_new((zc_arraylist_del_fn)zlog_spec_del);
+			if (!(a_rule->dynamic_file_specs)) {
+				zc_error("zc_arraylist_new fail");
+				goto err;
+			}
+			for (p = a_rule->record_path; *p != '\0'; p = q) {
+				a_spec = zlog_spec_new(p, &q, a_rule->levels);
+				if (!a_spec) {
+					zc_error("zlog_spec_new fail");
+					goto err;
+				}
+
+				rc = zc_arraylist_add(a_rule->dynamic_file_specs, a_spec);
+				if (rc) {
+					zlog_spec_del(a_spec);
+					zc_error("zc_arraylist_add fail");
+					goto err;
+				}
+			}
+		}
 		break;
 	default :
 		zc_error("the 1st char[%c] of file_path[%s] is wrong",
@@ -810,7 +888,10 @@ int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
 {
 	zlog_record_t *a_record;
 
-	if (a_rule->output != zlog_rule_output_record) return 0;
+	if (a_rule->output != zlog_rule_output_static_record 
+	&&  a_rule->output != zlog_rule_output_dynamic_record) {
+		return 0; /* fliter, may go through not record rule */
+	}
 
 	a_record = zc_hashtable_get(records, a_rule->record_name);
 	if (a_record) {

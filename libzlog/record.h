@@ -23,8 +23,13 @@
 #include "zc_defs.h"
 
 /* record is user-defined output function and it's name from configure file */
+typedef struct zlog_msg_s {
+	char *buf;
+	size_t len;
+	char *path;
+} zlog_msg_t; /* 3 of this first, see need thread or not later */
 
-typedef int (*zlog_record_fn)(char *param, char *msg, size_t msg_len);
+typedef int (*zlog_record_fn)(zlog_msg_t * msg);
 
 typedef struct zlog_record_s {
 	char name[MAXLEN_PATH + 1];

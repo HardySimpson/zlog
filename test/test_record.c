@@ -20,9 +20,9 @@
 #include <stdio.h>
 #include "zlog.h"
 
-int output(char *str2, char *msg, size_t msg_len)
+int output(zlog_msg_t *msg)
 {
-	printf("[mystd]:[%s][%s][%ld]\n", str2, msg, (long)msg_len);
+	printf("[mystd]:[%s][%s][%ld]\n", msg->path, msg->buf, (long)msg->len);
 	return 0;
 }
 

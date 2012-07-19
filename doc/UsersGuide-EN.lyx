@@ -77,7 +77,17 @@ figs-within-sections
 \begin_body
 
 \begin_layout Title
-zlog User's Guide
+zlog
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+A single spark can start a prairie fire -- Mao Zedong
+\end_layout
+
+\end_inset
+
+ User's Guide
 \end_layout
 
 \begin_layout Author
@@ -86,7 +96,7 @@ by Hardy Simpson
 status collapsed
 
 \begin_layout Plain Layout
-This Guide is for zlog v1.0.x
+This Guide is for zlog v1.1.x
 \end_layout
 
 \end_inset
@@ -96,8 +106,15 @@ This Guide is for zlog v1.0.x
 status collapsed
 
 \begin_layout Plain Layout
-If you have comments or error corrections, post a issue on github, or write
- email to 
+If you have comments or error corrections, post 
+\begin_inset CommandInset href
+LatexCommand href
+name "a issue"
+target "https://github.com/HardySimpson/zlog/issues/new"
+
+\end_inset
+
+ on github, or write email to 
 \begin_inset CommandInset href
 LatexCommand href
 name "HardySimpson1984@gmail.com"
@@ -4668,7 +4685,7 @@ $name
 \begin_inset Text
 
 \begin_layout Plain Layout
-param of record function
+"path" (dynamic or static) of record function
 \end_layout
 
 \end_inset
@@ -6142,19 +6159,31 @@ SYNOPSIS
 
 \begin_deeper
 \begin_layout LyX-Code
-typedef int (*zlog_record_fn)(char *
-\bar under
-param
-\bar default
-, char *
+typedef struct zlog_msg_s {
+\end_layout
+
+\begin_layout LyX-Code
+        char *buf;
+\end_layout
+
+\begin_layout LyX-Code
+        size_t len;
+\end_layout
+
+\begin_layout LyX-Code
+        char *path; 
+\end_layout
+
+\begin_layout LyX-Code
+} zlog_msg_t; 
+\end_layout
+
+\begin_layout LyX-Code
+typedef int (*zlog_record_fn)(zlog_msg_t *
 \bar under
 msg
 \bar default
-, size_t 
-\bar under
-msglen
-\bar default
-);
+); 
 \end_layout
 
 \begin_layout LyX-Code
@@ -6183,7 +6212,7 @@ zlog allows user defines his own output function.
 \end_layout
 
 \begin_layout LyX-Code
-*.*     $name, param; simple
+*.*     $name, "record path %c %D"; simple
 \end_layout
 
 \begin_layout Standard
@@ -6199,17 +6228,30 @@ record
 .
  The function has the type of zlog_record_fn.
  
+\end_layout
+
+\begin_layout Standard
+The member of struct zlog_msg_t is decribed below:
+\end_layout
+
+\begin_layout Standard
+
 \bar under
-param
+path
 \bar default
- comes from rule.
+ comes from the second parm of rule after $name, which is dynamiclly generated
+ like dynamic file path.
  
+\end_layout
+
+\begin_layout Standard
+
 \bar under
-msg
+buf
 \bar default
  and 
 \bar under
-msglen
+len
 \bar default
  are zlog formated log message and its length.
 \end_layout
@@ -7305,7 +7347,13 @@ name "sec:User-defined-Output"
 \end_layout
 
 \begin_layout Standard
-Here I write down all steps of how user define own output function.
+The goal of user-defined output is that zlog gives up all its right.
+ zlog is responsible for generate path and message dynamiclly as user's
+ configure, bug leaves the way of how log is output and rotate for user's
+ desire.
+ You can do what ever you want by set a function to special rules.
+ Here I write down all steps of how user define own output function.
+ 
 \end_layout
 
 \begin_layout Enumerate
@@ -7330,7 +7378,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*      $myoutput, myparam;simple
+my_cat.*      $myoutput, " mypath %c %D";simple
 \end_layout
 
 \end_deeper
@@ -7348,27 +7396,27 @@ set a ouput function for myoutput, then using it
 \end_layout
 
 \begin_layout LyX-Code
-int output(char *str2, char *msg, size_t msg_len)
+int output(zlog_msg_t *msg) 
 \end_layout
 
 \begin_layout LyX-Code
-{
+{ 
 \end_layout
 
 \begin_deeper
 \begin_layout LyX-Code
 printf("[mystd]:[%s][%s][%ld]
 \backslash
-n", str2, msg, (long)msg_len);
+n", msg->path, msg->buf, (long)msg->len); 	
 \end_layout
 
 \begin_layout LyX-Code
-return 0;
+return 0; 
 \end_layout
 
 \end_deeper
 \begin_layout LyX-Code
-}
+} 
 \end_layout
 
 \begin_layout LyX-Code
@@ -7472,7 +7520,11 @@ Now we can see the user-defined output() works!
 
 \begin_deeper
 \begin_layout LyX-Code
-[mystd]:[myparam][hello, zlog
+$ ./test_record  
+\end_layout
+
+\begin_layout LyX-Code
+[mystd]:[ mypath my_cat 2012-07-19 11:01:12][hello, zlog
 \end_layout
 
 \begin_layout LyX-Code
@@ -7485,5 +7537,55 @@ As you can see, msglen is 12, and msg formated by zlog contains a newline
 \end_layout
 
 \end_deeper
+\begin_layout Enumerate
+There are many miraculous things you can do with user-defined output functions.
+ As one user(flw@newsmth.net)'s desire
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Log name is foo.log
+\end_layout
+
+\begin_layout Enumerate
+If foo.log is larger than 100M, then generate a new logfile which contains
+ all the contents of foo.log.
+ And zlog truncate foo.log to 0 and re-append to it when next log happens.
+\end_layout
+
+\begin_layout Enumerate
+When the time is over 5 minutes after last logging, even if foo.log is not
+ larger than 100M, zlog still jumps to a new file.
+\end_layout
+
+\begin_layout Enumerate
+The new file name should be defined by his own needs.
+ For example add device no as prefix and time string for postfix.
+\end_layout
+
+\begin_layout Enumerate
+I hope the new logfile can be compressed, to save disk space and network
+ bandwidth.
+\end_layout
+
+\begin_layout Standard
+I wish him good luck for writing such a function in case of multi-process
+ or multi-threads! God bless him! 
+\end_layout
+
+\end_deeper
+\begin_layout Chapter
+Epilog
+\end_layout
+
+\begin_layout Verse
+Here's to alcohol, the cause of -- and solution to -- all life’s problems.
+ 
+\end_layout
+
+\begin_layout Right Address
+Homer Simpson
+\end_layout
+
 \end_body
 \end_document
