@@ -126,7 +126,7 @@ typedef enum {
 	ZLOG_LEVEL_DEBUG, format , ## __VA_ARGS__)
 /* dzlog macros */
 #define DZLOG_FATAL(format, ...) \
-	ddzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_FATAL, format , ## __VA_ARGS__)
 #define DZLOG_ERROR(format, ...) \
 	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
@@ -165,7 +165,7 @@ typedef enum {
 	ZLOG_LEVEL_DEBUG, format, ##args)
 /* dzlog macros */
 #define DZLOG_FATAL(format, args...) \
-	ddzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_FATAL, format, ##args)
 #define DZLOG_ERROR(format, args...) \
 	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
