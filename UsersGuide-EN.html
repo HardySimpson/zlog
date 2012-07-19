@@ -47,7 +47,7 @@ TD P{margin:0px;}
 </HEAD>
 <BODY >
 <!--HEVEA command line is: /usr/bin/hevea book.hva -s UsersGuide-EN.tex -->
-<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog User&#X2019;s Guide</H1><H3 CLASS="titlerest">by Hardy Simpson<SUP><A NAME="text1" HREF="#note1">1</A></SUP><SUP><A NAME="text2" HREF="#note2">2</A></SUP></H3></TD></TR>
+<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog<SUP><A NAME="text1" HREF="#note1">1</A></SUP> User&#X2019;s Guide</H1><H3 CLASS="titlerest">by Hardy Simpson<SUP><A NAME="text2" HREF="#note2">2</A></SUP><SUP><A NAME="text3" HREF="#note3">3</A></SUP></H3></TD></TR>
 </TABLE><!--TOC chapter Contents-->
 <H1 CLASS="chapter"><!--SEC ANCHOR -->Contents</H1><!--SEC END --><UL CLASS="toc"><LI CLASS="li-toc">
 <A HREF="#htoc1">Chapter 1  What is zlog?</A>
@@ -104,6 +104,7 @@ TD P{margin:0px;}
 </LI><LI CLASS="li-toc"><A HREF="#htoc37">7.3  User-defined Level</A>
 </LI><LI CLASS="li-toc"><A HREF="#htoc38">7.4  User-defined Output</A>
 </LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc39">Chapter 8  Epilog</A>
 </LI></UL><!--TOC chapter What is zlog?-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc1">Chapter 1</A>  What is zlog?</H1><!--SEC END --><P>zlog is a reliable, high-performance, thread safe, flexible, clear-model,
 pure C logging library</P><P>Actually, in the C world there is NO good logging library for application
@@ -899,7 +900,7 @@ and digits. The underscore "_"counts as a letter.</P><TABLE BORDER=1 CELLSPACING
 <TR><TD VALIGN=top ALIGN=left NOWRAP>to syslog</TD><TD VALIGN=top ALIGN=center NOWRAP>&gt;syslog</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]</DIV><P>This is not optional.</P></TD></TR>
 <TR><TD VALIGN=top ALIGN=left NOWRAP>to file</TD><TD VALIGN=top ALIGN=center NOWRAP>"(file path)"</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">file limitation, can be:</DIV><P>1000, 1k, 2M, 1G...</P><P>3m*2, 4k*3...</P></TD></TR>
 <TR><TD VALIGN=top ALIGN=left NOWRAP>synchronous I/O file</TD><TD VALIGN=top ALIGN=center NOWRAP>-"(file path)"</TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
-<TR><TD VALIGN=top ALIGN=left NOWRAP>user-defined output</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">param of record function</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>user-defined output</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">"path" (dynamic or static) of record function</DIV></TD></TR>
 </TABLE><UL CLASS="itemize"><LI CLASS="li-itemize">
 stdout, stderr, syslog<P>As table describes, only syslog&#X2019;s output option is meaningful and
 must be set.</P><P>It is remarkable that DO NEVER use &gt;stdout or &gt;stderr
@@ -1242,7 +1243,7 @@ SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CL
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(char </TT><TT>*</TT><TT>param</TT><TT>, char </TT><TT>*</TT><TT>msg</TT><TT>, size_t </TT><TT>msglen</TT><TT>);</TT><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
+typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><TT>buf;</TT></P><P><TT>        size_t len;</TT></P><P><TT>        char </TT><TT>*</TT><TT>path; </TT></P><P><TT>} zlog_msg_t; </TT></P><P><TT>typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(zlog_msg_t </TT><TT>*</TT><TT>msg</TT><TT>); </TT></P><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog allows user defines his own output function. The output function
 bonds to specail kind of rule in configure file. A typical rule is:
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -1251,12 +1252,12 @@ bonds to specail kind of rule in configure file. A typical rule is:
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, param; simple
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, "record path %c %D"; simple
 </TT></DD></DL></DIV><P>zlog_set_record() do the bonding operation. rules with the $name
 will be output through user-defined function record. The
-function has the type of zlog_record_fn. param comes
-from rule. msg and msglen are zlog formated
-log message and its length.</P><P>All settings of zlog_set_record() keeps available after zlog_reload().</P></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>On success, zlog_set_record() returns zero. On error, it returns
+function has the type of zlog_record_fn. </P><P>The member of struct zlog_msg_t is decribed below:</P><P>path comes from the second parm of rule after $name, which
+is dynamiclly generated like dynamic file path. </P><P>buf and len are zlog formated log message and
+its length.</P><P>All settings of zlog_set_record() keeps available after zlog_reload().</P></DD><DT CLASS="dt-list">RETURN</DT><DD CLASS="dd-list"> VALUE<P>On success, zlog_set_record() returns zero. On error, it returns
 -1, and detail error log will be record to a log file ZLOG_PROFILE_ERROR
 indicates.</P></DD></DL><!--TOC section debug and profile-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc33">6.7</A>  debug and profile</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
@@ -1603,7 +1604,12 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT>INFO info hello, zlog - info 
 </TT></P></DD></DL></DIV><P>That&#X2019;s just what we expect, the configure file only allows &gt;=TRACE
 ouput to screen. And %V and %v works well.</P></LI></OL><!--TOC section User-defined Output-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>Here I write down all steps of how user define own output function.
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>The goal of user-defined output is that zlog gives up all its right.
+zlog is responsible for generate path and message dynamiclly as user&#X2019;s
+configure, bug leaves the way of how log is output and rotate for
+user&#X2019;s desire. You can do what ever you want by set a function to
+special rules. Here I write down all steps of how user define own
+output function. 
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 defined output in rules of configure file.<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -1611,23 +1617,23 @@ defined output in rules of configure file.<DIV CLASS="flushleft"><DL CLASS="list
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, myparam;simple
+$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, " mypath %c %D";simple
 </TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">set a ouput function for myoutput, then using it<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-#include &lt;stdio.h&gt;</TT><P><TT>#include "zlog.h"</TT></P><P><TT>int output(char </TT><TT>*</TT><TT>str2, char </TT><TT>*</TT><TT>msg, size_t msg_len)</TT></P><P><TT>{
+#include &lt;stdio.h&gt;</TT><P><TT>#include "zlog.h"</TT></P><P><TT>int output(zlog_msg_t </TT><TT>*</TT><TT>msg) </TT></P><P><TT>{ 
 </TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
 
 
 
 
 </TT><TT></TT></DT><DD CLASS="dd-list"><TT>
-printf("</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%ld</TT><TT>]</TT><TT>\n", str2, msg, (long)msg_len);</TT><P><TT>return 0;
+printf("</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%ld</TT><TT>]</TT><TT>\n", msg-&gt;path, msg-&gt;buf, (long)msg-&gt;len); 	</TT><P><TT>return 0; 
 </TT></P></DD></DL></DIV><P><TT>
-}</TT></P><P><TT> </TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
+} </TT></P><P><TT> </TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
 </TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
 
 
@@ -1661,14 +1667,37 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>myparam</TT><TT>]</TT><TT>[</TT><TT>hello, zlog</TT><P><TT>]</TT><TT>[</TT><TT>12</TT><TT>]</TT><TT> 
+$ ./test_record  </TT><P><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT> mypath my_cat 2012-07-19 11:01:12</TT><TT>]</TT><TT>[</TT><TT>hello, zlog</TT></P><P><TT>]</TT><TT>[</TT><TT>12</TT><TT>]</TT><TT> 
 </TT></P></DD></DL></DIV><P>As you can see, msglen is 12, and msg formated by zlog contains a
-newline character.</P></LI></OL><!--CUT END -->
+newline character.</P></LI><LI CLASS="li-enumerate">There are many miraculous things you can do with user-defined output
+functions. As one user(flw@newsmth.net)&#X2019;s desire<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
+Log name is foo.log
+</LI><LI CLASS="li-enumerate">If foo.log is larger than 100M, then generate a new logfile which
+contains all the contents of foo.log. And zlog truncate foo.log to
+0 and re-append to it when next log happens.
+</LI><LI CLASS="li-enumerate">When the time is over 5 minutes after last logging, even if foo.log
+is not larger than 100M, zlog still jumps to a new file.
+</LI><LI CLASS="li-enumerate">The new file name should be defined by his own needs. For example
+add device no as prefix and time string for postfix.
+</LI><LI CLASS="li-enumerate">I hope the new logfile can be compressed, to save disk space and network
+bandwidth.
+</LI></OL><P>I wish him good luck for writing such a function in case of multi-process
+or multi-threads! God bless him! </P></LI></OL><!--TOC chapter Epilog-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc39">Chapter 8</A>  Epilog</H1><!--SEC END --><P>
+
+Here&#X2019;s to alcohol, the cause of &#X2013; and solution to &#X2013; all life&#X2019;s
+problems. 
+</P><TABLE CELLSPACING=6 CELLPADDING=0><TR><TD ALIGN=left NOWRAP>Homer Simpson</TD></TR>
+</TABLE><P>
+<BR>
+
+</P><!--CUT END -->
 <!--BEGIN STICKYNOTES document-->
 <HR CLASS="footnoterule"><DL CLASS="thefootnotes"><DT CLASS="dt-thefootnotes">
-<A NAME="note1" HREF="#text1">1</A></DT><DD CLASS="dd-thefootnotes">This Guide is for zlog v1.0.x
-</DD><DT CLASS="dt-thefootnotes"><A NAME="note2" HREF="#text2">2</A></DT><DD CLASS="dd-thefootnotes">If you have comments or error corrections, post a issue on github,
-or write email to <A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A>
+<A NAME="note1" HREF="#text1">1</A></DT><DD CLASS="dd-thefootnotes">A single spark can start a prairie fire &#X2013; Mao Zedong
+</DD><DT CLASS="dt-thefootnotes"><A NAME="note2" HREF="#text2">2</A></DT><DD CLASS="dd-thefootnotes">This Guide is for zlog v1.1.x
+</DD><DT CLASS="dt-thefootnotes"><A NAME="note3" HREF="#text3">3</A></DT><DD CLASS="dd-thefootnotes">If you have comments or error corrections, post <A HREF="https://github.com/HardySimpson/zlog/issues/new">a issue</A>
+on github, or write email to <A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A>
 </DD></DL>
 <!--END NOTES-->
 <!--HTMLFOOT-->

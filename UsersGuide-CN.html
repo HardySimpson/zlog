@@ -47,7 +47,7 @@ TD P{margin:0px;}
 </HEAD>
 <BODY >
 <!--HEVEA command line is: /usr/bin/hevea book.hva -s UsersGuide-CN.tex -->
-<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog使用手册</H1><H3 CLASS="titlerest">难易 著<SUP><A NAME="text1" HREF="#note1">1</A></SUP><SUP><A NAME="text2" HREF="#note2">2</A></SUP></H3></TD></TR>
+<!--CUT DEF chapter 1 --><TABLE CLASS="title"><TR><TD><H1 CLASS="titlemain">zlog<SUP><A NAME="text1" HREF="#note1">1</A></SUP>使用手册</H1><H3 CLASS="titlerest">难易 著<SUP><A NAME="text2" HREF="#note2">2</A></SUP><SUP><A NAME="text3" HREF="#note3">3</A></SUP></H3></TD></TR>
 </TABLE><!--TOC chapter Contents-->
 <H1 CLASS="chapter"><!--SEC ANCHOR -->Contents</H1><!--SEC END --><UL CLASS="toc"><LI CLASS="li-toc">
 <A HREF="#htoc1">Chapter 1  zlog是什么？</A>
@@ -104,6 +104,7 @@ TD P{margin:0px;}
 </LI><LI CLASS="li-toc"><A HREF="#htoc37">7.3  用户自定义等级</A>
 </LI><LI CLASS="li-toc"><A HREF="#htoc38">7.4  用户自定义输出</A>
 </LI></UL>
+</LI><LI CLASS="li-toc"><A HREF="#htoc39">Chapter 8  尾声</A>
 </LI></UL><!--TOC chapter zlog是什么？-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc1">Chapter 1</A>  zlog是什么？</H1><!--SEC END --><P>zlog是一个高可靠性、高性能、线程安全、灵活、概念清晰的纯C日志函数库。</P><P>事实上，在C的世界里面没有特别好的日志函数库（就像JAVA里面的的log4j，或者C++的log4cxx）。C程序员都喜欢用自己的轮子。printf就是个挺好的轮子，但没办法通过配置改变日志的格式或者输出文件。syslog是个系统级别的轮子，不过速度慢，而且功能比较单调。</P><P>所以我写了zlog。</P><P>zlog在效率、功能、安全性上大大超过了log4c，并且是用c写成的，具有比较好的通用性。</P><P>zlog有这些特性：
 </P><UL CLASS="itemize"><LI CLASS="li-itemize">
@@ -665,7 +666,7 @@ aa.DEBUG意味着任何大于等于DEBUG级别的日志会被输出。当然还�
 <TR><TD VALIGN=top ALIGN=left NOWRAP>输出到syslog</TD><TD VALIGN=top ALIGN=center NOWRAP>&gt;syslog</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">syslog设施(facilitiy)：</DIV><P>LOG_USER(default), LOG_LOCAL[0-7]</P><P>必填</P></TD></TR>
 <TR><TD VALIGN=top ALIGN=left NOWRAP>文件</TD><TD VALIGN=top ALIGN=center NOWRAP>"文件路径"</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">文件大小个数限制 </DIV><P>1000, 1k, 2M, 1G...</P><P>3m*2, 4k*3...</P></TD></TR>
 <TR><TD VALIGN=top ALIGN=left NOWRAP>同步IO文件</TD><TD VALIGN=top ALIGN=center NOWRAP>-"文件路径"</TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
-<TR><TD VALIGN=top ALIGN=left NOWRAP>用户自定义输出</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">param</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left NOWRAP>用户自定义输出</TD><TD VALIGN=top ALIGN=center NOWRAP>$name</TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">"path" 动态或者静态的用于record输出</DIV></TD></TR>
 </TABLE><UL CLASS="itemize"><LI CLASS="li-itemize">
 stdout, stderr, syslog<P>如表格描述，其中只有sylog的附加选项是有意义并必须写的。</P><P>值得注意的是，zlog在写日志的时候会用这样的语句
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -932,7 +933,7 @@ DZLOG_FATAL(format, ...)</TT><P><TT>DZLOG_ERROR(format, ...)</TT></P><P><TT>DZ
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(char </TT><TT>*</TT><TT>param</TT><TT>, char </TT><TT>*</TT><TT>msg</TT><TT>, size_t </TT><TT>msglen</TT><TT>);</TT><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
+typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><TT>buf;</TT></P><P><TT>        size_t len;</TT></P><P><TT>        char </TT><TT>*</TT><TT>path;</TT></P><P><TT>} zlog_msg_t;</TT></P><P><TT>typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(zlog_msg_t </TT><TT>*</TT><TT>msg</TT><TT>); </TT></P><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">描述</DT><DD CLASS="dd-list"> <P>zlog允许用户自定义输出函数。输出函数需要绑定到某条特殊的规则上。这种规则的例子是：
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -940,9 +941,8 @@ typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(char </TT><TT>*</TT><TT>param
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, param; simple
-</TT></DD></DL></DIV><P>zlog_set_record()做绑定动作。规则中输出段有$name的，会被用来做用户自定义输出。输出函数为record。这个函数需要为zlog_record_fn的格式。
-param来自规则的逗号后的字符串。msg和msglen 是zlog格式化后的日志信息和长度。</P><P>所有zlog_set_record()做的绑定在zlog_reload()使用后继续有效。</P></DD><DT CLASS="dt-list">返回值</DT><DD CLASS="dd-list"> <P>成功情况下zlog_set_record()返回0。失败情况下zlog_set_record()返回-1。详细错误会被写在由环境变量ZLOG_PROFILE_ERROR指定的错误日志里面。</P></DD></DL><!--TOC section 调试和诊断-->
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, "record path %c %D"; simple
+</TT></DD></DL></DIV><P>zlog_set_record()做绑定动作。规则中输出段有$name的，会被用来做用户自定义输出。输出函数为record。这个函数需要为zlog_record_fn的格式。</P><P>zlog_msg_t结构的各个成员描述如下：</P><P>path来自规则的逗号后的字符串，这个字符串会被动态的解析，输出当前的path，就像动态文件路径一样。</P><P>buf和len 是zlog格式化后的日志信息和长度。</P><P>所有zlog_set_record()做的绑定在zlog_reload()使用后继续有效。</P></DD><DT CLASS="dt-list">返回值</DT><DD CLASS="dd-list"> <P>成功情况下zlog_set_record()返回0。失败情况下zlog_set_record()返回-1。详细错误会被写在由环境变量ZLOG_PROFILE_ERROR指定的错误日志里面。</P></DD></DL><!--TOC section 调试和诊断-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc33">6.7</A>  调试和诊断</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -1252,14 +1252,14 @@ $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, myparam;simple
+$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, " mypath %c %D";simple
 </TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">绑定一个函数到$myoutput，并使用之<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-#include &lt;stdio.h&gt;</TT><P><TT>#include "zlog.h"</TT></P><P><TT>int output(char </TT><TT>*</TT><TT>str2, char </TT><TT>*</TT><TT>msg, size_t msg_len)</TT></P><P><TT>{
+#include &lt;stdio.h&gt;</TT><P><TT>#include "zlog.h"</TT></P><P><TT>int output(zlog_msg_t </TT><TT>*</TT><TT>msg)</TT></P><P><TT>{
 </TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
 
 
@@ -1302,12 +1302,24 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>myparam</TT><TT>]</TT><TT>[</TT><TT>hello, zlog</TT><P><TT>]</TT><TT>[</TT><TT>12</TT><TT>]</TT><TT> 
-</TT></P></DD></DL></DIV><P>正如你所见，msglen是12，zlog生成的msg在最后有一个换行符。</P></LI></OL><!--CUT END -->
+$ ./test_record  </TT><P><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT> mypath my_cat 2012-07-19 12:23:08</TT><TT>]</TT><TT>[</TT><TT>hello, zlog</TT></P><P><TT>]</TT><TT>[</TT><TT>12</TT><TT>]</TT><TT> 
+</TT></P></DD></DL></DIV><P>正如你所见，msglen是12，zlog生成的msg在最后有一个换行符。</P></LI><LI CLASS="li-enumerate">用户自定义输出可以干很多神奇的事情，就像某个用户(flw@newsmth.net)的需求<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
+日志文件名为 foo.log 
+</LI><LI CLASS="li-enumerate">如果 foo.log 超过 100M，则生成一个新文件，其中包含的就是 foo.log 目前的内容 而 foo.log 则变为空，重新开始增长
+</LI><LI CLASS="li-enumerate">如果距离上次生成文件时已经超过 5 分钟，则即使不到 100M，也应当生成一个新文件 
+</LI><LI CLASS="li-enumerate">新文件名称可以自定义，比如加上设备名作为前缀、日期时间串作为后缀 
+</LI><LI CLASS="li-enumerate">我希望这个新文件可以被压缩，以节省磁盘空间或者网络带宽。
+</LI></OL><P>但愿他能顺利写出这个需求的代码！在多进程或者多线程的情况下！上帝保佑他！</P></LI></OL><!--TOC chapter 尾声-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc39">Chapter 8</A>  尾声</H1><!--SEC END --><P>好酒！所有人生问题的终极起源和终极答案。</P><TABLE CELLSPACING=6 CELLPADDING=0><TR><TD ALIGN=left NOWRAP>荷马.辛普森</TD></TR>
+</TABLE><P>
+<BR>
+
+</P><!--CUT END -->
 <!--BEGIN STICKYNOTES document-->
 <HR CLASS="footnoterule"><DL CLASS="thefootnotes"><DT CLASS="dt-thefootnotes">
-<A NAME="note1" HREF="#text1">1</A></DT><DD CLASS="dd-thefootnotes">适用于 zlog v1.1.x
-</DD><DT CLASS="dt-thefootnotes"><A NAME="note2" HREF="#text2">2</A></DT><DD CLASS="dd-thefootnotes">有问题，在github上开个issue，或者写邮件到<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A>
+<A NAME="note1" HREF="#text1">1</A></DT><DD CLASS="dd-thefootnotes">星星之火，可以燎原——毛泽东
+</DD><DT CLASS="dt-thefootnotes"><A NAME="note2" HREF="#text2">2</A></DT><DD CLASS="dd-thefootnotes">适用于 zlog v1.1.x
+</DD><DT CLASS="dt-thefootnotes"><A NAME="note3" HREF="#text3">3</A></DT><DD CLASS="dd-thefootnotes">有问题，在github上<A HREF="mailto:https://github.com/HardySimpson/zlog/issues/new">开个issue</A>，或者写邮件到<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A>
 </DD></DL>
 <!--END NOTES-->
 <!--HTMLFOOT-->
