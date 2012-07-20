@@ -35,7 +35,7 @@ void zlog_record_del(zlog_record_t *a_record)
 	return;
 }
 
-zlog_record_t *zlog_record_new(char *name, zlog_record_fn output)
+zlog_record_t *zlog_record_new(const char *name, zlog_record_fn output)
 {
 	zlog_record_t *a_record;
 

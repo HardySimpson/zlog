@@ -81,7 +81,7 @@ typedef struct zlog_msg_s {
 } zlog_msg_t;
 
 typedef int (*zlog_record_fn)(zlog_msg_t *msg);
-int zlog_set_record(char *name, zlog_record_fn record);
+int zlog_set_record(const char *rname, zlog_record_fn record);
 
 /******* useful macros, can be redefined at user's h file **********/
 

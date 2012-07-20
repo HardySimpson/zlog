@@ -36,7 +36,7 @@ typedef struct zlog_record_s {
 	zlog_record_fn output;
 } zlog_record_t;
 
-zlog_record_t *zlog_record_new(char *name, zlog_record_fn output);
+zlog_record_t *zlog_record_new(const char *name, zlog_record_fn output);
 void zlog_record_del(zlog_record_t *a_record);
 void zlog_record_profile(zlog_record_t *a_record, int flag);
 

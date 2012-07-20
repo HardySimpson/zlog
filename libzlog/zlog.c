@@ -1013,7 +1013,7 @@ void zlog_profile(void)
 	return;
 }
 /*******************************************************************************/
-int zlog_set_record(char *name, zlog_record_fn record_output)
+int zlog_set_record(const char *rname, zlog_record_fn record_output)
 {
 	int rc = 0;
 	int rd = 0;
@@ -1021,7 +1021,7 @@ int zlog_set_record(char *name, zlog_record_fn record_output)
 	zlog_record_t *a_record;
 	int i = 0;
 
-	zc_assert(name, -1);
+	zc_assert(rname, -1);
 	zc_assert(record_output, -1);
 
 	rd = pthread_rwlock_wrlock(&zlog_env_lock);
@@ -1035,7 +1035,7 @@ int zlog_set_record(char *name, zlog_record_fn record_output)
 		goto zlog_set_record_exit;
 	}
 
-	a_record = zlog_record_new(name, record_output);
+	a_record = zlog_record_new(rname, record_output);
 	if (!a_record) {
 		rc = -1;
 		zc_error("zlog_record_new fail");
