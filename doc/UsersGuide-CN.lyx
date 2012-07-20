@@ -7045,7 +7045,7 @@ int output(zlog_msg_t *msg)
 \begin_layout LyX-Code
 printf("[mystd]:[%s][%s][%ld]
 \backslash
-n", str2, msg, (long)msg_len);
+n", msg->path, msg->buf, (long)msg->len);
 \end_layout
 
 \begin_layout LyX-Code
