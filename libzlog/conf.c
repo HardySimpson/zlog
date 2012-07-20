@@ -103,7 +103,7 @@ void zlog_conf_del(zlog_conf_t * a_conf)
 static int zlog_conf_build_without_file(zlog_conf_t * a_conf);
 static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
 
-zlog_conf_t *zlog_conf_new(char *conf_file)
+zlog_conf_t *zlog_conf_new(const char *confpath)
 {
 	int nwrite = 0;
 	int has_conf_file = 0;
@@ -115,8 +115,8 @@ zlog_conf_t *zlog_conf_new(char *conf_file)
 		return NULL;
 	}
 
-	if (conf_file && conf_file[0] != '\0') {
-		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", conf_file);
+	if (confpath && confpath[0] != '\0') {
+		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", confpath);
 		has_conf_file = 1;
 	} else if (getenv("ZLOG_CONF_PATH") != NULL) {
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONF_PATH"));

@@ -59,7 +59,7 @@ static void zlog_fini_inner(void)
 	return;
 }
 
-static int zlog_init_inner(char *confpath)
+static int zlog_init_inner(const char *confpath)
 {
 	int rc;
 	zlog_thread_t *a_thread;
@@ -111,7 +111,7 @@ err:
 }
 
 /*******************************************************************************/
-int zlog_init(char *confpath)
+int zlog_init(const char *confpath)
 {
 	int rc;
 	zc_debug("------zlog_init start, compile time[%s %s]------", __DATE__, __TIME__);

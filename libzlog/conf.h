@@ -47,7 +47,7 @@ typedef struct zlog_conf_s {
 	zc_arraylist_t *rules;
 } zlog_conf_t;
 
-zlog_conf_t *zlog_conf_new(char *conf_file);
+zlog_conf_t *zlog_conf_new(const char *confpath);
 void zlog_conf_del(zlog_conf_t * a_conf);
 void zlog_conf_profile(zlog_conf_t * a_conf, int flag);
 

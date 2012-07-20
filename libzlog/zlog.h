@@ -29,7 +29,7 @@ extern "C" {
 
 typedef struct zlog_category_s zlog_category_t;
 
-int zlog_init(char *confpath);
+int zlog_init(const char *confpath);
 int zlog_reload(char *confpath);
 void zlog_fini(void);
 
