@@ -199,7 +199,7 @@ err:
 	return -1;
 }
 /*******************************************************************************/
-int zlog_reload(char *confpath)
+int zlog_reload(const char *confpath)
 {
 	int rc = 0;
 	int i = 0;
