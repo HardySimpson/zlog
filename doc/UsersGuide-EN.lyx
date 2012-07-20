@@ -5092,7 +5092,7 @@ SYNOPSIS
 
 \begin_deeper
 \begin_layout LyX-Code
-int zlog_init(char *
+int zlog_init(const char *
 \bar under
 confpath
 \bar default
@@ -5100,7 +5100,7 @@ confpath
 \end_layout
 
 \begin_layout LyX-Code
-int zlog_reload(char *
+int zlog_reload(const char *
 \bar under
 confpath
 \bar default
@@ -5195,7 +5195,7 @@ typedef struct zlog_category_s zlog_category_t;
 \end_layout
 
 \begin_layout LyX-Code
-zlog_category_t *zlog_get_category(char *
+zlog_category_t *zlog_get_category(const char *
 \bar under
 cname
 \bar default
@@ -5766,11 +5766,11 @@ SYNOPSIS
 
 \begin_deeper
 \begin_layout LyX-Code
-int zlog_put_mdc(char *
+int zlog_put_mdc(const char *
 \bar under
 key
 \bar default
-, char *
+, const char *
 \bar under
 value
 \bar default
@@ -5778,7 +5778,7 @@ value
 \end_layout
 
 \begin_layout LyX-Code
-char *zlog_get_mdc(char *
+char *zlog_get_mdc(const char *
 \bar under
 key
 \bar default
@@ -5786,7 +5786,7 @@ key
 \end_layout
 
 \begin_layout LyX-Code
-void zlog_remove_mdc(char *
+void zlog_remove_mdc(const char *
 \bar under
 key
 \bar default
@@ -5864,11 +5864,11 @@ SYNOPSIS
 
 \begin_deeper
 \begin_layout LyX-Code
-int dzlog_init(char *
+int dzlog_init(const char *
 \bar under
 confpath
 \bar default
-, char *
+, const char *
 \bar under
 cname
 \bar default
@@ -5876,7 +5876,7 @@ cname
 \end_layout
 
 \begin_layout LyX-Code
-int dzlog_set_category(char *
+int dzlog_set_category(const char *
 \bar under
 cname
 \bar default
@@ -6206,9 +6206,9 @@ msg
 \end_layout
 
 \begin_layout LyX-Code
-int zlog_set_record(char *
+int zlog_set_record(const char *
 \bar under
-name
+rname
 \bar default
 , zlog_record_fn 
 \bar under
