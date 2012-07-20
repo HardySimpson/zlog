@@ -151,7 +151,7 @@ err:
 	return -1;
 }
 
-int dzlog_init(char *confpath, char *cname)
+int dzlog_init(const char *confpath, const char *cname)
 {
 	int rc = 0;
 	zc_debug("------dzlog_init start, compile time[%s %s]------", __DATE__, __TIME__);
@@ -379,7 +379,7 @@ err:
 	return NULL;
 }
 
-int dzlog_set_category(char *cname)
+int dzlog_set_category(const char *cname)
 {
 	int rc = 0;
 	zc_assert(cname, -1);

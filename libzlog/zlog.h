@@ -58,8 +58,8 @@ void hzlog(zlog_category_t * category,
 	long line, int level,
 	const void *buf, size_t buflen);
 
-int dzlog_init(char *confpath, char *cname);
-int dzlog_set_category(char *cname);
+int dzlog_init(const char *confpath, const char *cname);
+int dzlog_set_category(const char *cname);
 
 void dzlog(const char *file, size_t filelen,
 	const char *func, size_t funclen,
