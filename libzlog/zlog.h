@@ -37,9 +37,9 @@ void zlog_profile(void);
 
 zlog_category_t *zlog_get_category(const char *cname);
 
-int zlog_put_mdc(char *key, char *value);
-char *zlog_get_mdc(char *key);
-void zlog_remove_mdc(char *key);
+int zlog_put_mdc(const char *key, const char *value);
+char *zlog_get_mdc(const char *key);
+void zlog_remove_mdc(const char *key);
 void zlog_clean_mdc(void);
 
 void zlog(zlog_category_t * category,

@@ -32,9 +32,9 @@ void zlog_mdc_del(zlog_mdc_t * a_mdc);
 void zlog_mdc_profile(zlog_mdc_t *a_mdc, int flag);
 
 void zlog_mdc_clean(zlog_mdc_t * a_mdc);
-int zlog_mdc_put(zlog_mdc_t * a_mdc, char *key, char *value);
-char *zlog_mdc_get(zlog_mdc_t * a_mdc, char *key);
-void zlog_mdc_remove(zlog_mdc_t * a_mdc, char *key);
+int zlog_mdc_put(zlog_mdc_t * a_mdc, const char *key, const char *value);
+char *zlog_mdc_get(zlog_mdc_t * a_mdc, const char *key);
+void zlog_mdc_remove(zlog_mdc_t * a_mdc, const char *key);
 
 typedef struct zlog_mdc_kv_s {
 	char key[MAXLEN_PATH + 1];
@@ -42,6 +42,6 @@ typedef struct zlog_mdc_kv_s {
 	size_t value_len;
 } zlog_mdc_kv_t;
 
-zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t * a_mdc, char *key);
+zlog_mdc_kv_t *zlog_mdc_get_kv(zlog_mdc_t * a_mdc, const char *key);
 
 #endif

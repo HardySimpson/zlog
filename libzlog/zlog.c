@@ -422,7 +422,7 @@ err:
 	return -1;
 }
 /*******************************************************************************/
-int zlog_put_mdc(char *key, char *value)
+int zlog_put_mdc(const char *key, const char *value)
 {
 	int rc = 0;
 	zlog_thread_t *a_thread;
