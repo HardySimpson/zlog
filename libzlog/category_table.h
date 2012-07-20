@@ -30,7 +30,7 @@ void zlog_category_table_profile(zc_hashtable_t * categories, int flag);
 /* if none, create new and return */
 zlog_category_t *zlog_category_table_fetch_category(
 			zc_hashtable_t * categories,
-		 	char *category_name, zc_arraylist_t * rules);
+		 	const char *category_name, zc_arraylist_t * rules);
 
 int zlog_category_table_update_rules(zc_hashtable_t * categories, zc_arraylist_t * new_rules);
 void zlog_category_table_commit_rules(zc_hashtable_t * categories);

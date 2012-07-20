@@ -32,7 +32,7 @@ typedef struct zlog_category_s {
 	zc_arraylist_t *fit_rules_backup;
 } zlog_category_t;
 
-zlog_category_t *zlog_category_new(char *name, zc_arraylist_t * rules);
+zlog_category_t *zlog_category_new(const char *name, zc_arraylist_t * rules);
 void zlog_category_del(zlog_category_t * a_category);
 void zlog_category_profile(zlog_category_t *a_category, int flag);
 

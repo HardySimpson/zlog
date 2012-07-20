@@ -334,7 +334,7 @@ exit:
 	return;
 }
 /*******************************************************************************/
-zlog_category_t *zlog_get_category(char *cname)
+zlog_category_t *zlog_get_category(const char *cname)
 {
 	int rc = 0;
 	zlog_category_t *a_category = NULL;

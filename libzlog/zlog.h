@@ -35,7 +35,7 @@ void zlog_fini(void);
 
 void zlog_profile(void);
 
-zlog_category_t *zlog_get_category(char *cname);
+zlog_category_t *zlog_get_category(const char *cname);
 
 int zlog_put_mdc(char *key, char *value);
 char *zlog_get_mdc(char *key);

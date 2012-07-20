@@ -122,7 +122,7 @@ err:
 	return -1;
 }
 
-zlog_category_t *zlog_category_new(char *name, zc_arraylist_t * rules)
+zlog_category_t *zlog_category_new(const char *name, zc_arraylist_t * rules)
 {
 	size_t len;
 	zlog_category_t *a_category;
