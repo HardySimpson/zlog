@@ -166,9 +166,10 @@ These operation should be done in a different process or on a different
 machine.</P><P>If you want all these features, I recommend rsyslog, a excellent syslog
 daemon implementation. It is a independent process receives logs from
 other process or machines, and parse and store logs. Still, it has
-a distance from user application.</P><P>Now user-defined output is support by zlog. People just need to implement
-one ouput function, to transfer log to other process or other machine.
-And leave work of category matching and log format to zlog library. </P><!--TOC chapter Hello World-->
+a distance from user application.</P><P>Now <A HREF="#sec:User-defined-Output">7.4</A> is support by zlog. People just
+need to implement one ouput function, to transfer log to other process
+or other machine. They leave work of category matching and log generatating
+to zlog library. </P><!--TOC chapter Hello World-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section Build and Installation zlog-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc5">3.1</A>  Build and Installation zlog</H2><!--SEC END --><P>Download:<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A>
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -917,7 +918,9 @@ write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread-&
 </TT></DD></DL></DIV><P>Then what will happen? The log will be written to the file whose fd
 is now 1. I have received mail that tells me zlog write log to his
 configure file... So remeber, daemon process should not set any rule
-output to stdout, or stderr. It will generate undefined behavior.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
+output to stdout, or stderr. It will generate undefined behavior.
+If you still want output log to console when stdout is closed, use
+"/dev/tty" instead.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
 file path<P>can be absolute file path or relative file path. It is quoted by double
 quotation marks. <EM>Conversion pattern</EM> can be used in file path.
 If the file path is "%E(HOME)/log/out.log" and
@@ -939,6 +942,13 @@ output to named pipe(FIFO), must create by mkfifo(1) before use<DIV CLASS="flush
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 </TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>    "/dev/null"
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">output to console, in any case<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>    "/dev/tty"
 </TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">output to each tid a log, on the directory where process running<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -1065,7 +1075,7 @@ SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CL
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-int zlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT><P><TT>int zlog_reload(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT></P><P><TT>void zlog_fini(void);
+int zlog_init(const char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT><P><TT>int zlog_reload(const char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT></P><P><TT>void zlog_fini(void);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog_init() read configuration from file confpath. If
 confpath is NULL, it looks environment variable ZLOG_CONF_PATH
 for configure file. If $ZLOG_CONF_PATH is NULL also, all log will
@@ -1092,7 +1102,7 @@ SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CL
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-typedef struct zlog_category_s zlog_category_t;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zlog_get_category(char </TT><TT>*</TT><TT>cname</TT><TT>);
+typedef struct zlog_category_s zlog_category_t;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zlog_get_category(const char </TT><TT>*</TT><TT>cname</TT><TT>);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog_get_category() get a category from zlog&#X2019;s cateogory_table
 for future log, if none, create it. Then It goes throuh all rules
 in configure memory, which comes from configure file, And find matched
@@ -1190,7 +1200,7 @@ SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CL
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-int zlog_put_mdc(char </TT><TT>*</TT><TT>key</TT><TT>, char </TT><TT>*</TT><TT>value</TT><TT>);</TT><P><TT>char </TT><TT>*</TT><TT>zlog_get_mdc(char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_remove_mdc(char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_clean_mdc(void);
+int zlog_put_mdc(const char </TT><TT>*</TT><TT>key</TT><TT>, const char </TT><TT>*</TT><TT>value</TT><TT>);</TT><P><TT>char </TT><TT>*</TT><TT>zlog_get_mdc(const char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_remove_mdc(const char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_clean_mdc(void);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>MDC(Mapped Diagnostic Context) is a thread key-value map, so it has
 nothing to do with category.</P><P>key and value are all strings, which should
 be no longer than MAXLEN_PATH(1024). If the input is longer than
@@ -1210,7 +1220,7 @@ SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CL
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-int dzlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>, char </TT><TT>*</TT><TT>cname</TT><TT>);</TT><P><TT>int dzlog_set_category(char </TT><TT>*</TT><TT>cname</TT><TT>); </TT></P><P><TT>void dzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>           long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>format</TT><TT>, ...); </TT></P><P><TT>void vdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>format</TT><TT>, va_list </TT><TT>args</TT><TT>); </TT></P><P><TT>void hdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const void </TT><TT>*</TT><TT>buf</TT><TT>, size_t </TT><TT>buflen</TT><TT>);
+int dzlog_init(const char </TT><TT>*</TT><TT>confpath</TT><TT>, const char </TT><TT>*</TT><TT>cname</TT><TT>);</TT><P><TT>int dzlog_set_category(const char </TT><TT>*</TT><TT>cname</TT><TT>); </TT></P><P><TT>void dzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>           long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>format</TT><TT>, ...); </TT></P><P><TT>void vdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>format</TT><TT>, va_list </TT><TT>args</TT><TT>); </TT></P><P><TT>void hdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const void </TT><TT>*</TT><TT>buf</TT><TT>, size_t </TT><TT>buflen</TT><TT>);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>dzlog consists of some simlple fuctions that omit <EM>zlog_category_t</EM>.
 It use a default category inside and put the category under the protect
 of lock. It is thread safe also. Omit category means that users need
@@ -1243,7 +1253,7 @@ SYNOPSIS</DT><DD CLASS="dd-list"> <DIV CLASS="flushleft"><DL CLASS="list"><DT CL
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><TT>buf;</TT></P><P><TT>        size_t len;</TT></P><P><TT>        char </TT><TT>*</TT><TT>path; </TT></P><P><TT>} zlog_msg_t; </TT></P><P><TT>typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(zlog_msg_t </TT><TT>*</TT><TT>msg</TT><TT>); </TT></P><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
+typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><TT>buf;</TT></P><P><TT>        size_t len;</TT></P><P><TT>        char </TT><TT>*</TT><TT>path; </TT></P><P><TT>} zlog_msg_t; </TT></P><P><TT>typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(zlog_msg_t </TT><TT>*</TT><TT>msg</TT><TT>); </TT></P><P><TT>int zlog_set_record(const char </TT><TT>*</TT><TT>rname</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">DESCRIPTION</DT><DD CLASS="dd-list"> <P>zlog allows user defines his own output function. The output function
 bonds to specail kind of rule in configure file. A typical rule is:
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -1604,12 +1614,12 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT>INFO info hello, zlog - info 
 </TT></P></DD></DL></DIV><P>That&#X2019;s just what we expect, the configure file only allows &gt;=TRACE
 ouput to screen. And %V and %v works well.</P></LI></OL><!--TOC section User-defined Output-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>The goal of user-defined output is that zlog gives up all its right.
-zlog is responsible for generate path and message dynamiclly as user&#X2019;s
-configure, bug leaves the way of how log is output and rotate for
-user&#X2019;s desire. You can do what ever you want by set a function to
-special rules. Here I write down all steps of how user define own
-output function. 
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>The goal of user-defined output is that zlog gives up some right.
+zlog is only responsible for generate path and message dynamiclly
+as user&#X2019;s configure, but leaves the way of how log is output, rotate
+and cleanup for user&#X2019;s desire. You can do what ever you want by set
+a function to special rules. Here I write down all steps of how user
+define own output function. 
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 defined output in rules of configure file.<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 

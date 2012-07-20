@@ -132,7 +132,7 @@ OpenSolaris, Mac OS X...）估计也能行，有问题欢迎探讨。
 %d(%ms,%us)不再是合法的，%d.%ms是合法的。%ms毫秒和%us微秒提出来作为单独的转换字符串。
 </LI><LI CLASS="li-enumerate">增加了默认时间串%D，输出"2012-02-14 17:03:12"这样的时间。
 </LI></OL><P>之所以改变这些，是为了简化代码，以及能提升30%的性能。所以如果你是从1.0.x升级而且使用动态库的话，无须重新编译程序，只要稍微改动一下配置文件即可。</P></LI></OL><!--TOC chapter zlog不是什么？-->
-<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc3">Chapter 2</A>  zlog不是什么？</H1><!--SEC END --><P>zlog的目标是成为一个简而精的日志函数库，不会直接支持网络输出或者写入数据库，不会直接支持日志内容的过滤和解析。</P><P>原因很明显，日志库是被应用程序调用的，所有花在日志库上的时间都是应用程序运行时间的一部分，而上面说的这些操作都很费时间，会拖慢应用程序的速度。这些事儿应该在别的进程或者别的机器上做。</P><P>如果你需要这些特性，我建议使用rsyslog，一个系统级别的日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。</P><P>目前zlog已经支持用户自定义输出，可以自己实现一个输出函数，自由的把日志输出到其他进程或者其他机器。而把日志的分类匹配、日志格式成型的工作交给zlog。</P><!--TOC chapter Hello World-->
+<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc3">Chapter 2</A>  zlog不是什么？</H1><!--SEC END --><P>zlog的目标是成为一个简而精的日志函数库，不会直接支持网络输出或者写入数据库，不会直接支持日志内容的过滤和解析。</P><P>原因很明显，日志库是被应用程序调用的，所有花在日志库上的时间都是应用程序运行时间的一部分，而上面说的这些操作都很费时间，会拖慢应用程序的速度。这些事儿应该在别的进程或者别的机器上做。</P><P>如果你需要这些特性，我建议使用rsyslog，一个系统级别的日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。</P><P>目前zlog已经支持<A HREF="#sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA">7.4</A>，可以自己实现一个输出函数，自由的把日志输出到其他进程或者其他机器。而把日志的分类匹配、日志格式成型的工作交给zlog。</P><!--TOC chapter Hello World-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section 编译和安装zlog-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc5">3.1</A>  编译和安装zlog</H2><!--SEC END --><P>下载<A HREF="file:https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">zlog-latest-stable.tar.gz</A>
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -676,7 +676,7 @@ stdout, stderr, syslog<P>如表格描述，其中只有sylog的附加选项是�
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread-&gt;msg_buf))
-</TT></DD></DL></DIV><P>而如果你的程序是个守护进程，在启动的时候把STDOUT_FILENO，也就是1的文件描述符关掉的话，会发生什么结果呢？</P><P>日志会被写到新的1的文件描述符所代表的文件里面！我收到过邮件，说zlog把日志写到自己的配置文件里面去了！</P><P>所以，千万不要在守护进程的规则里面加上&gt;stdout或&gt;stderr。这会产生不可预料的结果……</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
+</TT></DD></DL></DIV><P>而如果你的程序是个守护进程，在启动的时候把STDOUT_FILENO，也就是1的文件描述符关掉的话，会发生什么结果呢？</P><P>日志会被写到新的1的文件描述符所代表的文件里面！我收到过邮件，说zlog把日志写到自己的配置文件里面去了！</P><P>所以，千万不要在守护进程的规则里面加上&gt;stdout或&gt;stderr。这会产生不可预料的结果……如果一定要输出到终端，用"/dev/tty"代替。</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
 文件路径<P>可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 "%E(HOME)/log/out.log"，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见
 <A HREF="#sec:=008F6C=006362=00683C=005F0F=004E32">5.4</A>。</P><P>zlog的文件功能极为强大，例如
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
@@ -694,6 +694,13 @@ write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 </TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     "/dev/null"
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">在任何情况下输出到终端<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+
+
+
+
+<TT></TT></DT><DD CLASS="dd-list"><TT>
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     "/dev/tty"
 </TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">每线程一个日志，在程序运行的目录下<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -810,7 +817,7 @@ $ zlog-chk-conf zlog.conf ylog.conf </TT><P><TT>--</TT><TT>[</TT><TT>zlog.co
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-int zlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT><P><TT>int zlog_reload(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT></P><P><TT>void zlog_fini(void);
+int zlog_init(const char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT><P><TT>int zlog_reload(const char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT></P><P><TT>void zlog_fini(void);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">描述</DT><DD CLASS="dd-list"> <P>zlog_init()从配置文件confpath中读取配置信息到内存。如果confpath为NULL，会寻找环境变量ZLOG_CONF_PATH的值作为配置文件名。如果环境变量ZLOG_CONF_PATH也没有，所有日志以内置格式写到标准输出上。每个进程只有第一次调用zlog_init()是有效的，后面的多余调用都会失败并不做任何事情。 </P><P>zlog_reload()从confpath重载配置，并根据这个配置文件来重计算内部的分类规则匹配、重建每个线程的缓存、并设置原有的用户自定义输出函数。可以在配置文件发生改变后调用这个函数。这个函数使用次数不限。如果confpath为NULL，会重载上一次zlog_init()或者zlog_reload()使用的配置文件。如果zlog_reload()失败，上一次的配置依然有效。所以zlog_reload()具有原子性。</P><P>zlog_fini()清理所有zlog API申请的内存，关闭它们打开的文件。使用次数不限。</P></DD><DT CLASS="dt-list">返回值</DT><DD CLASS="dd-list"> <P>如果成功，zlog_init()和zlog_reload()返回0。失败的话，zlog_init()和zlog_reload()返回-1。详细错误会被写在由环境变量ZLOG_PROFILE_ERROR指定的错误日志里面。</P></DD></DL><!--TOC section 分类(Category)操作-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc28">6.2</A>  分类(Category)操作</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -823,7 +830,7 @@ int zlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>);</TT><P><TT>int zlog
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-typedef struct zlog_category_s zlog_category_t;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zlog_get_category(char </TT><TT>*</TT><TT>cname</TT><TT>);
+typedef struct zlog_category_s zlog_category_t;</TT><P><TT>zlog_category_t </TT><TT>*</TT><TT>zlog_get_category(const char </TT><TT>*</TT><TT>cname</TT><TT>);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">描述</DT><DD CLASS="dd-list"> <P>zlog_get_category()从zlog的全局分类表里面找到分类，用于以后输出日志。如果没有的话，就建一个。然后它会遍历所有的规则，寻找和cname匹配的规则并绑定。</P><P>配置文件规则中的分类名匹配cname的规律描述如下：
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 * 匹配任意cname。
@@ -898,7 +905,7 @@ ZLOG_LEVEL_DEBUG = 20,</TT><P><TT>ZLOG_LEVEL_INFO = 40,</TT></P><P><TT>ZLOG_
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-int zlog_put_mdc(char </TT><TT>*</TT><TT>key</TT><TT>, char </TT><TT>*</TT><TT>value</TT><TT>);</TT><P><TT>char </TT><TT>*</TT><TT>zlog_get_mdc(char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_remove_mdc(char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_clean_mdc(void);
+int zlog_put_mdc(const char </TT><TT>*</TT><TT>key</TT><TT>, const char </TT><TT>*</TT><TT>value</TT><TT>);</TT><P><TT>char </TT><TT>*</TT><TT>zlog_get_mdc(const char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_remove_mdc(const char </TT><TT>*</TT><TT>key</TT><TT>);</TT></P><P><TT>void zlog_clean_mdc(void);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">描述</DT><DD CLASS="dd-list"> <P>MDC(Mapped Diagnostic Context)是一个每线程拥有的键-值表，所以和分类没什么关系。</P><P>key和value是字符串，长度不能超过MAXLEN_PATH(1024)。如果超过MAXLEN_PATH(1024)的话，会被截断。</P><P>记住这个表是和线程绑定的，每个线程有自己的表，所以在一个线程内的调用不会影响其他线程。</P></DD><DT CLASS="dt-list">返回值</DT><DD CLASS="dd-list"> <P>zlog_put_mdc()成功返回0，失败返回-1。zlog_get_mdc()成功返回value的指针，失败或者没有相应的key返回NULL。如果有错误发生，详细错误会被写在由环境变量ZLOG_PROFILE_ERROR指定的错误日志里面。</P></DD></DL><!--TOC section dzlog接口-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc31">6.5</A>  dzlog接口<A NAME="sec:dzlog=0063A5=0053E3"></A></H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -911,7 +918,7 @@ int zlog_put_mdc(char </TT><TT>*</TT><TT>key</TT><TT>, char </TT><TT>*</TT><
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-int dzlog_init(char </TT><TT>*</TT><TT>confpath</TT><TT>, char </TT><TT>*</TT><TT>cname</TT><TT>);</TT><P><TT>int dzlog_set_category(char </TT><TT>*</TT><TT>cname</TT><TT>); </TT></P><P><TT>void dzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>           long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>format</TT><TT>, ...); </TT></P><P><TT>void vdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>format</TT><TT>, va_list </TT><TT>args</TT><TT>); </TT></P><P><TT>void hdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const void </TT><TT>*</TT><TT>buf</TT><TT>, size_t </TT><TT>buflen</TT><TT>);
+int dzlog_init(const char </TT><TT>*</TT><TT>confpath</TT><TT>, const char </TT><TT>*</TT><TT>cname</TT><TT>);</TT><P><TT>int dzlog_set_category(const char </TT><TT>*</TT><TT>cname</TT><TT>); </TT></P><P><TT>void dzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>           long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>           const char </TT><TT>*</TT><TT>format</TT><TT>, ...); </TT></P><P><TT>void vdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>format</TT><TT>, va_list </TT><TT>args</TT><TT>); </TT></P><P><TT>void hdzlog(const char </TT><TT>*</TT><TT>file</TT><TT>, size_t </TT><TT>filelen</TT><TT>,</TT></P><P><TT>            const char </TT><TT>*</TT><TT>func</TT><TT>, size_t </TT><TT>funclen</TT><TT>,</TT></P><P><TT>            long </TT><TT>line</TT><TT>, int </TT><TT>level</TT><TT>,</TT></P><P><TT>            const void </TT><TT>*</TT><TT>buf</TT><TT>, size_t </TT><TT>buflen</TT><TT>);
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">描述</DT><DD CLASS="dd-list"> <P>dzlog是忽略分类(zlog_category_t)的一组简单zlog接口。它采用内置的一个默认分类，这个分类置于锁的保护下。这些接口也是线程安全的。忽略了分类，意味着用户不需要操心创建、存储、传输zlog_category_t类型的变量<EM><SPAN STYLE="font-variant:small-caps">。当然也可以在用</SPAN></EM>dzlog接口的同时用一般的zlog接口函数，这样会更爽。</P><P>dzlog_init()和zlog_init()一样做初始化，就是多需要一个默认分类名cname的参数。zlog_reload()、
 zlog_fini() 可以和以前一样使用，用来刷新配置，或者清理。</P><P>dzlog_set_category()是用来改变默认分类用的。上一个分类会被替换成新的。同样不用担心内存释放的问题，zlog_fini()最后会清理。</P><P>dzlog的宏也定义在zlog.h里面。更简单的写法。
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -933,7 +940,7 @@ DZLOG_FATAL(format, ...)</TT><P><TT>DZLOG_ERROR(format, ...)</TT></P><P><TT>DZ
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><TT>buf;</TT></P><P><TT>        size_t len;</TT></P><P><TT>        char </TT><TT>*</TT><TT>path;</TT></P><P><TT>} zlog_msg_t;</TT></P><P><TT>typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(zlog_msg_t </TT><TT>*</TT><TT>msg</TT><TT>); </TT></P><P><TT>int zlog_set_record(char </TT><TT>*</TT><TT>name</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
+typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><TT>buf;</TT></P><P><TT>        size_t len;</TT></P><P><TT>        char </TT><TT>*</TT><TT>path;</TT></P><P><TT>} zlog_msg_t;</TT></P><P><TT>typedef int (</TT><TT>*</TT><TT>zlog_record_fn)(zlog_msg_t </TT><TT>*</TT><TT>msg</TT><TT>); </TT></P><P><TT>int zlog_set_record(const char </TT><TT>*</TT><TT>rname</TT><TT>, zlog_record_fn </TT><TT>record</TT><TT>); 
 </TT></P></DD></DL></DIV></DD><DT CLASS="dt-list">描述</DT><DD CLASS="dd-list"> <P>zlog允许用户自定义输出函数。输出函数需要绑定到某条特殊的规则上。这种规则的例子是：
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -1244,7 +1251,7 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT>INFO info hello, zlog - info 
 </TT></P></DD></DL></DIV><P>正是我们所期待的，配置文件只允许&gt;=TRACE等级的日志输出到屏幕上。%V和%v也显示了正确的结果。</P></LI></OL><!--TOC section 用户自定义输出-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  用户自定义输出<A NAME="sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA"></A></H2><!--SEC END --><P>这里我把用户自定义输出的几个步骤写下来。
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  用户自定义输出<A NAME="sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA"></A></H2><!--SEC END --><P>用户自定义输出的意义是zlog放弃一些权力。zlog只负责动态生成单条日志和文件路径，但怎么输出、转档、清理等等工作由用户按照自己的需求自行写函数完成。写完函数只要绑定到某个规则就可以。这里我把用户自定义输出的几个步骤写下来。
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 在配置文件里面定义规则<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -1266,7 +1273,7 @@ $ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>s
 
 
 </TT><TT></TT></DT><DD CLASS="dd-list"><TT>
-printf("</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%ld</TT><TT>]</TT><TT>\n", str2, msg, (long)msg_len);</TT><P><TT>return 0;
+printf("</TT><TT>[</TT><TT>mystd</TT><TT>]</TT><TT>:</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%s</TT><TT>]</TT><TT>[</TT><TT>%ld</TT><TT>]</TT><TT>\n", msg-&gt;path, msg-&gt;buf, (long)msg-&gt;len);</TT><P><TT>return 0;
 </TT></P></DD></DL></DIV><P><TT>
 }</TT></P><P><TT> </TT></P><P><TT>int main(int argc, char</TT><TT>*</TT><TT>*</TT><TT> argv)</TT></P><P><TT>{
 </TT></P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list"><TT>
