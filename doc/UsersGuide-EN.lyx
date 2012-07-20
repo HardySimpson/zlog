@@ -419,10 +419,17 @@ If you want all these features, I recommend rsyslog, a excellent syslog
 \end_layout
 
 \begin_layout Standard
-Now user-defined output is support by zlog.
+Now 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:User-defined-Output"
+
+\end_inset
+
+ is support by zlog.
  People just need to implement one ouput function, to transfer log to other
  process or other machine.
- And leave work of category matching and log format to zlog library.
+ They leave work of category matching and log generatating to zlog library.
  
 \end_layout
 
@@ -4727,6 +4734,8 @@ Then what will happen? The log will be written to the file whose fd is now
  So remeber, daemon process should not set any rule output to stdout, or
  stderr.
  It will generate undefined behavior.
+ If you still want output log to console when stdout is closed, use "/dev/tty"
+ instead.
 \end_layout
 
 \end_deeper
@@ -4782,6 +4791,16 @@ output to null, not do anythin at all
 \begin_deeper
 \begin_layout LyX-Code
 *.*    "/dev/null"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+output to console, in any case
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*    "/dev/tty"
 \end_layout
 
 \end_deeper
@@ -7347,10 +7366,10 @@ name "sec:User-defined-Output"
 \end_layout
 
 \begin_layout Standard
-The goal of user-defined output is that zlog gives up all its right.
- zlog is responsible for generate path and message dynamiclly as user's
- configure, bug leaves the way of how log is output and rotate for user's
- desire.
+The goal of user-defined output is that zlog gives up some right.
+ zlog is only responsible for generate path and message dynamiclly as user's
+ configure, but leaves the way of how log is output, rotate and cleanup
+ for user's desire.
  You can do what ever you want by set a function to special rules.
  Here I write down all steps of how user define own output function.
  

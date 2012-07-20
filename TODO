@@ -1,24 +1,24 @@
 [p] 使用valgrind测试性能
-[ ] 增加man  age,  df, 案例
 [ ] 和rsyslog对接的问题
-[ ] hzlog的可定制话
-[ ] 分类匹配的可定制化
-[ ] 兼容性问题
-    zlog.h内，__VA_ARGS__的跨平台
+[ ] hzlog的可定制
+[ ] 分类匹配的可定制化, rcat
+[ ] 兼容性问题 zlog.h内，__VA_ARGS__的跨平台
 [ ] c++接口的测试和实现
 [ ] linux fsync->fdatasync, open..
 [ ] 去除auto tools的使用，自行makefile[redis]
 [ ] async file输出的增加
-[ ] rcat
-[ ] rule_name
 [ ] 增加trace级别
-[ ] format,spec,level采用直接数组的方式重写
 [ ] hex那段重写,内置到buf内
 [ ] gettid()
 [ ] 性能对比, log4x, pantheios, glog
 [ ] perl, python, go支持
-[ ] init的时候输入字符串，而非文件路径
+[ ] 自行管理文件缓存，替代stdio
 
+--- 1.1.4 ---
+[ ] zlog_set("section", "command");
+[ ] const
+[x] format,spec,level采用直接数组的方式重写，性能提高不大
+[x] 增加manpage,  df, 案例
 --- 1.1.3 ---
 [o] zlog_record动态一点
 --- 1.1.2 ---
