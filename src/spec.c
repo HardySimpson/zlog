@@ -17,6 +17,8 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "fmacros.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

@@ -24,8 +24,8 @@
 
 typedef struct zlog_level_s {
 	int int_level;
-	char str_uppercase[PATH_MAX + 1];
-	char str_lowercase[PATH_MAX + 1];
+	char str_uppercase[MAXLEN_PATH + 1];
+	char str_lowercase[MAXLEN_PATH + 1];
 	size_t str_len;
        	int syslog_level;
 } zlog_level_t;

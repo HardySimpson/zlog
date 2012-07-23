@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include "fmacros.h"
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>

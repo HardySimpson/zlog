@@ -16,7 +16,7 @@
 
 --- 1.1.4 ---
 [ ] 增加版本内置(redis)
-[ ] 宏都小写化
+[o] 宏都小写化
 [o] const
 [x] zlog_set("section", "command");
 [x] format,spec,level采用直接数组的方式重写，性能提高不大

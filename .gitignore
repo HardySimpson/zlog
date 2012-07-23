@@ -20,7 +20,8 @@ depcomp
 install-sh
 .libs
 libtool
-libxlog.so*
+libzlog.so*
+libzlog.a*
 ltmain.sh
 Makefile
 Makefile.in

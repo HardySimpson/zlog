@@ -17,13 +17,16 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "fmacros.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <sys/time.h>
 #include <errno.h>
+
 #include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
 
 #include "zc_defs.h"
 #include "event.h"

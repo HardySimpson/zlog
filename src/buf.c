@@ -76,7 +76,7 @@
 /*******************************************************************************/
 void zlog_buf_profile(zlog_buf_t * a_buf, int flag)
 {
-	zc_assert(a_buf,);
+	//zc_assert(a_buf,);
 	zc_profile(flag, "---buf[%p][%ld-%ld][%ld][%s][%p:%ld]---",
 			a_buf,
 			a_buf->size_min, a_buf->size_max,
@@ -88,7 +88,7 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag)
 /*******************************************************************************/
 void zlog_buf_del(zlog_buf_t * a_buf)
 {
-	zc_assert(a_buf,);
+	//zc_assert(a_buf,);
 	if (a_buf->start) free(a_buf->start);
 	free(a_buf);
 	zc_debug("zlog_buf_del[%p]", a_buf);

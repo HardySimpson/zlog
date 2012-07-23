@@ -26,7 +26,8 @@
 #define __zlog_rule_h
 
 #include <stdio.h>
-#include <signal.h>
+#include <pthread.h>
+
 #include "zc_defs.h"
 #include "format.h"
 #include "thread.h"

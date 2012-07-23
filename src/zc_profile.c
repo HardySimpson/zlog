@@ -17,6 +17,8 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "fmacros.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -25,7 +27,6 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
 
 #include "zc_profile.h"
 #include "zc_xplatform.h"
