@@ -1,6 +1,6 @@
 # Top level makefile, the real shit is at src/makefile
 
-TARGETS=all test doc
+TARGETS=all test doc 32bit
 
 all:
 	cd src && $(MAKE) $@
