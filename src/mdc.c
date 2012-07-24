@@ -68,7 +68,6 @@ static zlog_mdc_kv_t *zlog_mdc_kv_new(const char *key, const char *value)
 
 	snprintf(a_mdc_kv->key, sizeof(a_mdc_kv->key), "%s", key);
 	a_mdc_kv->value_len = snprintf(a_mdc_kv->value, sizeof(a_mdc_kv->value), "%s", value);
-	zc_debug("zlog_mdc_kv_new[%p][%s-%s]", a_mdc_kv, a_mdc_kv->key, a_mdc_kv->value);
 	return a_mdc_kv;
 }
 
