@@ -1,6 +1,7 @@
 exe = 		\
 	test_tmp	\
 	test_buf	\
+	test_bitmap	\
 	test_conf	\
 	test_filemv	\
 	test_hashtable	\
@@ -20,15 +21,15 @@ exe = 		\
 	test_default \
 	test_profile
 
-.PHONY : clean all
-
 all     :       $(exe)
 
 $(exe)  :       %:%.o
-	gcc -O2 -g -o $@ $^ -L../libzlog/.libs -lzlog -lpthread -Wl,-rpath ../libzlog/.libs
+	gcc -O2 -g -static -o $@ $^ -L../src -lzlog -lpthread -Wl,-rpath ../src
 
 .c.o	:
-	gcc -O2 -g -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../libzlog
+	gcc -O2 -g -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../src
 
 clean	:
 	rm -f press.log* *.o $(exe)
+
+.PHONY : clean all

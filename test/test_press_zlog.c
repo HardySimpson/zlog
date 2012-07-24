@@ -33,7 +33,7 @@ void * work(void *ptr)
 {
 	long j = loop_count;
 	while(j-- > 0) {
-		ZLOG_INFO(zc, "loglog");
+		zlog_info(zc, "loglog");
 	}
 	return 0;
 }

@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	ZLOG_INFO(zc, "hello, zlog");
+	zlog_info(zc, "hello, zlog");
 	zlog_fini();
 	return 0;
 }

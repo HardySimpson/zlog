@@ -44,15 +44,15 @@ int main(int argc, char** argv)
 	}
 
 
-	ZLOG_INFO(zc, "1.hello, zlog");
+	zlog_info(zc, "1.hello, zlog");
 
 	zlog_put_mdc("myname", "Zhang");
 
-	ZLOG_INFO(zc, "2.hello, zlog");
+	zlog_info(zc, "2.hello, zlog");
 
 	zlog_put_mdc("myname", "Li");
 
-	ZLOG_INFO(zc, "3.hello, zlog");
+	zlog_info(zc, "3.hello, zlog");
 
 	zlog_fini();
 	

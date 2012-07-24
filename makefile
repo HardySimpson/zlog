@@ -1,12 +1,21 @@
 # Top level makefile, the real shit is at src/makefile
 
-TARGETS=all test doc 32bit
+TARGETS=noopt 32bit
 
 all:
 	cd src && $(MAKE) $@
 
-install: dummy
+install:
 	cd src && $(MAKE) $@
+
+$(TARGETS):
+	cd src && $(MAKE) $@
+
+doc:
+	cd doc && $(MAKE)
+
+test:
+	cd test && $(MAKE)
 
 clean:
 	cd src && $(MAKE) $@
@@ -15,10 +24,6 @@ clean:
 
 distclean: clean
 
-$(TARGETS):
-	cd src && $(MAKE) $@
-
-src/help.h:
-	@./utils/generate-command-help.rb > $@
-
 dummy:
+
+.PHONY: doc install test

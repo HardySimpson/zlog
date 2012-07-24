@@ -38,9 +38,9 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	ZLOG_TRACE(zc, "hello, zlog - trace");
-	ZLOG_DEBUG(zc, "hello, zlog - debug");
-	ZLOG_INFO(zc, "hello, zlog - info");
+	zlog_trace(zc, "hello, zlog - trace");
+	zlog_debug(zc, "hello, zlog - debug");
+	zlog_info(zc, "hello, zlog - info");
 
 	zlog_fini();
 	

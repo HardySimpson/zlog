@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	DZLOG_INFO("hello, zlog");
+	dzlog_info("hello, zlog");
 
 	zlog_profile();
 

@@ -37,12 +37,12 @@ int main(int argc, char** argv)
 	aa[i/8] |=  ~(0xFF << (8 - i % 8));
 	memset(aa + i/8 + 1, 0xFF, sizeof(aa) - i/8 - 1);
 
-	HDZLOG_INFO(aa, sizeof(aa));
+	hdzlog_info(aa, sizeof(aa));
 
-	DZLOG_INFO("%0x", aa[j/8]);
-	DZLOG_INFO("%0x", aa[j/8] >> 6);
+	dzlog_info("%0x", aa[j/8]);
+	dzlog_info("%0x", aa[j/8] >> 6);
 
-	DZLOG_INFO("%0x", ~((aa[j/8] >> (7 - j % 8)) & 0x01) );
+	dzlog_info("%0x", ~((aa[j/8] >> (7 - j % 8)) & 0x01) );
 
 	zlog_fini();
 	

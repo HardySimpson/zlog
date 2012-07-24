@@ -1,5 +1,4 @@
 [p] 使用valgrind测试性能
-[ ] 和rsyslog对接的问题
 [ ] hzlog的可定制
 [ ] 分类匹配的可定制化, rcat
 [ ] 兼容性问题 zlog.h内，__VA_ARGS__的跨平台
@@ -11,11 +10,13 @@
 [ ] gettid()
 [ ] 性能对比, log4x, pantheios, glog
 [ ] perl, python, go, c++支持
-[ ] 去除auto tools的使用，自行makefile[redis]
-[ ] redis内置绑定
+[ ] redis对接,协议设计
+[ ] 和rsyslog对接的问题
 
 --- 1.1.4 ---
-[ ] 增加版本内置(redis)
+[ ] record忽略第二参数
+[ ] 增加git/版本在代码中的标志(redis)
+[o] 去除auto tools的使用，自行makefile[redis]
 [o] 宏都小写化
 [o] const
 [x] zlog_set("section", "command");

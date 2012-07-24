@@ -41,7 +41,7 @@ void * work(void *ptr)
 	zc = zlog_get_category(category);
 	
 	while(j-- > 0) {
-		ZLOG_INFO(zc, "loglog");
+		zlog_info(zc, "loglog");
 	}
 	return 0;
 }

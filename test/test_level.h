@@ -27,7 +27,7 @@ enum {
 	/* must equals conf file setting */
 };
 
-#define ZLOG_TRACE(cat, format, args...) \
+#define zlog_trace(cat, format, args...) \
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_TRACE, format, ##args)
 

@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 		return -1;
 	}
 
-	ZLOG_INFO(zc, "before update");
+	zlog_info(zc, "before update");
 
 	sleep(3);
 
@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 		printf("update fail\n");
 	}
 
-	ZLOG_INFO(zc, "after update");
+	zlog_info(zc, "after update");
 
 	zlog_profile();
 

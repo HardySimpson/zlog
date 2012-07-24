@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 
 	rc = ReadTotalFile(fp, &dmp, &dmp_len);
 
-	while(ntimes--) HZLOG_DEBUG(zc, dmp, dmp_len);
+	while(ntimes--) hzlog_debug(zc, dmp, dmp_len);
 
 	fclose(fp);
 	free(dmp);

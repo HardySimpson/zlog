@@ -38,8 +38,8 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	ZLOG_INFO(zc, "hello, zlog -- info");
-	ZLOG_ERROR(zc, "hello, zlog -- error");
+	zlog_info(zc, "hello, zlog -- info");
+	zlog_error(zc, "hello, zlog -- error");
 
 	zlog_fini();
 	
