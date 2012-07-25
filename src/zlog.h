@@ -24,6 +24,8 @@
 extern "C" {
 #endif
 
+extern char *zlog_git_sha1;
+
 #include <stdarg.h> /* for va_list */
 #include <stdio.h> /* for size_t */
 

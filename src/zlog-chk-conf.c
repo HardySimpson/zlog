@@ -28,6 +28,7 @@
 
 #include "zlog.h"
 
+
 int main(int argc, char *argv[])
 {
 	int rc = 0;
@@ -36,11 +37,15 @@ int main(int argc, char *argv[])
 	static const char *help = 
 		"Useage: zlog-chk-conf [conf files]...\n"
 		"\t-q,\tsuppress non-error message\n"
-		"\t-h,\tshow help message\n";
+		"\t-h,\tshow help message\n"
+		"\t-v,\tshow zlog library's git version\n";
 
-	while((op = getopt(argc, argv, "qh")) > 0) {
+	while((op = getopt(argc, argv, "qhv")) > 0) {
 		if (op == 'h') {
 			puts(help);
+			return 0;
+		} else if (op == 'v') {
+			printf("zlog git version[%s]\n", zlog_git_sha1);
 			return 0;
 		} else if (op == 'q') {
 			quiet = 1;

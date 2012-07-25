@@ -34,6 +34,8 @@
 #include "rule.h"
 
 /*******************************************************************************/
+extern char *zlog_git_sha1;
+/*******************************************************************************/
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
 static zlog_conf_t *zlog_env_conf;
 static pthread_key_t zlog_thread_key;
@@ -115,7 +117,8 @@ err:
 int zlog_init(const char *confpath)
 {
 	int rc;
-	zc_debug("------zlog_init start, compile time[%s %s]------", __DATE__, __TIME__);
+	zc_debug("------zlog_init start, compile time[%s %s], git version[%s]------",
+			__DATE__, __TIME__, zlog_git_sha1);
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) {
@@ -155,7 +158,9 @@ err:
 int dzlog_init(const char *confpath, const char *cname)
 {
 	int rc = 0;
-	zc_debug("------dzlog_init start, compile time[%s %s]------", __DATE__, __TIME__);
+	zc_debug("------zlog_init start, compile time[%s %s], git version[%s]------",
+			__DATE__, __TIME__, zlog_git_sha1);
+
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) {
 		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);

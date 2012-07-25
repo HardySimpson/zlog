@@ -14,6 +14,7 @@ OBJ=    \
   mdc.o    \
   record.o    \
   record_table.o    \
+  release.o    \
   rotater.o    \
   rule.o    \
   spec.o    \
@@ -66,17 +67,17 @@ all: $(DYLIBNAME) $(BINS)
 # Deps (use make dep to generate this)
 buf.o: buf.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h buf.h
-category.o: category.c category.h zc_defs.h zc_profile.h zc_arraylist.h \
- zc_hashtable.h zc_xplatform.h zc_util.h thread.h event.h buf.h mdc.h \
- rule.h format.h rotater.h record.h
+category.o: category.c fmacros.h category.h zc_defs.h zc_profile.h \
+ zc_arraylist.h zc_hashtable.h zc_xplatform.h zc_util.h thread.h event.h \
+ buf.h mdc.h rule.h format.h rotater.h record.h
 category_table.o: category_table.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h category_table.h category.h \
  thread.h event.h buf.h mdc.h
-conf.o: conf.c conf.h zc_defs.h zc_profile.h zc_arraylist.h \
+conf.o: conf.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h format.h thread.h event.h buf.h \
  mdc.h rotater.h rule.h record.h level_list.h level.h
-event.o: event.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
- zc_xplatform.h zc_util.h event.h
+event.o: event.c fmacros.h zc_defs.h zc_profile.h zc_arraylist.h \
+ zc_hashtable.h zc_xplatform.h zc_util.h event.h
 format.o: format.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h thread.h event.h buf.h mdc.h spec.h format.h
 level.o: level.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
@@ -89,14 +90,15 @@ record.o: record.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h record.h
 record_table.o: record_table.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h record_table.h record.h
+release.o: release.c release.h
 rotater.o: rotater.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h rotater.h
-rule.o: rule.c rule.h zc_defs.h zc_profile.h zc_arraylist.h \
+rule.o: rule.c fmacros.h rule.h zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h format.h thread.h event.h buf.h \
  mdc.h rotater.h record.h level_list.h level.h spec.h
-spec.o: spec.c spec.h event.h zc_defs.h zc_profile.h zc_arraylist.h \
- zc_hashtable.h zc_xplatform.h zc_util.h buf.h thread.h mdc.h \
- level_list.h level.h
+spec.o: spec.c fmacros.h spec.h event.h zc_defs.h zc_profile.h \
+ zc_arraylist.h zc_hashtable.h zc_xplatform.h zc_util.h buf.h thread.h \
+ mdc.h level_list.h level.h
 thread.o: thread.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h event.h buf.h thread.h mdc.h
 thread_list.o: thread_list.c zc_defs.h zc_profile.h zc_arraylist.h \
@@ -106,11 +108,11 @@ zc_arraylist.o: zc_arraylist.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h
 zc_hashtable.o: zc_hashtable.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h
-zc_profile.o: zc_profile.c zc_profile.h zc_xplatform.h
+zc_profile.o: zc_profile.c fmacros.h zc_profile.h zc_xplatform.h
 zc_util.o: zc_util.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h
-zlog-chk-conf.o: zlog-chk-conf.c zlog.h
-zlog.o: zlog.c conf.h zc_defs.h zc_profile.h zc_arraylist.h \
+zlog-chk-conf.o: zlog-chk-conf.c fmacros.h zlog.h
+zlog.o: zlog.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h format.h thread.h event.h buf.h \
  mdc.h rotater.h category_table.h category.h thread_list.h record_table.h \
  record.h rule.h
