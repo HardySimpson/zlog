@@ -1,10 +1,9 @@
 [p] 使用valgrind测试性能
 [ ] hzlog的可定制
 [ ] 分类匹配的可定制化, rcat
-[ ] 兼容性问题 zlog.h内，__VA_ARGS__的跨平台
-[ ] linux fsync->fdatasync, open..
 [ ] 自行管理文件缓存，替代stdio
 [ ] async file输出的增加
+[ ] 兼容性问题 zlog.h内
 [ ] 增加trace级别
 [ ] hex那段重写,内置到buf内
 [ ] gettid()
@@ -12,9 +11,11 @@
 [ ] perl, python, go, c++支持
 [ ] redis对接,协议设计
 [ ] 和rsyslog对接的问题
+[ ] linux fsync->fdatasync, open..
 
---- 1.1.4 ---
+--- 1.2.0 ---
 [ ] record忽略第二参数
+[o] __VA_ARGS__的跨平台
 [o] 增加git/版本在代码中的标志(redis)
 [o] 去除auto tools的使用，自行makefile[redis]
 [o] 宏都小写化
