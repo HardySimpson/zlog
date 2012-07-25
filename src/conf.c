@@ -136,6 +136,7 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 	a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
 	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
 	if (has_conf_file) {
+		/* configure file as default lock file */
 		strcpy(a_conf->rotate_lock_file, a_conf->file);
 	} else {
 		strcpy(a_conf->rotate_lock_file, ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE);
@@ -428,7 +429,11 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		} else if (STRCMP(word_1, ==, "rotate") &&
 				STRCMP(word_2, ==, "lock") && STRCMP(word_3, ==, "file")) {
 			/* may overwrite the inner default value, or last value */
-			strcpy(a_conf->rotate_lock_file, value);
+			if (STRCMP(value, ==, "self")) {
+				strcpy(a_conf->rotate_lock_file, a_conf->file);
+			} else {
+				strcpy(a_conf->rotate_lock_file, value);
+			}
 		} else if (STRCMP(word_1, ==, "default") && STRCMP(word_2, ==, "format")) {
 			/* so the input now is [format = "xxyy"], fit format's style */
 			strcpy(a_conf->default_format_line, line + nread);
