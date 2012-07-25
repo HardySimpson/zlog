@@ -97,8 +97,6 @@ typedef enum {
 } zlog_level; 
 
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
-# define inline
-# define register
 # if defined __GNUC__ && __GNUC__ >= 2
 #  define __func__ __FUNCTION__
 # else

@@ -15,7 +15,7 @@
 
 --- 1.1.4 ---
 [ ] record忽略第二参数
-[ ] 增加git/版本在代码中的标志(redis)
+[o] 增加git/版本在代码中的标志(redis)
 [o] 去除auto tools的使用，自行makefile[redis]
 [o] 宏都小写化
 [o] const
