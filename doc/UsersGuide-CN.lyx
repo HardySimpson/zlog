@@ -119,7 +119,7 @@ status collapsed
 status collapsed
 
 \begin_layout Plain Layout
-适用于 zlog v1.1.x
+适用于 zlog v1.2.*
 \end_layout
 
 \end_inset
@@ -338,7 +338,7 @@ type "mailto:"
 \end_layout
 
 \begin_layout Section
-zlog 1.1 发布说明
+zlog 1.2 发布说明
 \end_layout
 
 \begin_layout Enumerate
@@ -371,20 +371,18 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-zlog 1.1在库方面是和zlog 1.0二进制兼容的，在配置文件方面有两个的改动，
+zlog 1.2在库方面是和zlog 1.0/1.1二进制兼容的，区别在于：
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
-%d(%ms,%us)不再是合法的，%d.%ms是合法的。%ms毫秒和%us微秒提出来作为单独的转换字符串。
+所有的宏改为小写，ZLOG_INFO->zlog_info，方便开发者手工输入。这是一个巨大的改变，如果zlog1.1/1.0的用户要用zlog 1.2的话，需要写一
+个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。
 \end_layout
 
 \begin_layout Enumerate
-增加了默认时间串%D，输出"2012-02-14 17:03:12"这样的时间。
-\end_layout
-
-\begin_layout Standard
-之所以改变这些，是为了简化代码，以及能提升30%的性能。所以如果你是从1.0.x升级而且使用动态库的话，无须重新编译程序，只要稍微改动一下配置文件即可。
+取消了auto tools的使用，也就是说，不论你在任何平台，都需要gcc和gnu make才能编译安装zlog。主流的操作系统(Aix, OpenSolari
+s..)都能安装gcc和gnu make。当然也可以自行修改makefile来完成编译，对于平台稍有经验的Geek都可以自行完成！
 \end_layout
 
 \end_deeper
@@ -442,17 +440,7 @@ $ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd zlog-1.0.x/
-\end_layout
-
-\begin_layout LyX-Code
-$ ./configure --prefix=[where u wanna install it] 
-\backslash
-
-\end_layout
-
-\begin_layout LyX-Code
-      --enable-test 
+$ cd zlog-1.2.*/
 \end_layout
 
 \begin_layout LyX-Code
@@ -463,12 +451,16 @@ $ make
 $ sudo make install
 \end_layout
 
-\begin_layout Standard
---enable-test用了的话，测试程序会被编译。这些程序是很好的zlog的使用案例。
+\begin_layout LyX-Code
+or
 \end_layout
 
 \begin_layout LyX-Code
-# add one line
+$ sudo make PREFIX=/usr/local/ install
+\end_layout
+
+\begin_layout Standard
+PREFIX指明了安装的路径，安转完之后为了让你的程序能找到zlog动态库
 \end_layout
 
 \begin_layout LyX-Code
@@ -488,79 +480,28 @@ $ sudo ldconfig
 \end_layout
 
 \begin_layout Itemize
-对于zlog库开发者，如果你在别的目录而不是在源代码目录编译(平行编译，parallel building)，编译完之后要把源代码测试目录的配置文件复制过来。否
-则运行测试程序会报错，找不到配置文件。
+除了一般的make以外，还可以
 \end_layout
 
 \begin_layout LyX-Code
-$ tar -zxvf zlog-x.x.x.tar.gz
+$ make 32bit /* 32bit version on 64bit machine, libc6-dev-i386 is needed
+ */
 \end_layout
 
 \begin_layout LyX-Code
-$ mkdir build && cd build
+$ make noopt /* without gcc optimization */
 \end_layout
 
 \begin_layout LyX-Code
-$ ../zlog-1.0.x/configure --prefix=[where u wanna install it] 
-\backslash
-
+$ make doc /* lyx is needed */
 \end_layout
 
 \begin_layout LyX-Code
-      --enable-test 
-\end_layout
-
-\begin_layout LyX-Code
-$ cp ../zlog-1.0.x/test/*.conf ./test/
-\end_layout
-
-\begin_layout LyX-Code
-$ cd test
-\end_layout
-
-\begin_layout LyX-Code
-$ ./test_hello
-\end_layout
-
-\begin_layout LyX-Code
-hello, zlog
+$ make test /* test code, which is also good example for zlog */
 \end_layout
 
 \begin_layout Itemize
-对于zlog库开发者，如果是从github上直接下载，那就不会有configure这个脚本，因为这个脚本是由auto tools从configure.ac等源文件
-生成的。这时候你的环境上就需要有automake, autoconf等工具来生成configure
-\end_layout
-
-\begin_layout LyX-Code
-$ git clone git@github.com:HardySimpson/zlog.git
-\end_layout
-
-\begin_layout Standard
-或者从这个地址下载zip包 
-\begin_inset CommandInset href
-LatexCommand href
-target "https://github.com/HardySimpson/zlog/zipball/master"
-type "file:"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-解压后，执行命令来生成configure
-\end_layout
-
-\begin_layout LyX-Code
-$ cd zlog
-\end_layout
-
-\begin_layout LyX-Code
-$ ./autogen.sh
-\end_layout
-
-\begin_layout Standard
-后面的步骤就和本节一开始描述的一样了。
+makefile是用GNU make的格式写的，所以在你的平台上需要预装gnu make和gcc。或者，手工修改一个自己平台的makefile也行。
 \end_layout
 
 \begin_layout Section
@@ -576,19 +517,7 @@ $ ./autogen.sh
 \end_layout
 
 \begin_layout Standard
-如果你的系统有pkgconfig，可以在makefile里面这么写
-\end_layout
-
-\begin_layout LyX-Code
-CFLAGS += $(shell pkg-config --cflags zlog)
-\end_layout
-
-\begin_layout LyX-Code
-LDFLAGS += $(shell pkg-config --libs zlog)
-\end_layout
-
-\begin_layout Standard
-如果没有的话，手工链接的命令是
+链接zlog需要pthread库，命令是：
 \end_layout
 
 \begin_layout LyX-Code
@@ -725,7 +654,7 @@ return -2;
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(c, "hello, zlog");
+zlog_info(c, "hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code
@@ -845,7 +774,7 @@ return -1;
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_INFO("hello, zlog");
+dzlog_info("hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code
@@ -911,7 +840,7 @@ c = zlog_get_category("my_cat");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(c, "hello, zlog");
+zlog_info(c, "hello, zlog");
 \end_layout
 
 \begin_layout Standard
@@ -1016,11 +945,11 @@ my_cat.DEBUG    "/var/log/bb.log"
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(c, "info, zlog");
+zlog_info(c, "info, zlog");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_DEBUG(c, "debug, zlog");
+zlog_debug(c, "debug, zlog");
 \end_layout
 
 \begin_layout Standard
@@ -1556,7 +1485,7 @@ name "sec:转换格式串"
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(c, "hello, zlog");
+zlog_info(c, "hello, zlog");
 \end_layout
 
 \begin_layout Standard
@@ -3870,7 +3799,7 @@ reference "sub:分类匹配"
 
 \end_inset
 
-）。在实际写日志的时候，例如ZLOG_INFO()被调用的时候，就会比较这个INFO和各条规则的等级，来决定这条日志会不会通过这条规则输出。当zlog_relo
+）。在实际写日志的时候，例如zlog_info()被调用的时候，就会比较这个INFO和各条规则的等级，来决定这条日志会不会通过这条规则输出。当zlog_relo
 ad()被调用的时候，配置文件会被重新读入，包括所有的规则，并且重新计算分类对应的规则。
 \end_layout
 
@@ -5326,7 +5255,7 @@ ZLOG_LEVEL_FATAL = 120
 \end_layout
 
 \begin_layout LyX-Code
-#define ZLOG_FATAL(cat, format, args...) 
+#define zlog_fatal(cat, format, args...) 
 \backslash
          
 \end_layout
@@ -5356,27 +5285,27 @@ ZLOG_LEVEL_FATAL, format, ##args)
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_FATAL(cat, format, ...)
+zlog_fatal(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_ERROR(cat, format, ...)
+zlog_error(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_WARN(cat, format, ...)
+zlog_warn(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_NOTICE(cat, format, ...)
+zlog_notice(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(cat, format, ...)
+zlog_info(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_DEBUG(cat, format, ...)
+zlog_debug(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
@@ -5388,27 +5317,27 @@ ZLOG_DEBUG(cat, format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-VZLOG_FATAL(cat, format, args)
+vzlog_fatal(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-VZLOG_ERROR(cat, format, args)
+vzlog_error(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-VZLOG_WARN(cat, format, args)
+vzlog_warn(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-VZLOG_NOTICE(cat, format, args)
+vzlog_notice(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-VZLOG_INFO(cat, format, args)
+vzlog_info(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-VZLOG_DEBUG(cat, format, args)
+vzlog_debug(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
@@ -5420,27 +5349,27 @@ VZLOG_DEBUG(cat, format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HZLOG_FATAL(cat, buf, buf_len)
+hzlog_fatal(cat, buf, buf_len)
 \end_layout
 
 \begin_layout LyX-Code
-HZLOG_ERROR(cat, buf, buf_len)
+hzlog_error(cat, buf, buf_len)
 \end_layout
 
 \begin_layout LyX-Code
-HZLOG_WARN(cat, buf, buf_len)
+hzlog_warn(cat, buf, buf_len)
 \end_layout
 
 \begin_layout LyX-Code
-HZLOG_NOTICE(cat, buf, buf_len)
+hzlog_notice(cat, buf, buf_len)
 \end_layout
 
 \begin_layout LyX-Code
-HZLOG_INFO(cat, buf, buf_len)
+hzlog_info(cat, buf, buf_len)
 \end_layout
 
 \begin_layout LyX-Code
-HZLOG_DEBUG(cat, buf, buf_len) 
+hzlog_debug(cat, buf, buf_len) 
 \end_layout
 
 \end_deeper
@@ -5749,55 +5678,27 @@ dzlog的宏也定义在zlog.h里面。更简单的写法。
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_FATAL(format, ...)
+dzlog_fatal(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_ERROR(format, ...)
+dzlog_error(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_WARN(format, ...)
+dzlog_warn(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_NOTICE(format, ...)
+dzlog_notice(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_INFO(format, ...)
+dzlog_info(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_DEBUG(format, ...)
-\end_layout
-
-\begin_layout LyX-Code
- 
-\end_layout
-
-\begin_layout LyX-Code
-VDZLOG_FATAL(format, args)
-\end_layout
-
-\begin_layout LyX-Code
-VDZLOG_ERROR(format, args)
-\end_layout
-
-\begin_layout LyX-Code
-VDZLOG_WARN(format, args)
-\end_layout
-
-\begin_layout LyX-Code
-VDZLOG_NOTICE(format, args)
-\end_layout
-
-\begin_layout LyX-Code
-VDZLOG_INFO(format, args)
-\end_layout
-
-\begin_layout LyX-Code
-VDZLOG_DEBUG(format, args)
+dezlog_debug(format, ...)
 \end_layout
 
 \begin_layout LyX-Code
@@ -5805,27 +5706,55 @@ VDZLOG_DEBUG(format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HDZLOG_FATAL(buf, buf_len)
+vdzlog_fatal(format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HDZLOG_ERROR(buf, buf_len)
+vdzlog_error(format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HDZLOG_WARN(buf, buf_len)
+vdzlog_warn(format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HDZLOG_NOTICE(buf, buf_len)
+vdzlog_notice(format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HDZLOG_INFO(buf, buf_len)
+vdzlog_info(format, args)
 \end_layout
 
 \begin_layout LyX-Code
-HDZLOG_DEBUG(buf, buf_len)
+vdzlog_debug(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+hdzlog_fatal(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+hdzlog_error(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+hdzlog_warn(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+hdzlog_noticebuf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+hdzlog_info(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+hdzlog_debug(buf, buf_len)
 \end_layout
 
 \end_deeper
@@ -6115,7 +6044,7 @@ return -2;
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(zc, "1.hello, zlog");
+zlog_info(zc, "1.hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code
@@ -6123,7 +6052,7 @@ zlog_put_mdc("myname", "Zhang");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(zc, "2.hello, zlog");
+zlog_info(zc, "2.hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code
@@ -6131,7 +6060,7 @@ zlog_put_mdc("myname", "Li");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(zc, "3.hello, zlog"); 
+zlog_info(zc, "3.hello, zlog"); 
 \end_layout
 
 \begin_layout LyX-Code
@@ -6206,19 +6135,19 @@ zlog_put_mdc("customer_name", get_customer_name_from_db() );
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO("get in"); 
+zlog_info("get in"); 
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO("pick product"); 
+zlog_info("pick product"); 
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO("pay");
+zlog_info("pay");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO("get out");
+zlog_info("get out");
 \end_layout
 
 \begin_layout Standard
@@ -6376,15 +6305,15 @@ zlog.error.log日志没产生，因为没有错误发生。
 \end_layout
 
 \begin_layout Standard
-你可以看出来，debug日志展示了zlog是怎么初始化还有清理的。不过在ZLOG_INFO()执行的时候没有日志打出来，这是为了效率。
+你可以看出来，debug日志展示了zlog是怎么初始化还有清理的。不过在zlog_info()执行的时候没有日志打出来，这是为了效率。
 \end_layout
 
 \begin_layout Standard
-如果zlog库有任何问题，都会打日志到ZLOG_PROFILE_ERROR所指向的错误日志。比如说，在ZLOG_INFO()上用一个错误的printf的语法：
+如果zlog库有任何问题，都会打日志到ZLOG_PROFILE_ERROR所指向的错误日志。比如说，在zlog_info()上用一个错误的printf的语法：
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(zc, "%l", 1);
+zlog_info(zc, "%l", 1);
 \end_layout
 
 \begin_layout Standard
@@ -6502,7 +6431,7 @@ return -1;
 \end_layout
 
 \begin_layout LyX-Code
-DZLOG_INFO("hello, zlog");
+dzlog_info("hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code
@@ -6814,7 +6743,7 @@ ZLOG_LEVEL_TRACE = 30,
 \end_layout
 
 \begin_layout LyX-Code
-#define ZLOG_TRACE(cat, format, ...) 
+#define zlog_trace(cat, format, ...) 
 \backslash
 
 \end_layout
@@ -6841,7 +6770,7 @@ ZLOG_LEVEL_TRACE = 30,
 
 \end_deeper
 \begin_layout Enumerate
-这样ZLOG_TRACE就能在.c文件里面用了
+这样zlog_trace就能在.c文件里面用了
 \end_layout
 
 \begin_deeper
@@ -6931,15 +6860,15 @@ return -2;
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_TRACE(zc, "hello, zlog - trace");
+zlog_trace(zc, "hello, zlog - trace");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_DEBUG(zc, "hello, zlog - debug");
+zlog_debug(zc, "hello, zlog - debug");
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(zc, "hello, zlog - info");
+zlog_info(zc, "hello, zlog - info");
 \end_layout
 
 \begin_layout LyX-Code
@@ -7135,7 +7064,7 @@ return -2;
 \end_layout
 
 \begin_layout LyX-Code
-ZLOG_INFO(zc, "hello, zlog");
+zlog_info(zc, "hello, zlog");
 \end_layout
 
 \begin_layout LyX-Code

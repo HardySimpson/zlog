@@ -10,15 +10,15 @@ zlog是一个高可靠性、高性能、线程安全、灵活、概念清晰的�
 
 下载 https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 
-# 解压, 安装
 $ tar -zxvf zlog-latest-stable.tar.gz
-$ cd zlog-0.9.0/
-$ ./configure --enable-test # 把测试程序和案例也编译下，反正不安装 
-$ make
+$ cd zlog-1.2.*/
+$ make 
 $ sudo make install
-# 默认安装在/usr/local/下，包括libzlog.so和zlog.h
+or
+$ sudo make PREFIX=/usr/local/ install
 
-# add one line
+PREFIX指明了安装的路径，安转完之后为了让你的程序能找到zlog动态库
+
 $ sudo vi /etc/ld.so.conf
 /usr/local/lib
 $ sudo ldconfig
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
                 return -2;
         }
 
-        ZLOG_INFO(c, "hello, zlog");
+        zlog_info(c, "hello, zlog");
 
         zlog_fini();
 
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 4.编译、然后运行!
 
 $ cc -c -o test_hello.o test_hello.c -I/usr/local/include
-$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog -lpthread
 $ ./test_hello
 hello, zlog
 
@@ -102,11 +102,10 @@ hello, zlog
 
 6.相关链接
 软件下载：https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-上手指南：https://github.com/HardySimpson/zlog/wiki/%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97
 使用手册：https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf
 源代码：git@github.com:HardySimpson/zlog.git
 问题讨论区：https://github.com/HardySimpson/zlog/issues
 英文主页：http://hardysimpson.github.com/zlog/
 中文主页：http://www.oschina.net/p/zlog
 作者博客：http://my.oschina.net/HardySimpson/blog
-邮箱：HardySimpson1984@gmail.com
+作者邮箱：HardySimpson1984@gmail.com

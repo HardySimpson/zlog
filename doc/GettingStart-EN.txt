@@ -10,15 +10,15 @@ zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C
 
 Download https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
 
-uncompress, install 
 $ tar -zxvf zlog-latest-stable.tar.gz
-$ cd zlog-x.x.x/
-$ ./configure --enable-test # complie test program
-$ make
+$ cd zlog-1.2.*/
+$ make 
 $ sudo make install
-default install in /usr/local/, include libzlog.so and zlog.h
+or
+$ sudo make PREFIX=/usr/local/ install
 
-# add one line
+PREFIX indicates where zlog is installed. After installation, change system setting to make sure your program can find zlog library 
+
 $ sudo vi /etc/ld.so.conf
 /usr/local/lib
 $ sudo ldconfig
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	ZLOG_INFO(c, "hello, zlog");
+	zlog_info(c, "hello, zlog");
 
 	zlog_fini();
 
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 4. Complie, and run it!s
 
 $ cc -c -o test_hello.o test_hello.c -I/usr/local/include
-$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog -lpthread
 $ ./test_hello
 hello, zlog
 
@@ -105,8 +105,7 @@ hello, zlog
 6. Links:
 
 Download: https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-GettingStart: https://github.com/HardySimpson/zlog/wiki/Getting-Start
-UsersGuide-En: https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf
+UsersGuide-En(pdf): https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf
 SourceCode: git@github.com:HardySimpson/zlog.git
 Mail List: https://github.com/HardySimpson/zlog/issues
 Homepage(in English): http://hardysimpson.github.com/zlog
