@@ -1,2 +1,2 @@
-#define ZLOG_GIT_SHA1 "312c091e"
-#define ZLOG_GIT_DIRTY "9"
+#define ZLOG_GIT_SHA1 "ff59f028"
+#define ZLOG_GIT_DIRTY "13"

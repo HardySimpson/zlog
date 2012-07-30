@@ -2,7 +2,7 @@
 
 if [ "$1" = "" ]
 then
-    echo "Usage: mktarball.sh <git tag, branch or commit>"
+    echo "Usage: mk_targz.sh <git tag, branch or commit>"
     echo "Example: mktarball.sh 2.2-rc4"
     exit 1
 fi

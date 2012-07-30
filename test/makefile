@@ -12,6 +12,7 @@ exe = 		\
 	test_leak	\
 	test_mdc	\
 	test_record	\
+	test_pipe	\
 	test_press_zlog		\
 	test_press_zlog2	\
 	test_press_write	\
@@ -24,7 +25,7 @@ exe = 		\
 all     :       $(exe)
 
 $(exe)  :       %:%.o
-	gcc -O2 -g -static -o $@ $^ -L../src -lzlog -lpthread -Wl,-rpath ../src
+	gcc -O2 -g -o $@ $^ -L../src -lzlog -lpthread -Wl,-rpath ../src
 
 .c.o	:
 	gcc -O2 -g -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../src

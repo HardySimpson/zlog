@@ -4435,7 +4435,7 @@ Now, zlog supports some ways of output, the syntax is
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="7" columns="3">
+<lyxtabular version="3" rows="8" columns="3">
 <features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -4555,6 +4555,35 @@ syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
 
 \begin_layout Plain Layout
 This is not optional.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pipeline output
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+| cat
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
 \end_layout
 
 \end_inset
@@ -4693,6 +4722,122 @@ Then what will happen? The log will be written to the file whose fd is now
  It will generate undefined behavior.
  If you still want output log to console when stdout is closed, use "/dev/tty"
  instead.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+pipeline output
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*    | /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
+\end_layout
+
+\begin_layout Standard
+This is a example of how zlog pipeline its output to cronolog.
+ The implementation is simple.
+ popen("/usr/bin/cronolog /www/logs/example_%Y%m%d.log","w") is called at
+ zlog_init(), and forward logs will be write to the open descripter in the
+ "normal" format.
+ Writing through pipeline and cronnolog is faster than dynamic file of zlog,
+ as there is no need to open and close file descripter each time when logs
+ are write to a pipe.
+\end_layout
+
+\begin_layout LyX-Code
+[rules] 
+\end_layout
+
+\begin_layout LyX-Code
+*.*             	"press%d(%Y%m%d).log"
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m9.234s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m2.860s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m10.060s
+\end_layout
+
+\begin_layout LyX-Code
+  
+\end_layout
+
+\begin_layout LyX-Code
+[rules] 
+\end_layout
+
+\begin_layout LyX-Code
+*.*                  | /usr/bin/cronolog press%Y%m%d.log
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m1.911s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.980s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m1.470s
+\end_layout
+
+\begin_layout Standard
+Still, There are some limitations when using pipeline output:
+\end_layout
+
+\begin_layout Itemize
+POSIX.1-2001 says that write(2)s of less than PIPE_BUF bytes must be atomic,
+ On Linux, PIPE_BUF is 4096 bytes.
+\end_layout
+
+\begin_layout Itemize
+When a single log is longer than PIPE_BUF, and multi-process write logs
+ through one piple(father calls zlog_init(), and fork many child processes),
+ will cause log interlace.
+\end_layout
+
+\begin_layout Itemize
+Multi-process who don't have relatives, start multiple cronolog processes
+ and write to the same log file.
+ Even a single log is not longer than PIPE_BUF, multiple cronologs will
+ cause log interlace.
+ As cronologs read log continuous, it doesn't know where is the egde between
+ logs.
+\end_layout
+
+\begin_layout Standard
+In summary, pipeline is safe when:
+\end_layout
+
+\begin_layout Itemize
+Single process writing, no limitation for length of one log.
+ Multi-threads in one process atomic writing is already assured by zlog.
+\end_layout
+
+\begin_layout Itemize
+Multi-process who have relatives, the length of one log should not longer
+ than PIPE_BUF.
+\end_layout
+
+\begin_layout Standard
+Multi-process who don't have relatives, no matter how long a single log
+ is, will cause interlace and is not safe.
 \end_layout
 
 \end_deeper

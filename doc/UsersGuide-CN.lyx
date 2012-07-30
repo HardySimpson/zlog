@@ -4174,7 +4174,7 @@ aa(as it matches rules above)
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="7" columns="3">
+<lyxtabular version="3" rows="8" columns="3">
 <features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0">
 <column alignment="center" valignment="top" width="0">
@@ -4298,6 +4298,35 @@ LOG_USER(default), LOG_LOCAL[0-7]
 
 \begin_layout Plain Layout
 必填
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+管道输出
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+|cat
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+无意义
 \end_layout
 
 \end_inset
@@ -4433,6 +4462,108 @@ _buf))
 
 \begin_layout Standard
 所以，千万不要在守护进程的规则里面加上>stdout或>stderr。这会产生不可预料的结果……如果一定要输出到终端，用"/dev/tty"代替。
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+管道输出
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*    | /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
+\end_layout
+
+\begin_layout Standard
+这是一个将zlog的输出到管道后接cronolog的例子。实现的原理很简单，在zlog_init的时候调用popen("/usr/bin/cronolog
+ /www/logs/example_%Y%m%d.log", "w")，后面往这个文件描述符里面写指定格式的日志。使用cronolog来生成按天分割的日志效率比
+zlog自己的动态路径的效率要高，因为通过管道，无须每次打开关闭动态路径的文件描述符。
+\end_layout
+
+\begin_layout LyX-Code
+[rules] 
+\end_layout
+
+\begin_layout LyX-Code
+*.*             	"press%d(%Y%m%d).log"
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m9.234s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m2.860s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m10.060s
+\end_layout
+
+\begin_layout LyX-Code
+  
+\end_layout
+
+\begin_layout LyX-Code
+[rules] 
+\end_layout
+
+\begin_layout LyX-Code
+*.*                  | /usr/bin/cronolog press%Y%m%d.log
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m1.911s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.980s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	0m1.470s
+\end_layout
+
+\begin_layout Standard
+不过，使用管道也是有限制的：
+\end_layout
+
+\begin_layout Itemize
+POSIX.1-2001保证读写不大于PIPE_BUF大小的内容是原子的。linux上PIPE_BUF为4096。
+\end_layout
+
+\begin_layout Itemize
+单条日志的长度超过PIPE_BUF的时候并且有多个有父子关系的进程写通过zlog写同一个管道，也就是在zlog_init之后fork多个子进程，此时只有一个cr
+onolog的进程监听一个管道描述符，日志内容可能会交错。
+\end_layout
+
+\begin_layout Itemize
+多个进程分别zlog_init，启动多个cronolog进程，写拥有同一个文件路径的日志文件，即使单条日志长度不超过PIPE_BUF，也有可能导致日志交错，因为
+cronolog读到的文件流是连续的，它不知道单条日志的边界在哪里。
+\end_layout
+
+\begin_layout Standard
+所以，总结一下，使用管道来输出日志而保证日志不交错，需要满足这样的条件。
+\end_layout
+
+\begin_layout Itemize
+单进程写，单条日志长度不限制。单进程内内的多线程写日志的原子性已经由zlog保证了。
+\end_layout
+
+\begin_layout Itemize
+有父子关系的多进程，单条日志长度不能超过PIPE_BUF（4096）
+\end_layout
+
+\begin_layout Standard
+无父子关系的多进程同时写一个日志，无论单条日志长度是多少，都有可能导致日志交错。
 \end_layout
 
 \end_deeper

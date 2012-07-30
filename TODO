@@ -12,10 +12,12 @@
 [ ] redis对接,协议设计
 [ ] 和rsyslog对接的问题
 [ ] linux fsync->fdatasync, open..
+[ ] 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
 
 --- 1.2.0 ---
-[ ] pipe, cronolog
+[ ] fstat64
 [ ] rotate和zip的方案
+[o] pipe, cronolog
 [o] record忽略第二参数
 [o] __VA_ARGS__的跨平台
 [o] 增加git/版本在代码中的标志(redis)

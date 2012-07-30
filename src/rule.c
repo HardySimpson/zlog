@@ -47,7 +47,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zlog_spec_t *a_spec;
 
 	zc_assert(a_rule,);
-	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s,%p,(%d)(%d:%ld*%d)][%d][%s:%s:%p];[%p]---",
+	zc_profile(flag, "---rule:[%p][%s%c%d]-[%s,%p,(%d)(%d:%ld*%d)][%d][%d][%s:%s:%p];[%p]---",
 		a_rule,
 		a_rule->category,
 		a_rule->compare_char,
@@ -60,6 +60,8 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 		a_rule->file_open_flags,
 		a_rule->file_max_size,
 		a_rule->file_max_count,
+
+		a_rule->pipe_fd,
 
 		a_rule->syslog_facility,
 
@@ -187,7 +189,6 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 	zlog_buf_restart(a_thread->path_buf);    \
     \
 	zc_arraylist_foreach(a_rule->dynamic_file_specs, i, a_spec) {    \
-zc_error("%d", i); \
 		if (zlog_spec_gen_path(a_spec, a_thread)) {    \
 			zc_error("zlog_spec_gen_path fail");    \
 			return -1;    \
@@ -278,6 +279,23 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		zc_error("zlog_rotater_rotate fail");
 		return -1;
 	} /* success or no rotation do nothin */
+
+	return 0;
+}
+
+static int zlog_rule_output_pipe(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
+{
+	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
+		zc_error("zlog_format_gen_msg fail");
+		return -1;
+	}
+
+	if (write(a_rule->pipe_fd,
+			zlog_buf_str(a_thread->msg_buf),
+			zlog_buf_len(a_thread->msg_buf)) < 0) {
+		zc_error("write fail, errno[%d]", errno);
+		return -1;
+	}
 
 	return 0;
 }
@@ -701,6 +719,19 @@ zlog_rule_t *zlog_rule_new(char *line,
 			}
 		}
 		break;
+	case '|' :
+		a_rule->pipe_fp = popen(output + 1, "w");
+		if (!a_rule->pipe_fp) {
+			zc_error("popen fail, errno[%d]", errno);
+			goto err;
+		}
+		a_rule->pipe_fd = fileno(a_rule->pipe_fp);
+		if (a_rule->pipe_fd < 0 ) {
+			zc_error("fileno fail, errno[%d]", errno);
+			goto err;
+		}
+		a_rule->output = zlog_rule_output_pipe;
+		break;
 	case '>' :
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility = syslog_facility_atoi(file_limit);
@@ -804,6 +835,11 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 	if (a_rule->static_file_descriptor) {
 		if (close(a_rule->static_file_descriptor)) {
 			zc_error("close fail, maybe cause by write, errno[%d]", errno);
+		}
+	}
+	if (a_rule->pipe_fp) {
+		if (pclose(a_rule->pipe_fp) == -1) {
+			zc_error("pclose fail, errno[%d]", errno);
 		}
 	}
 	free(a_rule);

@@ -53,13 +53,15 @@ struct zlog_rule_s {
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_file_specs;
 	int static_file_descriptor;
-	FILE *static_file_stream;
 	pthread_rwlock_t static_reopen_lock;
 
 	unsigned int file_perms;
 	int file_open_flags;
 	long file_max_size;
 	int file_max_count;
+
+	FILE *pipe_fp;
+	int pipe_fd;
 
 	size_t fsync_period;
 	size_t fsync_count;
