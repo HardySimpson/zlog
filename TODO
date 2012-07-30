@@ -14,7 +14,9 @@
 [ ] linux fsync->fdatasync, open..
 
 --- 1.2.0 ---
-[ ] record忽略第二参数
+[ ] pipe, cronolog
+[ ] rotate和zip的方案
+[o] record忽略第二参数
 [o] __VA_ARGS__的跨平台
 [o] 增加git/版本在代码中的标志(redis)
 [o] 去除auto tools的使用，自行makefile[redis]

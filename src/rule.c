@@ -723,24 +723,27 @@ zlog_rule_t *zlog_rule_new(char *line,
 	case '$' :
 		sscanf(file_path + 1, "%s", a_rule->record_name);
 
-		p = strchr(file_limit, '"');
-		if (!p) {
-			zc_error("record_path not start with \", [%s]", file_limit);
-			goto err;
-		}
-		p++; /* skip 1st " */
+			
+		if (*file_limit != '\0') {  /* record path exists */
+			p = strchr(file_limit, '"');
+			if (!p) {
+				zc_error("record_path not start with \", [%s]", file_limit);
+				goto err;
+			}
+			p++; /* skip 1st " */
 
-		q = strrchr(p, '"');
-		if (!q) {
-			zc_error("matching \" not found in conf line[%s]", p);
-			goto err;
+			q = strrchr(p, '"');
+			if (!q) {
+				zc_error("matching \" not found in conf line[%s]", p);
+				goto err;
+			}
+			len = q - p;
+			if (len > sizeof(a_rule->record_path) - 1) {
+				zc_error("record_path too long %ld > %ld", len, sizeof(a_rule->record_path) - 1);
+				goto err;
+			}
+			memcpy(a_rule->record_path, p, len);
 		}
-		len = q - p;
-		if (len > sizeof(a_rule->record_path) - 1) {
-			zc_error("record_path too long %ld > %ld", len, sizeof(a_rule->record_path) - 1);
-			goto err;
-		}
-		memcpy(a_rule->record_path, p, len);
 
 		/* replace any environment variables like %E(HOME) */
 		rc = zc_str_replace_env(a_rule->record_path, sizeof(a_rule->record_path));
