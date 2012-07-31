@@ -20,6 +20,12 @@
 #ifndef __zlog_buf_h
 #define __zlog_buf_h
 
+/* buf, is a dynamic expand buffer for one single log,
+ * as one single log will interlace if use multiple write() to file.
+ * and buf is always keep in a thread, to make each thread has its
+ * own buffer to avoid lock.
+ */
+
 #include <stdarg.h>
 #include <stdint.h>
 

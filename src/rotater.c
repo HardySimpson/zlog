@@ -391,7 +391,7 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		size_t msg_len)
 {
 	int rc = 0;
-	struct stat info;
+	struct zlog_stat info;
 
 	zc_assert(file_path, -1);
 
@@ -413,6 +413,9 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 		zc_warn("zlog_rotater_trylock fail, maybe lock by other process or threads");
 		return 0;
 	}
+
+	/* just one thread in one process in the global system run code here, 
+	 * so it is safe to reopen the fd of file */
 
 	if (stat(file_path, &info)) {
 		rc = -1;

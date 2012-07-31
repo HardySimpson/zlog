@@ -67,7 +67,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 
 		a_rule->record_name,
 		a_rule->record_path,
-		a_rule->record_output,
+		a_rule->record_func,
 		a_rule->format);
 
 	if (a_rule->dynamic_file_specs) {
@@ -325,7 +325,7 @@ static int zlog_rule_output_static_record(zlog_rule_t * a_rule, zlog_thread_t * 
 {
 	zlog_msg_t msg;
 
-	if (!a_rule->record_output) {
+	if (!a_rule->record_func) {
 		zc_error("user defined record funcion for [%s] not set, no output",
 			a_rule->record_name);
 		return -1;
@@ -341,7 +341,7 @@ static int zlog_rule_output_static_record(zlog_rule_t * a_rule, zlog_thread_t * 
 	msg.len = zlog_buf_len(a_thread->msg_buf);
 	msg.path = a_rule->record_path;
 
-	if (a_rule->record_output(&msg)) {
+	if (a_rule->record_func(&msg)) {
 		zc_error("a_rule->record fail");
 		return -1;
 	}
@@ -352,7 +352,7 @@ static int zlog_rule_output_dynamic_record(zlog_rule_t * a_rule, zlog_thread_t *
 {
 	zlog_msg_t msg;
 
-	if (!a_rule->record_output) {
+	if (!a_rule->record_func) {
 		zc_error("user defined record funcion for [%s] not set, no output",
 			a_rule->record_name);
 		return -1;
@@ -370,7 +370,7 @@ static int zlog_rule_output_dynamic_record(zlog_rule_t * a_rule, zlog_thread_t *
 	msg.len = zlog_buf_len(a_thread->msg_buf);
 	msg.path = zlog_buf_str(a_thread->path_buf);
 
-	if (a_rule->record_output(&msg)) {
+	if (a_rule->record_func(&msg)) {
 		zc_error("a_rule->record fail");
 		return -1;
 	}
@@ -936,7 +936,7 @@ int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
 
 	a_record = zc_hashtable_get(records, a_rule->record_name);
 	if (a_record) {
-		a_rule->record_output = a_record->output;
+		a_rule->record_func = a_record->output;
 	}
 	return 0;
 }

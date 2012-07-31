@@ -76,7 +76,7 @@ struct zlog_rule_s {
 
 	char record_name[MAXLEN_PATH + 1];
 	char record_path[MAXLEN_PATH + 1];
-	zlog_record_fn record_output;
+	zlog_record_fn record_func;
 };
 
 zlog_rule_t *zlog_rule_new(char *line,

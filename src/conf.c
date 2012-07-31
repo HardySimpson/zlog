@@ -227,7 +227,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section);
 static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 {
 	int rc = 0;
-	struct stat a_stat;
+	struct zlog_stat a_stat;
 	struct tm local_time;
 	FILE *fp = NULL;
 
