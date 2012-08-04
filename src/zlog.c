@@ -37,7 +37,7 @@
 extern char *zlog_git_sha1;
 /*******************************************************************************/
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
-static zlog_conf_t *zlog_env_conf;
+zlog_conf_t *zlog_env_conf;
 static pthread_key_t zlog_thread_key;
 static zc_arraylist_t *zlog_env_threads;
 static zc_hashtable_t *zlog_env_categories;

@@ -187,7 +187,7 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 {
 	zlog_rule_t *default_rule;
 
-	a_conf->default_format = zlog_format_new(a_conf->default_format_line, a_conf->levels);
+	a_conf->default_format = zlog_format_new(a_conf->default_format_line);
 	if (!a_conf->default_format) {
 		zc_error("zlog_format_new fail");
 		return -1;
@@ -201,8 +201,6 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 
 	default_rule = zlog_rule_new(
 			ZLOG_CONF_DEFAULT_RULE,
-			a_conf->rotater,
-			a_conf->levels,
 			a_conf->default_format,
 			a_conf->formats,
 			a_conf->file_perms,
@@ -386,7 +384,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 				return -1;
 			}
 
-			a_conf->default_format = zlog_format_new(a_conf->default_format_line, a_conf->levels);
+			a_conf->default_format = zlog_format_new(a_conf->default_format_line);
 			if (!a_conf->default_format) {
 				zc_error("zlog_format_new fail");
 				return -1;
@@ -454,7 +452,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		}
 		break;
 	case 3:
-		a_format = zlog_format_new(line, a_conf->levels);
+		a_format = zlog_format_new(line);
 		if (!a_format) {
 			zc_error("zlog_format_new fail [%s]", line);
 			if (a_conf->strict_init) return -1;
@@ -468,8 +466,6 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		break;
 	case 4:
 		a_rule = zlog_rule_new(line,
-			a_conf->rotater,
-			a_conf->levels,
 			a_conf->default_format,
 			a_conf->formats,
 			a_conf->file_perms,

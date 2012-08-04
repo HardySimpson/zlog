@@ -1748,7 +1748,7 @@ Used to output the date of the logging event.
  enclosed between parenthesis.
  For example, %d(%F) or %d(%m-%d %T).
  If no date format specifier is given then %d(%F %T) format is assumed.
- The date format specifier admits the same syntax as the strftime(3).
+ The date format specifier admits the same syntax as the strftime(2).
  see 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1895,7 +1895,7 @@ comes from gettimeofday(2)
 Used to output the file name where the logging request was issued.
  The file name comes from __FILE__ macro.
  Some compiler take __FILE__ as the absolute path.
- Use $f to strip path and remain file name.
+ Use %f to strip path and remain file name.
  Or complier has option to switch.
 \end_layout
 
@@ -4758,15 +4758,15 @@ $ time ./test_press_zlog 1 10 100000
 \end_layout
 
 \begin_layout LyX-Code
-real	0m9.234s 
+real	0m4.240s 
 \end_layout
 
 \begin_layout LyX-Code
-user	0m2.860s 
+user	0m2.500s 
 \end_layout
 
 \begin_layout LyX-Code
-sys	0m10.060s
+sys	0m5.460s 
 \end_layout
 
 \begin_layout LyX-Code

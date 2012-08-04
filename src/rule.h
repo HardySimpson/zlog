@@ -50,15 +50,17 @@ struct zlog_rule_s {
 	int level;
 	unsigned char level_bitmap[32]; /* for category determine whether ouput or not */
 
+	unsigned int file_perms;
+	int file_open_flags;
+
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_file_specs;
 	int static_file_descriptor;
-	pthread_rwlock_t static_reopen_lock;
 
-	unsigned int file_perms;
-	int file_open_flags;
-	long file_max_size;
-	int file_max_count;
+	long archive_max_size;
+	int archive_max_count;
+	char archive_path[MAXLEN_PATH + 1];
+	zc_arraylist_t *archive_specs;
 
 	FILE *pipe_fp;
 	int pipe_fd;
@@ -70,8 +72,6 @@ struct zlog_rule_s {
 	int syslog_facility;
 
 	zlog_format_t *format;
-	zlog_rotater_t *rotater;
-
 	zlog_rule_output_fn output;
 
 	char record_name[MAXLEN_PATH + 1];
@@ -80,8 +80,6 @@ struct zlog_rule_s {
 };
 
 zlog_rule_t *zlog_rule_new(char *line,
-		zlog_rotater_t * a_rotater,
-		zc_arraylist_t * levels,
 		zlog_format_t * default_format,
 		zc_arraylist_t * formats,
 		unsigned int file_perms,

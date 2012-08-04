@@ -29,9 +29,11 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "conf.h"
 #include "spec.h"
 #include "level_list.h"
 #include "zc_defs.h"
+
 
 #define ZLOG_DEFAULT_TIME_FMT "%F %T"
 #define	ZLOG_HEX_HEAD  \
@@ -236,7 +238,7 @@ static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t *
 {
 	zlog_level_t *a_level;
 
-	a_level = zlog_level_list_get(a_spec->levels, a_thread->event->level);
+	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
 	return zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
 }
 
@@ -244,7 +246,7 @@ static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t *
 {
 	zlog_level_t *a_level;
 
-	a_level = zlog_level_list_get(a_spec->levels, a_thread->event->level);
+	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
 	return zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
 }
 
@@ -399,6 +401,32 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_t
 }
 
 /*******************************************************************************/
+static int zlog_spec_gen_archive_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+{
+	/* no need to reprint %1.2d here */
+	return a_spec->write_buf(a_spec, a_thread, a_thread->archive_path_buf);
+}
+
+static int zlog_spec_gen_archive_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+{
+	int rc;
+
+	zlog_buf_restart(a_thread->pre_path_buf);
+
+	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf);
+	if (rc < 0) {
+		zc_error("a_spec->gen_buf fail");
+		return -1;
+	} else if (rc > 0) {
+		/* buf is full, try printf */
+	}
+
+	return zlog_buf_adjust_append(a_thread->archive_path_buf,
+		zlog_buf_str(a_thread->pre_path_buf), zlog_buf_len(a_thread->pre_path_buf),
+		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
+}
+
+/*******************************************************************************/
 static int zlog_spec_parse_print_fmt(zlog_spec_t * a_spec)
 {
 	/* -12.35 12 .35 */
@@ -435,7 +463,7 @@ void zlog_spec_del(zlog_spec_t * a_spec)
  * a const string: /home/bb
  * a string begin with %: %12.35d(%F %X,%l)
  */
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylist_t *levels)
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 {
 	char *p;
 	int nscan = 0;
@@ -444,7 +472,6 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 
 	zc_assert(pattern_start, NULL);
 	zc_assert(pattern_next, NULL);
-	zc_assert(levels, NULL);
 
 	a_spec = calloc(1, sizeof(zlog_spec_t));
 	if (!a_spec) {
@@ -452,7 +479,6 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		return NULL;
 	}
 
-	a_spec->levels = levels;
 	a_spec->str = p = pattern_start;
 
 	switch (*p) {
@@ -464,6 +490,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		if (nscan == 1) {
 			a_spec->gen_msg = zlog_spec_gen_msg_reformat;
 			a_spec->gen_path = zlog_spec_gen_path_reformat;
+			a_spec->gen_archive_path = zlog_spec_gen_archive_path_reformat;
 			if (zlog_spec_parse_print_fmt(a_spec)) {
 				zc_error("zlog_spec_parse_print_fmt fail");
 				goto err;
@@ -472,6 +499,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 			nread = 1; /* skip the % char */
 			a_spec->gen_msg = zlog_spec_gen_msg_direct;
 			a_spec->gen_path = zlog_spec_gen_path_direct;
+			a_spec->gen_archive_path = zlog_spec_gen_archive_path_direct;
 		}
 
 		p += nread;
@@ -605,6 +633,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylis
 		a_spec->write_buf = zlog_spec_write_str;
 		a_spec->gen_msg = zlog_spec_gen_msg_direct;
 		a_spec->gen_path = zlog_spec_gen_path_direct;
+		a_spec->gen_archive_path = zlog_spec_gen_archive_path_direct;
 	}
 
 	zlog_spec_profile(a_spec, ZC_DEBUG);

@@ -29,12 +29,13 @@
 void zlog_thread_profile(zlog_thread_t * a_thread, int flag)
 {
 	zc_assert(a_thread,);
-	zc_profile(flag, "--thread[%p][%p][%p][%p,%p,%p,%p]--",
+	zc_profile(flag, "--thread[%p][%p][%p][%p,%p,%p,%p,%p]--",
 			a_thread,
 			a_thread->mdc,
 			a_thread->event,
 			a_thread->pre_path_buf,
 			a_thread->path_buf,
+			a_thread->archive_path_buf,
 			a_thread->pre_msg_buf,
 			a_thread->msg_buf);
 
@@ -42,6 +43,7 @@ void zlog_thread_profile(zlog_thread_t * a_thread, int flag)
 	zlog_event_profile(a_thread->event, flag);
 	zlog_buf_profile(a_thread->pre_path_buf, flag);
 	zlog_buf_profile(a_thread->path_buf, flag);
+	zlog_buf_profile(a_thread->archive_path_buf, flag);
 	zlog_buf_profile(a_thread->pre_msg_buf, flag);
 	zlog_buf_profile(a_thread->msg_buf, flag);
 	return;
@@ -58,6 +60,8 @@ void zlog_thread_del(zlog_thread_t * a_thread)
 		zlog_buf_del(a_thread->pre_path_buf);
 	if (a_thread->path_buf)
 		zlog_buf_del(a_thread->path_buf);
+	if (a_thread->archive_path_buf)
+		zlog_buf_del(a_thread->archive_path_buf);
 	if (a_thread->pre_msg_buf)
 		zlog_buf_del(a_thread->pre_msg_buf);
 	if (a_thread->msg_buf)
@@ -98,6 +102,12 @@ zlog_thread_t *zlog_thread_new(size_t buf_size_min, size_t buf_size_max)
 
 	a_thread->path_buf = zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
 	if (!a_thread->path_buf) {
+		zc_error("zlog_buf_new fail");
+		goto err;
+	}
+
+	a_thread->archive_path_buf = zlog_buf_new(MAXLEN_PATH + 1, MAXLEN_PATH + 1, NULL);
+	if (!a_thread->archive_path_buf) {
 		zc_error("zlog_buf_new fail");
 		goto err;
 	}

@@ -31,7 +31,7 @@ struct zlog_format_s {
 	zc_arraylist_t *pattern_specs;
 };
 
-zlog_format_t *zlog_format_new(char *line, zc_arraylist_t *levels);
+zlog_format_t *zlog_format_new(char *line);
 void zlog_format_del(zlog_format_t * a_format);
 void zlog_format_profile(zlog_format_t * a_format, int flag);
 

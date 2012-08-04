@@ -15,8 +15,9 @@
 [ ] 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
 
 --- 1.2.0 ---
-[ ] fstat64
 [ ] rotate和zip的方案
+[o] 把一部分static变量化为全局变量，减少接口参数
+[o] fstat64
 [o] pipe, cronolog
 [o] record忽略第二参数
 [o] __VA_ARGS__的跨平台
@@ -24,7 +25,9 @@
 [o] 去除auto tools的使用，自行makefile[redis]
 [o] 宏都小写化
 [o] const
-[x] zlog_set("section", "command");
+[x] 每线程内置rule-> file fd write time
+[x] 用时间作为判断重载配置reload conf period，而不是次数，需要每次取时间计算，暂不考虑
+[x] zlog_set_conf("section", "command");
 [x] format,spec,level采用直接数组的方式重写，性能提高不大
 [x] 增加manpage,  df, 案例
 --- 1.1.3 ---

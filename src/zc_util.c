@@ -87,7 +87,7 @@ size_t zc_parse_byte_size(char *astring)
 }
 
 /*******************************************************************************/
-int zc_str_replace_env(char *str, size_t size)
+int zc_str_replace_env(char *str, size_t str_size)
 {
 	char *p;
 	char *q;
@@ -137,9 +137,7 @@ int zc_str_replace_env(char *str, size_t size)
 			return -1;
 		}
 
-		env_value_len =
-		    snprintf(env_value, sizeof(env_value), fmt,
-			     getenv(env_key));
+		env_value_len = snprintf(env_value, sizeof(env_value), fmt, getenv(env_key));
 		if (env_value_len < 0 || env_value_len >= sizeof(env_value)) {
 			zc_error("snprintf fail, errno[%d], evn_value_len[%d]",
 				 errno, env_value_len);
@@ -147,9 +145,8 @@ int zc_str_replace_env(char *str, size_t size)
 		}
 
 		str_len = str_len - (q - p) + env_value_len;
-		if (str_len > size - 1) {
-			zc_error("repalce env_value[%s] cause overlap",
-				 env_value);
+		if (str_len > str_size - 1) {
+			zc_error("repalce env_value[%s] cause overlap", env_value);
 			return -1;
 		}
 

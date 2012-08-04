@@ -47,14 +47,12 @@ struct zlog_spec_s {
 	size_t max_width;
 	size_t min_width;
 
-	zc_arraylist_t *levels;
-
 	zlog_spec_write_fn write_buf;
 	zlog_spec_gen_fn gen_msg;
 	zlog_spec_gen_fn gen_path;
 };
 
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, zc_arraylist_t *levels);
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
 void zlog_spec_del(zlog_spec_t * a_spec);
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
 
@@ -63,5 +61,8 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
 
 #define zlog_spec_gen_path(a_spec, a_thread) \
 	a_spec->gen_path(a_spec, a_thread)
+
+#define zlog_spec_gen_archive_path(a_spec, a_thread) \
+	a_spec->gen_archive_path(a_spec, a_thread)
 
 #endif
