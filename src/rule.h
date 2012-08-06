@@ -54,8 +54,8 @@ struct zlog_rule_s {
 	int file_open_flags;
 
 	char file_path[MAXLEN_PATH + 1];
-	zc_arraylist_t *dynamic_file_specs;
-	int static_file_descriptor;
+	zc_arraylist_t *dynamic_specs;
+	int static_fd;
 
 	long archive_max_size;
 	int archive_max_count;
@@ -80,6 +80,7 @@ struct zlog_rule_s {
 };
 
 zlog_rule_t *zlog_rule_new(char *line,
+		zc_arraylist_t * levels,
 		zlog_format_t * default_format,
 		zc_arraylist_t * formats,
 		unsigned int file_perms,

@@ -15,7 +15,7 @@
 [ ] 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
 
 --- 1.2.0 ---
-[ ] rotate和zip的方案
+[o] rotate和zip的方案
 [o] 把一部分static变量化为全局变量，减少接口参数
 [o] fstat64
 [o] pipe, cronolog

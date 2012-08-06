@@ -3,7 +3,6 @@ exe = 		\
 	test_buf	\
 	test_bitmap	\
 	test_conf	\
-	test_filemv	\
 	test_hashtable	\
 	test_hello	\
 	test_hex	\

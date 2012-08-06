@@ -152,6 +152,7 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 		zc_error("zlog_level_list_new fail");
 		goto err;
 	} 
+
 	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!a_conf->formats) {
 		zc_error("zc_arraylist_new fail");
@@ -201,6 +202,7 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 
 	default_rule = zlog_rule_new(
 			ZLOG_CONF_DEFAULT_RULE,
+			a_conf->levels,
 			a_conf->default_format,
 			a_conf->formats,
 			a_conf->file_perms,
@@ -466,6 +468,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		break;
 	case 4:
 		a_rule = zlog_rule_new(line,
+			a_conf->levels,
 			a_conf->default_format,
 			a_conf->formats,
 			a_conf->file_perms,

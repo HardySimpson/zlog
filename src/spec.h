@@ -50,6 +50,7 @@ struct zlog_spec_s {
 	zlog_spec_write_fn write_buf;
 	zlog_spec_gen_fn gen_msg;
 	zlog_spec_gen_fn gen_path;
+	zlog_spec_gen_fn gen_archive_path;
 };
 
 zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);

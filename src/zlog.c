@@ -117,7 +117,8 @@ err:
 int zlog_init(const char *confpath)
 {
 	int rc;
-	zc_debug("------zlog_init start, compile time[%s %s], git version[%s]------",
+	zc_debug("------zlog_init start------");
+	zc_debug("------compile time[%s %s], git version[%s]------",
 			__DATE__, __TIME__, zlog_git_sha1);
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);

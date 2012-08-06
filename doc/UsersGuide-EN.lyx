@@ -320,7 +320,7 @@ type "mailto:"
 \end_layout
 
 \begin_layout Section
-zlog 1.2 Release Notes:
+Compatible Notes
 \end_layout
 
 \begin_layout Enumerate
@@ -366,6 +366,41 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
+zlog has no plan to support Windows.
+ As Windows already have tons of logging libraries.
+\end_layout
+
+\begin_layout Section
+zlog 1.2 Release Notes
+\end_layout
+
+\begin_layout Enumerate
+zlog 1.2 provide features:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+support for pipeline.
+ Now zlog could ouput log through programs like cronolog
+\end_layout
+
+\begin_layout Enumerate
+Full rotation support, see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Rotation"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Other code compitable details, bug fix.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
 zlog 1.2 is binary compatible with zlog 1.0.
  The difference are:
 \end_layout
@@ -377,6 +412,23 @@ All zlog macros like ZLOG_INFO is shift to zlog_info, a lowercase version.
  Becasue I think it is more easy for people's typewriting.
  If you are pre-user of zlog, please using a script substitutes all macros,
  and re-compile your program.
+ I provide one:
+\end_layout
+
+\begin_layout LyX-Code
+sed -i -e 's/
+\backslash
+b
+\backslash
+w*ZLOG
+\backslash
+w*
+\backslash
+b/
+\backslash
+L&
+\backslash
+E/g' aa.c
 \end_layout
 
 \begin_layout Enumerate
@@ -409,9 +461,8 @@ The reason is obvious: library is called by application, all time log library
 \end_layout
 
 \begin_layout Standard
-If you want all these features, I recommend rsyslog, a excellent syslog
- daemon implementation.
- It is a independent process receives logs from other process or machines,
+If you want all these features, I recommend rsyslog、zLogFabric、Logstash.
+ There are independent process receives logs from other process or machines,
  and parse and store logs.
  Still, it has a distance from user application.
 \end_layout
@@ -428,6 +479,15 @@ reference "sec:User-defined-Output"
  People just need to implement one ouput function, to transfer log to other
  process or other machine.
  They leave work of category matching and log generatating to zlog library.
+ 
+\end_layout
+
+\begin_layout Standard
+One of my opinion is writing a zlog-redis client.
+ It send logs to redis on local or remote machines by user-define-output.
+ Then other process can read logs from redis and write it to disk.
+ What do you think abount this idea? I will be happy if you discuss it with
+ me.
  
 \end_layout
 
@@ -4612,15 +4672,19 @@ to file
 \begin_inset Text
 
 \begin_layout Plain Layout
-file limitation, can be:
+rotation.
+ see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Rotation"
+
+\end_inset
+
+ for detail
 \end_layout
 
 \begin_layout Plain Layout
-1000, 1k, 2M, 1G...
-\end_layout
-
-\begin_layout Plain Layout
-3m*2, 4k*3...
+10MB * 3 ~ "press.#r.log"
 \end_layout
 
 \end_inset
@@ -5088,6 +5152,303 @@ reference "sec:User-defined-Output"
 \end_inset
 
  for more details for $.
+\end_layout
+
+\begin_layout Section
+Rotation
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Rotation"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Why rotation? I have see more than once that in product-environment, the
+ hard disk is full of logs and cause system stop working, or a single log
+ file is too big to open or grep.
+ I conclude several ways of rotation and archive log files:
+\end_layout
+
+\begin_layout Enumerate
+Split log by date or time.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+For example, generate one log file per day.
+\end_layout
+
+\begin_layout LyX-Code
+aa.2012-08-02.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.2012-08-03.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.2012-08-04.log
+\end_layout
+
+\begin_layout Standard
+In this case, System admin knows how much log will be produced one day.
+ And after a few month, he hopes to find log file exactly of one day.
+ The best way for split is done by log library precisely.
+ Another choice is using cronosplit to analyse the content of log file and
+ split it.
+ A bad way is using crontab+logrotate to daily move log files, which is
+ not accurate, some logs will be put into file of the previous day.
+\end_layout
+
+\begin_layout Standard
+In zlog, no need for rotating to complete that job.
+ Simplely setting time in name of log file works:
+\end_layout
+
+\begin_layout LyX-Code
+*.*  "aa.%d(%F).log"
+\end_layout
+
+\begin_layout Standard
+or using cronolog for fast performace:
+\end_layout
+
+\begin_layout LyX-Code
+*.*  | cronolog aa.%F.log
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Split log by size.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Always fit for develop use.
+ In this case, program generate a lot of logs in a short period.
+ But text edit can't quickly open big files.
+ Althrough the split can be done by split tools after, but it aquires extra
+ steps.
+ So a good way is doing rotation by logging library.
+ There are two ways of rotation, as nlog describes, Sequence and Rolling.
+ In case of Sequence:
+\end_layout
+
+\begin_layout LyX-Code
+aa.log (new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.2 (less new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.1 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.0 (old)
+\end_layout
+
+\begin_layout Standard
+And in case of Rolling:
+\end_layout
+
+\begin_layout LyX-Code
+aa.log (new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.0 (less new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.1 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.2 (old)
+\end_layout
+
+\begin_layout Standard
+It's hard to say which one fit people's instinct.
+\end_layout
+
+\begin_layout Standard
+OK, If only some of the newest log is useful to developers, logging library
+ shoud do the clean work.
+ Del the old log files.
+ External tools can't find out which files are older.
+\end_layout
+
+\begin_layout Standard
+The most simple rotation configure of zlog is:
+\end_layout
+
+\begin_layout LyX-Code
+*.*     "aa.log", 10MB
+\end_layout
+
+\begin_layout Standard
+It is Rolling.
+ When aa.log is larger than 10MB, will rename file like this:
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.2 -> aa.log.3
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.1 -> aa.log.2
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.0 -> aa.log.1
+\end_layout
+
+\begin_layout LyX-Code
+aa.log -> aa.log.0
+\end_layout
+
+\begin_layout Standard
+The configure can be more complex:
+\end_layout
+
+\begin_layout LyX-Code
+*.*     "aa.log", 10MB * 0 ~ "aa.log.#r"
+\end_layout
+
+\begin_layout Standard
+The 1st argument represents when rotation will be trigger, in size.
+ 
+\end_layout
+
+\begin_layout Standard
+The 2nd arguments represents how many archive file will be kept not delete(0
+ means keep all).
+ 
+\end_layout
+
+\begin_layout Standard
+The 3rd argument represents archive file name.
+ #r is the number of archive files.
+ r is short for Rolling, and #s is short for sequence.
+ Archive file name must contain one of #r or #s.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Split log by size, and add time tag to archive file.
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+aa.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20070305.00.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20070501.00.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20070501.01.log
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20071008.00.log
+\end_layout
+
+\begin_layout Standard
+In this case, log file is not focus frequently, but will be check out one
+ day.
+ Of course, when one day's log is more than 100MB, like 20070501, will be
+ stored in two files and add postfix numbers.
+\end_layout
+
+\begin_layout Standard
+The configure of zlog is:
+\end_layout
+
+\begin_layout LyX-Code
+*.*     "aa.log", 100MB ~ "aa-%D(%Y%m%d).#2s.log"
+\end_layout
+
+\begin_layout LyX-Code
+Do rotation every 100MB.
+ The archive file name support conversion strings also!.
+ #2s means the sequence number is at least 2 bytes wide.
+ Sequece from 00.
+ That's the most complex way of archive in zlog!
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Compress, move and delete old archive.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Compress should not be done by logging library, because compress need time
+ and CPU.
+ The mission of logging library is cooperation with compress programs.
+\end_layout
+
+\begin_layout Standard
+For the 3 ways of split logs, way 1 and way 3 is easy to manage.
+ It is easy to find old log file by name or by modify time.
+ And then compress, move and delete old log files by crontab and shell.
+\end_layout
+
+\begin_layout Standard
+For the way 2, compress is useless, delete is need and zlog already support
+ it.
+\end_layout
+
+\begin_layout Standard
+If you really want to rotate and compress log file at the same time, I suggest
+ logrotate.
+ As it is a indepence program and will not confuse.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+zlog support for external tools like logrotate
+\end_layout
+
+\begin_layout Standard
+The rotation support of zlog is very powerful, still there are several cases
+ zlog can not handle.
+ Like rotation by time, before or after rotation call some user-defined
+ shells...
+ That will make zlog too complex and ugly.
+\end_layout
+
+\begin_layout Standard
+Under that cirumstances, maybe you like to use external tools like logrotate.
+ The problem is, on linux, when a tool rename the log file, the working
+ process will not automaticlly reopen the new file.
+ The standard way is send a signal to program, let it reopen the file, as
+ to syslogd the command is:
+\end_layout
+
+\begin_layout LyX-Code
+kill -SIGHUP `cat /var/run/syslogd.pid`
+\end_layout
+
+\begin_layout Standard
+For zlog as a library, it is not good to receive signals.
+ zlog provide zlog_reload(), which reload configure file and reopen all
+ log files.
+ So if you write a program and want to reopen log file mannully, you can
+ write some code to do job like this: after receiving a signal or command
+ from client, call zlog_reload().
 \end_layout
 
 \begin_layout Section

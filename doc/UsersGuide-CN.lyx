@@ -338,7 +338,7 @@ type "mailto:"
 \end_layout
 
 \begin_layout Section
-zlog 1.2 发布说明
+兼容性说明
 \end_layout
 
 \begin_layout Enumerate
@@ -371,13 +371,62 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-zlog 1.2在库方面是和zlog 1.0/1.1二进制兼容的，区别在于：
+zlog目前还没有计划支持windows，毕竟windows下已经有非常成熟的日志函数库。
+\end_layout
+
+\begin_layout Section
+zlog 1.2 发布说明
+\end_layout
+
+\begin_layout Enumerate
+zlog 1.2 新增了这些功能
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+对管道的支持，从此zlog可以外接cronolog这样的日志过滤程序来输出
+\end_layout
+
+\begin_layout Enumerate
+全面的日志转档支持，详见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:文件转档"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+其他兼容性的代码改动
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+zlog 1.2 在库方面是和zlog 1.0/1.1二进制兼容的，区别在于：
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
 所有的宏改为小写，ZLOG_INFO->zlog_info，方便开发者手工输入。这是一个巨大的改变，如果zlog1.1/1.0的用户要用zlog 1.2的话，需要写一
-个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。
+个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。我提供了一个脚本：
+\end_layout
+
+\begin_layout LyX-Code
+sed -i -e 's/
+\backslash
+b
+\backslash
+w*ZLOG
+\backslash
+w*
+\backslash
+b/
+\backslash
+L&
+\backslash
+E/g' aa.c
 \end_layout
 
 \begin_layout Enumerate
@@ -400,7 +449,7 @@ zlog的目标是成为一个简而精的日志函数库，不会直接支持网�
 \end_layout
 
 \begin_layout Standard
-如果你需要这些特性，我建议使用rsyslog，一个系统级别的日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。
+如果你需要这些特性，我建议使用rsyslog、zLogFabric、Logstash，这些日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。
 \end_layout
 
 \begin_layout Standard
@@ -412,6 +461,11 @@ reference "sec:用户自定义输出"
 \end_inset
 
 ，可以自己实现一个输出函数，自由的把日志输出到其他进程或者其他机器。而把日志的分类匹配、日志格式成型的工作交给zlog。
+\end_layout
+
+\begin_layout Standard
+目前我的想法是实现一个zlog-redis客户端，用自定义输出功能，把日志存储到本机或者远程的redis服务器内，然后用其他进程(也使用zlog库)来把日志写到
+文件里面，不知大家以为这个想法如何？欢迎和我联系探讨。
 \end_layout
 
 \begin_layout Chapter
@@ -4355,15 +4409,18 @@ LOG_USER(default), LOG_LOCAL[0-7]
 \begin_inset Text
 
 \begin_layout Plain Layout
-文件大小个数限制 
+文件转档，详见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:文件转档"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
-1000, 1k, 2M, 1G...
-\end_layout
-
-\begin_layout Plain Layout
-3m*2, 4k*3...
+10M * 3 ～ "press.#r.log"
 \end_layout
 
 \end_inset
@@ -4664,59 +4721,18 @@ aa_.*      "/var/log/%c.log"
 \end_layout
 
 \begin_layout LyX-Code
-"%E(HOME)/log/out.log",1M * 3
+"%E(HOME)/log/out.log", 1M * 3 ~ "%E(HOME)/log/out.log.#r"
 \end_layout
 
 \begin_layout Standard
-如果out.log被写到1M大，转档动作为：
-\end_layout
+这三个参数都不是必填项，zlog的转档功能详见
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:文件转档"
 
-\begin_layout LyX-Code
-out.log -> out.log.1
-\end_layout
+\end_inset
 
-\begin_layout LyX-Code
-out.log(new create) 
-\end_layout
 
-\begin_layout Standard
-如果新的日志文件再次被写满，转档动作为：
-\end_layout
-
-\begin_layout LyX-Code
-out.log.1 -> out.log.2
-\end_layout
-
-\begin_layout LyX-Code
-out.log -> out.log.1
-\end_layout
-
-\begin_layout LyX-Code
-out.log(new create)
-\end_layout
-
-\begin_layout Standard
-下一次的转档会把最旧的日志文件删除掉， *3意味着zlog会保留3个文件：
-\end_layout
-
-\begin_layout LyX-Code
-unlink(out.log.2)
-\end_layout
-
-\begin_layout LyX-Code
-out.log.1 -> out.log.2
-\end_layout
-
-\begin_layout LyX-Code
-out.log -> out.log.1
-\end_layout
-
-\begin_layout LyX-Code
-out.log(new create)
-\end_layout
-
-\begin_layout Standard
-最旧的文件有最大的序列号。如果不写*3,则意味这一直转档下去，不会删除任何旧的日志。
 \end_layout
 
 \end_deeper
@@ -4800,6 +4816,261 @@ reference "sec:用户自定义输出"
 
 \end_layout
 
+\begin_layout Section
+文件转档
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:文件转档"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+为什么需要将日志文件转档？我已经在实际的运行环境中不止一次的看到过，因为日志文件过大，导致系统硬盘被撑爆，或者单个日志文件过大而即使用grep也要花费很多时间来
+寻找匹配的日志。对于日志转档，我总结了如下几种范式：
+\end_layout
+
+\begin_layout Enumerate
+按固定时间段来切分日志。
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+例如，每天生成一个日志
+\end_layout
+
+\begin_layout LyX-Code
+aa.2012-08-02.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.2012-08-03.log
+\end_layout
+
+\begin_layout LyX-Code
+aa.2012-08-04.log
+\end_layout
+
+\begin_layout Standard
+这种日志适合的场景是，管理员大概知道每天生成的日志量，然后希望在n个月之后能精确的找出某天的所有日志。这种日志切分最好由日志库来完成，其次的方法是用cronos
+plit这种软件来分析日志内容的时间字符串来进行后期的切分，较差的办法是用crontab+logrotate或mv来定期移动（但这并不精确，会造成若干条当天的日
+志被放到上一天的文件里面去）。
+\end_layout
+
+\begin_layout Standard
+在zlog里面，这种需求不需要用日志转档功能来完成，简单的在日志文件名里面设置时间日期字符串就能解决问题：
+\end_layout
+
+\begin_layout LyX-Code
+*.*  "aa.%d(%F).log"
+\end_layout
+
+\begin_layout Standard
+或者用cronolog来完成，速度会更快一点
+\end_layout
+
+\begin_layout LyX-Code
+*.*  | cronolog aa.%F.log
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+按照日志大小切分
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+多用于开发环境，适合的场景是，程序在短时间内生成大量的日志，而用编辑器vi,ue等能快速打开的日志大小是有限的，或者大的日志打开来极慢。同样的，这种日志的切分可
+以在事后用split等工具来完成，但对于开发而言会增加步骤，所以最好也是由日志库来完成。值得一提的是存档有两种模式，nlog里面称之为Sequence和Roll
+ing，在Sequence情况下
+\end_layout
+
+\begin_layout LyX-Code
+aa.log (new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.2 (less new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.1 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.0 (old)
+\end_layout
+
+\begin_layout Standard
+而在Rolling的情况下
+\end_layout
+
+\begin_layout LyX-Code
+aa.log (new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.0 (less new) 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.1 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.2 (old)
+\end_layout
+
+\begin_layout Standard
+很难说哪种更加符合人的直觉。
+\end_layout
+
+\begin_layout Standard
+如果只有若干个最新的文件是有意义的，需要日志库来做主动的删除旧的工作。由外部程序是很难判定哪些日志是旧的。
+\end_layout
+
+\begin_layout Standard
+最简单的zlog的转档配置为
+\end_layout
+
+\begin_layout LyX-Code
+*.*     "aa.log", 10MB
+\end_layout
+
+\begin_layout Standard
+这个配置是Rolling的情况，每次aa.log超过10MB的时候，会做这样的重命名
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.2 -> aa.log.3
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.1 -> aa.log.2
+\end_layout
+
+\begin_layout LyX-Code
+aa.log.0 -> aa.log.1
+\end_layout
+
+\begin_layout LyX-Code
+aa.log -> aa.log.0
+\end_layout
+
+\begin_layout Standard
+上面的配置可以写的更加罗嗦一点
+\end_layout
+
+\begin_layout LyX-Code
+*.*     "aa.log", 10MB * 0 ~ "aa.log.#r"
+\end_layout
+
+\begin_layout Standard
+逗号后第一个参数表示文件达到多大后开始进行转档。
+\end_layout
+
+\begin_layout Standard
+第二个参数表示保留多少个存档文件（0代表不删除任何存档文件）。
+\end_layout
+
+\begin_layout Standard
+第三个参数表示转档的文件名，其中#r表示存档文件的序号，r是rolling的缩写。还可以放#s，是sequence的缩写。转档文件名必须包含#r或者#s。
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+按照日志大小切分，但同时加上时间标签
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+aa.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20070305.00.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20070501.00.log 
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20070501.01.log
+\end_layout
+
+\begin_layout LyX-Code
+aa.log-20071008.00.log
+\end_layout
+
+\begin_layout Standard
+这种情况适合于程序本身的日志一般不是很受关注，但是又在某一天想要找出来看的情况。当然，在这种情况下，万一在20070501这一天日志的量超过了指定值，例如100
+MB，就又要退回到第二种状态，在文件名中加后缀。
+\end_layout
+
+\begin_layout Standard
+zlog对应的配置是
+\end_layout
+
+\begin_layout LyX-Code
+*.*     "aa.log", 100MB ~ "aa-%D(%Y%m%d).#2s.log"
+\end_layout
+
+\begin_layout Standard
+每到100MB的时候转档，转档文件名也支持转换字符，可以把转档当时的时间串作为转档文件名的一部分。#2s的意思是序号的长度最少为2位，从00开始编号，Seque
+nce转档。这是zlog对转档最复杂的支持了！
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+压缩、移动、删除旧的日志
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+首先，压缩不应该由日志库来完成，因为压缩消耗时间和CPU。日志库的任务是配合压缩。
+\end_layout
+
+\begin_layout Standard
+对于第一种和第三种，管理较为简单，只要符合某些文件名规则或修改日期的，可以用shell脚本+crontab轻易的压缩、移动和删除。
+\end_layout
+
+\begin_layout Standard
+对于第二种，其实不是非常需要压缩，只需要删除就可以了。
+\end_layout
+
+\begin_layout Standard
+如果一定需要转档的同时进行压缩，只有logrotate能干这活儿，毕竟他是独立的程序，能在转档同时搞压缩，不会有混淆的问题。
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+zlog对外部转档工具，例如logrotate的支持
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog的转档功能已经极为强大，当然也有几种情况是zlog无法处理的，例如按时间条件进行转档，转档前后调用一些自制的shell脚本……这会把zlog的配置和表达
+弄得过于复杂而缺乏美感。
+\end_layout
+
+\begin_layout Standard
+这时候你也许喜欢用一些外部转档工具，例如logrotate来完成工作。问题是，在linux操作系统下，转档工具重命名日志文件名后，应用进程还是往原来的文件描述符
+写日志，没办法重新打开日志文件写新的日志。标准的做法是给应用程序一个信号，让他重新打开日志文件，对于syslogd是
+\end_layout
+
+\begin_layout LyX-Code
+kill -SIGHUP `cat /var/run/syslogd.pid`
+\end_layout
+
+\begin_layout Standard
+对于zlog，因为是个函数库，不适合接受信号。zlog提供了函数接口zlog_reload()，这个函数会重载配置文件，重新打开所有的日志文件。应用程序在log
+rotate的信号，或者其他途径，例如客户端的命令后，可以调用这个函数，来重新打开所有的日志文件。
+\end_layout
+
+\end_deeper
 \begin_layout Section
 配置文件工具
 \end_layout
