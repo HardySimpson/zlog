@@ -413,6 +413,7 @@ zlog 1.2 在库方面是和zlog 1.0/1.1二进制兼容的，区别在于：
 个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。我提供了一个脚本：
 \end_layout
 
+\begin_deeper
 \begin_layout LyX-Code
 sed -i -e 's/
 \backslash
@@ -429,6 +430,7 @@ L&
 E/g' aa.c
 \end_layout
 
+\end_deeper
 \begin_layout Enumerate
 取消了auto tools的使用，也就是说，不论你在任何平台，都需要gcc和gnu make才能编译安装zlog。主流的操作系统(Aix, OpenSolari
 s..)都能安装gcc和gnu make。当然也可以自行修改makefile来完成编译，对于平台稍有经验的Geek都可以自行完成！
