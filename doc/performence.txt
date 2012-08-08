@@ -1,0 +1,92 @@
+-------------------------------------------------
+using makefile.linux for test, libzlog compile in O2
+-------------------------------------------------
+[direct write, no logging library] - The Sky!
+$ time ./test_press_write 1 10 100000
+real	0m1.872s
+user	0m0.140s
+sys	0m3.290s
+
+$ time ./test_press_write2 1 10 100000
+real	0m0.909s
+user	0m0.080s
+sys	0m1.710s
+-------------------------------------------------
+v1.1.1 (fwrite is not atomic, so backup to write)
+$ time ./test_press_zlog 1 10 100000
+real	0m2.334s
+user	0m1.780s
+sys	0m2.710s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m2.134s
+user	0m1.840s
+sys	0m1.990s
+-------------------------------------------------
+v1.1.0
+$ time ./test_press_zlog 1 10 100000
+real	0m1.107s
+user	0m1.500s
+sys	0m0.340s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m0.898s
+user	0m1.480s
+sys	0m0.150s
+-------------------------------------------------
+v1.0.7
+$ time ./test_press_zlog 1 10 100000
+real	0m1.783s
+user	0m3.000s
+sys	0m0.300s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m1.621s
+user	0m2.980s
+sys	0m0.120s
+-------------------------------------------------
+v1.0.6
+$ time ./test_press_zlog 1 10 100000
+real	0m1.814s
+user	0m3.060s
+sys	0m0.270s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m1.605s
+user	0m2.990s
+sys	0m0.140s
+-------------------------------------------------
+v1.0.5
+$ time ./test_press_zlog 1 10 100000
+real	0m2.779s
+user	0m4.170s
+sys	0m0.560s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m2.713s
+user	0m4.410s
+sys	0m0.900s
+-------------------------------------------------
+v1.0.3
+$ time ./test_press_zlog 1 10 100000
+
+real	0m6.349s
+user	0m6.300s
+sys	0m5.950s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m6.377s
+user	0m6.240s
+sys	0m6.090s
+-------------------------------------------------
+v1.0.0
+$ time ./test_press_zlog 1 10 100000
+real	0m6.364s
+user	0m6.040s
+sys	0m6.270s
+
+$ time ./test_press_zlog2 1 10 100000
+real	0m6.361s
+user	0m6.150s
+sys	0m6.020s
+-------------------------------------------------

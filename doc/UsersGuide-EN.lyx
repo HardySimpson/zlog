@@ -1,0 +1,7463 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass extbook
+\use_default_options true
+\begin_modules
+theorems-ams
+eqs-within-sections
+figs-within-sections
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref true
+\pdf_title "zlog Users Guide EN"
+\pdf_author "Hardy Simpson"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered true
+\pdf_bookmarksopen true
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index 索引
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+zlog User's Guide
+\end_layout
+
+\begin_layout Author
+by Hardy Simpson
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+This Guide is for zlog v1.0.x
+\end_layout
+
+\end_inset
+
+
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+If you have comments or error corrections, post a issue on github, or write
+ email to 
+\begin_inset CommandInset href
+LatexCommand href
+name "HardySimpson1984@gmail.com"
+target "HardySimpson1984@gmail.com"
+type "mailto:"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+What is zlog?
+\end_layout
+
+\begin_layout Standard
+zlog is a reliable, high efficent, thread safe, flexsible, clear model,
+ pure c logging library
+\end_layout
+
+\begin_layout Standard
+Actually, in the c world there is NO good logging library for application
+ like logback in java or log4cxx in c++.
+ printf can work, but can not be easily redirected or reformat, syslog is
+ slow and is designed for system use.
+\end_layout
+
+\begin_layout Standard
+So I write zlog.
+\end_layout
+
+\begin_layout Standard
+It is faster, safer and more powerful than log4c.
+ So it can be widely used.
+\end_layout
+
+\begin_layout Standard
+zlog has feartures below:
+\end_layout
+
+\begin_layout Itemize
+syslog model, better than log4j model
+\end_layout
+
+\begin_layout Itemize
+log format customization
+\end_layout
+
+\begin_layout Itemize
+multiple output, include static file path, dynamic file path, stdout, stderr,
+ syslog, user-defined ouput
+\end_layout
+
+\begin_layout Itemize
+runtime mannully or automaticlly refreash configure(safely)
+\end_layout
+
+\begin_layout Itemize
+high efficieny, 338'638 logs/second on my laptop, about 1000 times faster
+ than syslog(3) with rsyslogd
+\end_layout
+
+\begin_layout Itemize
+user-defined log level
+\end_layout
+
+\begin_layout Itemize
+safely rotate log file on multiple-process or multiple-threads condition
+\end_layout
+
+\begin_layout Itemize
+accurate to microseconds
+\end_layout
+
+\begin_layout Itemize
+dzlog, a default category log API for easy use
+\end_layout
+
+\begin_layout Itemize
+MDC, a log4j style key-value map
+\end_layout
+
+\begin_layout Itemize
+self debugable, can output zlog's self debug&error log at runtime
+\end_layout
+
+\begin_layout Itemize
+Not depend on any other 3rd party library, just base on POSIX system(and
+ a C99 compliant vsnprintf).
+\end_layout
+
+\begin_layout Standard
+Links:
+\end_layout
+
+\begin_layout Standard
+Download: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+GettingStart: doc/GettingStart-CN.txt GettingStart-EN.txt 
+\end_layout
+
+\begin_layout Standard
+UsersGuide: doc/UsersGuide-CN.pdf UsersGuide-EN.pdf
+\end_layout
+
+\begin_layout Standard
+SourceCode: 
+\begin_inset CommandInset href
+LatexCommand href
+name "git@github.com:HardySimpson/zlog.git"
+target "git@github.com:HardySimpson/zlog.git"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Mail List: 
+\begin_inset CommandInset href
+LatexCommand href
+name "https://github.com/HardySimpson/zlog/issues"
+target "https://github.com/HardySimpson/zlog/issues"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Homepage(in English): 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://hardysimpson.github.com/zlog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Homepage(in Chinese): 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://www.oschina.net/p/zlog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Author's Blog(in Chinese): 
+\begin_inset CommandInset href
+LatexCommand href
+name "http://my.oschina.net/HardySimpson/blog"
+target "http://my.oschina.net/HardySimpson/blog"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Author's Email: 
+\begin_inset CommandInset href
+LatexCommand href
+name "HardySimpson1984@gmail.com"
+target "HardySimpson1984@gmail.com"
+type "mailto:"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+zlog 1.1 Release Notes:
+\end_layout
+
+\begin_layout Enumerate
+zlog is based on POSIX-compatible system.
+ I just have GNU/linux and AIX envrionment and test to compile and run zlog
+ on them.
+ Still I think zlog will work well on FreeBSD, NetBSD, OpenBSD, OpenSolaris,
+ Mac OS X etc.
+ Test run zlog on any system is welcome.
+\end_layout
+
+\begin_layout Enumerate
+in zlog, I use a feature of C99 compliant vsnprintf.
+ That is, if the buffer size of destination is not long enough, vsnprintf
+ will return the the number of characters (not includ‐ ing the trailing
+ '
+\backslash
+0') which would have been written to the final string if enough space had
+ been available.
+ If the vsnprintf on your sysem is not work like that, zlog can not know
+ the right buffer size when a single log is longer than buffer.
+ Fortunately, glibc 2.1,libc on AIX, libc on freebsd...
+ work in the right way, while glibc 2.0 is not.
+ In this case, user should crack zlog himself with a C99 compliant vsnprintf.
+ I suggest 
+\begin_inset CommandInset href
+LatexCommand href
+name "ctrio"
+target "http://sourceforge.net/projects/ctrio/"
+
+\end_inset
+
+, or 
+\begin_inset CommandInset href
+LatexCommand href
+name "C99-snprintf"
+target "http://www.jhweiss.de/software/snprintf.html"
+
+\end_inset
+
+.
+ The file buf.c should be cracked, good luck!
+\end_layout
+
+\begin_layout Enumerate
+zlog 1.1 is binary compatible with zlog 1.0.
+ Just two difference in configure file
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+%d(%ms, %us) is not correct any more.
+ %d.%ms is correct.
+ %ms and %us are brought up to conversion characters.
+\end_layout
+
+\begin_layout Enumerate
+Add %D as default time string, which produce output like "2012-04-05 08:09:10".
+\end_layout
+
+\begin_layout Standard
+These two increase zlog's performence about 30%.
+ If you are user of zlog 1.0.x and are dynamic linked with it, There is no
+ need for re-compile you program, just replace the library, and change your
+ configure file a little.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Chapter
+What is not zlog?
+\end_layout
+
+\begin_layout Standard
+The goal of zlog is becoming a simple, fast log library for application.
+ It will not support too much output like send log to other machine through
+ net or save it to database.
+ It will not parse content of log and filter them.
+\end_layout
+
+\begin_layout Standard
+The reason is obvious: library is called by application, all time log library
+ takes is part of application's time.
+ And database inserting or log content parsing takes a long time.
+ Thest will speed down application.
+ These operation should be done in a different process or on a different
+ machine.
+\end_layout
+
+\begin_layout Standard
+If you want all these features, I recommend rsyslog, a excellent syslog
+ daemon implementation.
+ It is a independent process receives logs from other process or machines,
+ and parse and store logs.
+ Still, it has a distance from user application.
+\end_layout
+
+\begin_layout Standard
+Now user-defined output is support by zlog.
+ People just need to implement one ouput function, to transfer log to other
+ process or other machine.
+ And leave work of category matching and log format to zlog library.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Chapter
+Hello World
+\end_layout
+
+\begin_layout Section
+Build and Installation zlog
+\end_layout
+
+\begin_layout Standard
+Download:
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout LyX-Code
+$ tar -zxvf zlog-latest-stable.tar.gz
+\end_layout
+
+\begin_layout LyX-Code
+$ cd zlog-1.0.x/
+\end_layout
+
+\begin_layout LyX-Code
+$ ./configure --prefix=[where u wanna install it] 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+      --enable-test 
+\end_layout
+
+\begin_layout LyX-Code
+$ make 
+\end_layout
+
+\begin_layout LyX-Code
+$ sudo make install
+\end_layout
+
+\begin_layout Standard
+If --enable-test is used, then all the test program under test directory
+ will be built.
+ These are also good example codes which show how to use zlog.
+\end_layout
+
+\begin_layout LyX-Code
+# add one line
+\end_layout
+
+\begin_layout LyX-Code
+$ sudo vi /etc/ld.so.conf
+\end_layout
+
+\begin_layout LyX-Code
+/usr/local/lib
+\end_layout
+
+\begin_layout LyX-Code
+$ sudo ldconfig
+\end_layout
+
+\begin_layout Standard
+Before running a real program, make sure libzlog.so is in the directory where
+ the system's dynamic lib loader can find it.
+ The command metioned above is for linux.
+ Other system should find its own way.
+\end_layout
+
+\begin_layout Itemize
+For developer of zlog library.
+ If zlog is built in other path other than source path(parallel building),
+ you need to copy all configure file to build path by hand, to run test
+ program successfully.
+ Otherwise, test program can not find its configure file.
+\end_layout
+
+\begin_layout LyX-Code
+$ cp $(top_srcdir)/test/*.conf $(top_builddir)/test/
+\end_layout
+
+\begin_layout LyX-Code
+$ cd $(top_builddir)/test/
+\end_layout
+
+\begin_layout LyX-Code
+$ ./test_hello
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout Itemize
+For developer of zlog library.
+ If zlog is downloaded from github, there will be no configure shell.
+ It is generated from configure.ac by auto tools.
+ You need autoconf, automake in your environment.
+\end_layout
+
+\begin_layout LyX-Code
+$ git clone git@github.com:HardySimpson/zlog.git
+\end_layout
+
+\begin_layout LyX-Code
+unzip it..
+\end_layout
+
+\begin_layout LyX-Code
+$ cd zlog
+\end_layout
+
+\begin_layout LyX-Code
+$ ./autogen.sh
+\end_layout
+
+\begin_layout Standard
+Then configure is generated and next steps is the same as begin of this
+ section.
+\end_layout
+
+\begin_layout Section
+Call and Link zlog in User's application 
+\end_layout
+
+\begin_layout Standard
+To use zlog, only add one line below in source c file or cpp file.
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout Standard
+If your system has pkgconfig then you can just add this to your makefile
+\end_layout
+
+\begin_layout LyX-Code
+CFLAGS += $(shell pkg-config --cflags zlog)
+\end_layout
+
+\begin_layout LyX-Code
+LDFLAGS += $(shell pkg-config --libs zlog)
+\end_layout
+
+\begin_layout Standard
+If has not, the hand-made link command is
+\end_layout
+
+\begin_layout LyX-Code
+$ cc -c -o app.o app.c -I/usr/local/include
+\end_layout
+
+\begin_layout LyX-Code
+    # -I[where zlog.h is put]
+\end_layout
+
+\begin_layout LyX-Code
+$ cc -o app app.o -L/usr/local/lib -lzlog -lpthread
+\end_layout
+
+\begin_layout LyX-Code
+    # -L[where libzlog.so]
+\end_layout
+
+\begin_layout Section
+Hello World Example
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Hello-World-Example"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This example can be found in $(top_builddir)/test/test_hello.c, test_hello.conf
+\end_layout
+
+\begin_layout Enumerate
+write a new c source file:
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ vi test_hello.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h> 
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *c;
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+rc = zlog_init("test_hello.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!c) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+write a configure file in the same path as test_hello.c:
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ vi test_hello.conf
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG    >stdout; simple
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+compile and run it!
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cc -c -o test_hello.o test_hello.c -I/usr/local/include
+\end_layout
+
+\begin_layout LyX-Code
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+\end_layout
+
+\begin_layout LyX-Code
+$ ./test_hello
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Simpler Hello World Example
+\end_layout
+
+\begin_layout Standard
+This example can be found in $(top_builddir)/test/test_default.c, test_default.con
+f.
+ The source code is 
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+rc = dzlog_init("test_default.conf", "my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_INFO("hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\begin_layout Standard
+The configure file test_default.conf equals test_hello.conf, and the output
+ of test_default equals test_hello.
+ The difference is, test_default use dzlog API, which has a default 
+\emph on
+zlog_cateogy_t
+\emph default
+ inside and easy for use.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:dzlog-API"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Chapter
+Syslog model
+\end_layout
+
+\begin_layout Section
+Category, Rule and Format
+\end_layout
+
+\begin_layout Standard
+In zlog, There are 3 important concepts: category, rule and format.
+\end_layout
+
+\begin_layout Standard
+Category is designed for different input.
+ In source code category is a (zlog_cateogory_t *) variable.
+ In program, get different category for log will distinguish them from each
+ other.
+\end_layout
+
+\begin_layout Standard
+Format describes detail log pattern, like with or without time stamp, source
+ file, source line.
+\end_layout
+
+\begin_layout Standard
+Rule consists of category, level, output file(or other channel) and format.
+ In brief, if category string in rule of configure file equals the name
+ of category variable in source, they match.
+\end_layout
+
+\begin_layout Standard
+So when excute this sentence in source file
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *c;
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout Standard
+zlog library will find the name of c is "my_cat", which has one rule in
+ configure file.
+ That is
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG    >stdout; simple
+\end_layout
+
+\begin_layout Standard
+Then library will check if level is right to decide whether the log will
+ be output or not.
+ As INFO>=DEBUG.
+ So log will be output, and as the rule said, it will be output to stdout(standa
+rd output) in the format of simple, which described above
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n" 
+\end_layout
+
+\begin_layout Standard
+At last show in screen
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout Standard
+That's the whole story.
+ The only thing user need to do is writing message.
+ Where the log will be output, or in which format, is done by zlog library.
+\end_layout
+
+\begin_layout Section
+The difference between syslog model and log4j model
+\end_layout
+
+\begin_layout Standard
+OK, then, Does it have anything to do with syslog? Till Now, the model is
+ more like log4j.
+ As in log4j, there are concepts of logger, appender and layout.
+ The difference is, in log4j, each logger in source code must corresponds
+ to one logger in configure file, and just has one definite level.
+ One-to-one relationship is the only choice for log4j, log4cxx, log4cpp,
+ log4cplus log4net and etc...
+\end_layout
+
+\begin_layout Standard
+But log4j model is NOT flexible, they invent filters to make up for it,
+ and that make things more worse.
+ So let's get back to syslog model, which is designed excellently.
+\end_layout
+
+\begin_layout Standard
+Continue our example in last section.
+ If in the zlog configure file, there are 2 rules:
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG     >stdout; simple
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.INFO      >stdout;
+\end_layout
+
+\begin_layout Standard
+Then they will generate 2 log to stdout:
+\end_layout
+
+\begin_layout LyX-Code
+hello, zlog
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 INFO [11288:test_hello.c:41] hello, zlog
+\end_layout
+
+\begin_layout Standard
+Now one category in source code corresponds to two rules in configure file.
+ Maybe log4j's user will say, "That's good, but 2 appender for one logger
+ will do the same thing".
+ So, Let's see the next example of configure file:
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.WARN     "/var/log/aa.log"
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.DEBUG    "/var/log/bb.log"
+\end_layout
+
+\begin_layout Standard
+And the source code is:
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "info, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_DEBUG(c, "debug, zlog");
+\end_layout
+
+\begin_layout Standard
+Then, in aa.log, there is just one log
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 INFO [11288:test_hello.c:41] info, zlog
+\end_layout
+
+\begin_layout Standard
+But in bb.log, there will be two
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 INFO [11288:test_hello.c:41] info, zlog
+\end_layout
+
+\begin_layout LyX-Code
+2012-05-29 10:41:36 DEBUG [11288:test_hello.c:42] debug, zlog
+\end_layout
+
+\begin_layout Standard
+From this example, you can find the difference.
+ Log4j can not do it easily.
+ In zlog, one category may correspond to mutiple rules, and each rules can
+ have different level and different output and different format.
+ That gives user a easy, clear way to filter and multi-ouput all his logs
+ on demand.
+\end_layout
+
+\begin_layout Section
+Expand syslog model
+\end_layout
+
+\begin_layout Standard
+At last you can see, category in zlog is more like facility in syslog.
+ Unfortunately, facility in sylog is a int, and the value of facility must
+ be chose from a few system-defined range.
+ zlog do it better, make it a variable which comes from a string.
+\end_layout
+
+\begin_layout Standard
+In syslog, there is a special wildcards "*", matches all facility.
+ It does the same thing in zlog.
+ "*" matches all categories.
+ That a convenient way to make all error comes from multipule compoments
+ in your system redirect to one log file.
+ Just write in configure file like this:
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+*.error    "/var/log/error.log"
+\end_layout
+
+\begin_layout Standard
+The exciting and unique feature of zlog is, sub-category matching.
+ If in your source code is this:
+\end_layout
+
+\begin_layout LyX-Code
+c = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout Standard
+And in configure file, the rules is
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*      "/var/log/my_cat.log"
+\end_layout
+
+\begin_layout LyX-Code
+my_.NOTICE    "/var/log/my.log"
+\end_layout
+
+\begin_layout Standard
+This 2 rules both matches category "c" with the name "my_cat".
+ The wildcard "_" is the way to represent super category.
+ "my_" is a super category to "my_cat" and "my_dog".
+ There is also another wildcard "!".
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Category-Matching"
+
+\end_inset
+
+ for more detail.
+\end_layout
+
+\begin_layout Chapter
+Configure File
+\end_layout
+
+\begin_layout Standard
+Most actions of zlog library are dependent upon configure file: where to
+ output the log, how log is rotate, the output format, etc...
+ Configure File is a special language tells how library works.
+ I design it as clear as I can.
+ Here is a example of zlog.conf:
+\end_layout
+
+\begin_layout LyX-Code
+# comments
+\end_layout
+
+\begin_layout LyX-Code
+[global]
+\end_layout
+
+\begin_layout LyX-Code
+strict init = true
+\end_layout
+
+\begin_layout LyX-Code
+reload conf period = 1M
+\end_layout
+
+\begin_layout LyX-Code
+buffer min = 1024
+\end_layout
+
+\begin_layout LyX-Code
+buffer max = 2MB
+\end_layout
+
+\begin_layout LyX-Code
+rotate lock file = /tmp/zlog.lock
+\end_layout
+
+\begin_layout LyX-Code
+default format = "%D.%ms %-6P (%c:%F:%L) - %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+file perms = 600
+\end_layout
+
+\begin_layout LyX-Code
+fsync period = 1K
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+[levels]
+\end_layout
+
+\begin_layout LyX-Code
+TRACE = 10
+\end_layout
+
+\begin_layout LyX-Code
+CRIT = 130, LOG_CRIT
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+normal = "%d(%F %T) %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+default.*               >stdout; simple
+\end_layout
+
+\begin_layout LyX-Code
+*.*                     "%12.2E(HOME)/log/%c.log", 1MB*12; simple
+\end_layout
+
+\begin_layout LyX-Code
+my_.INFO                >stderr;
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.!ERROR           "/var/log/aa.log"
+\end_layout
+
+\begin_layout LyX-Code
+my_dog.=DEBUG           >syslog, LOG_LOCAL0; simple
+\end_layout
+
+\begin_layout LyX-Code
+my_mice.*               $user_define;
+\end_layout
+
+\begin_layout Standard
+Note on units: when memory size or large number is needed, it is possible
+ to specify it in the usual form of 1k 5GB 4M and so forth:
+\end_layout
+
+\begin_layout LyX-Code
+# 1k => 1000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1kb => 1024 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1m => 1000000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1mb => 1024*1024 bytes
+\end_layout
+
+\begin_layout LyX-Code
+# 1g => 1000000000 bytes 
+\end_layout
+
+\begin_layout LyX-Code
+# 1gb => 1024*1024*1024 byte
+\end_layout
+
+\begin_layout Standard
+units are case insensitive so 1GB 1Gb 1gB are all the same.
+\end_layout
+
+\begin_layout Section
+Global
+\end_layout
+
+\begin_layout Standard
+Global section begins with [global].
+ [] means a section's beginning, and the order of sections must be unchanged,
+ follow the global-levels-formats-rules.
+ This section can be ommit.The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(key) = (value)
+\end_layout
+
+\begin_layout Itemize
+strict init
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+If "strict init" is true, zlog_init() will check sytnax of all formats and
+ rules strictly, and any error will cause zlog_init() failed and return
+ -1.
+ When "strict init" is false, zlog_init() will omit error syntax of formats
+ and rules.
+ The default is true.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+reload conf period
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+This parameter supports zlog libraray reload configure file automaticlly
+ after a period, which is measured by number of log times per process.
+ When the number reaches the value, it calls zlog_reload() internally.
+ The number is reset to zero at the last zlog_reload() or zlog_init().
+ As zlog_reload() is atomic, when zlog_reload() fails, zlog still run with
+ the current configure.
+ So automaticlly reloading configure is safe.
+ The defualt is 0, which means never reload automaticlly.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+buffer min
+\end_layout
+
+\begin_layout Itemize
+buffer max
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog allocates a log buffer in each thread.
+ "buffer min" indicates size of buffer malloced at init time.
+ While loging, if one single log's content size is longer than buffer size
+ now, zlog will expand buffer automaticly till "buffer max".
+ Then, If the size is still longer than "buffer max", the log content will
+ be truncated.
+ If "buffer max" is 0, it means buffer size is unlimited, and each time
+ zlog will expand buffer twice its size, till process use up all it's memory.
+ The value of these 2 parameter can append with unit KB, MB or GB suffix,
+ so 1024 equals 1KB.
+ Default, "buffer min" is 1K and "buffer max" is 2MB.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+rotate lock file
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+This specifies a lock file for rotate a log safely between multi-process.
+ zlog will open the file at zlog_init() with the premisson of read-write.
+ The pseudo-code of rotating a log file is:
+\end_layout
+
+\begin_layout LyX-Code
+write(log_file, a_log)
+\end_layout
+
+\begin_layout LyX-Code
+if (log_file > 1M) 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+if (pthread_mutex_lock succ && fcntl_lock(lock_file) succ) 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+if (log_file > 1M) rotate(log_file);
+\end_layout
+
+\begin_layout LyX-Code
+fcntl_unlock(lock_file);
+\end_layout
+
+\begin_layout LyX-Code
+pthread_mutex_unlock;
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Standard
+mutex_lock is for multi-thread and fcntl_lock is for multi-process.
+ fcntl_lock is the POSIX advisory record locking.
+ See man 3 fcntl for details.
+ The lock is system-wide, and when a process died unexpected unexpectedly,
+ operating system release all lock owned by the process.
+ That's why I chose fcntl lock for rotating log safely.
+ Process need read-write permisson of lock_file to lock it.
+\end_layout
+
+\begin_layout Standard
+By default, rotate lock file = self.
+ In this way, zlog do not create any lock file and set the configure file
+ as the lock file.
+ As fcntl is advisory, it does not really forbid people to change and store
+ his configure file.
+ Generally speaking, one log file will not be rotated by processes run by
+ different operating system user, so using configure file as lock file is
+ safe.
+\end_layout
+
+\begin_layout Standard
+If you chose other path as lock file, for example, /tmp/zlog.lock, zlog will
+ create it at zlog_init().
+ Make sure your program has permission to create and read-write the file.
+ If processes run by different operating system users who need to write
+ and rotater the same log file, make sure that each program has permission
+ to create and read-write the same lock file.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+default format
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+This parameter is used by rules without format specified.
+ The default is
+\end_layout
+
+\begin_layout LyX-Code
+"%D %V [%p:%F:%L] %m%n"
+\end_layout
+
+\begin_layout Standard
+It will yield output like this:
+\end_layout
+
+\begin_layout LyX-Code
+2012-02-14 17:03:12 INFO [3758:test_hello.c:39] hello, zlog
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+file perms
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+This specifies all log file permission when they are created.
+ Note that it is affect by user's umask.
+ The final file permission will be "file perms" & ~umask.
+ The default is 600, which just allowed user read and write.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+fsync period
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+After a number of log times per rule(to file only), zlog will call fsync(3)
+ after write() to tells the Operating System to actually write data on disk
+ immediately.
+ The number is counted by each rule and will be reset to 0 after zlog_reload().
+ Note that when the file's path is dynamic generated or is rotated, zlog
+ do not guarantee fsync() hit all files.
+ It just fsync() the file descriptor that has been write() to at the boundary
+ time.
+ It offers a balance between speed and data safety.
+ A example:
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m1.806s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m3.060s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.270s
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ wc -l press.log  
+\end_layout
+
+\begin_layout LyX-Code
+1000000 press.log  
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000 #fsync period = 1K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m41.995s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m7.920s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.990s
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 1 10 100000 #fsync period = 10K
+\end_layout
+
+\begin_layout LyX-Code
+real	0m6.856s 
+\end_layout
+
+\begin_layout LyX-Code
+user	0m4.360s 
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m0.550s
+\end_layout
+
+\begin_layout Standard
+If you want extreme safety but not care about speed, using synchronous I/O
+ file, see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "ite:synchronous-I/O-file"
+
+\end_inset
+
+.The defualt is 0, which means let the operating system flush the output
+ buffer when it wants.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Section
+Level
+\end_layout
+
+\begin_layout Standard
+This section begins with [levels], which make user can defined his own levels,
+ and suggest to be used with user-defined macros in source file.
+ This section can be ommit.
+\end_layout
+
+\begin_layout Standard
+The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(level string) = (level int), (syslog level, optional)
+\end_layout
+
+\begin_layout Standard
+level int should in [1,253], more larger, more important.
+ syslog level is optional, if not set, use LOG_DEBUG
+\end_layout
+
+\begin_layout Standard
+see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:User-defined-Level"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Section
+Formats
+\end_layout
+
+\begin_layout Standard
+This section begins with [formats], where user defined its prefer log pattern.
+ The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(name) = "(actual formats)"
+\end_layout
+
+\begin_layout Standard
+It is easy to understand, (name) will be use in the next section [rules].
+ The (name) of format must made up of letters and digits.
+ The underscore "_" counts as a letter.
+ The (actual format) should be put into to double quotes.
+ It can be built up with conversion patterns, as describled below.
+\end_layout
+
+\begin_layout Section
+Conversion pattern
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Conversion-pattern"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The conversion pattern is closely related to the conversion pattern of the
+ printf function in C.
+ A conversion pattern is composed of literal text and format control expressions
+ called conversion specifiers.
+\end_layout
+
+\begin_layout Standard
+Conversion pattern is used in both filepath of rule and pattern of format.
+\end_layout
+
+\begin_layout Standard
+You are free to insert any literal text within the conversion pattern.
+\end_layout
+
+\begin_layout Standard
+Each conversion specifier starts with a percent sign (%) and is followed
+ by optional format modifiers and a conversion character.
+ The conversion character specifies the type of data, e.g.
+ category, level, date, thread id.
+ The format modifiers control such things as field width, padding, left
+ and right justification.
+ The following is a simple example.
+\end_layout
+
+\begin_layout Standard
+Let the conversion pattern be
+\end_layout
+
+\begin_layout LyX-Code
+"%d(%m-%d %T) %-5P [%p:%F:%L] %m%n".
+\end_layout
+
+\begin_layout Standard
+Then the statements
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(c, "hello, zlog");
+\end_layout
+
+\begin_layout Standard
+would yield the output
+\end_layout
+
+\begin_layout LyX-Code
+02-14 17:17:42 INFO  [4935:test_hello.c:39] hello, zlog
+\end_layout
+
+\begin_layout Standard
+Note that there is no explicit separator between text and conversion specifiers.
+ The pattern parser knows when it has reached the end of a conversion specifier
+ when it reads a conversion character.
+ In the example above the conversion specifier %-5p means the level of the
+ logging event should be left justified to a width of five characters.
+ 
+\end_layout
+
+\begin_layout Subsection
+Conversion Characters
+\end_layout
+
+\begin_layout Standard
+The recognized conversion characters are
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="21" columns="3">
+<features islongtable="true" longtabularalignment="center">
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="left" valignment="top" width="50text%">
+<column alignment="left" valignment="top" width="40text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+conversion char
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+effect
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+example
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the category of the logging event.
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_bb
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%d
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the date of the logging event.
+ The date conversion specifier may be followed by a date format specifier
+ enclosed between parenthesis.
+ For example, %d(%F) or %d(%m-%d %T).
+ If no date format specifier is given then %d(%F %T) format is assumed.
+ The date format specifier admits the same syntax as the strftime(3).
+ see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Time-Character"
+
+\end_inset
+
+for more detail.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%d(%F) 2011-12-01
+\end_layout
+
+\begin_layout Plain Layout
+%d(%m-%d %T) 12-01 17:17:42
+\end_layout
+
+\begin_layout Plain Layout
+%d(%T.ms) 17:17:42.035
+\end_layout
+
+\begin_layout Plain Layout
+%d 2012-02-14 17:03:12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%D
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %d(%F %T), but faster
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012-02-14 17:03:12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%ms
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The millisecond, 3-digit integer string
+\end_layout
+
+\begin_layout Plain Layout
+comes from gettimeofday(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+013
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%us
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The microsecond, 6-digit integer string
+\end_layout
+
+\begin_layout Plain Layout
+comes from gettimeofday(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+002323
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%F
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the file name where the logging request was issued.
+ The file name comes from __FILE__ macro.
+ Some compiler take __FILE__ as the absolute path.
+ Use $f to strip path and remain file name.
+ Or complier has option to switch.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+test_hello.c
+\end_layout
+
+\begin_layout Plain Layout
+or, under some compiler
+\end_layout
+
+\begin_layout Plain Layout
+/home/zlog/src/test/test_hello.c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%f
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the source file name, the string after the last '/' of $F.
+ It will cause a little performance loss in each log event.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+test_hello.c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%H
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the hostname of system, which is from gethostname(2)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+zlog-dev
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%L
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the line number from where the logging request was issued,
+ which comes from __LINE__ macro
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+135
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%m
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the application supplied message associated with the logging
+ event.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+hello, zlog
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%M
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the MDC (mapped diagnostic context) associated with the thread
+ that generated the logging event.
+ The M conversion character must be followed by the key for the map placed
+ between parenthesis, as in %M(clientNumber) where clientNumber is the key.
+ The value in the MDC corresponding to the key will be output.See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:MDC"
+
+\end_inset
+
+ for more detail.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%M(clientNumber) 12345
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%n
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Outputs unix newline character, I do not support windows line separator
+ now.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\backslash
+n
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%p
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the id of the process that generated the logging event, which
+ comes from getpid().
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2134
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%U
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the funtion name where the logging request was issued.
+ It comes from __func__(C99) or __FUNCION__(gcc) macro, with the support
+ of complier.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+main
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%V
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the level of the logging event, capital.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+INFO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%v
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the level of the logging event, lowercase.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+info
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the hexadecimal form of the thread id that generated the
+ logging event, which comes from pthread_self().
+\end_layout
+
+\begin_layout Plain Layout
+"0x%x",(unsigned int) pthread_t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0xba01e700
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%T
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %t, but the long form
+\end_layout
+
+\begin_layout Plain Layout
+"%lu", (unsigned long) pthread_t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+140633234859776
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+the sequence %% outputs a single percent sign.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%[other char]
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+parse as a wrong syntax, will cause zlog_init() fail
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Format Modifier 
+\end_layout
+
+\begin_layout Standard
+By default the relevant information is output as is.
+ However, with the aid of format modifiers it is possible to change the
+ minimum field width, the maximum field width and justification.
+ It will cause a little performance loss in each log event.
+\end_layout
+
+\begin_layout Standard
+The optional format modifier is placed between the percent sign and the
+ conversion character.
+\end_layout
+
+\begin_layout Standard
+The first optional format modifier is the left justification flag which
+ is just the minus (-) character.
+ Then comes the optional minimum field width modifier.
+ This is a decimal constant that represents the minimum number of characters
+ to output.
+ If the data item requires fewer characters, it is padded on either the
+ left or the right until the minimum width is reached.
+ The default is to pad on the left (right justify) but you can specify right
+ padding with the left justification flag.
+ The padding character is space.
+ If the data item is larger than the minimum field width, the field is expanded
+ to accommodate the data.
+ The value is never truncated.
+\end_layout
+
+\begin_layout Standard
+This behavior can be changed using the maximum field width modifier which
+ is designated by a period followed by a decimal constant.
+ If the data item is longer than the maximum field, then the extra characters
+ are removed from the beginning of the data item and not from the end.
+ For example, it the maximum field width is eight and the data item is ten
+ characters long, then the last two characters of the data item are dropped.
+ This behavior equals the printf function in C where truncation is done
+ from the end.
+\end_layout
+
+\begin_layout Standard
+Below are various format modifier examples for the category conversion specifier.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="6" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="9text%">
+<column alignment="center" valignment="top" width="8text%">
+<column alignment="center" valignment="top" width="8text%">
+<column alignment="center" valignment="top" width="8text%">
+<column alignment="center" valignment="top" width="60text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+format modifier
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+left justify
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+minimum width
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+maximum width
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+comment
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%20c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+false
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Left pad with spaces if the category name is less than 20 characters long.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%-20c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+true
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Right pad with spaces if the category name is less than 20 characters long.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%.30c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Truncate from the end if the category name is longer than 30 characters.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%20.30c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+false
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Left pad with spaces if the category name is shorter than 20 characters.
+ However, if category name is longer than 30 characters, then truncate from
+ the end.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%-20.30c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+true
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+30
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Right pad with spaces if the category name is shorter than 20 characters.
+ However, if category name is longer than 30 characters, then truncate from
+ the end.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Time Character
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Time-Character"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here is the Time Character support by Conversion Character 
+\emph on
+d.
+
+\emph default
+ 
+\end_layout
+
+\begin_layout Standard
+All Character is supported by strftime(3) in library.
+ The Character support on my linux system are
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="42" columns="3">
+<features islongtable="true" longtabularalignment="center">
+<column alignment="center" valignment="top" width="10text%">
+<column alignment="left" valignment="top" width="60text%">
+<column alignment="left" valignment="top" width="20text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+character
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+effect
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+example
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The abbreviated weekday name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wed
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%A
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The full weekday name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Wednesday
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The abbreviated month name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mar
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%B
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The full month name according to the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+March
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The preferred date and time representation for the current locale.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Thu Feb 16 14:16:35 2012
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The century number (year/100) as a 2-digit integer.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%d
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the month as a decimal number (range 01 to 31).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+06
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%D
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %m/%d/%y.
+ (Yecch — for Americans only.
+ Americans should note that in other countries %d/%m/%y is rather common.
+ This means that in international context this format is ambiguous and should
+ not be used.) (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02/16/12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%e
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like %d, the day of the month as a decimal number, but a leading zero is
+ replaced by a space.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%F
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %Y-%m-%d (the ISO 8601 date format).
+ (C99) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012-02-16
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%G
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The ISO 8601 week-based year (see NOTES) with century as a decimal number.
+ The 4-digit year corre‐ sponding to the ISO week number (see %V).
+ This has the same format and value as %Y, except that if the ISO week number
+ belongs to the previous or next year, that year is used instead.
+ (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%g
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like %G, but without century, that is, with a 2-digit year (00-99).
+ (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%h
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Equivalent to %b.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Feb
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%H
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour as a decimal number using a 24-hour clock (range 00 to 23).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+14
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%I
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour as a decimal number using a 12-hour clock (range 01 to 12).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%j
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the year as a decimal number (range 001 to 366).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+047
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%k
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour (24-hour clock) as a decimal number (range 0 to 23); single digits
+ are preceded by a blank.
+ (See also %H.) (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%l
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The hour (12-hour clock) as a decimal number (range 1 to 12); single digits
+ are preceded by a blank.
+ (See also %I.) (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%m
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The month as a decimal number (range 01 to 12).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%M
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The minute as a decimal number (range 00 to 59).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%n
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A newline character.
+ (SU) 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\backslash
+n
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%p
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Either "AM" or "PM" according to the given time value, or the corresponding
+ strings for the current locale.
+ Noon is treated as "PM" and midnight as "AM".
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PM
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like %p but in lowercase: "am" or "pm" or a corresponding string for the
+ current locale.
+ (GNU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pm
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%r
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time in a.m.
+ or p.m.
+ notation.
+ In the POSIX locale this is equivalent to %I:%M:%S %p.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+03:11:54 PM
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%R
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time in 24-hour notation (%H:%M).
+ (SU) For a version including the seconds, see %T below.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:11
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%s
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00
+ UTC.
+ (TZ)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1329376487
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%S
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The second as a decimal number (range 00 to 60).
+ (The range is up to 60 to allow for occasional leap seconds.)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+54
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A tab character.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%T
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time in 24-hour notation (%H:%M:%S).
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:14:47
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%u
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the week as a decimal, range 1 to 7, Monday being 1.
+ See also %w.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%U
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The week number of the current year as a decimal number, range 00 to 53,
+ starting with the first Sun‐ day as the first day of week 01.
+ See also %V and %W.
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+07
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%V
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The ISO 8601 week number (see NOTES) of the current year as a decimal number,
+ range 01 to 53, where week 1 is the first week that has at least 4 days
+ in the new year.
+ See also %U and %W.
+ (SU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+07
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%w
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The day of the week as a decimal, range 0 to 6, Sunday being 0.
+ See also %u.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%W
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The week number of the current year as a decimal number, range 00 to 53,
+ starting with the first Mon‐ day as the first day of week 01.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+07
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%x
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The preferred date representation for the current locale without the time.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+02/16/12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%X
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The preferred time representation for the current locale without the date.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+15:14:47
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%y
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The year as a decimal number without a century (range 00 to 99).
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%Y
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The year as a decimal number including the century.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2012
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%z
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The time-zone as hour offset from GMT.
+ Required to emit RFC 822-conformant dates (using "%a, %d %b %Y %H:%M:%S
+ %z").
+ (GNU)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
++0800
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%Z
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The timezone or name or abbreviation.
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CST
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%%
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A literal '%' character.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Section
+Rules
+\end_layout
+
+\begin_layout Standard
+This section begins with [rules].
+ It decide how log actions are filtered, formated and output.
+ This section can be omit, too, but there will be no log output anymore,
+ hehe.
+ The syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(category).(level)    (output), (option,optional); (format name, optional)
+\end_layout
+
+\begin_layout Standard
+When zlog_init() is called, all rules will be read to memory.
+ When zlog_get_category() is called, mutiple rules will be assigned to each
+ category, in the way 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Category-Matching"
+
+\end_inset
+
+ describe.
+ When do the real logging, as ZLOG_INFO() is called, the level between matches
+ rules and INFO will be checked and decide whether this single log will
+ be output through the rule.
+ When zlog_reload() is called, configure file will be re-read to memory,
+ include rules.
+ And all category's rule will be re-caculated.
+\end_layout
+
+\begin_layout Subsection
+Level Matching
+\end_layout
+
+\begin_layout Standard
+There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
+ "ERROR" and "FATAL".
+ As all other log library, aa.DEBUG means all log of level that is greater
+ than or equals to DEBUG will be output.
+ Still, there are more expressions.
+ Levels in configure file are case insensitive, both capital or lowercase
+ is accepted.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+example expression
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+all [source level]
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.debug
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source level]>=debug
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.=debug
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source level]==debug
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.!debug
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+[source level]!=debug
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+User can define his own level, see
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:User-defined-Level"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Category Matching
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Category-Matching"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+Category Matching is simple.
+ The name of category is made up of letters and digits.
+ The underscore "_"counts as a letter.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="4">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="20text%">
+<column alignment="left" valignment="top" width="15col%">
+<column alignment="left" valignment="top" width="25col%">
+<column alignment="left" valignment="top" width="20col%">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+summarize
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category string from configure file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category matches
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+category not matches
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+* matches all
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+*.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa, aa_bb, aa_cc, xx, yy ...
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NONE
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+string end with underline matches super-category and sub-categories 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa, aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+xx, yy
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+string not end with underline accurately matches category 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa_bb, aa_cc, aa_bb_cc
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+! matches category that has no rule matched
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+!.*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+xx
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+aa(as it matches rules above)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Output Action
+\end_layout
+
+\begin_layout Standard
+Now, zlog supports some ways of output, the syntax is
+\end_layout
+
+\begin_layout LyX-Code
+(output action), (output option); (format name, optional)
+\end_layout
+
+\begin_layout Standard
+\begin_inset Tabular
+<lyxtabular version="3" rows="7" columns="3">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top" width="30text%">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output action
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+output option
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to standard out
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>stdout
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to standard error
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>stderr
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+no meaning
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to syslog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+>syslog
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
+\end_layout
+
+\begin_layout Plain Layout
+This is not optional.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+to file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+"(file path)"
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+file limitation, can be:
+\end_layout
+
+\begin_layout Plain Layout
+1000, 1k, 2M, 1G...
+\end_layout
+
+\begin_layout Plain Layout
+3m*2, 4k*3...
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+synchronous I/O file
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-"(file path)"
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+user-defined output
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+$name
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+param of record function
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+stdout, stderr, syslog
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+As table describes, only syslog's output option is meaningful and must be
+ set.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+file
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+file path
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+can be absolute file path or relative file path.
+ It is quoted by double quotation marks.
+ 
+\emph on
+Conversion pattern
+\emph default
+ can be used in file path.
+ If the file path is "%E(HOME)/log/out.log" and the program' environment
+ $HOME is /home/harry, then the log file will be /home/harry/log/output.log
+ at last.
+ See 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Conversion-pattern"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Standard
+file of zlog is powerful, for example
+\end_layout
+
+\begin_layout Enumerate
+output to named pipe(FIFO), must create by mkfifo(1) before use
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*   "/tmp/pipefile"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+output to null, not do anythin at all
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*    "/dev/null"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+output to each tid a log, on the directory where process running
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "%T.log"
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+output to file with pid name, every day, in $HOME/log directory, rotate
+ log at 1GB, keep 5 log files
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+*.*     "%E(HOME)/log/aa.%p.%d(%F).log",1GB * 5
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+each category of aa_ super category, output log with category name
+\end_layout
+
+\begin_layout LyX-Code
+aa_.*      "/var/log/%c.log"
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+rotate action 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+controls log file size and count.
+ zlog rotate log file when the file is too large by this value.
+ Let the action is
+\end_layout
+
+\begin_layout LyX-Code
+"%E(HOME)/log/out.log",1M*3
+\end_layout
+
+\begin_layout Standard
+After a out.log is filled by programs to 1M, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create) 
+\end_layout
+
+\begin_layout Standard
+If the new log is full again, the rotation is
+\end_layout
+
+\begin_layout LyX-Code
+out.log.1 -> out.log.2
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create)
+\end_layout
+
+\begin_layout Standard
+The next time rotation will delete the oldest log, as *3 means just allows
+ 3 file exist
+\end_layout
+
+\begin_layout LyX-Code
+unlink(out.log.2)
+\end_layout
+
+\begin_layout LyX-Code
+out.log.1 -> out.log.2
+\end_layout
+
+\begin_layout LyX-Code
+out.log -> out.log.1
+\end_layout
+
+\begin_layout LyX-Code
+out.log(new create)
+\end_layout
+
+\begin_layout Standard
+So the oldest log has the biggest serial number.
+ If *3 is not written, it means rotation will be continue and no old log
+ will be deleted.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+synchronous I/O file
+\begin_inset CommandInset label
+LatexCommand label
+name "ite:synchronous-I/O-file"
+
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Putting a minus signe '-' set the synchronous I/O opition.
+ log file is opend with O_SYNC and every single log action will return until
+ Operation System write data to disk.
+ It is painfully slow:
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 100 1000
+\end_layout
+
+\begin_layout LyX-Code
+real	0m0.732s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m1.030s
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m1.080s
+\end_layout
+
+\begin_layout LyX-Code
+$ time ./test_press_zlog 100 1000  # synchronous I/O open
+\end_layout
+
+\begin_layout LyX-Code
+real	0m20.646s
+\end_layout
+
+\begin_layout LyX-Code
+user	0m2.570s
+\end_layout
+
+\begin_layout LyX-Code
+sys	 0m6.950s
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+format name
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+It is optional.
+ If not set, use zlog default format in global setting, which is:
+\end_layout
+
+\begin_layout LyX-Code
+[global]
+\end_layout
+
+\begin_layout LyX-Code
+default format = "%D %V [%p:%F:%L] %m%n"
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:User-defined-Output"
+
+\end_inset
+
+ for more details for $.
+\end_layout
+
+\begin_layout Section
+Configure File Tools
+\end_layout
+
+\begin_layout LyX-Code
+$ zlog-chk-conf -h 
+\end_layout
+
+\begin_layout LyX-Code
+Useage: zlog-chk-conf [conf files]...
+ 	
+\end_layout
+
+\begin_layout LyX-Code
+-q,	suppress non-error message 	
+\end_layout
+
+\begin_layout LyX-Code
+-h,	show help message
+\end_layout
+
+\begin_layout Standard
+zlog-chk-conf try to read conf files, and check their syntax, and output
+ to screen whether it is correct.
+ I suggest using this tools each time you create or change a configure file.
+ It will output like this
+\end_layout
+
+\begin_layout LyX-Code
+$ ./zlog-chk-conf zlog.conf
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:rule.c:391) sscanf [aaa] fail, category or level
+ is null 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:155) zlog_rule_new fail [aaa] 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:258) parse configure file[zlog.conf] line[126]
+ fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:306) zlog_conf_read_config fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:conf.c:366) zlog_conf_build fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:zlog.c:66) conf_file[zlog.conf], init conf fail
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-08 15:35:44 ERROR (10595:zlog.c:131) zlog_init_inner[zlog.conf] fail
+\end_layout
+
+\begin_layout LyX-Code
+  
+\end_layout
+
+\begin_layout LyX-Code
+---[zlog.conf] syntax error, see error message above
+\end_layout
+
+\begin_layout Standard
+It tells you that line 126 in you configure file, zlog.conf, is wrong, and
+ the 1st line further tells you that [aaa] is not a right rule.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout Chapter
+zlog API
+\end_layout
+
+\begin_layout Standard
+All API of zlog are thread safe.
+ To use them, just need to
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout Section
+initialize and finish
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int zlog_init(char *
+\bar under
+confpath
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_reload(char *
+\bar under
+confpath
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+void zlog_fini(void);
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog_init() read configuration from file 
+\bar under
+confpath
+\bar default
+.
+ If 
+\bar under
+confpath
+\bar default
+ is NULL, it looks environment variable ZLOG_CONF_PATH for configure file.
+ If $ZLOG_CONF_PATH is NULL also, all log will be output to stdout with
+ inner format.
+ Only the first time call zlog_init() per process is effective, other times
+ will fail and do nothing.
+\end_layout
+
+\begin_layout Standard
+zlog_reload() is designed to reload configure file.
+ From the 
+\bar under
+confpath
+\bar default
+ it re-calculate category-rule relationship, rebuild thread buffers, and
+ reset user-defined ouput function to rules.
+ It can be called at runtime when configure file is changed or using another
+ configure file.
+ It can be called unlimit times.
+ If 
+\bar under
+confpath
+\bar default
+ is NULL, it reloads the last configure file zlog_init() or zlog_reload()
+ specified.
+ If zlog_reload() failed, the current configuration in memory will remain
+ unchanged.
+ So zlog_reload() is atomic.
+\end_layout
+
+\begin_layout Standard
+zlog_fini() release all memory zlog API
+\emph on
+ 
+\emph default
+applied, close opened files.
+ It can be called unlimit times.
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success , zlog_init() and zlog_reload() return zero.
+ On error, zlog_init() and zlog_reload() return -1, and detail error log
+ will be record to a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+category operation
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+typedef struct zlog_category_s zlog_category_t;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zlog_get_category(char *
+\bar under
+cname
+\bar default
+);
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog_get_category() get a category from zlog's cateogory_table for future
+ log, if none, create it.
+ Then It goes throuh all rules in configure memory, which comes from configure
+ file, And find matched rules corresponds to 
+\bar under
+cname
+\bar default
+.
+\end_layout
+
+\begin_layout Standard
+That's how category string in rules matches 
+\bar under
+cname
+\bar default
+:
+\end_layout
+
+\begin_layout Enumerate
+* matches all 
+\bar under
+cname
+\bar default
+.
+\end_layout
+
+\begin_layout Enumerate
+category string which ends with underscore "_" matches super-category and
+ sub-categories.
+ For example, "aa_" matches 
+\bar under
+cname
+\bar default
+ like "aa", "aa_", "aa_bb", "aa_bb_cc".
+\end_layout
+
+\begin_layout Enumerate
+category string which does not ends with underscore "_"matches 
+\bar under
+cname
+\bar default
+ accurately.
+ For example, "aa_bb" matches 
+\bar under
+cname
+\bar default
+ of "aa_bb".
+\end_layout
+
+\begin_layout Enumerate
+! matches 
+\bar under
+cname
+\bar default
+ that has no rule matched.
+\end_layout
+
+\begin_layout Standard
+The rules of each category will be automaticlly re-caculate when zlog_reload()
+ is called.No need to worry about category's memory release,
+\emph on
+ 
+\emph default
+zlog_fini() will clean up at last.
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success, return the address of zlog_category_t.
+ On error, return NULL, and detail error log will be record to a log file
+ ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+log functions and macros
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+void zlog(zlog_category_t * 
+\bar under
+category
+\bar default
+, 
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+, 
+\end_layout
+
+\begin_layout LyX-Code
+          long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+format
+\bar default
+, ...); 
+\end_layout
+
+\begin_layout LyX-Code
+void vzlog(zlog_category_t * 
+\bar under
+category
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+, 
+\end_layout
+
+\begin_layout LyX-Code
+          long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+format
+\bar default
+, va_list 
+\bar under
+args
+\bar default
+); 
+\end_layout
+
+\begin_layout LyX-Code
+void hzlog(zlog_category_t * 
+\bar under
+category
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+, 
+\end_layout
+
+\begin_layout LyX-Code
+          long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+          const void *
+\bar under
+buf
+\bar default
+, size_t 
+\bar under
+buflen
+\bar default
+); 
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+These 3 functions are the real log function producing user message, which
+ corresponds to %m is configure file.
+ 
+\bar under
+category
+\bar default
+ comes from zlog_get_category() described above.
+\end_layout
+
+\begin_layout Standard
+zlog() and vzlog()
+\emph on
+ 
+\emph default
+produce output according to a 
+\bar under
+format
+\bar default
+ like printf(3) and vprintf(3).
+\end_layout
+
+\begin_layout Standard
+vzlog()
+\emph on
+ 
+\emph default
+is equivalent to zlog(), respectively, except that it is called with a va_list
+ instead of a variable number of arguments.
+ vzlog() invokes the va_copy macro, the value of 
+\bar under
+args
+\bar default
+ remain unchanged after the call.
+ See stdarg(3).
+ 
+\end_layout
+
+\begin_layout Standard
+hzlog()
+\emph on
+ 
+\emph default
+is a little different, it produce output like this, the hexadecimal representati
+on of 
+\bar under
+buf
+\emph on
+\bar default
+ 
+\emph default
+and output len is 
+\bar under
+buf_len
+\end_layout
+
+\begin_layout LyX-Code
+hex_buf_len=[5365]  
+\end_layout
+
+\begin_layout LyX-Code
+             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F      0123456789ABCDE
+F
+\end_layout
+
+\begin_layout LyX-Code
+0000000001   23 21 20 2f 62 69 6e 2f 62 61 73 68 0a 0a 23 20   #! /bin/bash..#
+\end_layout
+
+\begin_layout LyX-Code
+0000000002   74 65 73 74 5f 68 65 78 20 2d 20 74 65 6d 70 6f   test_hex
+ - tempo
+\end_layout
+
+\begin_layout LyX-Code
+0000000003   72 61 72 79 20 77 72 61 70 70 65 72 20 73 63 72   rary wrapper
+ scr
+\end_layout
+
+\begin_layout Standard
+The parameter 
+\bar under
+file
+\bar default
+ and 
+\bar under
+line
+\bar default
+ are usually filled with __FILE__ and __LINE__ macro.
+ These indicate where log event happens.
+ The parameter 
+\bar under
+func
+\bar default
+ is filled with __func__ or __FUNCTION__, if the compiler supports, otherwise
+ it will be filled with "<unkown>".
+\end_layout
+
+\begin_layout Standard
+
+\bar under
+level
+\emph on
+\bar default
+ 
+\emph default
+is a int, which usually is in
+\end_layout
+
+\begin_layout LyX-Code
+typedef enum {                 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+ZLOG_LEVEL_DEBUG = 20,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_INFO = 40,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_NOTICE = 60,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_WARN = 80,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_ERROR = 100,
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_FATAL = 120
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} zlog_level;
+\end_layout
+
+\begin_layout Standard
+Each fuction has its macros for easy use.
+ For example,
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_FATAL(cat, format, args...) 
+\backslash
+         
+\end_layout
+
+\begin_layout LyX-Code
+zlog(cat, __FILE__, sizeof(__FILE__)-1, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+__func__, sizeof(__func__)-1, __LINE__, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_LEVEL_FATAL, format, ##args) 
+\end_layout
+
+\begin_layout Standard
+The full list of macros is:
+\end_layout
+
+\begin_layout LyX-Code
+/* zlog macros */
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_FATAL(cat, format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_ERROR(cat, format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_WARN(cat, format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_NOTICE(cat, format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(cat, format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_DEBUG(cat, format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+/* vzlog macros */
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_FATAL(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_ERROR(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_WARN(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_NOTICE(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_INFO(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VZLOG_DEBUG(cat, format, args)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+/* hzlog macros */
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_FATAL(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_ERROR(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_WARN(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_NOTICE(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_INFO(cat, buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HZLOG_DEBUG(cat, buf, buf_len) 
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+These functions returns nothing.
+ But if there is anything wrong happens, detail error log will be record
+ to a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+MDC operation
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int zlog_put_mdc(char *
+\bar under
+key
+\bar default
+, char *
+\bar under
+value
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+char *zlog_get_mdc(char *
+\bar under
+key
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+void zlog_remove_mdc(char *
+\bar under
+key
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+void zlog_clean_mdc(void);
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+MDC(Mapped Diagnostic Context) is a thread key-value map, so it has nothing
+ to do with category.
+\end_layout
+
+\begin_layout Standard
+
+\bar under
+key
+\bar default
+ and 
+\bar under
+value
+\bar default
+ are all strings, which should be no longer than MAXLEN_PATH(1024).
+ If the input is longer than MAXLEN_PATH(1024), the input will be truncated.
+\end_layout
+
+\begin_layout Standard
+One thing should remeber is that the map bonds to a thread, thus in one
+ thread if you set a key-value pair will not affect other threads.
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog_put_mdc() returns 0 for success, -1 for fail.
+ zlog_get_mdc() returns poiter of 
+\bar under
+value
+\bar default
+ for success, NULL for fail or key not exist.
+ If there is anything wrong happens, detail error log will be record to
+ a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+dzlog API
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:dzlog-API"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int dzlog_init(char *
+\bar under
+confpath
+\bar default
+, char *
+\bar under
+cname
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+int dzlog_set_category(char *
+\bar under
+cname
+\bar default
+); 
+\end_layout
+
+\begin_layout LyX-Code
+void dzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+           const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+           long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+           const char *
+\bar under
+format
+\bar default
+, ...); 
+\end_layout
+
+\begin_layout LyX-Code
+void vdzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+            const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+            long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+            const char *
+\bar under
+format
+\bar default
+, va_list 
+\bar under
+args
+\bar default
+); 
+\end_layout
+
+\begin_layout LyX-Code
+void hdzlog(const char *
+\bar under
+file
+\bar default
+, size_t 
+\bar under
+filelen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+            const char *
+\bar under
+func
+\bar default
+, size_t 
+\bar under
+funclen
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+            long 
+\bar under
+line
+\bar default
+, int 
+\bar under
+level
+\bar default
+,
+\end_layout
+
+\begin_layout LyX-Code
+            const void *
+\bar under
+buf
+\bar default
+, size_t 
+\bar under
+buflen
+\bar default
+);
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+dzlog consists of some simlple fuctions that omit 
+\emph on
+zlog_category_t
+\emph default
+.
+ It use a default category inside and put the category under the protect
+ of lock.
+ It is thread safe also.
+ Omit category means that users need not to create, save, tranfer 
+\emph on
+zlog_category_t
+\emph default
+ variables.
+ Still, user can get and use other category through normal API at the same
+ time for flexibility.
+\end_layout
+
+\begin_layout Standard
+dzlog_init() is just as zlog_init(), but need a 
+\bar under
+cname
+\bar default
+ for inner default category.
+ zlog_reload() and zlog_fini() can be used as before, to refresh conf_file,
+ or release all.
+\end_layout
+
+\begin_layout Standard
+dzlog_set_category()
+\emph on
+ 
+\emph default
+is designed for change default category.
+ The last default category is instead by new one, and still don't worry
+ about memory releasing, all category will be clean up at zlog_fini().
+\end_layout
+
+\begin_layout Standard
+Macros are defined in zlog.h.
+ They are the general way in simple logging.
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_FATAL(format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_ERROR(format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_WARN(format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_NOTICE(format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_INFO(format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_DEBUG(format, ...)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_FATAL(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_ERROR(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_WARN(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_NOTICE(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_INFO(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+VDZLOG_DEBUG(format, args)
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_FATAL(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_ERROR(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_WARN(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_NOTICE(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_INFO(buf, buf_len)
+\end_layout
+
+\begin_layout LyX-Code
+HDZLOG_DEBUG(buf, buf_len)
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success , dzlog_init() and dzlog_set_category() return zero.
+ On error, dzlog_init() and dzlog_set_category() return -1, and detail error
+ log will be record to a log file ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+User-defined Output
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+typedef int (*zlog_record_fn)(char *
+\bar under
+param
+\bar default
+, char *
+\bar under
+msg
+\bar default
+, size_t 
+\bar under
+msglen
+\bar default
+);
+\end_layout
+
+\begin_layout LyX-Code
+int zlog_set_record(char *
+\bar under
+name
+\bar default
+, zlog_record_fn 
+\bar under
+record
+\bar default
+); 
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+zlog allows user defines his own output function.
+ The output function bonds to specail kind of rule in configure file.
+ A typical rule is:
+\end_layout
+
+\begin_layout LyX-Code
+*.*     $name, param; simple
+\end_layout
+
+\begin_layout Standard
+zlog_set_record() do the bonding operation.
+ rules with the $
+\bar under
+name
+\bar default
+ will be output through user-defined function 
+\bar under
+record
+\bar default
+.
+ The function has the type of zlog_record_fn.
+ 
+\bar under
+param
+\bar default
+ comes from rule.
+ 
+\bar under
+msg
+\bar default
+ and 
+\bar under
+msglen
+\bar default
+ are zlog formated log message and its length.
+\end_layout
+
+\begin_layout Standard
+All settings of zlog_set_record() keeps available after zlog_reload().
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+RETURN VALUE
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+On success, zlog_set_record() returns zero.
+ On error, it returns -1, and detail error log will be record to a log file
+ ZLOG_PROFILE_ERROR indicates.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+debug and profile
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+SYNOPSIS
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+void zlog_profile(void);
+\end_layout
+
+\end_deeper
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+DESCRIPTION
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+environment variable ZLOG_PROFILE_ERROR indicates zlog's error log path.
+\end_layout
+
+\begin_layout Standard
+environment variable ZLOG_PROFILE_DEBUG indicates zlog's debug log path.
+\end_layout
+
+\begin_layout Standard
+zlog_profile() print all information in memory to zlog's error log file
+ at runtime.
+ User can compare it to configure file, to find out possible errors.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Chapter
+Advance Using
+\end_layout
+
+\begin_layout Section
+MDC
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:MDC"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+What is MDC? In log4j it is short for Mapped Diagnostic Context.
+ That sounds like a complicate terminology.
+ MDC is just a key-value map.
+ Once you set it by function, library will print it to file every time a
+ log event happens, or become part of log file path.
+ Let's see a example in $(top_builddir)/test/test_mdc.c.
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_mdc.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdlib.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <sys/types.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <unistd.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include <string.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_layout LyX-Code
+rc = zlog_init("test_mdc.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) { 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "1.hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_put_mdc("myname", "Zhang");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "2.hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_put_mdc("myname", "Li");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "3.hello, zlog"); 
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini(); 
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\begin_layout Standard
+The configure file is
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_mdc.conf
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+mdc_format=     "%D.%ms %-6V (%c:%F:%L) [%M(myname)] - %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+*.*             >stdout; mdc_format
+\end_layout
+
+\begin_layout Standard
+And the output is
+\end_layout
+
+\begin_layout LyX-Code
+$ ./test_mdc
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:47) [] - 1.hello, zlog 
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:51) [Zhang] - 2.hello, zlog
+ 
+\end_layout
+
+\begin_layout LyX-Code
+2012-03-12 09:26:37.740 INFO   (my_cat:test_mdc.c:55) [Li] - 3.hello, zlog
+\end_layout
+
+\begin_layout Standard
+You can see zlog_put_mdc() function set the map with key "myname" and value
+ "Zhang", and in configure file 
+\emph on
+%M(myname) 
+\emph default
+indicates where the value shows in each log.
+ The second time, value of key "myname" is overwriteen to "Li", and the
+ log changes also.
+\end_layout
+
+\begin_layout Standard
+When should MDC be used? That mainly depends on when user need to seprate
+ same log action with different scenes.
+ For example, in .c
+\end_layout
+
+\begin_layout LyX-Code
+zlog_put_mdc("customer_name", get_customer_name_from_db() );
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO("get in"); 
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO("pick product"); 
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO("pay");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO("get out");
+\end_layout
+
+\begin_layout Standard
+in .conf
+\end_layout
+
+\begin_layout LyX-Code
+&format  "%M(customer_name) %m%n"
+\end_layout
+
+\begin_layout Standard
+When program process two customer at the same time, the output maybe:
+\end_layout
+
+\begin_layout LyX-Code
+Zhang get in
+\end_layout
+
+\begin_layout LyX-Code
+Li get in
+\end_layout
+
+\begin_layout LyX-Code
+Zhang pick product
+\end_layout
+
+\begin_layout LyX-Code
+Zhang pay
+\end_layout
+
+\begin_layout LyX-Code
+Li pick product
+\end_layout
+
+\begin_layout LyX-Code
+Li pay
+\end_layout
+
+\begin_layout LyX-Code
+Zhang get out
+\end_layout
+
+\begin_layout LyX-Code
+Li get out
+\end_layout
+
+\begin_layout Standard
+Now you can distinguish two one customer from another, by use grep afterwards
+\end_layout
+
+\begin_layout LyX-Code
+$ grep Zhang aa.log > Zhang.log
+\end_layout
+
+\begin_layout LyX-Code
+$ grep Li aa.log >Li.log
+\end_layout
+
+\begin_layout Standard
+Or, there is another way, sperate them to different log file when log action
+ is taken, in .conf
+\end_layout
+
+\begin_layout LyX-Code
+*.* "mdc_%M(customer_name).log";
+\end_layout
+
+\begin_layout Standard
+It will produce 3 log
+\end_layout
+
+\begin_layout LyX-Code
+mdc_.log mdc_Zhang.log mdc_Li.log
+\end_layout
+
+\begin_layout Standard
+That's a quick way, if user kown what he is doing.
+\end_layout
+
+\begin_layout Standard
+About MDC, another thing is that map belongs to thread, each thread has
+ it's own map.
+ In one thread zlog_mdc_put() will not affect other thread's map.
+ Still, if you just want to distinguish on thread from another, use %t in
+ conversion charactor is enough.
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout LyX-Code
+
+\end_layout
+
+\begin_layout Section
+Profile zlog Itself
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Profile-zlog-Itself"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+OK, till now, I suspect that zlog library never fails, it help user's applicatio
+n to write log and debug user's application.
+ But if zlog itself has some problem, how to find it out? Other program
+ debug through log library, and how can a log library debug itself? The
+ answer is the same, zlog library has its own log.
+ This profile log is usually shut down, and can be open by set environment
+ variables.
+\end_layout
+
+\begin_layout LyX-Code
+$ export ZLOG_PROFILE_DEBUG=/tmp/zlog.debug.log
+\end_layout
+
+\begin_layout LyX-Code
+$ export ZLOG_PROFILE_ERROR=/tmp/zlog.error.log
+\end_layout
+
+\begin_layout Standard
+profile log just has 2 levels, debug and error.
+ After Settion, run test_hello program in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Hello-World-Example"
+
+\end_inset
+
+, then the debug log is
+\end_layout
+
+\begin_layout LyX-Code
+$ more zlog.debug.log 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:46:56 DEBUG (7503:zlog.c:115) ------zlog_init start, compile time[Mar
+ 13 2012 11:28:56]------ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:46:56 DEBUG (7503:spec.c:825) spec:[0x7fdf96b7c010][%d(%F %T)][%F
+ %T 29][] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:46:56 DEBUG (7503:spec.c:825) spec:[0x7fdf96b52010][ ][ 0][] 
+\end_layout
+
+\begin_layout LyX-Code
+......
+\end_layout
+
+\begin_layout LyX-Code
+03-13 09:52:40 DEBUG (8139:zlog.c:291) ------zlog_fini end------
+\end_layout
+
+\begin_layout Standard
+zlog.error.log is not created, as no error occurs.
+\end_layout
+
+\begin_layout Standard
+As you can see, debug log shows how zlog is inited and finished, but no
+ debug log is writen when ZLOG_INFO() is executed.
+ That's for efficency.
+\end_layout
+
+\begin_layout Standard
+If there is anything wrong with zlog library, all will show in zlog.error.log,
+ for example, using a wrong printf syntax in zlog()
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "%l", 1);
+\end_layout
+
+\begin_layout Standard
+Then run the program, the zlog.error.log should be
+\end_layout
+
+\begin_layout LyX-Code
+$ cat zlog.error.log 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:buf.c:189) vsnprintf fail, errno[0] 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:buf.c:191) nwrite[-1], size_left[1024], format[%l]
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:spec.c:329) zlog_buf_vprintf maybe fail or overflow
+ 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:spec.c:467) a_spec->gen_buf fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:format.c:160) zlog_spec_gen_msg fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:rule.c:265) zlog_format_gen_msg fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:category.c:164) hzb_log_rule_output fail 
+\end_layout
+
+\begin_layout LyX-Code
+03-13 10:04:58 ERROR (10102:zlog.c:632) zlog_output fail, srcfile[test_hello.c],
+ srcline[41]
+\end_layout
+
+\begin_layout Standard
+Now, user could find the reason why the expect log doesn't generate, and
+ fix the wrong printf syntax.
+\end_layout
+
+\begin_layout Standard
+Runtime profile will make efficency lost.
+ Normally, I keep ZLOG_PROFILE_ERROR on and ZLOG_PROFILE_DEBUG off at my
+ environment.
+ 
+\end_layout
+
+\begin_layout Standard
+There is still another way to profile zlog libraray.
+ As we all know, zlog_init() read configure file to memory .
+ Through all log actions, the configure structure memory keeps unchanged.
+ There is possibility that this memory is damaged by other fuctions in user's
+ application, or the memory doesn't equal what configure file describes.
+ So I design a function to show this memory at runtime, print it to ZLOG_PROFILE
+_ERROR.
+\end_layout
+
+\begin_layout Standard
+see $(top_builddir)/test/test_profile.c
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_profile.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+rc = dzlog_init("test_profile.conf", "my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) { 
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+DZLOG_INFO("hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_profile();
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini(); 
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\begin_layout Standard
+zlog_profile() is the function.
+ The configure file is simple
+\end_layout
+
+\begin_layout LyX-Code
+$ cat test_profile.conf 
+\end_layout
+
+\begin_layout LyX-Code
+[formats] 
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"   
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*                >stdout; simple 
+\end_layout
+
+\begin_layout Standard
+Then zlog.error.log is
+\end_layout
+
+\begin_layout LyX-Code
+$ cat /tmp/zlog.error.log
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:zlog.c:783) ------zlog_profile start------ 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:zlog.c:784) init_flag:[1] 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:75) -conf[0x2333010]- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:76) --global-- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:77) ---file[test_profile.conf],mtime[2012-06-01
+ 11:20:44]--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:78) ---strict init[1]--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:79) ---buffer min[1024]--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:80) ---buffer max[2097152]--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:82) ---default_format--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:format.c:48) ---format[0x235ef60][default = %d(%F
+ %T) %V [%p:%F:%L] %m%n(0x233b810)]--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:85) ---file perms[0600]--- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:conf.c:87) ---rotate lock file[/tmp/zlog.lock]---
+ 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:rotater.c:48) --rotater[0x233b7d0][0x233b7d0,/tmp/zlog.
+lock,4]-- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level_list.c:37) --level_list[0x2335490]-- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x23355c0][0,*,*,1,6]---
+ 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x23375e0][20,DEBUG,debug,5,7]---
+ 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x2339600][40,INFO,info,4,6]---
+ 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x233b830][60,NOTICE,notice,6,5]-
+-- 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x233d850][80,WARN,warn,4,4]---
+ 
+\end_layout
+
+\begin_layout LyX-Code
+06-01 11:21:26 WARN  (7063:level.c:37) ---level[0x233fc80][100,ERROR,error,5,3]--
+-
+\end_layout
+
+\begin_layout Section
+User-defined Level
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:User-defined-Level"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here I write down all steps of how user define own levels.
+\end_layout
+
+\begin_layout Enumerate
+define levels in configure file.
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat $(top_builddir)/test/test_level.conf
+\end_layout
+
+\begin_layout LyX-Code
+[global]
+\end_layout
+
+\begin_layout LyX-Code
+default format  =               "%V %v %m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[levels]
+\end_layout
+
+\begin_layout LyX-Code
+TRACE = 30, LOG_DEBUG
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.TRACE            >stdout;
+\end_layout
+
+\begin_layout Standard
+The inner default levels are(no need to write them in conf file):
+\end_layout
+
+\begin_layout LyX-Code
+DEBUG = 20, LOG_DEBUG
+\end_layout
+
+\begin_layout LyX-Code
+INFO = 40, LOG_INFO
+\end_layout
+
+\begin_layout LyX-Code
+NOTICE = 60, LOG_NOTICE
+\end_layout
+
+\begin_layout LyX-Code
+WARN = 80, LOG_WARNING
+\end_layout
+
+\begin_layout LyX-Code
+ERROR = 100, LOG_ERR
+\end_layout
+
+\begin_layout LyX-Code
+FATAL = 120, LOG_ALERT
+\end_layout
+
+\begin_layout LyX-Code
+UNKNOWN = 254, LOG_ERR
+\end_layout
+
+\begin_layout Standard
+Now in zlog, a integer(30) and a level string(TRACE) represents a level.
+ Note that this integer must be in [1,253], other number is illegal.
+ More larger, more important.Now TRACE is more important than DEBUG(30>20),
+ and less important than INFO(30<40).
+ After the definition, TRACE can be used in rule of configure file.
+ This sentence
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.TRACE		>stdout; 
+\end_layout
+
+\begin_layout Standard
+means that level >= TRACE, which is TRACE, INFO, NOTICE, WARN, ERROR, FATAL
+ will be written to standard output.
+\end_layout
+
+\begin_layout Standard
+The conversion charactor %V of format string generate captial of level string
+ and %v for lowercase of level string.
+\end_layout
+
+\begin_layout Standard
+Besides, in level defination LOG_DEBUG means when use >syslog in rule, all
+ TRACE log will output as syslog' s LOG_DEBUG level.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Using the new log level in source file, the direct way is like this
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+zlog(cat, __FILE__, sizeof(__FILE__)-1, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+__func__, sizeof(__func__)-1,__LINE__, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+30, "test %d", 1);
+\end_layout
+
+\begin_layout Standard
+For easy use, create a .h file 
+\end_layout
+
+\begin_layout LyX-Code
+$ cat $(top_builddir)/test/test_level.h
+\end_layout
+
+\begin_layout LyX-Code
+#ifndef __test_level_h
+\end_layout
+
+\begin_layout LyX-Code
+#define __test_level_h
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+enum {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+ZLOG_LEVEL_TRACE = 30,
+\end_layout
+
+\begin_layout LyX-Code
+/* must equals conf file setting */ 
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+};
+\end_layout
+
+\begin_layout LyX-Code
+#define ZLOG_TRACE(cat, format, ...) 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+        zlog(cat, __FILE__, sizeof(__FILE__)-1, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+        __func__, sizeof(__func__)-1, __LINE__, 
+\backslash
+
+\end_layout
+
+\begin_layout LyX-Code
+        ZLOG_LEVEL_TRACE, format, ## __VA_ARGS__) 
+\end_layout
+
+\begin_layout LyX-Code
+#endif
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Now, ZLOG_TRACE can be used int .c file
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat $(top_builddir)/test/test_level.c
+\end_layout
+
+\begin_layout LyX-Code
+#include <stdio.h> 
+\end_layout
+
+\begin_layout LyX-Code
+#include "test_level.h"
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+rc = zlog_init("test_level.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_TRACE(zc, "hello, zlog - trace");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_DEBUG(zc, "hello, zlog - debug");
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "hello, zlog - info");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini(); 
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Now we can see the output
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ ./test_level
+\end_layout
+
+\begin_layout LyX-Code
+TRACE trace hello, zlog - trace 
+\end_layout
+
+\begin_layout LyX-Code
+INFO info hello, zlog - info 
+\end_layout
+
+\begin_layout Standard
+That's just what we expect, the configure file only allows >=TRACE ouput
+ to screen.
+ And %V and %v works well.
+\end_layout
+
+\end_deeper
+\begin_layout Section
+User-defined Output
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:User-defined-Output"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here I write down all steps of how user define own output function.
+\end_layout
+
+\begin_layout Enumerate
+defined output in rules of configure file.
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+$ cat test_record.conf
+\end_layout
+
+\begin_layout LyX-Code
+[formats]
+\end_layout
+
+\begin_layout LyX-Code
+simple = "%m%n"
+\end_layout
+
+\begin_layout LyX-Code
+[rules]
+\end_layout
+
+\begin_layout LyX-Code
+my_cat.*      $myoutput, myparam;simple
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+set a ouput function for myoutput, then using it
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+#include <stdio.h>
+\end_layout
+
+\begin_layout LyX-Code
+#include "zlog.h"
+\end_layout
+
+\begin_layout LyX-Code
+int output(char *str2, char *msg, size_t msg_len)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("[mystd]:[%s][%s][%ld]
+\backslash
+n", str2, msg, (long)msg_len);
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ 
+\end_layout
+
+\begin_layout LyX-Code
+int main(int argc, char** argv)
+\end_layout
+
+\begin_layout LyX-Code
+{
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+int rc;
+\end_layout
+
+\begin_layout LyX-Code
+zlog_category_t *zc;
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+rc = zlog_init("test_record.conf");
+\end_layout
+
+\begin_layout LyX-Code
+if (rc) {
+\end_layout
+
+\begin_layout LyX-Code
+printf("init failed
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+return -1;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+zlog_set_record("myoutput", output);
+\end_layout
+
+\begin_layout LyX-Code
+zc = zlog_get_category("my_cat");
+\end_layout
+
+\begin_layout LyX-Code
+if (!zc) {
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+printf("get cat fail
+\backslash
+n");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return -2;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+}
+\end_layout
+
+\begin_layout LyX-Code
+ZLOG_INFO(zc, "hello, zlog");
+\end_layout
+
+\begin_layout LyX-Code
+zlog_fini();
+\end_layout
+
+\begin_layout LyX-Code
+return 0;
+\end_layout
+
+\end_deeper
+\begin_layout LyX-Code
+} 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Now we can see the user-defined output() works!
+\end_layout
+
+\begin_deeper
+\begin_layout LyX-Code
+[mystd]:[myparam][hello, zlog
+\end_layout
+
+\begin_layout LyX-Code
+][12] 
+\end_layout
+
+\begin_layout Standard
+As you can see, msglen is 12, and msg formated by zlog contains a newline
+ character.
+\end_layout
+
+\end_deeper
+\end_body
+\end_document

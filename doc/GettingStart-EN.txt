@@ -1,0 +1,116 @@
+0. What is zlog?
+
+zlog is a reliable, high efficent, thread safe, flexsible, clear model, pure c logging library.
+
+  Actually, in the c world there is NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be easily redirected or reformat, syslog is slow and is designed for system use. 
+  So I write zlog. 
+  It is faster, safer and more powerful than log4c. So it can be widely used. 
+
+
+1. Install
+
+Download https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
+
+uncompress, install 
+$ tar -zxvf zlog-latest-stable.tar.gz
+$ cd zlog-x.x.x/
+$ ./configure --enable-test # complie test program
+$ make
+$ sudo make install
+default install in /usr/local/, include libzlog.so and zlog.h
+
+# add one line
+$ sudo vi /etc/ld.so.conf
+/usr/local/lib
+$ sudo ldconfig
+
+Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find it. The command metioned above is for linux. Other system should find its own way.
+
+
+2. Introduce configure file
+
+There are 3 important conception in zlog: category,format,rule
+
+Category is designed for different input. In source code name of category variable is a charactor string. In program, get different category for log will distinguish them from each other.
+
+Format describes log pattern, like with or without time stamp, source file, source line.
+
+Rule consists of category, level, output file(or other channel) and format. In brief, if category string in rule of configure file equals name of category variable in source, they match. Still there is complex match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger output at the level of debug, when father logger output at the level of error)
+
+Now write configure file. No matter what's the file name is or where it locates, zlog_init() will read file from agruments.
+$ cat /etc/zlog.conf
+
+[formats]
+simple = "%m%n"
+[rules]
+my_cat.DEBUG    >stdout; simple
+
+In configure file now, you can see, logs, whose category of "my_cat", >= debug level, will be output to standard output, with the format of simple(%m - usermessage %n - newline).If you want output to a file and control its size, write like this
+
+my_cat.DEBUG            "/var/log/aa.log", 1M; simple
+
+3. Using zlog API in C source file
+$ vi test_hello.c
+
+#include <stdio.h> 
+
+#include "zlog.h"
+
+int main(int argc, char** argv)
+{
+	int rc;
+	zlog_category_t *c;
+
+	rc = zlog_init("/etc/zlog.conf");
+	if (rc) {
+		printf("init failed\n");
+		return -1;
+	}
+
+	c = zlog_get_category("my_cat");
+	if (!my_cat) {
+		printf("get cat fail\n");
+		zlog_fini();
+		return -2;
+	}
+
+	ZLOG_INFO(c, "hello, zlog");
+
+	zlog_fini();
+
+	return 0;
+} 
+
+4. Complie, and run it!s
+
+$ cc -c -o test_hello.o test_hello.c -I/usr/local/include
+$ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog
+$ ./test_hello
+hello, zlog
+
+5. Advance Using
+ *  syslog model, better than log4j model
+ *  log format customization
+ *  multiple output, include static file path, dynamic file path, stdout, stderr, syslog, user-defined ouput
+ *  runtime mannully or automaticlly refreash configure(safely)
+ *  high efficieny, 338'638 logs/second on my laptop, about 1000 times faster than syslog(3) with rsyslogd
+ *  user-defined log level
+ *  safely rotate log file on multiple-process or multiple-threads condition
+ *  accurate to microseconds
+ *  dzlog, a default category log API for easy use
+ *  MDC, a log4j style key-value map
+ *  self debugable, can output zlog's self debug&error log at runtime
+ *  Not depend on any other 3rd party library, just base on POSIX system(and a C99 compliant vsnprintf).
+
+
+6. Links:
+
+Download: https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
+GettingStart: https://github.com/HardySimpson/zlog/wiki/Getting-Start
+UsersGuide-En: https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf
+SourceCode: git@github.com:HardySimpson/zlog.git
+Mail List: https://github.com/HardySimpson/zlog/issues
+Homepage(in English): http://hardysimpson.github.com/zlog
+Homepage(in Chinese): http://www.oschina.net/p/zlog
+Author's Blog(in Chinese): http://my.oschina.net/HardySimpson/blog
+Author's Email: HardySimpson1984@gmail.com
