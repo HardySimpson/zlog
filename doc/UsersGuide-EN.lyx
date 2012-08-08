@@ -461,7 +461,7 @@ The reason is obvious: library is called by application, all time log library
 \end_layout
 
 \begin_layout Standard
-If you want all these features, I recommend rsyslog、zLogFabric、Logstash.
+If you want all these features, I recommend rsyslog, zLogFabric, Logstash.
  There are independent process receives logs from other process or machines,
  and parse and store logs.
  Still, it has a distance from user application.
