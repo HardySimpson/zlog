@@ -180,7 +180,6 @@ and filter them.</P><P>The reason is obvious: library is called by application, 
 log library takes is part of application&#X2019;s time. And database inserting
 or log content parsing takes a long time. Thest will speed down application.
 These operation should be done in a different process or on a different
-<<<<<<< HEAD
 machine.</P><P>If you want all these features, I recommend rsyslog, zLogFabric, Logstash.
 There are independent process receives logs from other process or
 machines, and parse and store logs. Still, it has a distance from
@@ -193,17 +192,6 @@ process can read logs from redis and write it to disk. What do you
 think abount this idea? I will be happy if you discuss it with me. </P><!--TOC chapter Hello World-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc5">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section Build and Installation zlog-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">3.1</A>  Build and Installation zlog</H2><!--SEC END --><P>Download:<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A>
-=======
-machine.</P><P>If you want all these features, I recommend rsyslog, a excellent syslog
-daemon implementation. It is a independent process receives logs from
-other process or machines, and parse and store logs. Still, it has
-a distance from user application.</P><P>Now <A HREF="#sec:User-defined-Output">7.4</A> is support by zlog. People just
-need to implement one ouput function, to transfer log to other process
-or other machine. They leave work of category matching and log generatating
-to zlog library. </P><!--TOC chapter Hello World-->
-<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section Build and Installation zlog-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc5">3.1</A>  Build and Installation zlog</H2><!--SEC END --><P>Download:<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A>
->>>>>>> origin/gh-pages
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -933,7 +921,6 @@ is now 1. I have received mail that tells me zlog write log to his
 configure file... So remeber, daemon process should not set any rule
 output to stdout, or stderr. It will generate undefined behavior.
 If you still want output log to console when stdout is closed, use
-<<<<<<< HEAD
 "/dev/tty" instead.</P></LI><LI CLASS="li-itemize">pipeline output<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -974,9 +961,6 @@ in one process atomic writing is already assured by zlog.
 longer than PIPE_BUF.
 </LI></UL><P>Multi-process who don&#X2019;t have relatives, no matter how long a single
 log is, will cause interlace and is not safe.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
-=======
-"/dev/tty" instead.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
->>>>>>> origin/gh-pages
 file path<P>can be absolute file path or relative file path. It is quoted by double
 quotation marks. <EM>Conversion pattern</EM> can be used in file path.
 If the file path is "%E(HOME)/log/out.log" and
@@ -1803,11 +1787,7 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT>INFO info hello, zlog - info 
 </TT></P></DD></DL></DIV><P>That&#X2019;s just what we expect, the configure file only allows &gt;=TRACE
 ouput to screen. And %V and %v works well.</P></LI></OL><!--TOC section User-defined Output-->
-<<<<<<< HEAD
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc40">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>The goal of user-defined output is that zlog gives up some right.
-=======
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  User-defined Output<A NAME="sec:User-defined-Output"></A></H2><!--SEC END --><P>The goal of user-defined output is that zlog gives up some right.
->>>>>>> origin/gh-pages
 zlog is only responsible for generate path and message dynamiclly
 as user&#X2019;s configure, but leaves the way of how log is output, rotate
 and cleanup for user&#X2019;s desire. You can do what ever you want by set

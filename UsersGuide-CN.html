@@ -130,7 +130,6 @@ OpenSolaris, Mac OS X...）估计也能行，有问题欢迎探讨。
 </LI><LI CLASS="li-enumerate">zlog使用了一个C99兼容的vsnprintf。也就是说如果缓存大小不足，vsnprintf将会返回目标字符串应有的长度（不包括’\0’)。如果在你的系统上vsnprintf不是这么运作的，zlog就不知道怎么扩大缓存。如果在目标缓存不够的时候vsnprintf返回-1，zlog就会认为这次写入失败。幸运的是目前大多数c标准库符合C99标准。glibc
 2.1,libc on AIX, libc on freebsd...都是好的，不过glibc2.0不是。在这种情况下，用户需要自己来装一个C99兼容的vsnprintf，来crack这个函数库。我推荐<A HREF="http://sourceforge.net/projects/ctrio/">ctrio</A>,
 或者<A HREF="http://www.jhweiss.de/software/snprintf.html">C99-snprintf</A>。只要改buf.c就行，祝好运！
-<<<<<<< HEAD
 </LI><LI CLASS="li-enumerate">zlog目前还没有计划支持windows，毕竟windows下已经有非常成熟的日志函数库。
 </LI></OL><!--TOC section zlog 1.2 发布说明-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc3">1.2</A>  zlog 1.2 发布说明</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
@@ -141,16 +140,6 @@ zlog 1.2 新增了这些功能<OL CLASS="enumerate" type=a><LI CLASS="li-enumera
 </LI></OL></LI><LI CLASS="li-enumerate">zlog 1.2 在库方面是和zlog 1.0/1.1二进制兼容的，区别在于：<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
 所有的宏改为小写，ZLOG_INFO-&gt;zlog_info，方便开发者手工输入。这是一个巨大的改变，如果zlog1.1/1.0的用户要用zlog
 1.2的话，需要写一个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。我提供了一个脚本：</LI></OL><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
-=======
-</LI><LI CLASS="li-enumerate">zlog 1.1在库方面是和zlog 1.0二进制兼容的，在配置文件方面有两个的改动，<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
-%d(%ms,%us)不再是合法的，%d.%ms是合法的。%ms毫秒和%us微秒提出来作为单独的转换字符串。
-</LI><LI CLASS="li-enumerate">增加了默认时间串%D，输出"2012-02-14 17:03:12"这样的时间。
-</LI></OL><P>之所以改变这些，是为了简化代码，以及能提升30%的性能。所以如果你是从1.0.x升级而且使用动态库的话，无须重新编译程序，只要稍微改动一下配置文件即可。</P></LI></OL><!--TOC chapter zlog不是什么？-->
-<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc3">Chapter 2</A>  zlog不是什么？</H1><!--SEC END --><P>zlog的目标是成为一个简而精的日志函数库，不会直接支持网络输出或者写入数据库，不会直接支持日志内容的过滤和解析。</P><P>原因很明显，日志库是被应用程序调用的，所有花在日志库上的时间都是应用程序运行时间的一部分，而上面说的这些操作都很费时间，会拖慢应用程序的速度。这些事儿应该在别的进程或者别的机器上做。</P><P>如果你需要这些特性，我建议使用rsyslog，一个系统级别的日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。</P><P>目前zlog已经支持<A HREF="#sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA">7.4</A>，可以自己实现一个输出函数，自由的把日志输出到其他进程或者其他机器。而把日志的分类匹配、日志格式成型的工作交给zlog。</P><!--TOC chapter Hello World-->
-<H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section 编译和安装zlog-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc5">3.1</A>  编译和安装zlog</H2><!--SEC END --><P>下载<A HREF="file:https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">zlog-latest-stable.tar.gz</A>
-</P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
->>>>>>> origin/gh-pages
 
 
 
@@ -679,7 +668,6 @@ stdout, stderr, syslog<P>如表格描述，其中只有sylog的附加选项是�
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread-&gt;msg_buf))
-<<<<<<< HEAD
 </TT></DD></DL></DIV><P>而如果你的程序是个守护进程，在启动的时候把STDOUT_FILENO，也就是1的文件描述符关掉的话，会发生什么结果呢？</P><P>日志会被写到新的1的文件描述符所代表的文件里面！我收到过邮件，说zlog把日志写到自己的配置文件里面去了！</P><P>所以，千万不要在守护进程的规则里面加上&gt;stdout或&gt;stderr。这会产生不可预料的结果……如果一定要输出到终端，用"/dev/tty"代替。</P></LI><LI CLASS="li-itemize">管道输出<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -706,9 +694,6 @@ POSIX.1-2001保证读写不大于PIPE_BUF大小的内容是原子的。linux上P
 单进程写，单条日志长度不限制。单进程内内的多线程写日志的原子性已经由zlog保证了。
 </LI><LI CLASS="li-itemize">有父子关系的多进程，单条日志长度不能超过PIPE_BUF（4096）
 </LI></UL><P>无父子关系的多进程同时写一个日志，无论单条日志长度是多少，都有可能导致日志交错。</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
-=======
-</TT></DD></DL></DIV><P>而如果你的程序是个守护进程，在启动的时候把STDOUT_FILENO，也就是1的文件描述符关掉的话，会发生什么结果呢？</P><P>日志会被写到新的1的文件描述符所代表的文件里面！我收到过邮件，说zlog把日志写到自己的配置文件里面去了！</P><P>所以，千万不要在守护进程的规则里面加上&gt;stdout或&gt;stderr。这会产生不可预料的结果……如果一定要输出到终端，用"/dev/tty"代替。</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
->>>>>>> origin/gh-pages
 文件路径<P>可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 "%E(HOME)/log/out.log"，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见
 <A HREF="#sec:=008F6C=006362=00683C=005F0F=004E32">5.4</A>。</P><P>zlog的文件功能极为强大，例如
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
@@ -1349,11 +1334,7 @@ printf("get cat fail\n");</TT><P><TT>zlog_fini();</TT></P><P><TT>return -2;
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT>INFO info hello, zlog - info 
 </TT></P></DD></DL></DIV><P>正是我们所期待的，配置文件只允许&gt;=TRACE等级的日志输出到屏幕上。%V和%v也显示了正确的结果。</P></LI></OL><!--TOC section 用户自定义输出-->
-<<<<<<< HEAD
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc40">7.4</A>  用户自定义输出<A NAME="sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA"></A></H2><!--SEC END --><P>用户自定义输出的意义是zlog放弃一些权力。zlog只负责动态生成单条日志和文件路径，但怎么输出、转档、清理等等工作由用户按照自己的需求自行写函数完成。写完函数只要绑定到某个规则就可以。这里我把用户自定义输出的几个步骤写下来。
-=======
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc38">7.4</A>  用户自定义输出<A NAME="sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA"></A></H2><!--SEC END --><P>用户自定义输出的意义是zlog放弃一些权力。zlog只负责动态生成单条日志和文件路径，但怎么输出、转档、清理等等工作由用户按照自己的需求自行写函数完成。写完函数只要绑定到某个规则就可以。这里我把用户自定义输出的几个步骤写下来。
->>>>>>> origin/gh-pages
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 在配置文件里面定义规则<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
