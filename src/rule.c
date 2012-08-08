@@ -458,8 +458,7 @@ static int syslog_facility_atoi(char *facility)
 	if (STRICMP(facility, ==, "LOG_USER"))
 		return LOG_USER;
 
-	zc_error("wrong syslog facility[%s],"
-		"must in LOG_LOCAL[0-7] or LOG_USER", facility);
+	zc_error("wrong syslog facility[%s], must in LOG_LOCAL[0-7] or LOG_USER", facility);
 	return -187;
 }
 
@@ -692,12 +691,19 @@ zlog_rule_t *zlog_rule_new(char *line,
 	 * *file_limit          [20MB * 12 ~ "aa.#i.log" ]          [LOG_LOCAL0]
 	 */
 	memset(file_path, 0x00, sizeof(file_path));
-	nscan = sscanf(output, " %[^,], %n", file_path, &nread);
+	nscan = sscanf(output, " %[^,],", file_path);
 	if (nscan < 1) {
 		zc_error("sscanf [%s] fail", action);
 		goto err;
 	}
-	file_limit = output + nread;
+
+	file_limit = strchr(output, ',');
+	if (file_limit) {
+		file_limit++; /* skip the , */
+		while( isspace(*file_limit) ) {
+			file_limit++;
+		}
+	}
 
 	p = NULL;
 	switch (file_path[0]) {
@@ -724,29 +730,31 @@ zlog_rule_t *zlog_rule_new(char *line,
 			goto err;
 		}
 
-		memset(archive_max_size, 0x00, sizeof(archive_max_size));
-		nscan = sscanf(file_limit, " %s * %d ~",
-				archive_max_size, &(a_rule->archive_max_count));
-		if (nscan) {
-			a_rule->archive_max_size = zc_parse_byte_size(archive_max_size);
-		}
-
-		p = strchr(file_limit, '"');
-		if (p) { /* archive file path exist */
-			rc = zlog_rule_parse_path(p, a_rule->archive_path, sizeof(a_rule->file_path),
-					&(a_rule->archive_specs));
-			if (rc) {
-				zc_error("zlog_rule_parse_path fail");
-				goto err;
+		if (file_limit) {
+			memset(archive_max_size, 0x00, sizeof(archive_max_size));
+			nscan = sscanf(file_limit, " %s * %d ~",
+					archive_max_size, &(a_rule->archive_max_count));
+			if (nscan) {
+				a_rule->archive_max_size = zc_parse_byte_size(archive_max_size);
 			}
 
-			p = strchr(a_rule->archive_path, '#');
-			if ( (p == NULL) && (
-					(strchr(p, 'r') == NULL) || (strchr(p, 's') == NULL)
-				)
-			   ) {
-				zc_error("archive_path must contain #r or #s");
-				goto err;
+			p = strchr(file_limit, '"');
+			if (p) { /* archive file path exist */
+				rc = zlog_rule_parse_path(p, a_rule->archive_path, sizeof(a_rule->file_path),
+						&(a_rule->archive_specs));
+				if (rc) {
+					zc_error("zlog_rule_parse_path fail");
+					goto err;
+				}
+
+				p = strchr(a_rule->archive_path, '#');
+				if ( (p == NULL) && (
+						(strchr(p, 'r') == NULL) || (strchr(p, 's') == NULL)
+					)
+				   ) {
+					zc_error("archive_path must contain #r or #s");
+					goto err;
+				}
 			}
 		}
 
