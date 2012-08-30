@@ -139,14 +139,14 @@ zlog 1.2 新增了这些功能<OL CLASS="enumerate" type=a><LI CLASS="li-enumera
 </LI><LI CLASS="li-enumerate">其他兼容性的代码改动
 </LI></OL></LI><LI CLASS="li-enumerate">zlog 1.2 在库方面是和zlog 1.0/1.1二进制兼容的，区别在于：<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
 所有的宏改为小写，ZLOG_INFO-&gt;zlog_info，方便开发者手工输入。这是一个巨大的改变，如果zlog1.1/1.0的用户要用zlog
-1.2的话，需要写一个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。我提供了一个脚本：</LI></OL><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
+1.2的话，需要写一个脚本，把源代码中的大写批量替换为小写，然后重新编译你的程序。我提供了一个脚本：<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-sed -i -e ’s/\b\w</TT><TT>*</TT><TT>ZLOG\w</TT><TT>*</TT><TT>\b/\L&amp;\E/g’ aa.c</TT></DD></DL></DIV><OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
-取消了auto tools的使用，也就是说，不论你在任何平台，都需要gcc和gnu make才能编译安装zlog。主流的操作系统(Aix,
+sed -i -e ’s/\b\w</TT><TT>*</TT><TT>ZLOG\w</TT><TT>*</TT><TT>\b/\L&amp;\E/g’ aa.c
+</TT></DD></DL></DIV></LI><LI CLASS="li-enumerate">取消了auto tools的使用，也就是说，不论你在任何平台，都需要gcc和gnu make才能编译安装zlog。主流的操作系统(Aix,
 OpenSolaris..)都能安装gcc和gnu make。当然也可以自行修改makefile来完成编译，对于平台稍有经验的Geek都可以自行完成！
 </LI></OL></LI></OL><!--TOC chapter zlog不是什么？-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 2</A>  zlog不是什么？</H1><!--SEC END --><P>zlog的目标是成为一个简而精的日志函数库，不会直接支持网络输出或者写入数据库，不会直接支持日志内容的过滤和解析。</P><P>原因很明显，日志库是被应用程序调用的，所有花在日志库上的时间都是应用程序运行时间的一部分，而上面说的这些操作都很费时间，会拖慢应用程序的速度。这些事儿应该在别的进程或者别的机器上做。</P><P>如果你需要这些特性，我建议使用rsyslog、zLogFabric、Logstash，这些日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。</P><P>目前zlog已经支持<A HREF="#sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA">7.4</A>，可以自己实现一个输出函数，自由的把日志输出到其他进程或者其他机器。而把日志的分类匹配、日志格式成型的工作交给zlog。</P><P>目前我的想法是实现一个zlog-redis客户端，用自定义输出功能，把日志存储到本机或者远程的redis服务器内，然后用其他进程(也使用zlog库)来把日志写到文件里面，不知大家以为这个想法如何？欢迎和我联系探讨。</P><!--TOC chapter Hello World-->
@@ -536,28 +536,29 @@ zlog_info(c, "hello, zlog");
 <H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc19">5.4.1</A>  转换字符</H3><!--SEC END --><P>可以被辨认的转换字符是</P><P>
 
 
-</P><BLOCKQUOTE CLASS="table"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV><DIV CLASS="center"><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">字符</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">效果</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">例子</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">分类名</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">aa_bb</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">打日志的时间。这个后面要跟一对小括号()内含说明具体的日期格式。就像%d(%F)或者%d(%m-%d %T)。如果不跟小括号，默认是%d(%F
-%T)。括号内的格式和 strftime(2)的格式一致。详见<A HREF="#sub:=0065F6=0095F4=005B57=007B26">5.4.3</A></DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">相当于%d(%F %T)，zlog默认时间串，在性能上比%d有一定的提升</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">2012-02-14 17:03:12</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%ms</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">毫秒，3位数字字符串</DIV><P>取自gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">013</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%us</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">微秒，6位数字字符串</DIV><P>取自gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">002323</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码文件名，来源于__FILE__宏。在某些编译器下 __FILE__是绝对路径。用%f来去掉目录只保留文件名，或者编译器有选项可以调节</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">test_hello.c</DIV><P>或者在某些编译器下</P><P>/home/zlog/src/test/test_hello.c</P></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%f</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码文件名，输出$F最后一个’/’后面的部分。当然这会有一定的性能损失</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">test_hello.c</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%H</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">主机名，来源于 gethostname(2)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">zlog-dev</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%L</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码行数，来源于__LINE__宏</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">135</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%m</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">用户日志，用户从zlog函数输入的日志。</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">hello, zlog</DIV></TD></TR>
+</P><BLOCKQUOTE CLASS="table"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV><DIV CLASS="center"><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">字符</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">效果</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">例子</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">分类名</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa_bb</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">打日志的时间。这个后面要跟一对小括号()内含说明具体的日期格式。就像%d(%F)或者%d(%m-%d %T)。如果不跟小括号，默认是%d(%F
+%T)。括号内的格式和 strftime(2)的格式一致。详见<A HREF="#sub:=0065F6=0095F4=005B57=007B26">5.4.3</A></DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">相当于%d(%F %T)，zlog默认时间串，在性能上比%d有一定的提升</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012-02-14 17:03:12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%E()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">获取环境变量的值</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%E(USER) simpson</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%ms</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">毫秒，3位数字字符串</DIV><P>取自gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">013</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%us</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">微秒，6位数字字符串</DIV><P>取自gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">002323</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码文件名，来源于__FILE__宏。在某些编译器下 __FILE__是绝对路径。用%f来去掉目录只保留文件名，或者编译器有选项可以调节</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">test_hello.c</DIV><P>或者在某些编译器下</P><P>/home/zlog/src/test/test_hello.c</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%f</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码文件名，输出$F最后一个’/’后面的部分。当然这会有一定的性能损失</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">test_hello.c</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%H</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">主机名，来源于 gethostname(2)</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">zlog-dev</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%L</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码行数，来源于__LINE__宏</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">135</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%m</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">用户日志，用户从zlog函数输入的日志。</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">hello, zlog</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%M</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">MDC (mapped diagnostic context)，每个线程一张键值对表，输出键相对应的值。后面必需跟跟一对小括号()内含键。例如
-%M(clientNumber) ，clientNumbe是键。 详见 <A HREF="#sec:MDC">7.1</A></DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">%M(clientNumber) 12345</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%n</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">换行符，目前还不支持windows换行符</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">\n</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%p</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">进程ID，来源于getpid()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">2134</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%U</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">调用函数名，来自于__func__(C99)或者__FUNCTION__(gcc)，如果编译器支持的话。</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">main</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%V</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">日志级别，大写</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">INFO</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%v</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">日志级别，小写</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">info</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%t</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">16进制表示的线程ID，来源于pthread_self()</DIV><P>"0x%x",(unsigned int) pthread_t</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">0xba01e700</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%T</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">相当于%t,不过是以长整型表示的</DIV><P>"%lu", (unsigned long) pthread_t</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">140633234859776</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%%</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">一个百分号</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="center">%</DIV></TD></TR>
+%M(clientNumber) ，clientNumbe是键。 详见 <A HREF="#sec:MDC">7.1</A></DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%M(clientNumber) 12345</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%n</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">换行符，目前还不支持windows换行符</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">\n</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%p</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">进程ID，来源于getpid()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2134</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%U</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">调用函数名，来自于__func__(C99)或者__FUNCTION__(gcc)，如果编译器支持的话。</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">main</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%V</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">日志级别，大写</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">INFO</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%v</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">日志级别，小写</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">info</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%t</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">16进制表示的线程ID，来源于pthread_self()</DIV><P>"0x%x",(unsigned int) pthread_t</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">0xba01e700</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%T</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">相当于%t,不过是以长整型表示的</DIV><P>"%lu", (unsigned long) pthread_t</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">140633234859776</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%%</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">一个百分号</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%[其他字符]</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">解析为错误，zlog_init()将会失败</DIV></TD><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
 <TR><TD VALIGN=top ALIGN=left>&nbsp;</TD></TR>
 </TABLE>

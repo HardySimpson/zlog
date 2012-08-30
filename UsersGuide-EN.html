@@ -692,13 +692,14 @@ logging event should be left justified to a width of five characters. </P><!--TO
 
 </P><BLOCKQUOTE CLASS="table"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV><DIV CLASS="center"><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">conversion char</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">effect</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">example</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the category of the logging event.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa_bb</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the date of the logging event. The date conversion
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the date of the logging event. The date conversion
 specifier may be followed by a date format specifier enclosed between
 parenthesis. For example, %d(%F) or %d(%m-%d %T). If no date
 format specifier is given then %d(%F %T) format is assumed. The
 date format specifier admits the same syntax as the strftime(2). see
 <A HREF="#sub:Time-Character">5.4.3</A>for more detail.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T.ms) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %d(%F %T), but faster</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012-02-14 17:03:12</DIV></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%E()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Value of environment variables</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%E(LOGNAME) simpson</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%ms</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The millisecond, 3-digit integer string</DIV><P>comes from gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">013</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%us</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The microsecond, 6-digit integer string</DIV><P>comes from gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">002323</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the file name where the logging request was issued.
