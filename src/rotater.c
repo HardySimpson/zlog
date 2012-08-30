@@ -187,12 +187,7 @@ err:
 
 static int zlog_file_cmp(zlog_file_t * a_file_1, zlog_file_t * a_file_2)
 {
-	if (a_file_1->index - a_file_2->index > 0)
-		return 1;
-	else if (a_file_1->index - a_file_2->index < 0)
-		return -1;
-	else
-		return 0;
+	return (a_file_1->index > a_file_2->index);
 }
 
 static int zlog_rotater_add_archive_files(zlog_rotater_t * a_rotater)

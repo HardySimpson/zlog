@@ -1725,7 +1725,7 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="21" columns="3">
+<lyxtabular version="3" rows="22" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="left" valignment="top" width="50text%">
@@ -1794,7 +1794,7 @@ aa_bb
 \begin_inset Text
 
 \begin_layout Plain Layout
-%d
+%d()
 \end_layout
 
 \end_inset
@@ -1867,6 +1867,35 @@ Equivalent to %d(%F %T), but faster
 
 \begin_layout Plain Layout
 2012-02-14 17:03:12
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%E()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Value of environment variables 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%E(LOGNAME) simpson
 \end_layout
 
 \end_inset
