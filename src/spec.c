@@ -73,11 +73,9 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 				"%F %T", &(a_thread->event->local_time) ); \
    \
 			/* strftime %d() per second */   \
-			if (a_thread->event->last_time_fmt) {   \
-				a_thread->event->time_str_len = strftime(a_thread->event->time_str,   \
+			a_thread->event->time_str_len = strftime(a_thread->event->time_str,   \
 				sizeof(a_thread->event->time_str),   \
-				a_thread->event->last_time_fmt, &(a_thread->event->local_time));   \
-			}   \
+				a_spec->time_fmt, &(a_thread->event->local_time));   \
 		}   \
 	}   \
 } while(0) 
@@ -86,16 +84,6 @@ static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 {
 	/* do fetch time every event once */
 	zlog_spec_fetch_time;
-
-	/* strftime %d() is slow too, do it when 
-	 * time_fmt changed(event go through another spec) */
-	if (a_thread->event->last_time_fmt != a_spec->time_fmt) {
-		a_thread->event->last_time_fmt = a_spec->time_fmt;
-		a_thread->event->time_str_len = strftime(a_thread->event->time_str,
-			sizeof(a_thread->event->time_str),
-			a_spec->time_fmt, &(a_thread->event->local_time));
-	}
-
 	return zlog_buf_append(a_buf, a_thread->event->time_str, a_thread->event->time_str_len);
 }
 
@@ -103,9 +91,7 @@ static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 {
 	/* do fetch time every event once */
 	zlog_spec_fetch_time;
-
-	return zlog_buf_append(a_buf, a_thread->event->D_time_str,
-			 	sizeof(a_thread->event->D_time_str) - 1);
+	return zlog_buf_append(a_buf, a_thread->event->D_time_str, sizeof(a_thread->event->D_time_str) - 1);
 }
 
 static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)

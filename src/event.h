@@ -57,7 +57,6 @@ typedef struct {
 	char D_time_str[10 + 1 + 8 + 1]; /* YYYY-mm-dd HH:mm:ss */
 	char time_str[MAXLEN_CFG_LINE + 1];
 	size_t time_str_len;
-	char *last_time_fmt;
 
 	pid_t pid;
 	pid_t last_pid;
