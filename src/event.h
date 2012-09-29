@@ -51,10 +51,13 @@ typedef struct {
 	zlog_event_cmd generate_cmd;
 
 	struct timeval time_stamp;
-	time_t last_sec;
-	struct tm local_time;	
+	struct tm time_local;	
 
-	char D_time_str[10 + 1 + 8 + 1]; /* YYYY-mm-dd HH:mm:ss */
+	time_t time_last_D;
+	char time_str_D[10 + 1 + 8 + 1]; /* YYYY-mm-dd HH:mm:ss */
+
+	time_t time_last;
+	char *time_fmt_last;
 	char time_str[MAXLEN_CFG_LINE + 1];
 	size_t time_str_len;
 

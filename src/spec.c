@@ -82,29 +82,69 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 
 static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	/* do fetch time every event once */
-	zlog_spec_fetch_time;
+	if (!a_thread->event->time_stamp.tv_sec) {
+		gettimeofday(&(a_thread->event->time_stamp), NULL);
+	}
+
+	/* a_event->time_str is a cache, as strftime is slow.
+	 * It is modified when this event meets another time specifier, or time slips one second.
+	 * So it is a weak cache, just work when a event goes through only one time specifier.
+	 * If there is any better way, please tell me!
+	 */
+	if (
+	     (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last)
+	     || (a_spec->time_fmt != a_thread->event->time_fmt_last)
+	   ) {
+		a_thread->event->time_last = a_thread->event->time_stamp.tv_sec;
+		a_thread->event->time_fmt_last = a_spec->time_fmt;
+
+		localtime_r(&(a_thread->event->time_stamp.tv_sec),
+			    &(a_thread->event->time_local));
+
+		a_thread->event->time_str_len = strftime(a_thread->event->time_str,
+			sizeof(a_thread->event->time_str),
+			a_spec->time_fmt, &(a_thread->event->time_local));
+	}
 	return zlog_buf_append(a_buf, a_thread->event->time_str, a_thread->event->time_str_len);
 }
 
 static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	/* do fetch time every event once */
-	zlog_spec_fetch_time;
-	return zlog_buf_append(a_buf, a_thread->event->D_time_str, sizeof(a_thread->event->D_time_str) - 1);
+	if (!a_thread->event->time_stamp.tv_sec) {
+		gettimeofday(&(a_thread->event->time_stamp), NULL);
+	}
+
+	/* a_event->time_str_D is also a cache.
+	 * It is modified when time slips one second.
+	 * So it is a strong cache, as Default time format is always %F %T.
+	 * That's why I said %D is faster than %d()
+	 */
+	if (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last_D) {
+
+		a_thread->event->time_last_D = a_thread->event->time_stamp.tv_sec;
+		localtime_r(&(a_thread->event->time_stamp.tv_sec),
+			    &(a_thread->event->time_local));
+
+		strftime(a_thread->event->time_str_D,
+			sizeof(a_thread->event->time_str_D),
+			ZLOG_DEFAULT_TIME_FMT, &(a_thread->event->time_local) );
+	}
+	return zlog_buf_append(a_buf, a_thread->event->time_str_D, sizeof(a_thread->event->time_str_D) - 1);
 }
 
 static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	/* do fetch time every event once */
-	zlog_spec_fetch_time;
+	if (!a_thread->event->time_stamp.tv_sec) {
+		gettimeofday(&(a_thread->event->time_stamp), NULL);
+	}
 	return zlog_buf_printf_dec32(a_buf, (a_thread->event->time_stamp.tv_usec / 1000), 3);
 }
 
 static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	/* do fetch time every event once */
-	zlog_spec_fetch_time;
+	if (!a_thread->event->time_stamp.tv_sec) {
+		gettimeofday(&(a_thread->event->time_stamp), NULL);
+	}
 	return zlog_buf_printf_dec32(a_buf, a_thread->event->time_stamp.tv_usec, 6);
 }
 
