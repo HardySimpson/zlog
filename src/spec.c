@@ -56,30 +56,6 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 /*******************************************************************************/
 /* implementation of write function */
 
-#define zlog_spec_fetch_time  do {\
-	if (!a_thread->event->time_stamp.tv_sec) {  \
-		gettimeofday(&(a_thread->event->time_stamp), NULL);   \
-   \
-		if (a_thread->event->time_stamp.tv_sec != a_thread->event->last_sec) {   \
-			/* localtime_r is slow on linux, do it once per second */   \
-			/* thanks for nikuailema@gmail.com */   \
-			a_thread->event->last_sec = a_thread->event->time_stamp.tv_sec;   \
-			localtime_r(&(a_thread->event->time_stamp.tv_sec),   \
-				    &(a_thread->event->local_time));   \
-   \
-			/* strftime %D time fmt per second*/   \
-			strftime(a_thread->event->D_time_str,   \
-				sizeof(a_thread->event->D_time_str),  \
-				"%F %T", &(a_thread->event->local_time) ); \
-   \
-			/* strftime %d() per second */   \
-			a_thread->event->time_str_len = strftime(a_thread->event->time_str,   \
-				sizeof(a_thread->event->time_str),   \
-				a_spec->time_fmt, &(a_thread->event->local_time));   \
-		}   \
-	}   \
-} while(0) 
-
 static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	if (!a_thread->event->time_stamp.tv_sec) {
