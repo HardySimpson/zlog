@@ -19,7 +19,6 @@ OBJ=    \
   rule.o    \
   spec.o    \
   thread.o    \
-  thread_list.o    \
   zc_arraylist.o    \
   zc_hashtable.o    \
   zc_profile.o    \
@@ -101,9 +100,6 @@ spec.o: spec.c fmacros.h spec.h event.h zc_defs.h zc_profile.h \
  mdc.h level_list.h level.h
 thread.o: thread.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h event.h buf.h thread.h mdc.h
-thread_list.o: thread_list.c zc_defs.h zc_profile.h zc_arraylist.h \
- zc_hashtable.h zc_xplatform.h zc_util.h thread_list.h thread.h event.h \
- buf.h mdc.h
 zc_arraylist.o: zc_arraylist.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h
 zc_hashtable.o: zc_hashtable.c zc_defs.h zc_profile.h zc_arraylist.h \
@@ -114,7 +110,7 @@ zc_util.o: zc_util.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
 zlog-chk-conf.o: zlog-chk-conf.c fmacros.h zlog.h
 zlog.o: zlog.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h format.h thread.h event.h buf.h \
- mdc.h rotater.h category_table.h category.h thread_list.h record_table.h \
+ mdc.h rotater.h category_table.h category.h record_table.h \
  record.h rule.h
 
 $(DYLIBNAME): $(OBJ)
@@ -129,7 +125,7 @@ static: $(STLIBNAME)
 
 # Binaries:
 zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME)
-	$(CC) -o $@ $(REAL_CFLAGS) $(REAL_LDFLAGS) zlog-chk-conf.o -lzlog
+	$(CC) -o $@ $(REAL_CFLAGS) zlog-chk-conf.o -static -L. -lzlog $(REAL_LDFLAGS)
 
 .c.o:
 	$(CC) -std=c99 -pedantic -c $(REAL_CFLAGS) $<
