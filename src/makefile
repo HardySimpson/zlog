@@ -129,7 +129,7 @@ static: $(STLIBNAME)
 
 # Binaries:
 zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME)
-	$(CC) -o $@ $(REAL_CFLAGS) $(REAL_LDFLAGS) zlog-chk-conf.o $(STLIBNAME)
+	$(CC) -o $@ $(REAL_CFLAGS) $(REAL_LDFLAGS) zlog-chk-conf.o -lzlog
 
 .c.o:
 	$(CC) -std=c99 -pedantic -c $(REAL_CFLAGS) $<
