@@ -1171,7 +1171,7 @@ out one day. Of course, when one day&#X2019;s log is more than 100MB, like
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     "aa.log", 100MB ~ "aa-%D(%Y%m%d).#2s.log"</TT><P><TT>Do rotation every 100MB. The archive file name support conversion strings also!. #2s means the sequence number is at least 2 bytes wide. Sequece from 00. That&#X2019;s the most complex way of archive in zlog!
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     "aa.log", 100MB ~ "aa-%d(%Y%m%d).#2s.log"</TT><P><TT>Do rotation every 100MB. The archive file name support conversion strings also!. #2s means the sequence number is at least 2 bytes wide. Sequece from 00. That&#X2019;s the most complex way of archive in zlog!
 </TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">Compress, move and delete old archive.<P>Compress should not be done by logging library, because compress need
 time and CPU. The mission of logging library is cooperation with compress
 programs.</P><P>For the 3 ways of split logs, way 1 and way 3 is easy to manage. It
