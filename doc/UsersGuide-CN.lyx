@@ -5046,7 +5046,7 @@ zlog对应的配置是
 \end_layout
 
 \begin_layout LyX-Code
-*.*     "aa.log", 100MB ~ "aa-%D(%Y%m%d).#2s.log"
+*.*     "aa.log", 100MB ~ "aa-%d(%Y%m%d).#2s.log"
 \end_layout
 
 \begin_layout Standard
