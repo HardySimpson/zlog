@@ -18,6 +18,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include "zlog.h"
 
@@ -25,6 +26,11 @@ int main(int argc, char** argv)
 {
 	unsigned char aa[32];
 	int i, j;
+
+	if (argc != 3) {
+		printf("useage: test_bitmap i j\n");
+		exit(1);
+	}
 
 	dzlog_init(NULL, "AA");
 
@@ -34,6 +40,10 @@ int main(int argc, char** argv)
 
 	memset(aa, 0x00, sizeof(aa));
 
+	/* 32 byte, 256 bit
+	 * [11111..1100...00]
+	 *          i
+	 */
 	aa[i/8] |=  ~(0xFF << (8 - i % 8));
 	memset(aa + i/8 + 1, 0xFF, sizeof(aa) - i/8 - 1);
 
@@ -42,6 +52,7 @@ int main(int argc, char** argv)
 	dzlog_info("%0x", aa[j/8]);
 	dzlog_info("%0x", aa[j/8] >> 6);
 
+	/* see j of bits fits */
 	dzlog_info("%0x", ~((aa[j/8] >> (7 - j % 8)) & 0x01) );
 
 	zlog_fini();
