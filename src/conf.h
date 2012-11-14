@@ -45,6 +45,7 @@ typedef struct zlog_conf_s {
 	zc_arraylist_t *levels;
 	zc_arraylist_t *formats;
 	zc_arraylist_t *rules;
+	int time_cache_count;
 } zlog_conf_t;
 
 extern zlog_conf_t * zlog_env_conf;

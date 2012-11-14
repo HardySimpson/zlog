@@ -31,6 +31,11 @@ typedef enum {
 	ZLOG_HEX = 1,
 } zlog_event_cmd;
 
+typedef struct zlog_time_cache_s {
+	char str[MAXLEN_CFG_LINE + 1];
+	size_t len;
+} zlog_time_cache_t;
+
 typedef struct {
 	char *category_name;
 	size_t category_name_len;
@@ -52,14 +57,10 @@ typedef struct {
 
 	struct timeval time_stamp;
 	struct tm time_local;	
-
-	time_t time_last_D;
-	char time_str_D[10 + 1 + 8 + 1]; /* YYYY-mm-dd HH:mm:ss */
-
 	time_t time_last;
-	char *time_fmt_last;
-	char time_str[MAXLEN_CFG_LINE + 1];
-	size_t time_str_len;
+
+	zlog_time_cache_t *time_caches;
+	int time_cache_count;
 
 	pid_t pid;
 	pid_t last_pid;
@@ -74,7 +75,8 @@ typedef struct {
 	size_t tid_hex_str_len;
 } zlog_event_t;
 
-zlog_event_t *zlog_event_new(void);
+
+zlog_event_t *zlog_event_new(int time_cache_count);
 void zlog_event_del(zlog_event_t * a_event);
 void zlog_event_profile(zlog_event_t * a_event, int flag);
 

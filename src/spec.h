@@ -40,6 +40,7 @@ struct zlog_spec_s {
 	int len;
 
 	char time_fmt[MAXLEN_CFG_LINE + 1];
+	int time_cache_index;
 	char mdc_key[MAXLEN_PATH + 1];
 
 	char print_fmt[MAXLEN_CFG_LINE + 1];
@@ -53,7 +54,7 @@ struct zlog_spec_s {
 	zlog_spec_gen_fn gen_archive_path;
 };
 
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, int * time_cache_count);
 void zlog_spec_del(zlog_spec_t * a_spec);
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
 

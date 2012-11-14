@@ -463,7 +463,8 @@ static int syslog_facility_atoi(char *facility)
 }
 
 static int zlog_rule_parse_path(char *path_start, /* start with a " */
-		char *path_str, size_t path_size, zc_arraylist_t **path_specs)
+		char *path_str, size_t path_size, zc_arraylist_t **path_specs,
+		int *time_cache_count)
 {
 	char *p, *q;
 	size_t len;
@@ -502,7 +503,7 @@ static int zlog_rule_parse_path(char *path_start, /* start with a " */
 	}
 
 	for (p = path_str; *p != '\0'; p = q) {
-		a_spec = zlog_spec_new(p, &q);
+		a_spec = zlog_spec_new(p, &q, time_cache_count);
 		if (!a_spec) {
 			zc_error("zlog_spec_new fail");
 			goto err;
@@ -527,7 +528,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 		zlog_format_t * default_format,
 		zc_arraylist_t * formats,
 		unsigned int file_perms,
-		size_t fsync_period)
+		size_t fsync_period,
+		int * time_cache_count)
 {
 	int rc = 0;
 	int nscan = 0;
@@ -724,7 +726,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		if (!p) p = file_path;
 
 		rc = zlog_rule_parse_path(p, a_rule->file_path, sizeof(a_rule->file_path),
-				&(a_rule->dynamic_specs));
+				&(a_rule->dynamic_specs), time_cache_count);
 		if (rc) {
 			zc_error("zlog_rule_parse_path fail");
 			goto err;
@@ -740,8 +742,9 @@ zlog_rule_t *zlog_rule_new(char *line,
 
 			p = strchr(file_limit, '"');
 			if (p) { /* archive file path exist */
-				rc = zlog_rule_parse_path(p, a_rule->archive_path, sizeof(a_rule->file_path),
-						&(a_rule->archive_specs));
+				rc = zlog_rule_parse_path(p,
+					a_rule->archive_path, sizeof(a_rule->file_path),
+					&(a_rule->archive_specs), time_cache_count);
 				if (rc) {
 					zc_error("zlog_rule_parse_path fail");
 					goto err;
@@ -860,7 +863,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 				goto err;
 			}
 			for (p = a_rule->record_path; *p != '\0'; p = q) {
-				a_spec = zlog_spec_new(p, &q);
+				a_spec = zlog_spec_new(p, &q, time_cache_count);
 				if (!a_spec) {
 					zc_error("zlog_spec_new fail");
 					goto err;

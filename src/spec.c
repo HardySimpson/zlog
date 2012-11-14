@@ -42,12 +42,12 @@
 /*******************************************************************************/
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 {
-	return;
 	zc_assert(a_spec,);
-	zc_profile(flag, "----spec[%p][%.*s][%s][%s,%ld,%ld][%s]----",
+	zc_profile(flag, "----spec[%p][%.*s][%s|%d][%s,%ld,%ld][%s]----",
 		a_spec,
 		a_spec->len, a_spec->str,
 		a_spec->time_fmt,
+		a_spec->time_cache_index,
 		a_spec->print_fmt, (long)a_spec->max_width, (long)a_spec->min_width,
 		a_spec->mdc_key);
 	return;
@@ -58,39 +58,34 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 
 static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
+	zlog_time_cache_t * a_cache;
+
+	a_cache = a_thread->event->time_caches + a_spec->time_cache_index;
+
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
 	}
 
-	/* a_event->time_str is a cache, as strftime is slow.
-	 * It is modified when this event meets another time specifier, or time slips one second.
-	 * So it is a weak cache, just work when a event goes through only one time specifier.
-	 * If there is any better way, please tell me!
+	/* 
+	 * It is modified when time slips one second.
 	 */
-	if (
-	     (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last)
-	     || (a_spec->time_fmt != a_thread->event->time_fmt_last)
-	   ) {
-		a_thread->event->time_last = a_thread->event->time_stamp.tv_sec;
-		a_thread->event->time_fmt_last = a_spec->time_fmt;
-
-		localtime_r(&(a_thread->event->time_stamp.tv_sec),
-			    &(a_thread->event->time_local));
-
-		a_thread->event->time_str_len = strftime(a_thread->event->time_str,
-			sizeof(a_thread->event->time_str),
+	if (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last) {
+		localtime_r(&(a_thread->event->time_stamp.tv_sec), &(a_thread->event->time_local));
+		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str),
 			a_spec->time_fmt, &(a_thread->event->time_local));
 	}
-	return zlog_buf_append(a_buf, a_thread->event->time_str, a_thread->event->time_str_len);
+
+	return zlog_buf_append(a_buf, a_cache->str, a_cache->len);
 }
 
+#if 0
 static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
 	}
 
-	/* a_event->time_str_D is also a cache.
+	/* 
 	 * It is modified when time slips one second.
 	 * So it is a strong cache, as Default time format is always %F %T.
 	 * That's why I said %D is faster than %d()
@@ -101,12 +96,13 @@ static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 		localtime_r(&(a_thread->event->time_stamp.tv_sec),
 			    &(a_thread->event->time_local));
 
-		strftime(a_thread->event->time_str_D,
-			sizeof(a_thread->event->time_str_D),
+		strftime(a_thread->event->time_cache_D,
+			sizeof(a_thread->event->time_cache_D),
 			ZLOG_DEFAULT_TIME_FMT, &(a_thread->event->time_local) );
 	}
-	return zlog_buf_append(a_buf, a_thread->event->time_str_D, sizeof(a_thread->event->time_str_D) - 1);
+	return zlog_buf_append(a_buf, a_thread->event->time_cache_D, sizeof(a_thread->event->time_cache_D) - 1);
 }
+#endif
 
 static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
@@ -465,7 +461,7 @@ void zlog_spec_del(zlog_spec_t * a_spec)
  * a const string: /home/bb
  * a string begin with %: %12.35d(%F %X,%l)
  */
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_cache_count)
 {
 	char *p;
 	int nscan = 0;
@@ -529,9 +525,12 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 				}
 			}
 
+			a_spec->time_cache_index = *time_cache_count;
+			(*time_cache_count)++;
+			a_spec->write_buf = zlog_spec_write_time;
+
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
-			a_spec->write_buf = zlog_spec_write_time;
 			break;
 		}
 
@@ -577,7 +576,10 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next)
 			a_spec->write_buf = zlog_spec_write_category;
 			break;
 		case 'D':
-			a_spec->write_buf = zlog_spec_write_time_D;
+			strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
+			a_spec->time_cache_index = *time_cache_count;
+			(*time_cache_count)++;
+			a_spec->write_buf = zlog_spec_write_time;
 			break;
 		case 'F':
 			a_spec->write_buf = zlog_spec_write_srcfile;

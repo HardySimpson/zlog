@@ -31,8 +31,6 @@
 
 void zlog_format_profile(zlog_format_t * a_format, int flag)
 {
-	int i;
-	zlog_spec_t *a_spec;
 
 	zc_assert(a_format,);
 	zc_profile(flag, "---format[%p][%s = %s(%p)]---",
@@ -41,9 +39,13 @@ void zlog_format_profile(zlog_format_t * a_format, int flag)
 		a_format->pattern,
 		a_format->pattern_specs);
 
+#if 0
+	int i;
+	zlog_spec_t *a_spec;
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
 		zlog_spec_profile(a_spec, flag);
 	}
+#endif
 
 	return;
 }
@@ -60,7 +62,7 @@ void zlog_format_del(zlog_format_t * a_format)
 	return;
 }
 
-zlog_format_t *zlog_format_new(char *line)
+zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
 {
 	int nscan = 0;
 	zlog_format_t *a_format = NULL;
@@ -129,7 +131,7 @@ zlog_format_t *zlog_format_new(char *line)
 	}
 
 	for (p = a_format->pattern; *p != '\0'; p = q) {
-		a_spec = zlog_spec_new(p, &q);
+		a_spec = zlog_spec_new(p, &q, time_cache_count);
 		if (!a_spec) {
 			zc_error("zlog_spec_new fail");
 			goto err;
@@ -142,7 +144,7 @@ zlog_format_t *zlog_format_new(char *line)
 		}
 	}
 
-	//zlog_format_profile(a_format, ZC_DEBUG);
+	zlog_format_profile(a_format, ZC_DEBUG);
 	return a_format;
 err:
 	zlog_format_del(a_format);
