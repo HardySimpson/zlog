@@ -24,4 +24,4 @@ UsersGuide-CN.pdf : UsersGuide-CN.lyx
 	hevea book.hva -s $<
 
 clean :
-	-rm -f *.pdf *.haux *.html *.htoc *.tex
+	-rm -f *.pdf *.haux *.html *.htoc *.tex *.lyx~

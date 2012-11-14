@@ -4915,7 +4915,7 @@ Multi-process who don't have relatives, start multiple cronolog processes
 \end_layout
 
 \begin_layout Standard
-In summary, pipeline is safe when:
+In summary, pipeline to a single log file:
 \end_layout
 
 \begin_layout Itemize
@@ -4928,7 +4928,7 @@ Multi-process who have relatives, the length of one log should not longer
  than PIPE_BUF.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 Multi-process who don't have relatives, no matter how long a single log
  is, will cause interlace and is not safe.
 \end_layout

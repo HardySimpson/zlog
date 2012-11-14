@@ -4639,7 +4639,7 @@ cronolog读到的文件流是连续的，它不知道单条日志的边界在哪
 \end_layout
 
 \begin_layout Standard
-所以，总结一下，使用管道来输出日志而保证日志不交错，需要满足这样的条件。
+所以，总结一下，使用管道来输出到单个日志文件的情况是：
 \end_layout
 
 \begin_layout Itemize
@@ -4650,8 +4650,12 @@ cronolog读到的文件流是连续的，它不知道单条日志的边界在哪
 有父子关系的多进程，单条日志长度不能超过PIPE_BUF（4096）
 \end_layout
 
+\begin_layout Itemize
+无父子关系的多进程使用管道同时写一个日志，无论单条日志长度是多少，都有可能导致日志交错。
+\end_layout
+
 \begin_layout Standard
-无父子关系的多进程同时写一个日志，无论单条日志长度是多少，都有可能导致日志交错。
+zlog本身的直接文件输出能保证即使是多进程，同时调用zlog写一个日志文件也不会产生交错，见下。
 \end_layout
 
 \end_deeper
