@@ -47,7 +47,13 @@ static int zlog_env_init_version = -1;
 /* inner no need thread-safe */
 static void zlog_fini_inner(void)
 {
-	pthread_key_delete(zlog_thread_key);
+	/* pthread_key_delete(zlog_thread_key); */
+	/* never use pthread_key_delete,
+	 * it will cause other thread can't release zlog_thread_t 
+	 * after one thread call pthread_key_delete
+	 * also key not init will cause a core dump
+	 */
+	
 	if (zlog_env_categories) zlog_category_table_del(zlog_env_categories);
 	zlog_env_categories = NULL;
 	zlog_default_category = NULL;
