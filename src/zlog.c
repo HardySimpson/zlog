@@ -64,6 +64,15 @@ static void zlog_fini_inner(void)
 	return;
 }
 
+static void zlog_clean_rest_thread(void)
+{
+	zlog_thread_t *a_thread;
+	a_thread = pthread_getspecific(zlog_thread_key);
+	if (!a_thread) return;
+	zlog_thread_del(a_thread);
+	return;
+}
+
 static int zlog_init_inner(const char *confpath)
 {
 	int rc;
@@ -80,11 +89,20 @@ static int zlog_init_inner(const char *confpath)
 		goto err;
 	}
 
-	/* clean up is done by OS */
+	/* clean up is done by OS  when a thread call pthread_exit */
 	rc = pthread_key_create(&zlog_thread_key,
 		(void (*) (void *)) zlog_thread_del);
 	if (rc) {
 		zc_error("pthread_key_create fail, rc[%d]", rc);
+		goto err;
+	}
+
+	/* if some thread do not call pthread_exit, like main thread
+	 * atexit will clean it 
+	 */
+	rc = atexit(zlog_clean_rest_thread);
+	if (rc) {
+		zc_error("atexit fail, rc[%d]", rc);
 		goto err;
 	}
 
