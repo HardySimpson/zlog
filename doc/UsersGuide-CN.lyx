@@ -1123,7 +1123,7 @@ rotate lock file = /tmp/zlog.lock
 \end_layout
 
 \begin_layout LyX-Code
-default format = "%D.%us %-6P (%c:%F:%L) - %m%n"
+default format = "%d.%us %-6P (%c:%F:%L) - %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -1159,7 +1159,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-normal = "%D %m%n"
+normal = "%d %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -1343,7 +1343,7 @@ default format
 \end_layout
 
 \begin_layout LyX-Code
-"%D %V [%p:%F:%L] %m%n"
+"%d %V [%p:%F:%L] %m%n"
 \end_layout
 
 \begin_layout Standard
@@ -1567,7 +1567,7 @@ zlog_info(c, "hello, zlog");
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="22" columns="3">
+<lyxtabular version="3" rows="21" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="left" valignment="top" width="50text%">
@@ -1676,33 +1676,8 @@ reference "sub:时间字符"
 %d 2012-02-14 17:03:12
 \end_layout
 
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
 \begin_layout Plain Layout
-%D
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-相当于%d(%F %T)，zlog默认时间串，在性能上比%d有一定的提升
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-2012-02-14 17:03:12
+%d()
 \end_layout
 
 \end_inset
@@ -1713,7 +1688,7 @@ reference "sub:时间字符"
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E()
+%%E()
 \end_layout
 
 \end_inset
@@ -6269,7 +6244,7 @@ zlog允许用户自定义输出函数。输出函数需要绑定到某条特殊�
 \end_layout
 
 \begin_layout LyX-Code
-*.*     $name, "record path %c %D"; simple
+*.*     $name, "record path %c %d"; simple
 \end_layout
 
 \begin_layout Standard
@@ -7382,7 +7357,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*      $myoutput, " mypath %c %D";simple
+my_cat.*      $myoutput, " mypath %c %d";simple
 \end_layout
 
 \end_deeper

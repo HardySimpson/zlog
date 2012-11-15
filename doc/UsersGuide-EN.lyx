@@ -1725,7 +1725,7 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="22" columns="3">
+<lyxtabular version="3" rows="21" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="left" valignment="top" width="50text%">
@@ -1840,33 +1840,8 @@ for more detail.
 %d 2012-02-14 17:03:12
 \end_layout
 
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
 \begin_layout Plain Layout
-%D
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Equivalent to %d(%F %T), but faster
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-2012-02-14 17:03:12
+%d() 2012-02-14 17:03:12
 \end_layout
 
 \end_inset
@@ -1877,7 +1852,7 @@ Equivalent to %d(%F %T), but faster
 \begin_inset Text
 
 \begin_layout Plain Layout
-%E()
+%%E()
 \end_layout
 
 \end_inset
@@ -5168,7 +5143,7 @@ It is optional.
 \end_layout
 
 \begin_layout LyX-Code
-default format = "%D %V [%p:%F:%L] %m%n"
+default format = "%d %V [%p:%F:%L] %m%n"
 \end_layout
 
 \end_deeper
@@ -6727,7 +6702,7 @@ zlog allows user defines his own output function.
 \end_layout
 
 \begin_layout LyX-Code
-*.*     $name, "record path %c %D"; simple
+*.*     $name, "record path %c %d"; simple
 \end_layout
 
 \begin_layout Standard
@@ -6993,7 +6968,7 @@ $ cat test_mdc.conf
 \end_layout
 
 \begin_layout LyX-Code
-mdc_format=     "%D.%ms %-6V (%c:%F:%L) [%M(myname)] - %m%n"
+mdc_format=     "%d.%ms %-6V (%c:%F:%L) [%M(myname)] - %m%n"
 \end_layout
 
 \begin_layout LyX-Code
@@ -7893,7 +7868,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout LyX-Code
-my_cat.*      $myoutput, " mypath %c %D";simple
+my_cat.*      $myoutput, " mypath %c %d";simple
 \end_layout
 
 \end_deeper
