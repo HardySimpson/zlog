@@ -697,9 +697,8 @@ specifier may be followed by a date format specifier enclosed between
 parenthesis. For example, %d(%F) or %d(%m-%d %T). If no date
 format specifier is given then %d(%F %T) format is assumed. The
 date format specifier admits the same syntax as the strftime(2). see
-<A HREF="#sub:Time-Character">5.4.3</A>for more detail.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T.ms) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Equivalent to %d(%F %T), but faster</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012-02-14 17:03:12</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%E()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Value of environment variables</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%E(LOGNAME) simpson</DIV></TD></TR>
+<A HREF="#sub:Time-Character">5.4.3</A>for more detail.</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T.ms) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P><P>%d() 2012-02-14 17:03:12</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%%E()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Value of environment variables</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%E(LOGNAME) simpson</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%ms</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The millisecond, 3-digit integer string</DIV><P>comes from gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">013</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%us</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">The microsecond, 6-digit integer string</DIV><P>comes from gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">002323</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">Used to output the file name where the logging request was issued.
@@ -954,14 +953,15 @@ processes), will cause log interlace.
 and write to the same log file. Even a single log is not longer than
 PIPE_BUF, multiple cronologs will cause log interlace. As cronologs
 read log continuous, it doesn&#X2019;t know where is the egde between logs.
-</LI></UL><P>In summary, pipeline is safe when:
+</LI></UL><P>In summary, pipeline to a single log file:
 </P><UL CLASS="itemize"><LI CLASS="li-itemize">
 Single process writing, no limitation for length of one log. Multi-threads
 in one process atomic writing is already assured by zlog.
 </LI><LI CLASS="li-itemize">Multi-process who have relatives, the length of one log should not
 longer than PIPE_BUF.
-</LI></UL><P>Multi-process who don&#X2019;t have relatives, no matter how long a single
-log is, will cause interlace and is not safe.</P></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
+</LI><LI CLASS="li-itemize">Multi-process who don&#X2019;t have relatives, no matter how long a single
+log is, will cause interlace and is not safe.
+</LI></UL></LI><LI CLASS="li-itemize">file<UL CLASS="itemize"><LI CLASS="li-itemize">
 file path<P>can be absolute file path or relative file path. It is quoted by double
 quotation marks. <EM>Conversion pattern</EM> can be used in file path.
 If the file path is "%E(HOME)/log/out.log" and
@@ -1065,7 +1065,7 @@ which is:
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>[</TT><TT>global</TT><TT>]</TT><P><TT>default format = "%D %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
+</TT><TT>[</TT><TT>global</TT><TT>]</TT><P><TT>default format = "%d %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
 </TT></P></DD></DL></DIV></LI><LI CLASS="li-itemize">see <A HREF="#sec:User-defined-Output">7.4</A> for more details for $.
 </LI></UL><!--TOC section Rotation-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc26">5.6</A>  Rotation<A NAME="sec:Rotation"></A></H2><!--SEC END --><P>Why rotation? I have see more than once that in product-environment,
@@ -1436,7 +1436,7 @@ bonds to specail kind of rule in configure file. A typical rule is:
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, "record path %c %D"; simple
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, "record path %c %d"; simple
 </TT></DD></DL></DIV><P>zlog_set_record() do the bonding operation. rules with the $name
 will be output through user-defined function record. The
 function has the type of zlog_record_fn. </P><P>The member of struct zlog_msg_t is decribed below:</P><P>path comes from the second parm of rule after $name, which
@@ -1509,7 +1509,7 @@ The configure file is
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ cat test_mdc.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>mdc_format=     "%D.%ms %-6V (%c:%F:%L) </TT><TT>[</TT><TT>%M(myname)</TT><TT>]</TT><TT> - %m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>             &gt;stdout; mdc_format
+$ cat test_mdc.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>mdc_format=     "%d.%ms %-6V (%c:%F:%L) </TT><TT>[</TT><TT>%M(myname)</TT><TT>]</TT><TT> - %m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>             &gt;stdout; mdc_format
 </TT></P></DD></DL></DIV><P>
 And the output is
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -1801,7 +1801,7 @@ defined output in rules of configure file.<DIV CLASS="flushleft"><DL CLASS="list
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, " mypath %c %D";simple
+$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, " mypath %c %d";simple
 </TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">set a ouput function for myoutput, then using it<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 

@@ -409,7 +409,7 @@ c = zlog_get_category("my_cat");
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-# comments</TT><P><TT>[</TT><TT>global</TT><TT>]</TT></P><P><TT>strict init = true</TT></P><P><TT>buffer min = 1024</TT></P><P><TT>buffer max = 2MB</TT></P><P><TT>rotate lock file = /tmp/zlog.lock</TT></P><P><TT>default format = "%D.%us %-6P (%c:%F:%L) - %m%n"</TT></P><P><TT>file perms = 600</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>levels</TT><TT>]</TT></P><P><TT>TRACE = 10</TT></P><P><TT>CRIT = 130, LOG_CRIT</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>normal = "%D %m%n"</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>default.</TT><TT>*</TT><TT>               &gt;stdout; simple</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>                     "%12.2E(HOME)/log/%c.log", 1MB</TT><TT>*</TT><TT>12; simple</TT></P><P><TT>my_.INFO                &gt;stderr;</TT></P><P><TT>my_cat.!ERROR           "/var/log/aa.log"</TT></P><P><TT>my_dog.=DEBUG           &gt;syslog, LOG_LOCAL0; simple</TT></P><P><TT>my_mice.</TT><TT>*</TT><TT>               $user_define;
+# comments</TT><P><TT>[</TT><TT>global</TT><TT>]</TT></P><P><TT>strict init = true</TT></P><P><TT>buffer min = 1024</TT></P><P><TT>buffer max = 2MB</TT></P><P><TT>rotate lock file = /tmp/zlog.lock</TT></P><P><TT>default format = "%d.%us %-6P (%c:%F:%L) - %m%n"</TT></P><P><TT>file perms = 600</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>levels</TT><TT>]</TT></P><P><TT>TRACE = 10</TT></P><P><TT>CRIT = 130, LOG_CRIT</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>normal = "%d %m%n"</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>default.</TT><TT>*</TT><TT>               &gt;stdout; simple</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>                     "%12.2E(HOME)/log/%c.log", 1MB</TT><TT>*</TT><TT>12; simple</TT></P><P><TT>my_.INFO                &gt;stderr;</TT></P><P><TT>my_cat.!ERROR           "/var/log/aa.log"</TT></P><P><TT>my_dog.=DEBUG           &gt;syslog, LOG_LOCAL0; simple</TT></P><P><TT>my_mice.</TT><TT>*</TT><TT>               $user_define;
 </TT></P></DD></DL></DIV><P>
 有关单位：当设置内存大小或者大数字时，可以设置1k 5GB 4M这样的单位：
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
@@ -465,7 +465,7 @@ if (log_file &gt; 1M) rotate(log_file);</TT><P><TT>fcntl_unlock(lock_file);<
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-"%D %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
+"%d %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
 </TT></DD></DL></DIV><P>这种格式产生的输出类似这样：
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -539,9 +539,8 @@ zlog_info(c, "hello, zlog");
 </P><BLOCKQUOTE CLASS="table"><DIV CLASS="center"><HR WIDTH="80%" SIZE=2></DIV><DIV CLASS="center"><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">字符</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">效果</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">例子</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%c</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">分类名</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">aa_bb</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%d()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">打日志的时间。这个后面要跟一对小括号()内含说明具体的日期格式。就像%d(%F)或者%d(%m-%d %T)。如果不跟小括号，默认是%d(%F
-%T)。括号内的格式和 strftime(2)的格式一致。详见<A HREF="#sub:=0065F6=0095F4=005B57=007B26">5.4.3</A></DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%D</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">相当于%d(%F %T)，zlog默认时间串，在性能上比%d有一定的提升</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">2012-02-14 17:03:12</DIV></TD></TR>
-<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%E()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">获取环境变量的值</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%E(USER) simpson</DIV></TD></TR>
+%T)。括号内的格式和 strftime(2)的格式一致。详见<A HREF="#sub:=0065F6=0095F4=005B57=007B26">5.4.3</A></DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%d(%F) 2011-12-01</DIV><P>%d(%m-%d %T) 12-01 17:17:42</P><P>%d(%T) 17:17:42.035</P><P>%d 2012-02-14 17:03:12</P><P>%d()</P></TD></TR>
+<TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%%E()</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">获取环境变量的值</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">%E(USER) simpson</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%ms</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">毫秒，3位数字字符串</DIV><P>取自gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">013</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%us</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">微秒，6位数字字符串</DIV><P>取自gettimeofday(2)</P></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">002323</DIV></TD></TR>
 <TR><TD VALIGN=top ALIGN=left><DIV CLASS="center">%F</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">源代码文件名，来源于__FILE__宏。在某些编译器下 __FILE__是绝对路径。用%f来去掉目录只保留文件名，或者编译器有选项可以调节</DIV></TD><TD VALIGN=top ALIGN=left><DIV CLASS="flushleft">test_hello.c</DIV><P>或者在某些编译器下</P><P>/home/zlog/src/test/test_hello.c</P></TD></TR>
@@ -690,11 +689,12 @@ write(STDOUT_FILENO, zlog_buf_str(a_thread-&gt;msg_buf), zlog_buf_len(a_thread
 POSIX.1-2001保证读写不大于PIPE_BUF大小的内容是原子的。linux上PIPE_BUF为4096。
 </LI><LI CLASS="li-itemize">单条日志的长度超过PIPE_BUF的时候并且有多个有父子关系的进程写通过zlog写同一个管道，也就是在zlog_init之后fork多个子进程，此时只有一个cronolog的进程监听一个管道描述符，日志内容可能会交错。
 </LI><LI CLASS="li-itemize">多个进程分别zlog_init，启动多个cronolog进程，写拥有同一个文件路径的日志文件，即使单条日志长度不超过PIPE_BUF，也有可能导致日志交错，因为cronolog读到的文件流是连续的，它不知道单条日志的边界在哪里。
-</LI></UL><P>所以，总结一下，使用管道来输出日志而保证日志不交错，需要满足这样的条件。
+</LI></UL><P>所以，总结一下，使用管道来输出到单个日志文件的情况是：
 </P><UL CLASS="itemize"><LI CLASS="li-itemize">
 单进程写，单条日志长度不限制。单进程内内的多线程写日志的原子性已经由zlog保证了。
 </LI><LI CLASS="li-itemize">有父子关系的多进程，单条日志长度不能超过PIPE_BUF（4096）
-</LI></UL><P>无父子关系的多进程同时写一个日志，无论单条日志长度是多少，都有可能导致日志交错。</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
+</LI><LI CLASS="li-itemize">无父子关系的多进程使用管道同时写一个日志，无论单条日志长度是多少，都有可能导致日志交错。
+</LI></UL><P>zlog本身的直接文件输出能保证即使是多进程，同时调用zlog写一个日志文件也不会产生交错，见下。</P></LI><LI CLASS="li-itemize">文件<UL CLASS="itemize"><LI CLASS="li-itemize">
 文件路径<P>可以是相对路径或者绝对路径，被双引号"包含。转换格式串可以用在文件路径上。例如文件路径是 "%E(HOME)/log/out.log"，环境变量$HOME是/home/harry，那最后的输出文件是/home/harry/log/output.log。转换格式串详见
 <A HREF="#sec:=008F6C=006362=00683C=005F0F=004E32">5.4</A>。</P><P>zlog的文件功能极为强大，例如
 </P><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
@@ -1032,7 +1032,7 @@ typedef struct zlog_msg_s {</TT><P><TT>        char </TT><TT>*</TT><
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, "record path %c %D"; simple
+</TT><TT>*</TT><TT>.</TT><TT>*</TT><TT>     $name, "record path %c %d"; simple
 </TT></DD></DL></DIV><P>zlog_set_record()做绑定动作。规则中输出段有$name的，会被用来做用户自定义输出。输出函数为record。这个函数需要为zlog_record_fn的格式。</P><P>zlog_msg_t结构的各个成员描述如下：</P><P>path来自规则的逗号后的字符串，这个字符串会被动态的解析，输出当前的path，就像动态文件路径一样。</P><P>buf和len 是zlog格式化后的日志信息和长度。</P><P>所有zlog_set_record()做的绑定在zlog_reload()使用后继续有效。</P></DD><DT CLASS="dt-list">返回值</DT><DD CLASS="dd-list"> <P>成功情况下zlog_set_record()返回0。失败情况下zlog_set_record()返回-1。详细错误会被写在由环境变量ZLOG_PROFILE_ERROR指定的错误日志里面。</P></DD></DL><!--TOC section 调试和诊断-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc35">6.7</A>  调试和诊断</H2><!--SEC END --><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -1343,7 +1343,7 @@ $ ./test_level</TT><P><TT>TRACE trace hello, zlog - trace </TT></P><P><TT
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, " mypath %c %D";simple
+$ cat test_record.conf</TT><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>my_cat.</TT><TT>*</TT><TT>      $myoutput, " mypath %c %d";simple
 </TT></P></DD></DL></DIV></LI><LI CLASS="li-enumerate">绑定一个函数到$myoutput，并使用之<DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
