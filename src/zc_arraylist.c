@@ -70,6 +70,7 @@ static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 {
 	void *tmp;
 	int new_size;
+	int diff_size;
 
 	new_size = zc_max(a_list->size * 2, max);
 	tmp = realloc(a_list->array, new_size * sizeof(void *));
@@ -79,8 +80,8 @@ static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 		return -1;
 	}
 	a_list->array = (void **)tmp;
-	memset(a_list->array + a_list->size, 0x00,
-	       (new_size - a_list->size) * sizeof(void *));
+	diff_size = new_size - a_list->size;
+	if (diff_size) memset(a_list->array + a_list->size, 0x00, diff_size * sizeof(void *));
 	a_list->size = new_size;
 	return 0;
 }

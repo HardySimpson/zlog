@@ -322,7 +322,7 @@ int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width)
 				/* zero_len not changed */
 				num_len = len_left - zero_len;
 			}
-			memset(a_buf->tail, '0', zero_len);
+			if (zero_len) memset(a_buf->tail, '0', zero_len);
 			memcpy(a_buf->tail + zero_len, p, num_len);
 			a_buf->tail += len_left;
 			//*(a_buf->tail) = '\0';
@@ -337,7 +337,7 @@ int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width)
 		}
 	}
 
-	memset(a_buf->tail, '0', zero_len);
+	if (zero_len) memset(a_buf->tail, '0', zero_len);
 	memcpy(a_buf->tail + zero_len, p, num_len);
 	a_buf->tail = q;
 	//*(a_buf->tail) = '\0';
@@ -413,7 +413,7 @@ int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width)
 				/* zero_len not changed */
 				num_len = len_left - zero_len;
 			}
-			memset(a_buf->tail, '0', zero_len);
+			if (zero_len) memset(a_buf->tail, '0', zero_len);
 			memcpy(a_buf->tail + zero_len, p, num_len);
 			a_buf->tail += len_left;
 			//*(a_buf->tail) = '\0';
@@ -428,7 +428,7 @@ int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width)
 		}
 	}
 
-	memset(a_buf->tail, '0', zero_len);
+	if (zero_len) memset(a_buf->tail, '0', zero_len);
 	memcpy(a_buf->tail + zero_len, p, num_len);
 	a_buf->tail = q;
 	//*(a_buf->tail) = '\0';
@@ -493,7 +493,7 @@ int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width)
 				/* zero_len not changed */
 				num_len = len_left - zero_len;
 			}
-			memset(a_buf->tail, '0', zero_len);
+			if (zero_len) memset(a_buf->tail, '0', zero_len);
 			memcpy(a_buf->tail + zero_len, p, num_len);
 			a_buf->tail += len_left;
 			//*(a_buf->tail) = '\0';
@@ -508,7 +508,7 @@ int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width)
 		}
 	}
 
-	memset(a_buf->tail, '0', zero_len);
+	if (zero_len) memset(a_buf->tail, '0', zero_len);
 	memcpy(a_buf->tail + zero_len, p, num_len);
 	a_buf->tail = q;
 	//*(a_buf->tail) = '\0';
@@ -612,7 +612,7 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 					source_len = append_len;
 					space_len = 0;
 				}
-				memset(a_buf->tail + source_len, ' ', space_len);
+				if (space_len) memset(a_buf->tail + source_len, ' ', space_len);
 				memcpy(a_buf->tail, str, source_len);
 			} else {
 				if (space_len < append_len) {
@@ -621,7 +621,7 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 					space_len = append_len;
 					source_len = 0;
 				}
-				memset(a_buf->tail, ' ', space_len);
+				if (space_len) memset(a_buf->tail, ' ', space_len);
 				memcpy(a_buf->tail + space_len, str, source_len);
 			}
 			a_buf->tail += append_len;
@@ -637,10 +637,10 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	}
 
 	if (left_adjust) {
-		memset(a_buf->tail + source_len, ' ', space_len);
+		if (space_len) memset(a_buf->tail + source_len, ' ', space_len);
 		memcpy(a_buf->tail, str, source_len);
 	} else {
-		memset(a_buf->tail, ' ', space_len);
+		if (space_len) memset(a_buf->tail, ' ', space_len);
 		memcpy(a_buf->tail + space_len, str, source_len);
 	}
 	a_buf->tail += append_len;
