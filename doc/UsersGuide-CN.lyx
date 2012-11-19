@@ -540,20 +540,19 @@ $ sudo ldconfig
 \end_layout
 
 \begin_layout LyX-Code
-$ make 32bit /* 32bit version on 64bit machine, libc6-dev-i386 is needed
- */
+$ make 32bit # 32bit version on 64bit machine, libc6-dev-i386 is needed
 \end_layout
 
 \begin_layout LyX-Code
-$ make noopt /* without gcc optimization */
+$ make noopt # without gcc optimization
 \end_layout
 
 \begin_layout LyX-Code
-$ make doc /* lyx is needed */
+$ make doc   # lyx and hevea is needed
 \end_layout
 
 \begin_layout LyX-Code
-$ make test /* test code, which is also good example for zlog */
+$ make test  # test code, which is also good example for zlog
 \end_layout
 
 \begin_layout Itemize

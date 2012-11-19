@@ -131,11 +131,6 @@ void zlog_event_set_fmt(zlog_event_t * a_event,
 	 */
 	a_event->pid = (pid_t) 0;
 
-	/*
-	 * zlog_spec_write_time localtime_r & strftime 
-	 */
-	a_event->time_last = a_event->time_stamp.tv_sec;
-
 	/* in a event's life cycle, time will be get when spec need,
 	 * and keep unchange though all event's life cycle
 	 * zlog_spec_write_time gettimeofday
@@ -172,11 +167,9 @@ void zlog_event_set_hex(zlog_event_t * a_event,
 	 */
 	a_event->pid = (pid_t) 0;
 
-	a_event->time_last = a_event->time_stamp.tv_sec;
-
 	/* in a event's life cycle, time will be get when spec need,
 	 * and keep unchange though all event's life cycle
 	 */
-	memset(&(a_event->time_stamp), 0x00, sizeof(a_event->time_stamp));
+	a_event->time_stamp.tv_sec = 0;
 	return;
 }

@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include "zlog.h"
+#include <unistd.h>
 
 int main(int argc, char** argv)
 {
@@ -38,8 +39,15 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	zlog_info(zc, "hello, zlog");
-	zlog_profile();
+	zlog_debug(zc, "hello, zlog 1");
+	zlog_info(zc, "hello, zlog 2");
+
+	sleep(1);
+
+	zlog_info(zc, "hello, zlog 3");
+	zlog_debug(zc, "hello, zlog 4");
+
+//	zlog_profile();
 
 	zlog_fini();
 	

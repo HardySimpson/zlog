@@ -34,6 +34,7 @@ typedef enum {
 typedef struct zlog_time_cache_s {
 	char str[MAXLEN_CFG_LINE + 1];
 	size_t len;
+	time_t sec;
 } zlog_time_cache_t;
 
 typedef struct {
@@ -56,8 +57,9 @@ typedef struct {
 	zlog_event_cmd generate_cmd;
 
 	struct timeval time_stamp;
+
+	time_t time_local_sec;
 	struct tm time_local;	
-	time_t time_last;
 
 	zlog_time_cache_t *time_caches;
 	int time_cache_count;

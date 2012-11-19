@@ -58,22 +58,26 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 
 static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
-	zlog_time_cache_t * a_cache;
+	zlog_time_cache_t * a_cache = a_thread->event->time_caches + a_spec->time_cache_index;
+	time_t now_sec = a_thread->event->time_stamp.tv_sec;
+	struct tm *time_local = &(a_thread->event->time_local);
 
-	a_cache = a_thread->event->time_caches + a_spec->time_cache_index;
-
-	if (!a_thread->event->time_stamp.tv_sec) {
+	/* the event meet the 1st time_spec in his life cycle */
+	if (!now_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
+		now_sec = a_thread->event->time_stamp.tv_sec;
 	}
 
-	/* 
-	 * When time slips one second, or cache is not warmed up
-	 */
-	if (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last
-		|| a_cache->len == 0) {
-		localtime_r(&(a_thread->event->time_stamp.tv_sec), &(a_thread->event->time_local));
-		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str),
-			a_spec->time_fmt, &(a_thread->event->time_local));
+	/* When this event's last cached time_local is not now */
+	if (a_thread->event->time_local_sec != now_sec) {
+		localtime_r(&(now_sec), time_local);
+		a_thread->event->time_local_sec = now_sec;
+	}
+
+	/* When this spec's last cache time string is not now */
+	if (a_cache->sec != now_sec) {
+		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str), a_spec->time_fmt, time_local);
+		a_cache->sec = now_sec;
 	}
 
 	return zlog_buf_append(a_buf, a_cache->str, a_cache->len);
