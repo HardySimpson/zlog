@@ -67,9 +67,10 @@ static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 	}
 
 	/* 
-	 * It is modified when time slips one second.
+	 * When time slips one second, or cache is not warmed up
 	 */
-	if (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last) {
+	if (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last
+		|| a_cache->len == 0) {
 		localtime_r(&(a_thread->event->time_stamp.tv_sec), &(a_thread->event->time_local));
 		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str),
 			a_spec->time_fmt, &(a_thread->event->time_local));
