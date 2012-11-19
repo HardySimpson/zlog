@@ -177,7 +177,7 @@ $ sudo vi /etc/ld.so.conf</TT><P><TT>/usr/local/lib</TT></P><P><TT>$ sudo l
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ make 32bit /</TT><TT>*</TT><TT> 32bit version on 64bit machine, libc6-dev-i386 is needed </TT><TT>*</TT><TT>/</TT><P><TT>$ make noopt /</TT><TT>*</TT><TT> without gcc optimization </TT><TT>*</TT><TT>/</TT></P><P><TT>$ make doc /</TT><TT>*</TT><TT> lyx is needed </TT><TT>*</TT><TT>/</TT></P><P><TT>$ make test /</TT><TT>*</TT><TT> test code, which is also good example for zlog </TT><TT>*</TT><TT>/</TT></P></DD></DL></DIV><UL CLASS="itemize"><LI CLASS="li-itemize">
+$ make 32bit # 32bit version on 64bit machine, libc6-dev-i386 is needed</TT><P><TT>$ make noopt # without gcc optimization</TT></P><P><TT>$ make doc   # lyx and hevea is needed</TT></P><P><TT>$ make test  # test code, which is also good example for zlog</TT></P></DD></DL></DIV><UL CLASS="itemize"><LI CLASS="li-itemize">
 makefile是用GNU make的格式写的，所以在你的平台上需要预装gnu make和gcc。或者，手工修改一个自己平台的makefile也行。
 </LI></UL><!--TOC section 应用程序调用和链接zlog-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc7">3.2</A>  应用程序调用和链接zlog</H2><!--SEC END --><P>应用程序使用zlog很简单，只要在C文件里面加一行。

@@ -220,7 +220,7 @@ Beside normal make, these are also available:</LI></UL><DIV CLASS="flushleft"><D
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ make 32bit /</TT><TT>*</TT><TT> 32bit version on 64bit machine, libc6-dev-i386 is needed </TT><TT>*</TT><TT>/</TT><P><TT>$ make noopt /</TT><TT>*</TT><TT> without gcc optimization </TT><TT>*</TT><TT>/</TT></P><P><TT>$ make doc /</TT><TT>*</TT><TT> lyx is needed </TT><TT>*</TT><TT>/</TT></P><P><TT>$ make test /</TT><TT>*</TT><TT> test code, which is also good example for zlog </TT><TT>*</TT><TT>/</TT></P></DD></DL></DIV><UL CLASS="itemize"><LI CLASS="li-itemize">
+$ make 32bit # 32bit version on 64bit machine, libc6-dev-i386 is needed</TT><P><TT>$ make noopt # without gcc optimization</TT></P><P><TT>$ make doc   # lyx and hevea is needed</TT></P><P><TT>$ make test  # test code, which is also good example for zlog</TT></P></DD></DL></DIV><UL CLASS="itemize"><LI CLASS="li-itemize">
 makefile of zlog is written in gnu make style. So if your platform
 is not linux, install a gnu make and gcc before build zlog. Another
 way is writing a makefile of your platform&#X2019;s make style, which is
@@ -498,7 +498,7 @@ clear as I can. Here is a example of zlog.conf:
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-# comments</TT><P><TT>[</TT><TT>global</TT><TT>]</TT></P><P><TT>strict init = true</TT></P><P><TT>reload conf period = 1M</TT></P><P><TT>buffer min = 1024</TT></P><P><TT>buffer max = 2MB</TT></P><P><TT>rotate lock file = /tmp/zlog.lock</TT></P><P><TT>default format = "%D.%ms %-6V (%c:%F:%L) - %m%n"</TT></P><P><TT>file perms = 600</TT></P><P><TT>fsync period = 1K</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>levels</TT><TT>]</TT></P><P><TT>TRACE = 10</TT></P><P><TT>CRIT = 130, LOG_CRIT</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>normal = "%d(%F %T) %m%n"</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>default.</TT><TT>*</TT><TT>               &gt;stdout; simple</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>                     "%12.2E(HOME)/log/%c.log", 1MB</TT><TT>*</TT><TT>12; simple</TT></P><P><TT>my_.INFO                &gt;stderr;</TT></P><P><TT>my_cat.!ERROR           "/var/log/aa.log"</TT></P><P><TT>my_dog.=DEBUG           &gt;syslog, LOG_LOCAL0; simple</TT></P><P><TT>my_mice.</TT><TT>*</TT><TT>               $user_define;
+# comments</TT><P><TT>[</TT><TT>global</TT><TT>]</TT></P><P><TT>strict init = true</TT></P><P><TT>reload conf period = 1M</TT></P><P><TT>buffer min = 1024</TT></P><P><TT>buffer max = 2MB</TT></P><P><TT>rotate lock file = /tmp/zlog.lock</TT></P><P><TT>default format = "%d.%ms %-6V (%c:%F:%L) - %m%n"</TT></P><P><TT>file perms = 600</TT></P><P><TT>fsync period = 1K</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>levels</TT><TT>]</TT></P><P><TT>TRACE = 10</TT></P><P><TT>CRIT = 130, LOG_CRIT</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>formats</TT><TT>]</TT></P><P><TT>simple = "%m%n"</TT></P><P><TT>normal = "%d(%F %T) %m%n"</TT></P><P><TT> </TT></P><P><TT>[</TT><TT>rules</TT><TT>]</TT></P><P><TT>default.</TT><TT>*</TT><TT>               &gt;stdout; simple</TT></P><P><TT>*</TT><TT>.</TT><TT>*</TT><TT>                     "%12.2E(HOME)/log/%c.log", 1MB</TT><TT>*</TT><TT>12; simple</TT></P><P><TT>my_.INFO                &gt;stderr;</TT></P><P><TT>my_cat.!ERROR           "/var/log/aa.log"</TT></P><P><TT>my_dog.=DEBUG           &gt;syslog, LOG_LOCAL0; simple</TT></P><P><TT>my_mice.</TT><TT>*</TT><TT>               $user_define;
 </TT></P></DD></DL></DIV><P>
 Note on units: when memory size or large number is needed, it is possible
 to specify it in the usual form of 1k 5GB 4M and so forth:
@@ -590,7 +590,7 @@ is
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-"%D %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
+"%d %V </TT><TT>[</TT><TT>%p:%F:%L</TT><TT>]</TT><TT> %m%n"
 </TT></DD></DL></DIV><P>It will yield output like this:
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
