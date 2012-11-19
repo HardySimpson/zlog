@@ -1123,7 +1123,7 @@ rotate lock file = /tmp/zlog.lock
 \end_layout
 
 \begin_layout LyX-Code
-default format = "%d.%us %-6P (%c:%F:%L) - %m%n"
+default format = "%d.%us %-6V (%c:%F:%L) - %m%n"
 \end_layout
 
 \begin_layout LyX-Code
