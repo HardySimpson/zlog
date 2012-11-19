@@ -177,11 +177,6 @@ int zlog_thread_rebuild_event(zlog_thread_t * a_thread, int time_cache_count)
 	zlog_event_t *event_new = NULL;
 	zc_assert(a_thread, -1);
 
-	if (time_cache_count == a_thread->event->time_cache_count) {
-		zc_debug("time_cache_count not change, no need rebuild");
-		return 0;
-	}
-
 	event_new = zlog_event_new(time_cache_count);
 	if (!event_new) {
 		zc_error("zlog_event_new fail");
