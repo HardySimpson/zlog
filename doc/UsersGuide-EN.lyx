@@ -1687,7 +1687,7 @@ Let the conversion pattern be
 \end_layout
 
 \begin_layout LyX-Code
-"%d(%m-%d %T) %-5P [%p:%F:%L] %m%n".
+"%d(%m-%d %T) %-5V [%p:%F:%L] %m%n".
 \end_layout
 
 \begin_layout Standard
