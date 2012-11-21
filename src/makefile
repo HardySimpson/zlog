@@ -124,7 +124,8 @@ dynamic: $(DYLIBNAME)
 static: $(STLIBNAME)
 
 # Binaries:
-zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME)
+zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME) $(DYLIBNAME)
+	ls -l libzlog.so
 	$(CC) -o $@ $(REAL_CFLAGS) zlog-chk-conf.o -L. -lzlog $(REAL_LDFLAGS)
 
 .c.o:
