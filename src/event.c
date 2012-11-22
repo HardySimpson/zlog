@@ -135,7 +135,7 @@ void zlog_event_set_fmt(zlog_event_t * a_event,
 	 * and keep unchange though all event's life cycle
 	 * zlog_spec_write_time gettimeofday
 	 */
-	memset(&(a_event->time_stamp), 0x00, sizeof(a_event->time_stamp));
+	a_event->time_stamp.tv_sec = 0;
 	return;
 }
 
