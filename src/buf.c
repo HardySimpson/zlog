@@ -203,13 +203,10 @@ static int zlog_buf_resize(zlog_buf_t * a_buf, size_t increment)
 		a_buf->tail = NULL;
 		a_buf->end = NULL;
 		a_buf->end_plus_1 = NULL;
-		/* set size_real = -1, so other func know buf is unavailiable */
-		a_buf->size_real = -1;
 		return -1;
 	} else {
 		a_buf->start = p;
 		a_buf->tail = p + len;
-		//memset(a_buf->tail, 0x00, new_size - len);
 		a_buf->size_real = new_size;
 		a_buf->end_plus_1 = a_buf->start + new_size;
 		a_buf->end = a_buf->end_plus_1 - 1;
@@ -224,7 +221,7 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 	size_t size_left;
 	int nwrite;
 
-	if (a_buf->size_real < 0) {
+	if (!a_buf->start) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
 		return -1;
 	}
@@ -286,7 +283,7 @@ int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width)
 	unsigned char tmp[ZLOG_INT32_LEN + 1];
 	size_t num_len, zero_len, out_len;
 
-	if (a_buf->size_real < 0) {
+	if (!a_buf->start) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
 		return -1;
 	}
@@ -352,7 +349,7 @@ int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width)
 	size_t num_len, zero_len, out_len;
 	uint32_t ui32;
 
-	if (a_buf->size_real < 0) {
+	if (!a_buf->start) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
 		return -1;
 	}
@@ -444,7 +441,7 @@ int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width)
 	static unsigned char   hex[] = "0123456789abcdef";
 	//static unsigned char   HEX[] = "0123456789ABCDEF";
 
-	if (a_buf->size_real < 0) {
+	if (!a_buf->start) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
 		return -1;
 	}
@@ -523,11 +520,11 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 	if (str_len <= 0 || str == NULL) {
 		return 0;
 	}
-#endif
-	if (a_buf->size_real < 0) {
+	if (!a_buf->start) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
 		return -1;
 	}
+#endif
 
 	if ((p = a_buf->tail + str_len) > a_buf->end) {
 		int rc;
@@ -572,7 +569,7 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 	}
 #endif
 
-	if (a_buf->size_real < 0) {
+	if (!a_buf->start) {
 		zc_error("pre-use of zlog_buf_resize fail, so can't convert");
 		return -1;
 	}
