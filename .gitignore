@@ -48,3 +48,4 @@ doc/*.htoc
 doc/*.tex
 test/press*
 test/*.png
+release.h

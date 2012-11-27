@@ -108,7 +108,7 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 {
 	int nwrite = 0;
 	int has_conf_file = 0;
-	zlog_conf_t *a_conf;
+	zlog_conf_t *a_conf = NULL;
 
 	a_conf = calloc(1, sizeof(zlog_conf_t));
 	if (!a_conf) {

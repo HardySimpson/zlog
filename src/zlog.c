@@ -31,6 +31,7 @@
 #include "mdc.h"
 #include "zc_defs.h"
 #include "rule.h"
+#include "version.h"
 
 /*******************************************************************************/
 extern char *zlog_git_sha1;
@@ -123,8 +124,8 @@ int zlog_init(const char *confpath)
 {
 	int rc;
 	zc_debug("------zlog_init start------");
-	zc_debug("------compile time[%s %s], git version[%s]------",
-			__DATE__, __TIME__, zlog_git_sha1);
+	zc_debug("------compile time[%s %s], version[%s]------",
+			__DATE__, __TIME__, ZLOG_VERSION);
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) {
@@ -164,8 +165,9 @@ err:
 int dzlog_init(const char *confpath, const char *cname)
 {
 	int rc = 0;
-	zc_debug("------zlog_init start, compile time[%s %s], git version[%s]------",
-			__DATE__, __TIME__, zlog_git_sha1);
+	zc_debug("------dzlog_init start------");
+	zc_debug("------compile time[%s %s], version[%s]------",
+			__DATE__, __TIME__, ZLOG_VERSION);
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) {

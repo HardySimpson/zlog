@@ -14,7 +14,6 @@ OBJ=    \
   mdc.o    \
   record.o    \
   record_table.o    \
-  release.o    \
   rotater.o    \
   rule.o    \
   spec.o    \
@@ -89,7 +88,6 @@ record.o: record.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h record.h
 record_table.o: record_table.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h record_table.h record.h
-release.o: release.c release.h
 rotater.o: rotater.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h rotater.h
 rule.o: rule.c fmacros.h rule.h zc_defs.h zc_profile.h zc_arraylist.h \

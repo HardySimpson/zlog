@@ -27,6 +27,7 @@
 #include <unistd.h>
 
 #include "zlog.h"
+#include "version.h"
 
 
 int main(int argc, char *argv[])
@@ -35,17 +36,14 @@ int main(int argc, char *argv[])
 	int op;
 	int quiet = 0;
 	static const char *help = 
-		"Useage: zlog-chk-conf [conf files]...\n"
+		"useage: zlog-chk-conf [conf files]...\n"
 		"\t-q,\tsuppress non-error message\n"
 		"\t-h,\tshow help message\n"
-		"\t-v,\tshow zlog library's git version\n";
+		"zlog version: " ZLOG_VERSION "\n";
 
 	while((op = getopt(argc, argv, "qhv")) > 0) {
 		if (op == 'h') {
-			puts(help);
-			return 0;
-		} else if (op == 'v') {
-			printf("zlog git version[%s]\n", zlog_git_sha1);
+			fputs(help, stdout);
 			return 0;
 		} else if (op == 'q') {
 			quiet = 1;
@@ -56,7 +54,7 @@ int main(int argc, char *argv[])
 	argv += optind;
 
 	if (argc == 0) {
-		puts(help);
+		fputs(help, stdout);
 		return -1;
 	}
 
