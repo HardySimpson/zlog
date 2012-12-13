@@ -1,0 +1,3 @@
+ACLOCAL_AMFLAGS=-I m4
+dist_doc_DATA=COPYING INSTALL README TODO
+SUBDIRS=doc src tools test
