@@ -1,5 +1,6 @@
-LDADD = -lzlog -L$(top_builddir)/src
+LDADD = $(top_builddir)/src/libzlog.la
 AM_CFLAGS = -I$(top_builddir)/src
+test_level_SOURCES = test_level.c test_level.h
 check_PROGRAMS = test_bitmap \
 	test_buf \
 	test_conf \
@@ -22,3 +23,4 @@ check_PROGRAMS = test_bitmap \
 	test_syslog \
 	test_tmp
 
+EXTRA_DIST = *.conf

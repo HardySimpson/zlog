@@ -1,1 +1,1 @@
-check_SCRIPTS = mk_targz.sh
+EXTRA_DIST = mk_targz.sh

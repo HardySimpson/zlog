@@ -2,6 +2,12 @@ NAME=zlog
 
 lib_LTLIBRARIES = libzlog.la
 
+# Version info is a bit crazy but for more info
+# https://www.gnu.org/software/libtool/manual/html_node/Libtool-versioning.html
+# value bellow is used for current soname compatibility but in future version
+# should be changed depending on interface changes look here for info
+# https://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+libzlog_la_LDFLAGS =-version-info 2:0:1
 libzlog_la_CFLAGS = -I.
 libzlog_la_SOURCES = buf.c buf.h \
 	category.c category.h \
@@ -32,4 +38,4 @@ include_HEADERS = zlog.h
 bin_PROGRAMS = zlog-chk-conf
 
 zlog_chk_conf_CFLAGS = -I.
-zlog_chk_conf_LDADD = -lzlog
+zlog_chk_conf_LDADD = libzlog.la

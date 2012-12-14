@@ -30,12 +30,6 @@ rename_makefile doc/makefile && \
 rename_makefile makefile
 good_or_bad
 
-echo -n "Creating default missing files..... "
-touch NEWS
-touch AUTHORS
-touch ChangeLog
-good_or_bad
-
 
 echo -n "Running aclocal ..... "
 aclocal

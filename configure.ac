@@ -4,7 +4,6 @@
 AC_PREREQ([2.69])
 AC_INIT([zlog], [1.2.7], [HardySimpson1984@gmail.com])
 AC_CONFIG_SRCDIR([src/version.h])
-AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 # Checks for programs.
 AC_PROG_CC
@@ -13,13 +12,18 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 LT_INIT
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign dist-bzip2])
 
 # Checks for libraries.
 AC_CHECK_LIB([pthread], [pthread_create])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h limits.h stdint.h stdlib.h string.h strings.h sys/time.h syslog.h unistd.h])
+
+# Checks for programs
+AM_CONDITIONAL([HAVE_LYX], [test "$(which lyx)" = "true"])
+AM_CONDITIONAL([HAVE_HEVEA], [test "$(which hevea)" = "true"])
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_PID_T
