@@ -39,5 +39,4 @@ bin_PROGRAMS = zlog-chk-conf
 zlog_chk_conf_CFLAGS = -I.
 zlog_chk_conf_LDADD = libzlog.la
 
-man1_MANS = zlog-chk-conf.1
 dist_man_MANS = zlog-chk-conf.1
