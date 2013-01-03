@@ -123,15 +123,14 @@ syslog分类模型，比log4j模型更加直接了当
 </LI><LI CLASS="li-itemize">自诊断，可以在运行时输出zlog自己的日志和配置状态
 </LI><LI CLASS="li-itemize">不依赖其他库，只要是个POSIX系统就成(当然还要一个C99兼容的vsnprintf)
 </LI></UL><P>
-相关链接：</P><P>软件下载：<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A></P><P>源代码：<A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>使用手册(pdf)：<A HREF="https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf">https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf</A></P><P>问题讨论区：<A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>英文主页：<A HREF="http://hardysimpson.github.com/zlog/">http://hardysimpson.github.com/zlog/</A></P><P>中文主页：<A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>作者博客：<A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>邮箱：<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section 兼容性说明-->
+相关链接：</P><P>软件下载：<A HREF="https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz">https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz</A></P><P>源代码：<A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>使用手册(html)：<A HREF="http://hardysimpson.github.com/zlog/UsersGuide-CN.html">http://hardysimpson.github.com/zlog/UsersGuide-CN.html</A></P><P>问题讨论区：<A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>英文主页：<A HREF="http://hardysimpson.github.com/zlog/">http://hardysimpson.github.com/zlog/</A></P><P>中文主页：<A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>作者博客：<A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>邮箱：<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section 兼容性说明-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc2">1.1</A>  兼容性说明</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog是基于POSIX的。目前我手上有的环境只有AIX和linux。在其他的系统下（FreeBSD, NetBSD, OpenBSD,
 OpenSolaris, Mac OS X...）估计也能行，有问题欢迎探讨。
 </LI><LI CLASS="li-enumerate">zlog使用了一个C99兼容的vsnprintf。也就是说如果缓存大小不足，vsnprintf将会返回目标字符串应有的长度（不包括’\0’)。如果在你的系统上vsnprintf不是这么运作的，zlog就不知道怎么扩大缓存。如果在目标缓存不够的时候vsnprintf返回-1，zlog就会认为这次写入失败。幸运的是目前大多数c标准库符合C99标准。glibc
 2.1,libc on AIX, libc on freebsd...都是好的，不过glibc2.0不是。在这种情况下，用户需要自己来装一个C99兼容的vsnprintf，来crack这个函数库。我推荐<A HREF="http://sourceforge.net/projects/ctrio/">ctrio</A>,
 或者<A HREF="http://www.jhweiss.de/software/snprintf.html">C99-snprintf</A>。只要改buf.c就行，祝好运！
-</LI><LI CLASS="li-enumerate">zlog目前还没有计划支持windows，毕竟windows下已经有非常成熟的日志函数库。
-</LI></OL><!--TOC section zlog 1.2 发布说明-->
+</LI><LI CLASS="li-enumerate">有网友提供了如下版本，方便其他平台上安装编译，非常感谢！<P>auto tools版本: https://github.com/bmanojlovic/zlog </P><P>cmake版本: https://github.com/lisongmin/zlog </P><P>windows版本: https://github.com/lopsd07/WinZlog</P></LI></OL><!--TOC section zlog 1.2 发布说明-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc3">1.2</A>  zlog 1.2 发布说明</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog 1.2 新增了这些功能<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
 对管道的支持，从此zlog可以外接cronolog这样的日志过滤程序来输出
@@ -151,14 +150,14 @@ OpenSolaris..)都能安装gcc和gnu make。当然也可以自行修改makefile�
 </LI></OL></LI></OL><!--TOC chapter zlog不是什么？-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc4">Chapter 2</A>  zlog不是什么？</H1><!--SEC END --><P>zlog的目标是成为一个简而精的日志函数库，不会直接支持网络输出或者写入数据库，不会直接支持日志内容的过滤和解析。</P><P>原因很明显，日志库是被应用程序调用的，所有花在日志库上的时间都是应用程序运行时间的一部分，而上面说的这些操作都很费时间，会拖慢应用程序的速度。这些事儿应该在别的进程或者别的机器上做。</P><P>如果你需要这些特性，我建议使用rsyslog、zLogFabric、Logstash，这些日志搜集、过滤、存储软件，当然这是单独的进程，不是应用程序的一部分。</P><P>目前zlog已经支持<A HREF="#sec:=007528=006237=0081EA=005B9A=004E49=008F93=0051FA">7.4</A>，可以自己实现一个输出函数，自由的把日志输出到其他进程或者其他机器。而把日志的分类匹配、日志格式成型的工作交给zlog。</P><P>目前我的想法是实现一个zlog-redis客户端，用自定义输出功能，把日志存储到本机或者远程的redis服务器内，然后用其他进程(也使用zlog库)来把日志写到文件里面，不知大家以为这个想法如何？欢迎和我联系探讨。</P><!--TOC chapter Hello World-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc5">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section 编译和安装zlog-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">3.1</A>  编译和安装zlog</H2><!--SEC END --><P>下载<A HREF="file:https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">zlog-latest-stable.tar.gz</A>
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">3.1</A>  编译和安装zlog</H2><!--SEC END --><P>下载<A HREF="file:https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz">zlog-latest-stable.tar.gz</A>
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ tar -zxvf zlog-latest-stable.tar.gz</TT><P><TT>$ cd zlog-1.2.</TT><TT>*</TT><TT>/</TT></P><P><TT>$ make </TT></P><P><TT>$ sudo make install</TT></P><P><TT>or</TT></P><P><TT>$ sudo make PREFIX=/usr/local/ install
+$ tar -zxvf zlog-latest-stable.tar.gz</TT><P><TT>$ cd zlog-latest-stable/</TT></P><P><TT>$ make </TT></P><P><TT>$ sudo make install</TT></P><P><TT>or</TT></P><P><TT>$ sudo make PREFIX=/usr/local/ install
 </TT></P></DD></DL></DIV><P>
 PREFIX指明了安装的路径，安转完之后为了让你的程序能找到zlog动态库
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">

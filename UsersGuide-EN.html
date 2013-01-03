@@ -131,7 +131,7 @@ faster than syslog(3) with rsyslogd
 </LI><LI CLASS="li-itemize">Not depend on any other 3rd party library, just base on POSIX system(and
 a C99 compliant vsnprintf).
 </LI></UL><P>
-Links:</P><P>Download: <A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A></P><P>SourceCode: <A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>User&#X2019;s Guide(pdf): <A HREF="https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf">https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf</A></P><P>Mail List: <A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>Homepage(in English): <A HREF="http://hardysimpson.github.com/zlog">http://hardysimpson.github.com/zlog</A></P><P>Homepage(in Chinese): <A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>Author&#X2019;s Blog(in Chinese): <A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>Author&#X2019;s Email: <A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section Compatible Notes-->
+Links:</P><P>Download: <A HREF="https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz">https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz</A></P><P>SourceCode: <A HREF="http://git@github.com:HardySimpson/zlog.git">git@github.com:HardySimpson/zlog.git</A></P><P>User&#X2019;s Guide(html): <A HREF="http://hardysimpson.github.com/zlog/UsersGuide-EN.html">http://hardysimpson.github.com/zlog/UsersGuide-EN.html</A></P><P>Mail List: <A HREF="https://github.com/HardySimpson/zlog/issues">https://github.com/HardySimpson/zlog/issues</A></P><P>Homepage(in English): <A HREF="http://hardysimpson.github.com/zlog">http://hardysimpson.github.com/zlog</A></P><P>Homepage(in Chinese): <A HREF="http://www.oschina.net/p/zlog">http://www.oschina.net/p/zlog</A></P><P>Author&#X2019;s Blog(in Chinese): <A HREF="http://my.oschina.net/HardySimpson/blog">http://my.oschina.net/HardySimpson/blog</A></P><P>Author&#X2019;s Email: <A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section Compatible Notes-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc2">1.1</A>  Compatible Notes</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog is based on POSIX-compatible system. I just have GNU/linux and
 AIX envrionment and test to compile and run zlog on them. Still I
@@ -148,9 +148,7 @@ work in the right way, while glibc 2.0 is not. In this case, user
 should crack zlog himself with a C99 compliant vsnprintf. I suggest
 <A HREF="http://sourceforge.net/projects/ctrio/">ctrio</A>, or <A HREF="http://www.jhweiss.de/software/snprintf.html">C99-snprintf</A>.
 The file buf.c should be cracked, good luck!
-</LI><LI CLASS="li-enumerate">zlog has no plan to support Windows. As Windows already have tons
-of logging libraries.
-</LI></OL><!--TOC section zlog 1.2 Release Notes-->
+</LI><LI CLASS="li-enumerate">Some people offer various version of zlog, for other platform, thanks!<P>auto tools version: https://github.com/bmanojlovic/zlog </P><P>cmake verion: https://github.com/lisongmin/zlog </P><P>windows version: https://github.com/lopsd07/WinZlog</P></LI></OL><!--TOC section zlog 1.2 Release Notes-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc3">1.2</A>  zlog 1.2 Release Notes</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog 1.2 provide features:<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
 support for pipeline. Now zlog could ouput log through programs like
@@ -191,14 +189,14 @@ redis on local or remote machines by user-define-output. Then other
 process can read logs from redis and write it to disk. What do you
 think abount this idea? I will be happy if you discuss it with me. </P><!--TOC chapter Hello World-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc5">Chapter 3</A>  Hello World</H1><!--SEC END --><!--TOC section Build and Installation zlog-->
-<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">3.1</A>  Build and Installation zlog</H2><!--SEC END --><P>Download:<A HREF="https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz">https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz</A>
+<H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc6">3.1</A>  Build and Installation zlog</H2><!--SEC END --><P>Download:<A HREF="https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz">https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz</A>
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
 
 
 <TT></TT></DT><DD CLASS="dd-list"><TT>
-$ tar -zxvf zlog-latest-stable.tar.gz</TT><P><TT>$ cd zlog-1.2.</TT><TT>*</TT><TT>/</TT></P><P><TT>$ make </TT></P><P><TT>$ sudo make install</TT></P><P><TT>or</TT></P><P><TT>$ sudo make PREFIX=/usr/local/ install
+$ tar -zxvf zlog-latest-stable.tar.gz</TT><P><TT>$ cd zlog-latest-stable/</TT></P><P><TT>$ make </TT></P><P><TT>$ sudo make install</TT></P><P><TT>or</TT></P><P><TT>$ sudo make PREFIX=/usr/local/ install
 </TT></P></DD></DL></DIV><P>
 PREFIX indicates where zlog is installed. After installation, change
 system setting to make sure your program can find zlog library 
