@@ -245,7 +245,7 @@ MDC，线程键-值对的表，可以扩展用户自定义的字段
 软件下载：
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
+target "https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz"
 
 \end_inset
 
@@ -265,11 +265,11 @@ target "git@github.com:HardySimpson/zlog.git"
 \end_layout
 
 \begin_layout Standard
-使用手册(pdf)：
+使用手册(html)：
 \begin_inset CommandInset href
 LatexCommand href
-name "https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf"
-target "https://github.com/downloads/HardySimpson/zlog/UsersGuide-CN.pdf"
+name "http://hardysimpson.github.com/zlog/UsersGuide-CN.html"
+target "http://hardysimpson.github.com/zlog/UsersGuide-CN.html"
 
 \end_inset
 
@@ -371,9 +371,44 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-zlog目前还没有计划支持windows，毕竟windows下已经有非常成熟的日志函数库。
+有网友提供了如下版本，方便其他平台上安装编译，非常感谢！
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+auto tools版本: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/bmanojlovic/zlog"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+cmake版本: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/lisongmin/zlog"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+windows版本: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/lopsd07/WinZlog"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Section
 zlog 1.2 发布说明
 \end_layout
@@ -483,7 +518,7 @@ Hello World
 \begin_inset CommandInset href
 LatexCommand href
 name "zlog-latest-stable.tar.gz"
-target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
+target "https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz"
 type "file:"
 
 \end_inset
@@ -496,7 +531,7 @@ $ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd zlog-1.2.*/
+$ cd zlog-latest-stable/
 \end_layout
 
 \begin_layout LyX-Code

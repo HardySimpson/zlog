@@ -8,10 +8,10 @@ zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C
 
 1. Install
 
-Download https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
+Download https://github.com/HardySimpson/zlog/archive/zlog-latest-stable.tar.gz
 
 $ tar -zxvf zlog-latest-stable.tar.gz
-$ cd zlog-1.2.*/
+$ cd zlog-latest-stable/
 $ make 
 $ sudo make install
 or
@@ -104,11 +104,16 @@ hello, zlog
 
 6. Links:
 
-Download: https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz
-UsersGuide-En(pdf): https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf
-SourceCode: git@github.com:HardySimpson/zlog.git
-Mail List: https://github.com/HardySimpson/zlog/issues
+Download: https://github.com/HardySimpson/zlog/archive/zlog-latest-stable.tar.gz
 Homepage(in English): http://hardysimpson.github.com/zlog
-Homepage(in Chinese): http://www.oschina.net/p/zlog
+
+UsersGuide-En(html): http://hardysimpson.github.com/zlog/UsersGuide-EN.html
+SourceCode: git@github.com:HardySimpson/zlog.git
+
+Mail List: https://github.com/HardySimpson/zlog/issues
 Author's Blog(in Chinese): http://my.oschina.net/HardySimpson/blog
 Author's Email: HardySimpson1984@gmail.com
+
+auto tools version: https://github.com/bmanojlovic/zlog
+cmake verion: https://github.com/lisongmin/zlog
+windows version: https://github.com/lopsd07/WinZlog

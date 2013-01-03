@@ -1,5 +1,4 @@
 [p] 使用valgrind测试性能
-[ ] conf解析行那一段不一定正确, 要支持行中带#注释
 [ ] hzlog的可定制
 [ ] hex那段重写,内置到buf内,参考od的设计
 [ ] 分类匹配的可定制化, rcat
@@ -15,6 +14,9 @@
 [ ] 和rsyslog对接的问题
 [ ] linux fsync->fdatasync, open..
 
+--- 1.2.8 ---
+[o] gcc __attribute__宏，用于检查zlog的format输出格式
+[o] 支持配置文件行中带#注释
 --- 1.2.5 ---
 [o] 保证在单个线程退出的时候自动删除thread, 用atexit来注册函数解决主线程退出的问题
 [o] 缓存多个时间，保证所有的%d在strftime的时候都能每秒缓存，达到和原先%D一样的速度

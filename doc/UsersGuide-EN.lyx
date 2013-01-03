@@ -228,7 +228,7 @@ Links:
 Download: 
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
+target "https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz"
 
 \end_inset
 
@@ -248,11 +248,11 @@ target "git@github.com:HardySimpson/zlog.git"
 \end_layout
 
 \begin_layout Standard
-User's Guide(pdf): 
+User's Guide(html): 
 \begin_inset CommandInset href
 LatexCommand href
-name "https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf"
-target "https://github.com/downloads/HardySimpson/zlog/UsersGuide-EN.pdf"
+name "http://hardysimpson.github.com/zlog/UsersGuide-EN.html"
+target "http://hardysimpson.github.com/zlog/UsersGuide-EN.html"
 
 \end_inset
 
@@ -366,10 +366,44 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-zlog has no plan to support Windows.
- As Windows already have tons of logging libraries.
+Some people offer various version of zlog, for other platform, thanks!
 \end_layout
 
+\begin_deeper
+\begin_layout Standard
+auto tools version: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/bmanojlovic/zlog"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+cmake verion: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/lisongmin/zlog"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+windows version: 
+\begin_inset CommandInset href
+LatexCommand href
+target "https://github.com/lopsd07/WinZlog"
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Section
 zlog 1.2 Release Notes
 \end_layout
@@ -491,10 +525,6 @@ One of my opinion is writing a zlog-redis client.
  
 \end_layout
 
-\begin_layout Standard
-
-\end_layout
-
 \begin_layout Chapter
 Hello World
 \end_layout
@@ -507,7 +537,7 @@ Build and Installation zlog
 Download:
 \begin_inset CommandInset href
 LatexCommand href
-target "https://github.com/downloads/HardySimpson/zlog/zlog-latest-stable.tar.gz"
+target "https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz"
 
 \end_inset
 
@@ -519,7 +549,7 @@ $ tar -zxvf zlog-latest-stable.tar.gz
 \end_layout
 
 \begin_layout LyX-Code
-$ cd zlog-1.2.*/
+$ cd zlog-latest-stable/
 \end_layout
 
 \begin_layout LyX-Code
