@@ -38,7 +38,7 @@ zc_arraylist_t *zc_arraylist_new(zc_arraylist_del_fn del)
 
 	/* this could be NULL */
 	a_list->del = del;
-	a_list->array = (void **)calloc(sizeof(void *), a_list->size);
+	a_list->array = (void **)calloc(a_list->size, sizeof(void *));
 	if (!a_list->array) {
 		zc_error("calloc fail, errno[%d]", errno);
 		free(a_list);
