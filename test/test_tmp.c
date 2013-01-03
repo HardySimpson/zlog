@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	zlog_debug(zc, "hello, zlog 1");
+	zlog_debug(zc, "%s%d");
 	zlog_info(zc, "hello, zlog 2");
 
 	sleep(1);

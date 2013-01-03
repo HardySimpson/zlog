@@ -27,6 +27,12 @@ extern "C" {
 #include <stdarg.h> /* for va_list */
 #include <stdio.h> /* for size_t */
 
+# if defined __GNUC__
+#   define ZLOG_CHECK_PRINTF(m,n) __attribute__((format(printf,m,n)))
+# else 
+#   define ZLOG_CHECK_PRINTF(m,n)
+# endif
+
 typedef struct zlog_category_s zlog_category_t;
 
 int zlog_init(const char *confpath);
@@ -46,7 +52,7 @@ void zlog(zlog_category_t * category,
 	const char *file, size_t filelen,
 	const char *func, size_t funclen,
 	long line, int level,
-	const char *format, ...);
+	const char *format, ...) ZLOG_CHECK_PRINTF(8,9);
 void vzlog(zlog_category_t * category,
 	const char *file, size_t filelen,
 	const char *func, size_t funclen,
@@ -64,7 +70,7 @@ int dzlog_set_category(const char *cname);
 void dzlog(const char *file, size_t filelen,
 	const char *func, size_t funclen,
 	long line, int level,
-	const char *format, ...);
+	const char *format, ...) ZLOG_CHECK_PRINTF(7,8);
 void vdzlog(const char *file, size_t filelen,
 	const char *func, size_t funclen,
 	long line, int level,
