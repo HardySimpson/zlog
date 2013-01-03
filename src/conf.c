@@ -238,6 +238,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 	char *p = NULL;
 	int line_no = 0;
 	int i = 0;
+	int in_quotation = 0;
 
 	int section = 0;
 	/* [global:1] [levels:2] [formats:3] [rules:4] */
@@ -299,6 +300,19 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 			pline = line;
 
 		*++p = '\0';
+
+		/* clean the tail comments start from # and not in quotation */
+		in_quotation = 0;
+		for (p = line; *p != '\0'; p++) {
+			if (*p == '"') {
+				in_quotation ^= 1;
+				continue;
+			}
+
+			if (*p == '#' && !in_quotation) {
+				*p = '\0';
+			}
+		}
 
 		/* we now have the complete line,
 		 * and are positioned at the first non-whitespace
