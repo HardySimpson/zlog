@@ -311,6 +311,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 
 			if (*p == '#' && !in_quotation) {
 				*p = '\0';
+				break;
 			}
 		}
 

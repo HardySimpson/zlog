@@ -50,6 +50,7 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 	zc_assert(a_rule,);
 	zc_profile(flag, "---rule:[%p][%s%c%d]-[%d,%d][%s,%p,%d:%ld*%d~%s][%d][%d][%s:%s:%p];[%p]---",
 		a_rule,
+
 		a_rule->category,
 		a_rule->compare_char,
 		a_rule->level,
@@ -734,12 +735,11 @@ zlog_rule_t *zlog_rule_new(char *line,
 
 		if (file_limit) {
 			memset(archive_max_size, 0x00, sizeof(archive_max_size));
-			nscan = sscanf(file_limit, " %s * %d ~",
+			nscan = sscanf(file_limit, " %[0-9MmKkBb] * %d ~",
 					archive_max_size, &(a_rule->archive_max_count));
 			if (nscan) {
 				a_rule->archive_max_size = zc_parse_byte_size(archive_max_size);
 			}
-
 			p = strchr(file_limit, '"');
 			if (p) { /* archive file path exist */
 				rc = zlog_rule_parse_path(p,
