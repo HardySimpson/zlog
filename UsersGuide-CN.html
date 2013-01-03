@@ -130,7 +130,7 @@ OpenSolaris, Mac OS X...）估计也能行，有问题欢迎探讨。
 </LI><LI CLASS="li-enumerate">zlog使用了一个C99兼容的vsnprintf。也就是说如果缓存大小不足，vsnprintf将会返回目标字符串应有的长度（不包括’\0’)。如果在你的系统上vsnprintf不是这么运作的，zlog就不知道怎么扩大缓存。如果在目标缓存不够的时候vsnprintf返回-1，zlog就会认为这次写入失败。幸运的是目前大多数c标准库符合C99标准。glibc
 2.1,libc on AIX, libc on freebsd...都是好的，不过glibc2.0不是。在这种情况下，用户需要自己来装一个C99兼容的vsnprintf，来crack这个函数库。我推荐<A HREF="http://sourceforge.net/projects/ctrio/">ctrio</A>,
 或者<A HREF="http://www.jhweiss.de/software/snprintf.html">C99-snprintf</A>。只要改buf.c就行，祝好运！
-</LI><LI CLASS="li-enumerate">有网友提供了如下版本，方便其他平台上安装编译，非常感谢！<P>auto tools版本: https://github.com/bmanojlovic/zlog </P><P>cmake版本: https://github.com/lisongmin/zlog </P><P>windows版本: https://github.com/lopsd07/WinZlog</P></LI></OL><!--TOC section zlog 1.2 发布说明-->
+</LI><LI CLASS="li-enumerate">有网友提供了如下版本，方便其他平台上安装编译，非常感谢！<P>auto tools版本: <A HREF="https://github.com/bmanojlovic/zlog">https://github.com/bmanojlovic/zlog</A> </P><P>cmake版本: <A HREF="https://github.com/lisongmin/zlog">https://github.com/lisongmin/zlog</A> </P><P>windows版本: <A HREF="https://github.com/lopsd07/WinZlog">https://github.com/lopsd07/WinZlog</A></P></LI></OL><!--TOC section zlog 1.2 发布说明-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc3">1.2</A>  zlog 1.2 发布说明</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog 1.2 新增了这些功能<OL CLASS="enumerate" type=a><LI CLASS="li-enumerate">
 对管道的支持，从此zlog可以外接cronolog这样的日志过滤程序来输出
