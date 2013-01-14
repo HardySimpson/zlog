@@ -91,7 +91,7 @@ A single spark can start a prairie fire -- Mao Zedong
 \end_layout
 
 \begin_layout Author
-by Hardy Simpson
+Hardy Simpson
 \begin_inset Foot
 status collapsed
 
@@ -146,18 +146,18 @@ What is zlog?
 
 \begin_layout Standard
 zlog is a reliable, high-performance, thread safe, flexible, clear-model,
- pure C logging library
+ pure C logging library.
 \end_layout
 
 \begin_layout Standard
-Actually, in the C world there is NO good logging library for application
+Actually, in the C world there was NO good logging library for applications
  like logback in java or log4cxx in c++.
- printf can work, but can not be easily redirected or reformat.
+ printf can work, but can not be redirected easily nor be reformatted.
  syslog is slow and is designed for system use.
 \end_layout
 
 \begin_layout Standard
-So I write zlog.
+So I wrote zlog.
 \end_layout
 
 \begin_layout Standard
@@ -166,7 +166,7 @@ It is faster, safer and more powerful than log4c.
 \end_layout
 
 \begin_layout Standard
-zlog has feartures below:
+zlog has these features:
 \end_layout
 
 \begin_layout Itemize
@@ -183,7 +183,7 @@ multiple output, include static file path, dynamic file path, stdout, stderr,
 \end_layout
 
 \begin_layout Itemize
-runtime mannully or automaticlly refreash configure(safely)
+runtime with manual or automatic refresh of configuration (done safely)
 \end_layout
 
 \begin_layout Itemize
@@ -196,7 +196,7 @@ user-defined log level
 \end_layout
 
 \begin_layout Itemize
-safely rotate log file on multiple-process or multiple-threads condition
+safely rotate log file under multiple-process or multiple-thread conditions
 \end_layout
 
 \begin_layout Itemize
@@ -212,12 +212,12 @@ MDC, a log4j style key-value map
 \end_layout
 
 \begin_layout Itemize
-self debugable, can output zlog's self debug&error log at runtime
+self debuggable, can output zlog's self debug and error log at runtime
 \end_layout
 
 \begin_layout Itemize
-Not depend on any other 3rd party library, just base on POSIX system(and
- a C99 compliant vsnprintf).
+Does not depend on any other 3rd party library, just base on POSIX system
+ (including pthread) and a C99 compliant vsnprintf.
 \end_layout
 
 \begin_layout Standard
@@ -320,30 +320,28 @@ type "mailto:"
 \end_layout
 
 \begin_layout Section
-Compatible Notes
+Compatibility Notes
 \end_layout
 
 \begin_layout Enumerate
-zlog is based on POSIX-compatible system.
- I just have GNU/linux and AIX envrionment and test to compile and run zlog
- on them.
- Still I think zlog will work well on FreeBSD, NetBSD, OpenBSD, OpenSolaris,
+zlog is based on POSIX-compatible systems.
+ I have just GNU/linux and AIX environments to compile, test and run zlog.
+ Still, I think zlog will work well on FreeBSD, NetBSD, OpenBSD, OpenSolaris,
  Mac OS X etc.
- Test run zlog on any system is welcome.
+ Test runs of zlog on any system are welcome.
 \end_layout
 
 \begin_layout Enumerate
-in zlog, I use a feature of C99 compliant vsnprintf.
+zlog uses a feature of C99 compliant vsnprintf.
  That is, if the buffer size of destination is not long enough, vsnprintf
- will return the the number of characters (not includ‐ ing the trailing
- '
+ will return the number of characters (not including the trailing '
 \backslash
 0') which would have been written to the final string if enough space had
  been available.
- If the vsnprintf on your sysem is not work like that, zlog can not know
- the right buffer size when a single log is longer than buffer.
- Fortunately, glibc 2.1,libc on AIX, libc on freebsd...
- work in the right way, while glibc 2.0 is not.
+ If the vsnprintf on your system does not work like that, zlog can not know
+ the right buffer size when a single log is longer than the buffer.
+ Fortunately, glibc 2.1, libc on AIX, and libc on freebsd work correctly,
+ while glibc 2.0 does not.
  In this case, user should crack zlog himself with a C99 compliant vsnprintf.
  I suggest 
 \begin_inset CommandInset href
@@ -366,7 +364,8 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \end_layout
 
 \begin_layout Enumerate
-Some people offer various version of zlog, for other platform, thanks!
+Some people offer versions of zlog for other platforms.
+ Thanks!
 \end_layout
 
 \begin_deeper
@@ -409,13 +408,13 @@ zlog 1.2 Release Notes
 \end_layout
 
 \begin_layout Enumerate
-zlog 1.2 provide features:
+zlog 1.2 provides these features:
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
 support for pipeline.
- Now zlog could ouput log through programs like cronolog
+ Now zlog can send ouput log through programs like cronolog
 \end_layout
 
 \begin_layout Enumerate
@@ -430,23 +429,22 @@ reference "sec:Rotation"
 \end_layout
 
 \begin_layout Enumerate
-Other code compitable details, bug fix.
+Other code compatible details, bug fixes.
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
 zlog 1.2 is binary compatible with zlog 1.0.
- The difference are:
+ The differences are:
 \end_layout
 
 \begin_deeper
 \begin_layout Enumerate
-All zlog macros like ZLOG_INFO is shift to zlog_info, a lowercase version.
- That's a big jump.
- Becasue I think it is more easy for people's typewriting.
- If you are pre-user of zlog, please using a script substitutes all macros,
- and re-compile your program.
- I provide one:
+All zlog macros like ZLOG_INFO are shifted to lowercase versions, zlog_info.
+ This big change is because I think it is easier for people to type.
+ If you are using a previous version of zlog, please use a script to substitute
+ all macros, and re-compile your program.
+ Here is an example:
 \end_layout
 
 \begin_layout LyX-Code
@@ -467,38 +465,39 @@ E/g' aa.c
 
 \begin_layout Enumerate
 Auto tools compile is abandoned.
- Auto tools is ugly so I drop it.
+ Auto tools is ugly so I dropped it.
  A simple makefile is in use, which requires gcc and gnu make.
- So, please prepare a gcc and gnu make in your envrionment, or write a makefile
- by yourself, which is quite easy for a geek.
+ If this makefile does not work in your environment, you will need to write
+ a suitable makefile for yourself.
+ It should be quite easy for a geek.
 \end_layout
 
 \end_deeper
 \begin_layout Chapter
-What is not zlog?
+What zlog is not
 \end_layout
 
 \begin_layout Standard
-The goal of zlog is becoming a simple, fast log library for application.
- It will not support too much output like send log to other machine through
- net or save it to database.
+The goal of zlog is to be a simple, fast log library for applications.
+ It does not support output like sending the log to another machine through
+ the net or saving it to database.
  It will not parse content of log and filter them.
 \end_layout
 
 \begin_layout Standard
-The reason is obvious: library is called by application, all time log library
- takes is part of application's time.
+The reason is obvious: the library is called by an application, so all time
+ taken by the log library is part of the application's time.
  And database inserting or log content parsing takes a long time.
- Thest will speed down application.
+ These will slow down the application.
  These operation should be done in a different process or on a different
  machine.
 \end_layout
 
 \begin_layout Standard
 If you want all these features, I recommend rsyslog, zLogFabric, Logstash.
- There are independent process receives logs from other process or machines,
- and parse and store logs.
- Still, it has a distance from user application.
+ These have independent processes to receive logs from another process or
+ machine, and to parse and store logs.
+ These functions are separated from the user application.
 \end_layout
 
 \begin_layout Standard
@@ -509,19 +508,19 @@ reference "sec:User-defined-Output"
 
 \end_inset
 
- is support by zlog.
- People just need to implement one ouput function, to transfer log to other
- process or other machine.
- They leave work of category matching and log generatating to zlog library.
+ is supported by zlog.
+ Just one output function need to be implemented: to transfer the log to
+ the other process or machine.
+ The work of category matching and log generating is left with the zlog
+ library.
  
 \end_layout
 
 \begin_layout Standard
-One of my opinion is writing a zlog-redis client.
- It send logs to redis on local or remote machines by user-define-output.
- Then other process can read logs from redis and write it to disk.
- What do you think abount this idea? I will be happy if you discuss it with
- me.
+One possibility is to write a zlog-redis client.
+ It send logs to redis on local or remote machines by user defined output.
+ Then other processes can read logs from redis and write to disk.
+ What do you think about this idea? I will be happy to discuss it with you.
  
 \end_layout
 
@@ -570,8 +569,8 @@ $ sudo make PREFIX=/usr/local/ install
 
 \begin_layout Standard
 PREFIX indicates where zlog is installed.
- After installation, change system setting to make sure your program can
- find zlog library 
+ After installation, change system settings to make sure your program can
+ find the zlog library 
 \end_layout
 
 \begin_layout LyX-Code
@@ -589,12 +588,12 @@ $ sudo ldconfig
 \begin_layout Standard
 Before running a real program, make sure libzlog.so is in the directory where
  the system's dynamic lib loader can find it.
- The command metioned above is for linux.
- Other system should find its own way.
+ The commands mentioned above are for linux.
+ Other systems will need a similar set of actions.
 \end_layout
 
 \begin_layout Itemize
-Beside normal make, these are also available:
+Beside the normal make, these are also available:
 \end_layout
 
 \begin_layout LyX-Code
@@ -615,10 +614,10 @@ $ make test  # test code, which is also good example for zlog
 
 \begin_layout Itemize
 makefile of zlog is written in gnu make style.
- So if your platform is not linux, install a gnu make and gcc before build
- zlog.
- Another way is writing a makefile of your platform's make style, which
- is quite easy as zlog is not complicate.
+ So if your platform is not linux, install a gnu make and gcc before trying
+ to build zlog.
+ Another way is to write a makefile in your platform's make style.
+ This should be quite easy as zlog is not complicated.
 \end_layout
 
 \begin_layout Section
@@ -626,7 +625,7 @@ Call and Link zlog in User's application
 \end_layout
 
 \begin_layout Standard
-To use zlog, only add one line below in source c file or cpp file.
+To use zlog, add one line to the source c file or cpp file:
 \end_layout
 
 \begin_layout LyX-Code
@@ -634,7 +633,8 @@ To use zlog, only add one line below in source c file or cpp file.
 \end_layout
 
 \begin_layout Standard
-zlog need pthread library, the link command is:
+zlog needs the pthread library.
+ The link command is:
 \end_layout
 
 \begin_layout LyX-Code
@@ -669,7 +669,7 @@ This example can be found in $(top_builddir)/test/test_hello.c, test_hello.conf
 \end_layout
 
 \begin_layout Enumerate
-write a new c source file:
+Write a new c source file:
 \end_layout
 
 \begin_deeper
@@ -789,7 +789,7 @@ return 0;
 
 \end_deeper
 \begin_layout Enumerate
-write a configure file in the same path as test_hello.c:
+Write a configuration file in the same path as test_hello.c:
 \end_layout
 
 \begin_deeper
@@ -815,7 +815,7 @@ my_cat.DEBUG    >stdout; simple
 
 \end_deeper
 \begin_layout Enumerate
-compile and run it!
+Compile and run it:
 \end_layout
 
 \begin_deeper
@@ -909,13 +909,14 @@ return 0;
 \end_layout
 
 \begin_layout Standard
-The configure file test_default.conf equals test_hello.conf, and the output
- of test_default equals test_hello.
- The difference is, test_default use dzlog API, which has a default 
+The configure file test_default.conf is the same as test_hello.conf, and the
+ output of test_default is the same as that of test_hello.
+ The difference is that test_default uses the dzlog API, which has a default
+ 
 \emph on
-zlog_cateogy_t
+zlog_category_t
 \emph default
- inside and easy for use.
+ inside and is easier to use.
  See 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -935,29 +936,29 @@ Category, Rule and Format
 \end_layout
 
 \begin_layout Standard
-In zlog, There are 3 important concepts: category, rule and format.
+In zlog, there are 3 important concepts: category, rule and format.
 \end_layout
 
 \begin_layout Standard
-Category is designed for different input.
- In source code category is a (zlog_cateogory_t *) variable.
- In program, get different category for log will distinguish them from each
- other.
+Category specifies different kinds of log entries.
+ In the zlog source code, category is a (zlog_cateogory_t *) variable.
+ In your program, different categories for the log entries will distinguish
+ them from each other.
 \end_layout
 
 \begin_layout Standard
-Format describes detail log pattern, like with or without time stamp, source
- file, source line.
+Format describes detail log patterns, such as: with or without time stamp,
+ source file, source line.
 \end_layout
 
 \begin_layout Standard
-Rule consists of category, level, output file(or other channel) and format.
- In brief, if category string in rule of configure file equals the name
- of category variable in source, they match.
+Rule consists of category, level, output file (or other channel) and format.
+ In brief, if the category string in a rule in the configuration file equals
+ the name of a category variable in the source, then they match.
 \end_layout
 
 \begin_layout Standard
-So when excute this sentence in source file
+So when this sentence in the source file is executed:
 \end_layout
 
 \begin_layout LyX-Code
@@ -973,8 +974,8 @@ zlog_info(c, "hello, zlog");
 \end_layout
 
 \begin_layout Standard
-zlog library will find the name of c is "my_cat", which has one rule in
- configure file.
+zlog library uses the category name "my_cat" to match one rule in the configurat
+ion file.
  That is
 \end_layout
 
@@ -987,11 +988,11 @@ my_cat.DEBUG    >stdout; simple
 \end_layout
 
 \begin_layout Standard
-Then library will check if level is right to decide whether the log will
- be output or not.
- As INFO>=DEBUG.
- So log will be output, and as the rule said, it will be output to stdout(standa
-rd output) in the format of simple, which described above
+Then the library will check if level is correct to decide whether the log
+ will be output or not.
+ As INFO>=DEBUG the log will be output, and as the rule says, it will be
+ sent to stdout (standard output) in the format of simple, which is described
+ as
 \end_layout
 
 \begin_layout LyX-Code
@@ -1003,7 +1004,7 @@ simple = "%m%n"
 \end_layout
 
 \begin_layout Standard
-At last show in screen
+Lastly, zlog will show the zlog_info() content on the screen
 \end_layout
 
 \begin_layout LyX-Code
@@ -1012,33 +1013,33 @@ hello, zlog
 
 \begin_layout Standard
 That's the whole story.
- The only thing user need to do is writing message.
+ The only thing a user need to do is to write the messages.
  Where the log will be output, or in which format, is done by zlog library.
 \end_layout
 
 \begin_layout Section
-The difference between syslog model and log4j model
+Differences between syslog model and log4j model
 \end_layout
 
 \begin_layout Standard
-OK, then, Does it have anything to do with syslog? Till Now, the model is
- more like log4j.
+Does zLog have anything to do with syslog? Until now, the model is more
+ like log4j.
  As in log4j, there are concepts of logger, appender and layout.
- The difference is, in log4j, each logger in source code must corresponds
- to one logger in configure file, and just has one definite level.
+ The difference is that in log4j, each logger in source code must correspond
+ to one logger in the configuration file and has just one definite level.
  One-to-one relationship is the only choice for log4j, log4cxx, log4cpp,
  log4cplus log4net and etc...
 \end_layout
 
 \begin_layout Standard
-But log4j model is NOT flexible, they invent filters to make up for it,
- and that make things more worse.
- So let's get back to syslog model, which is designed excellently.
+But the log4j model is NOT flexible, they invent filters to make up for
+ it, and that make things more worse.
+ So let's get back to syslog model, which has an excellent design.
 \end_layout
 
 \begin_layout Standard
-Continue our example in last section.
- If in the zlog configure file, there are 2 rules:
+Continuing our example from the last section, if the zlog configuration
+ file has 2 rules:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1054,7 +1055,7 @@ my_cat.INFO      >stdout;
 \end_layout
 
 \begin_layout Standard
-Then they will generate 2 log to stdout:
+Then they will generate 2 log outputs to stdout:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1066,10 +1067,11 @@ hello, zlog
 \end_layout
 
 \begin_layout Standard
-Now one category in source code corresponds to two rules in configure file.
+You see that one category in the source code corresponds to two rules in
+ the configuration file.
  Maybe log4j's user will say, "That's good, but 2 appender for one logger
  will do the same thing".
- So, Let's see the next example of configure file:
+ So, let's see the next example of configure file:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1117,12 +1119,11 @@ But in bb.log, there will be two
 \end_layout
 
 \begin_layout Standard
-From this example, you can find the difference.
+From this example, you see the difference.
  Log4j can not do it easily.
- In zlog, one category may correspond to mutiple rules, and each rules can
- have different level and different output and different format.
- That gives user a easy, clear way to filter and multi-ouput all his logs
- on demand.
+ In zlog, one category may correspond to mutiple rules, and rules can have
+ different level, output, and format combinations.
+ The user has an easy, clear way to filter and multi-ouput all logs on demand.
 \end_layout
 
 \begin_layout Section
@@ -1130,19 +1131,19 @@ Expand syslog model
 \end_layout
 
 \begin_layout Standard
-At last you can see, category in zlog is more like facility in syslog.
- Unfortunately, facility in sylog is a int, and the value of facility must
- be chose from a few system-defined range.
- zlog do it better, make it a variable which comes from a string.
+You can see that category in zlog is more like facility in syslog.
+ Unfortunately, facility in sylog is an int, and the value of facility must
+ be chosen from a limited system-defined range.
+ zlog does better, making it a string variable.
 \end_layout
 
 \begin_layout Standard
-In syslog, there is a special wildcards "*", matches all facility.
+In syslog, there is a special wildcard "*", which matches all facilities.
  It does the same thing in zlog.
  "*" matches all categories.
- That a convenient way to make all error comes from multipule compoments
+ That is a convenient way to make all errors generated by multiple components
  in your system redirect to one log file.
- Just write in configure file like this:
+ Just write in the configuration file like this:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1154,8 +1155,8 @@ In syslog, there is a special wildcards "*", matches all facility.
 \end_layout
 
 \begin_layout Standard
-The exciting and unique feature of zlog is, sub-category matching.
- If in your source code is this:
+A unique feature of zlog is sub-category matching.
+ If your source code has:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1163,7 +1164,7 @@ c = zlog_get_category("my_cat");
 \end_layout
 
 \begin_layout Standard
-And in configure file, the rules is
+And the configuration file has rules :
 \end_layout
 
 \begin_layout LyX-Code
@@ -1179,9 +1180,9 @@ my_.NOTICE    "/var/log/my.log"
 \end_layout
 
 \begin_layout Standard
-This 2 rules both matches category "c" with the name "my_cat".
- The wildcard "_" is the way to represent super category.
- "my_" is a super category to "my_cat" and "my_dog".
+These 2 rules match category "c" with the name "my_cat".
+ The wildcard "_" is the way to represent a super category.
+ "my_" is a super category for "my_cat" and "my_dog".
  There is also another wildcard "!".
  See 
 \begin_inset CommandInset ref
@@ -1198,11 +1199,12 @@ Configure File
 \end_layout
 
 \begin_layout Standard
-Most actions of zlog library are dependent upon configure file: where to
- output the log, how log is rotate, the output format, etc...
- Configure File is a special language tells how library works.
- I design it as clear as I can.
- Here is a example of zlog.conf:
+Most actions of zlog library are dependent upon the configuration file:
+ where to output the log, how to rotate the log files, how to format the
+ output, etc.
+ The configuration file uses a domain specific language to control the library
+ actions.
+ Here is an example of zlog.conf:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1310,6 +1312,12 @@ my_mice.*               $user_define;
 \end_layout
 
 \begin_layout Standard
+[] means a section's beginning, and the order of sections is fixed, using
+ the sequence global-levels-formats-rules.
+ 
+\end_layout
+
+\begin_layout Standard
 Note on units: when memory size or large number is needed, it is possible
  to specify it in the usual form of 1k 5GB 4M and so forth:
 \end_layout
@@ -1348,9 +1356,7 @@ Global
 
 \begin_layout Standard
 Global section begins with [global].
- [] means a section's beginning, and the order of sections must be unchanged,
- follow the global-levels-formats-rules.
- This section can be ommit.The syntax is
+ This section can be omitted.The syntax is
 \end_layout
 
 \begin_layout LyX-Code
@@ -1363,11 +1369,17 @@ strict init
 
 \begin_deeper
 \begin_layout Standard
-If "strict init" is true, zlog_init() will check sytnax of all formats and
- rules strictly, and any error will cause zlog_init() failed and return
- -1.
- When "strict init" is false, zlog_init() will omit error syntax of formats
- and rules.
+If "strict init = true
+\begin_inset Quotes erd
+\end_inset
+
+, zlog_init() will check syntax of all formats and rules strictly, and any
+ error will cause zlog_init() to fail and return -1.
+ When "strict init = false
+\begin_inset Quotes erd
+\end_inset
+
+, zlog_init() will ignore syntax errors for formats and rules.
  The default is true.
 \end_layout
 
@@ -1378,14 +1390,15 @@ reload conf period
 
 \begin_deeper
 \begin_layout Standard
-This parameter supports zlog libraray reload configure file automaticlly
- after a period, which is measured by number of log times per process.
+This parameter causes the zlog library to reload the configuration file
+ automatically after a period, which is measured by number of log times
+ per process.
  When the number reaches the value, it calls zlog_reload() internally.
  The number is reset to zero at the last zlog_reload() or zlog_init().
- As zlog_reload() is atomic, when zlog_reload() fails, zlog still run with
- the current configure.
- So automaticlly reloading configure is safe.
- The defualt is 0, which means never reload automaticlly.
+ As zlog_reload() is atomic, if zlog_reload() fails, zlog still runs with
+ the current configuration.
+ So reloading automatically the configuration is safe.
+ The default is 0, which means never reload automatically.
 \end_layout
 
 \end_deeper
@@ -1400,16 +1413,17 @@ buffer max
 \begin_deeper
 \begin_layout Standard
 zlog allocates a log buffer in each thread.
- "buffer min" indicates size of buffer malloced at init time.
- While loging, if one single log's content size is longer than buffer size
- now, zlog will expand buffer automaticly till "buffer max".
- Then, If the size is still longer than "buffer max", the log content will
+ "buffer min" indicates size of buffer malloc'ed at init time.
+ While logging, if one single log's content is longer than buffer size now,
+ zlog will expand buffer automatically until "buffer max".
+ Then, if the size is still longer than "buffer max", the log content will
  be truncated.
  If "buffer max" is 0, it means buffer size is unlimited, and each time
- zlog will expand buffer twice its size, till process use up all it's memory.
- The value of these 2 parameter can append with unit KB, MB or GB suffix,
- so 1024 equals 1KB.
- Default, "buffer min" is 1K and "buffer max" is 2MB.
+ zlog will expand buffer by twice its size, until the process uses all available
+ memory.
+ The value of these 2 parameters can appended with unit KB, MB or GB suffix,
+ where 1024 equals 1KB.
+ As default, "buffer min" is 1K and "buffer max" is 2MB.
 \end_layout
 
 \end_deeper
@@ -1419,9 +1433,9 @@ rotate lock file
 
 \begin_deeper
 \begin_layout Standard
-This specifies a lock file for rotate a log safely between multi-process.
- zlog will open the file at zlog_init() with the premisson of read-write.
- The pseudo-code of rotating a log file is:
+This specifies a lock file for rotating a log safely in multi-process situations.
+ zlog will open the file at zlog_init() with the permission of read-write.
+ The pseudo-code for rotating a log file is:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1456,30 +1470,30 @@ pthread_mutex_unlock;
 mutex_lock is for multi-thread and fcntl_lock is for multi-process.
  fcntl_lock is the POSIX advisory record locking.
  See man 3 fcntl for details.
- The lock is system-wide, and when a process died unexpected unexpectedly,
- operating system release all lock owned by the process.
+ The lock is system-wide, and when a process dies unexpectedly, the operating
+ system releases all locks owned by the process.
  That's why I chose fcntl lock for rotating log safely.
- Process need read-write permisson of lock_file to lock it.
+ The process needs read-write permisson for lock_file to lock it.
 \end_layout
 
 \begin_layout Standard
 By default, rotate lock file = self.
- In this way, zlog do not create any lock file and set the configure file
- as the lock file.
- As fcntl is advisory, it does not really forbid people to change and store
- his configure file.
+ This way, zlog does not create any lock file and sets the configuration
+ file as the lock file.
+ As fcntl is advisory, it does not really forbid programmers to change and
+ store the configuration file.
  Generally speaking, one log file will not be rotated by processes run by
- different operating system user, so using configure file as lock file is
- safe.
+ different operating system users, so using the configuration file as lock
+ file is safe.
 \end_layout
 
 \begin_layout Standard
-If you chose other path as lock file, for example, /tmp/zlog.lock, zlog will
- create it at zlog_init().
+If you choose another path as lock file, for example, /tmp/zlog.lock, zlog
+ will create it at zlog_init().
  Make sure your program has permission to create and read-write the file.
- If processes run by different operating system users who need to write
- and rotater the same log file, make sure that each program has permission
- to create and read-write the same lock file.
+ If processes run by different operating system users need to write and
+ rotate the same log file, make sure that each program has permission to
+ create and read-write the same lock file.
 \end_layout
 
 \end_deeper
@@ -1512,10 +1526,10 @@ file perms
 
 \begin_deeper
 \begin_layout Standard
-This specifies all log file permission when they are created.
- Note that it is affect by user's umask.
+This specifies all log file permissions when they are created.
+ Note that it is affected by user's umask.
  The final file permission will be "file perms" & ~umask.
- The default is 600, which just allowed user read and write.
+ The default is 600, which just allows user read and write.
 \end_layout
 
 \end_deeper
@@ -1525,16 +1539,17 @@ fsync period
 
 \begin_deeper
 \begin_layout Standard
-After a number of log times per rule(to file only), zlog will call fsync(3)
- after write() to tells the Operating System to actually write data on disk
- immediately.
- The number is counted by each rule and will be reset to 0 after zlog_reload().
- Note that when the file's path is dynamic generated or is rotated, zlog
- do not guarantee fsync() hit all files.
- It just fsync() the file descriptor that has been write() to at the boundary
- time.
+After a number of log times per rule (to file only), zlog will call fsync(3)
+ after write() to tell the Operating System to write data to disk immediately
+ from any internal system buffers.
+ The number is incremented by each rule and will be reset to 0 after zlog_reload
+().
+ Note that when the file's path is generated dynamically or is rotated,
+ zlog does not guarantee fsync() touch all files.
+ It just does fsync() against the file descriptors that have have seen write()
+ prior to the boundary time.
  It offers a balance between speed and data safety.
- A example:
+ An example:
 \end_layout
 
 \begin_layout LyX-Code
@@ -1606,8 +1621,8 @@ sys	 0m0.550s
 \end_layout
 
 \begin_layout Standard
-If you want extreme safety but not care about speed, using synchronous I/O
- file, see 
+If you want extreme safety but do not care about speed, use synchronous
+ file I/O, see 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "ite:synchronous-I/O-file"
@@ -1621,13 +1636,14 @@ reference "ite:synchronous-I/O-file"
 
 \end_deeper
 \begin_layout Section
-Level
+Levels
 \end_layout
 
 \begin_layout Standard
-This section begins with [levels], which make user can defined his own levels,
- and suggest to be used with user-defined macros in source file.
- This section can be ommit.
+This section begins with [levels] and allows the user to define application
+ levels.
+ You should match these values with user-defined macros in the source file.
+ This section can be omitted.
 \end_layout
 
 \begin_layout Standard
@@ -1639,7 +1655,7 @@ The syntax is
 \end_layout
 
 \begin_layout Standard
-level int should in [1,253], more larger, more important.
+level int should in [1,253], higher numbers mean more important.
  syslog level is optional, if not set, use LOG_DEBUG
 \end_layout
 
@@ -1659,7 +1675,8 @@ Formats
 \end_layout
 
 \begin_layout Standard
-This section begins with [formats], where user defined its prefer log pattern.
+This section begins with [formats], where the user can define preferred
+ log patterns.
  The syntax is
 \end_layout
 
@@ -1668,11 +1685,10 @@ This section begins with [formats], where user defined its prefer log pattern.
 \end_layout
 
 \begin_layout Standard
-It is easy to understand, (name) will be use in the next section [rules].
- The (name) of format must made up of letters and digits.
- The underscore "_" counts as a letter.
- The (actual format) should be put into to double quotes.
- It can be built up with conversion patterns, as describled below.
+It is easy to understand, (name) will be used in the next section [rules].
+ The format (name) consists of letters and digits plus underscore "_".
+ The (actual format) should be put in double quotes.
+ It can be built up with conversion patterns, as described below.
 \end_layout
 
 \begin_layout Section
@@ -1688,7 +1704,7 @@ name "sec:Conversion-pattern"
 
 \begin_layout Standard
 The conversion pattern is closely related to the conversion pattern of the
- printf function in C.
+ C printf function.
  A conversion pattern is composed of literal text and format control expressions
  called conversion specifiers.
 \end_layout
@@ -1720,7 +1736,7 @@ Let the conversion pattern be
 \end_layout
 
 \begin_layout Standard
-Then the statements
+Then the statement
 \end_layout
 
 \begin_layout LyX-Code
@@ -1834,10 +1850,10 @@ aa_bb
 \begin_layout Plain Layout
 Used to output the date of the logging event.
  The date conversion specifier may be followed by a date format specifier
- enclosed between parenthesis.
+ enclosed between parentheses.
  For example, %d(%F) or %d(%m-%d %T).
  If no date format specifier is given then %d(%F %T) format is assumed.
- The date format specifier admits the same syntax as the strftime(2).
+ The date format specifier permits the same syntax as the strftime(2).
  see 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1881,7 +1897,7 @@ for more detail.
 \begin_inset Text
 
 \begin_layout Plain Layout
-%%E()
+%E()
 \end_layout
 
 \end_inset
@@ -1987,9 +2003,9 @@ comes from gettimeofday(2)
 \begin_layout Plain Layout
 Used to output the file name where the logging request was issued.
  The file name comes from __FILE__ macro.
- Some compiler take __FILE__ as the absolute path.
- Use %f to strip path and remain file name.
- Or complier has option to switch.
+ Some compilers supply __FILE__ as the absolute path.
+ Use %f to strip path and keep the file name.
+ Some compilers have an option to control this feature.
 \end_layout
 
 \end_inset
@@ -2185,8 +2201,8 @@ reference "sec:MDC"
 \begin_inset Text
 
 \begin_layout Plain Layout
-Outputs unix newline character, I do not support windows line separator
- now.
+Outputs unix newline character, zLog does not support the MS-Windows line
+ separator at this time.
 \end_layout
 
 \end_inset
@@ -2247,9 +2263,9 @@ Used to output the id of the process that generated the logging event, which
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the funtion name where the logging request was issued.
- It comes from __func__(C99) or __FUNCION__(gcc) macro, with the support
- of complier.
+Used to output the function name where the logging request was issued.
+ It comes from __func__(C99) or __FUNCTION__(gcc) macro, with the support
+ of the compiler.
 \end_layout
 
 \end_inset
@@ -2278,7 +2294,7 @@ main
 \begin_inset Text
 
 \begin_layout Plain Layout
-Used to output the level of the logging event, capital.
+Used to output the level of the logging event, uppercase.
 \end_layout
 
 \end_inset
@@ -2432,7 +2448,7 @@ the sequence %% outputs a single percent sign.
 \begin_inset Text
 
 \begin_layout Plain Layout
-parse as a wrong syntax, will cause zlog_init() fail
+parsed as a wrong syntax, will cause zlog_init() fail
 \end_layout
 
 \end_inset
@@ -2459,9 +2475,9 @@ Format Modifier
 \end_layout
 
 \begin_layout Standard
-By default the relevant information is output as is.
+By default, the relevant information is output as-is.
  However, with the aid of format modifiers it is possible to change the
- minimum field width, the maximum field width and justification.
+ minimum field width, the maximum field width, and justification.
  It will cause a little performance loss in each log event.
 \end_layout
 
@@ -2491,7 +2507,7 @@ This behavior can be changed using the maximum field width modifier which
  is designated by a period followed by a decimal constant.
  If the data item is longer than the maximum field, then the extra characters
  are removed from the beginning of the data item and not from the end.
- For example, it the maximum field width is eight and the data item is ten
+ For example, if the maximum field width is eight and the data item is ten
  characters long, then the last two characters of the data item are dropped.
  This behavior equals the printf function in C where truncation is done
  from the end.
@@ -2826,7 +2842,7 @@ d.
 
 \begin_layout Standard
 All Character is supported by strftime(3) in library.
- The Character support on my linux system are
+ The Character supported on my linux system are
 \end_layout
 
 \begin_layout Standard
@@ -3084,10 +3100,10 @@ The day of the month as a decimal number (range 01 to 31).
 
 \begin_layout Plain Layout
 Equivalent to %m/%d/%y.
- (Yecch — for Americans only.
- Americans should note that in other countries %d/%m/%y is rather common.
- This means that in international context this format is ambiguous and should
- not be used.) (SU)
+ (for Americans only.
+ Americans should note that in other countries %d/%m/%y is more common.
+ This means that in an international context this format is ambiguous and
+ should not be used.) (SU)
 \end_layout
 
 \end_inset
@@ -3178,7 +3194,7 @@ Equivalent to %Y-%m-%d (the ISO 8601 date format).
 
 \begin_layout Plain Layout
 The ISO 8601 week-based year (see NOTES) with century as a decimal number.
- The 4-digit year corre‐ sponding to the ISO week number (see %V).
+ The 4-digit year corresponding to the ISO week number (see %V).
  This has the same format and value as %Y, except that if the ISO week number
  belongs to the previous or next year, that year is used instead.
  (TZ)
@@ -4121,9 +4137,8 @@ Rules
 
 \begin_layout Standard
 This section begins with [rules].
- It decide how log actions are filtered, formated and output.
- This section can be omit, too, but there will be no log output anymore,
- hehe.
+ It decides how log actions are filtered, formatted and output.
+ This section can be omitted, but there will result in no log output.
  The syntax is
 \end_layout
 
@@ -4132,7 +4147,7 @@ This section begins with [rules].
 \end_layout
 
 \begin_layout Standard
-When zlog_init() is called, all rules will be read to memory.
+When zlog_init() is called, all rules will be read into memory.
  When zlog_get_category() is called, mutiple rules will be assigned to each
  category, in the way 
 \begin_inset CommandInset ref
@@ -4141,13 +4156,13 @@ reference "sub:Category-Matching"
 
 \end_inset
 
- describe.
- When do the real logging, as zlog_info() is called, the level between matches
- rules and INFO will be checked and decide whether this single log will
- be output through the rule.
- When zlog_reload() is called, configure file will be re-read to memory,
- include rules.
- And all category's rule will be re-caculated.
+ describes.
+ When logging is performed, the level between matched rules and INFO will
+ be checked to decide whether this single log will be output through the
+ rule.
+ When zlog_reload() is called, the configuration file will be re-read into
+ memory, including rules.
+ All category rules will be re-calculated.
 \end_layout
 
 \begin_layout Subsection
@@ -4155,13 +4170,13 @@ Level Matching
 \end_layout
 
 \begin_layout Standard
-There are six default level in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
+There are six default levels in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
  "ERROR" and "FATAL".
- As all other log library, aa.DEBUG means all log of level that is greater
- than or equals to DEBUG will be output.
+ As in all other log libraries, aa.DEBUG means all logs of level greater
+ than or equal to DEBUG will be output.
  Still, there are more expressions.
- Levels in configure file are case insensitive, both capital or lowercase
- is accepted.
+ Levels in the configuration file are not case sensitive; both capital or
+ lowercase are accepted.
 \end_layout
 
 \begin_layout Standard
@@ -4278,7 +4293,8 @@ aa.!debug
 \end_layout
 
 \begin_layout Standard
-User can define his own level, see
+The level strings can be defined by the user.
+ See
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:User-defined-Level"
@@ -4300,13 +4316,9 @@ name "sub:Category-Matching"
 \end_layout
 
 \begin_layout Standard
-
-\end_layout
-
-\begin_layout Standard
 Category Matching is simple.
- The name of category is made up of letters and digits.
- The underscore "_"counts as a letter.
+ The name of the category is made up of letters, digits, and/or the underscore
+ "_".
 \end_layout
 
 \begin_layout Standard
@@ -4436,7 +4448,7 @@ xx, yy
 \begin_inset Text
 
 \begin_layout Plain Layout
-string not end with underline accurately matches category 
+string not ending with underline accurately matches category 
 \end_layout
 
 \end_inset
@@ -4519,7 +4531,8 @@ Output Action
 \end_layout
 
 \begin_layout Standard
-Now, zlog supports some ways of output, the syntax is
+zlog supports various output methods.
+ The syntax is
 \end_layout
 
 \begin_layout LyX-Code
@@ -4643,11 +4656,11 @@ to syslog
 \begin_inset Text
 
 \begin_layout Plain Layout
-syslog facilitiy, can be: LOG_USER(default), LOG_LOCAL[0-7]
+syslog facility, can be: LOG_USER(default), LOG_LOCAL[0-7]
 \end_layout
 
 \begin_layout Plain Layout
-This is not optional.
+This is required.
 \end_layout
 
 \end_inset
@@ -4794,15 +4807,14 @@ stdout, stderr, syslog
 
 \begin_deeper
 \begin_layout Standard
-As table describes, only syslog's output option is meaningful and must be
- set.
+As the above table describes, only the syslog action has a meaningful output
+ option and it must be set.
 \end_layout
 
 \begin_layout Standard
-It is remarkable that DO NEVER use >stdout or >stderr when your program
- is a daemon process.
- As daemon process always close its fd of 1, and when >stdout is set, zlog
- will output log like this
+Warning: NEVER use >stdout or >stderr when your program is a daemon process.
+ A daemon process always closes its first file descriptor, and when >stdout
+ is set, zlog will output a log like this
 \end_layout
 
 \begin_layout LyX-Code
@@ -4811,13 +4823,14 @@ _buf))
 \end_layout
 
 \begin_layout Standard
-Then what will happen? The log will be written to the file whose fd is now
+What will happen then? The log will be written to the file whose fd is now
  1.
- I have received mail that tells me zlog write log to his configure file...
- So remeber, daemon process should not set any rule output to stdout, or
- stderr.
+ I have received mail from someone who said zlog as a daemon wrote logs
+ to the configuration file.
+ So remember, daemon processes should not set any rule output to stdout,
+ or stderr.
  It will generate undefined behavior.
- If you still want output log to console when stdout is closed, use "/dev/tty"
+ If you still want output logs to console when stdout is closed, use "/dev/tty"
  instead.
 \end_layout
 
@@ -4832,14 +4845,14 @@ pipeline output
 \end_layout
 
 \begin_layout Standard
-This is a example of how zlog pipeline its output to cronolog.
+This is an example of how zlog pipelines its output to cronolog.
  The implementation is simple.
  popen("/usr/bin/cronolog /www/logs/example_%Y%m%d.log","w") is called at
- zlog_init(), and forward logs will be write to the open descripter in the
- "normal" format.
+ zlog_init(), and forward logs will be written to the open descriptor in
+ the "normal" format.
  Writing through pipeline and cronnolog is faster than dynamic file of zlog,
  as there is no need to open and close file descripter each time when logs
- are write to a pipe.
+ are written to a pipe.
 \end_layout
 
 \begin_layout LyX-Code
@@ -4895,7 +4908,7 @@ sys	0m1.470s
 \end_layout
 
 \begin_layout Standard
-Still, There are some limitations when using pipeline output:
+There are some limitations when using pipeline output:
 \end_layout
 
 \begin_layout Itemize
@@ -4904,18 +4917,18 @@ POSIX.1-2001 says that write(2)s of less than PIPE_BUF bytes must be atomic,
 \end_layout
 
 \begin_layout Itemize
-When a single log is longer than PIPE_BUF, and multi-process write logs
- through one piple(father calls zlog_init(), and fork many child processes),
- will cause log interlace.
+When a single log is longer than PIPE_BUF, and multiple processes write
+ logs through one pipe (parent calls zlog_init(), and forks many child processes
+), log interlacing will occur.
 \end_layout
 
 \begin_layout Itemize
-Multi-process who don't have relatives, start multiple cronolog processes
- and write to the same log file.
- Even a single log is not longer than PIPE_BUF, multiple cronologs will
+Unrelated multiple processes can start multiple cronolog processes and write
+ to the same log file.
+ Even if a single log is not longer than PIPE_BUF, multiple cronologs will
  cause log interlace.
- As cronologs read log continuous, it doesn't know where is the egde between
- logs.
+ As cronologs read log continuously, it doesn't know where is the split
+ between log entries.
 \end_layout
 
 \begin_layout Standard
@@ -4924,17 +4937,17 @@ In summary, pipeline to a single log file:
 
 \begin_layout Itemize
 Single process writing, no limitation for length of one log.
- Multi-threads in one process atomic writing is already assured by zlog.
+ Multi-threads in one process, atomic writing is already assured by zlog.
 \end_layout
 
 \begin_layout Itemize
-Multi-process who have relatives, the length of one log should not longer
- than PIPE_BUF.
+Related multiple processes, the length of one log should not longer than
+ PIPE_BUF.
 \end_layout
 
 \begin_layout Itemize
-Multi-process who don't have relatives, no matter how long a single log
- is, will cause interlace and is not safe.
+Unrelated multiple processes, no matter how long a single log is, will cause
+ interlace and is not safe.
 \end_layout
 
 \end_deeper
@@ -4956,9 +4969,8 @@ can be absolute file path or relative file path.
 Conversion pattern
 \emph default
  can be used in file path.
- If the file path is "%E(HOME)/log/out.log" and the program' environment
- $HOME is /home/harry, then the log file will be /home/harry/log/output.log
- at last.
+ If the file path is "%E(HOME)/log/out.log" and the program environment $HOME
+ is /home/harry, then the log file will be /home/harry/log/output.log.
  See 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -4974,7 +4986,7 @@ file of zlog is powerful, for example
 \end_layout
 
 \begin_layout Enumerate
-output to named pipe(FIFO), must create by mkfifo(1) before use
+output to named pipe(FIFO), which must be created by mkfifo(1) before use
 \end_layout
 
 \begin_deeper
@@ -4984,7 +4996,7 @@ output to named pipe(FIFO), must create by mkfifo(1) before use
 
 \end_deeper
 \begin_layout Enumerate
-output to null, not do anythin at all
+output to null, do nothing at all
 \end_layout
 
 \begin_deeper
@@ -5004,7 +5016,7 @@ output to console, in any case
 
 \end_deeper
 \begin_layout Enumerate
-output to each tid a log, on the directory where process running
+output a log to each tid, in the directory where the process running
 \end_layout
 
 \begin_deeper
@@ -5040,8 +5052,8 @@ rotate action
 \begin_deeper
 \begin_layout Standard
 controls log file size and count.
- zlog rotate log file when the file is too large by this value.
- Let the action is
+ zlog rotates the log file when the file exceeds this value.
+ For example, let the action be
 \end_layout
 
 \begin_layout LyX-Code
@@ -5049,7 +5061,7 @@ controls log file size and count.
 \end_layout
 
 \begin_layout Standard
-After a out.log is filled by programs to 1M, the rotation is
+and after out.log is filled to 1M, the rotation is
 \end_layout
 
 \begin_layout LyX-Code
@@ -5077,8 +5089,8 @@ out.log(new create)
 \end_layout
 
 \begin_layout Standard
-The next time rotation will delete the oldest log, as *3 means just allows
- 3 file exist
+The next rotation will delete the oldest log, as *3 means just allows 3
+ file exist
 \end_layout
 
 \begin_layout LyX-Code
@@ -5099,7 +5111,7 @@ out.log(new create)
 
 \begin_layout Standard
 So the oldest log has the biggest serial number.
- If *3 is not written, it means rotation will be continue and no old log
+ If *3 is not specified, it means rotation will continue and no old log
  will be deleted.
 \end_layout
 
@@ -5117,9 +5129,9 @@ name "ite:synchronous-I/O-file"
 
 \begin_deeper
 \begin_layout Standard
-Putting a minus signe '-' set the synchronous I/O opition.
- log file is opend with O_SYNC and every single log action will return until
- Operation System write data to disk.
+Putting a minus sign '-' sets the synchronous I/O option.
+ log file is opened with O_SYNC and every single log action will wait until
+ the Operating System writes data to disk.
  It is painfully slow:
 \end_layout
 
@@ -5199,10 +5211,10 @@ name "sec:Rotation"
 \end_layout
 
 \begin_layout Standard
-Why rotation? I have see more than once that in product-environment, the
- hard disk is full of logs and cause system stop working, or a single log
- file is too big to open or grep.
- I conclude several ways of rotation and archive log files:
+Why rotation? I have see more than once in a production environment, that
+ the hard disk is full of logs and causes the system to stop working, or
+ a single log file is too big to open or grep.
+ Several ways to rotate and archive log files are possible:
 \end_layout
 
 \begin_layout Enumerate
@@ -5227,18 +5239,20 @@ aa.2012-08-04.log
 \end_layout
 
 \begin_layout Standard
-In this case, System admin knows how much log will be produced one day.
- And after a few month, he hopes to find log file exactly of one day.
- The best way for split is done by log library precisely.
+In this case, the system administrator knows how much log will be produced
+ one day.
+ The sys admin is able to search log files based on the day.
+ The best way to make this split is to let the zlog library do it.
  Another choice is using cronosplit to analyse the content of log file and
  split it.
  A bad way is using crontab+logrotate to daily move log files, which is
- not accurate, some logs will be put into file of the previous day.
+ not accurate, some logs will be put into the file for the previous day.
 \end_layout
 
 \begin_layout Standard
-In zlog, no need for rotating to complete that job.
- Simplely setting time in name of log file works:
+Using zlog, there is no need for external rotate action to complete the
+ job.
+ Setting time in the log file name works:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5246,7 +5260,7 @@ In zlog, no need for rotating to complete that job.
 \end_layout
 
 \begin_layout Standard
-or using cronolog for fast performace:
+or using cronolog for faster performace:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5260,12 +5274,12 @@ Split log by size.
 
 \begin_deeper
 \begin_layout Standard
-Always fit for develop use.
- In this case, program generate a lot of logs in a short period.
- But text edit can't quickly open big files.
- Althrough the split can be done by split tools after, but it aquires extra
- steps.
- So a good way is doing rotation by logging library.
+Always suitable for development use.
+ In this case, the program generates a lot of logs in a short period.
+ But the text editor might not be able to open big files quickly.
+ Although the split can be done using split tools afterwards, this requires
+ extra steps.
+ So a good way is to let the logging library do the rotation.
  There are two ways of rotation, as nlog describes, Sequence and Rolling.
  In case of Sequence:
 \end_layout
@@ -5307,18 +5321,17 @@ aa.log.2 (old)
 \end_layout
 
 \begin_layout Standard
-It's hard to say which one fit people's instinct.
+It's hard to say which one is most suitable.
 \end_layout
 
 \begin_layout Standard
-OK, If only some of the newest log is useful to developers, logging library
- shoud do the clean work.
- Del the old log files.
- External tools can't find out which files are older.
+If only some of the newest logs are useful to developers, logging library
+ should do the cleanup work and delete the old log files.
+ Some external tools can't find out which files are older.
 \end_layout
 
 \begin_layout Standard
-The most simple rotation configure of zlog is:
+The simplest rotation configuration for zlog is:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5327,7 +5340,7 @@ The most simple rotation configure of zlog is:
 
 \begin_layout Standard
 It is Rolling.
- When aa.log is larger than 10MB, will rename file like this:
+ When aa.log is larger than 10MB, zlog will rename file like this:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5347,7 +5360,7 @@ aa.log -> aa.log.0
 \end_layout
 
 \begin_layout Standard
-The configure can be more complex:
+The configuration can be more complex:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5355,19 +5368,20 @@ The configure can be more complex:
 \end_layout
 
 \begin_layout Standard
-The 1st argument represents when rotation will be trigger, in size.
+The 1st argument after the file name says when rotation will be triggered,
+ in size.
  
 \end_layout
 
 \begin_layout Standard
-The 2nd arguments represents how many archive file will be kept not delete(0
- means keep all).
+The 2nd argument after the file name says how many archive files will be
+ kept, (0 means keep all).
  
 \end_layout
 
 \begin_layout Standard
-The 3rd argument represents archive file name.
- #r is the number of archive files.
+The 3rd argument after the file name shows the archive file name.
+ #r is a sequence number for archive files.
  r is short for Rolling, and #s is short for sequence.
  Archive file name must contain one of #r or #s.
 \end_layout
@@ -5399,14 +5413,15 @@ aa.log-20071008.00.log
 \end_layout
 
 \begin_layout Standard
-In this case, log file is not focus frequently, but will be check out one
- day.
- Of course, when one day's log is more than 100MB, like 20070501, will be
- stored in two files and add postfix numbers.
+In this case, the log file is not usually viewed frequently, and is likely
+ checked once a day.
+ Of course, when one day's log is more than 100MB, you should consider storing
+ in two files and add postfix numbers.
+ For example if the date is used as part of the pattern (like 20070501):
 \end_layout
 
 \begin_layout Standard
-The configure of zlog is:
+The configuration of zlog is:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5415,10 +5430,10 @@ The configure of zlog is:
 
 \begin_layout LyX-Code
 Do rotation every 100MB.
- The archive file name support conversion strings also!.
+ The archive file name also supports conversion strings.
  #2s means the sequence number is at least 2 bytes wide.
- Sequece from 00.
- That's the most complex way of archive in zlog!
+ Sequence from 00.
+ That's the most complex way to archive in zlog.
 \end_layout
 
 \end_deeper
@@ -5428,47 +5443,49 @@ Compress, move and delete old archive.
 
 \begin_deeper
 \begin_layout Standard
-Compress should not be done by logging library, because compress need time
- and CPU.
- The mission of logging library is cooperation with compress programs.
+Compress should not be done by the logging library, because compress need
+ time and CPU.
+ The mission of the logging library is to cooperate with compress programs.
 \end_layout
 
 \begin_layout Standard
-For the 3 ways of split logs, way 1 and way 3 is easy to manage.
+For the 3 ways to split logs, way 1 and way 3 are easy to manage.
  It is easy to find old log file by name or by modify time.
  And then compress, move and delete old log files by crontab and shell.
 \end_layout
 
 \begin_layout Standard
-For the way 2, compress is useless, delete is need and zlog already support
+For second way, compress is useless, delete is needed and zlog already supports
  it.
 \end_layout
 
 \begin_layout Standard
 If you really want to rotate and compress log file at the same time, I suggest
  logrotate.
- As it is a indepence program and will not confuse.
+ It is an independent program and will not confuse the situation.
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
-zlog support for external tools like logrotate
+zlog support for external tools like logrotate.
 \end_layout
 
 \begin_layout Standard
 The rotation support of zlog is very powerful, still there are several cases
  zlog can not handle.
  Like rotation by time, before or after rotation call some user-defined
- shells...
- That will make zlog too complex and ugly.
+ shells.
+ That will make zlog too complex.
 \end_layout
 
 \begin_layout Standard
-Under that cirumstances, maybe you like to use external tools like logrotate.
- The problem is, on linux, when a tool rename the log file, the working
- process will not automaticlly reopen the new file.
- The standard way is send a signal to program, let it reopen the file, as
- to syslogd the command is:
+Under these circumstances, consider using external tools like logrotate.
+ On linux, the problem is that when a tool renames the log file, the working
+ process which uses an inode to reference the file will not automatically
+ reopen the new file.
+ The standard way is send a signal to the program and let it reopen the
+ file.
+ For syslogd the command is:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5477,10 +5494,10 @@ kill -SIGHUP `cat /var/run/syslogd.pid`
 
 \begin_layout Standard
 For zlog as a library, it is not good to receive signals.
- zlog provide zlog_reload(), which reload configure file and reopen all
- log files.
- So if you write a program and want to reopen log file mannully, you can
- write some code to do job like this: after receiving a signal or command
+ zlog provide zlog_reload(), which reloads the configuration file and reopens
+ all log files.
+ So if you write a program and want to reopen a log file manually, you can
+ write some code to do the job like this: after receiving a signal or command
  from client, call zlog_reload().
 \end_layout
 
@@ -5506,9 +5523,10 @@ Useage: zlog-chk-conf [conf files]...
 \end_layout
 
 \begin_layout Standard
-zlog-chk-conf try to read conf files, and check their syntax, and output
- to screen whether it is correct.
- I suggest using this tools each time you create or change a configure file.
+zlog-chk-conf tries to read configuration files, check their syntax, and
+ output to screen whether it is correct or not.
+ I suggest using this tool each time you create or change a configuration
+ file.
  It will output like this
 \end_layout
 
@@ -5556,8 +5574,9 @@ $ ./zlog-chk-conf zlog.conf
 \end_layout
 
 \begin_layout Standard
-It tells you that line 126 in you configure file, zlog.conf, is wrong, and
- the 1st line further tells you that [aaa] is not a right rule.
+This example tells you that [aaa] is not a correct rule and that line 126
+ in the configuration file is wrong.
+ Later failure reports result from that fundamental failure.
 \end_layout
 
 \begin_layout LyX-Code
@@ -5569,8 +5588,8 @@ zlog API
 \end_layout
 
 \begin_layout Standard
-All API of zlog are thread safe.
- To use them, just need to
+All zlog APIs are thread safe.
+ To use them, you just need to
 \end_layout
 
 \begin_layout LyX-Code
@@ -5615,7 +5634,7 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-zlog_init() read configuration from file 
+zlog_init() reads configuration from the file 
 \bar under
 confpath
 \bar default
@@ -5624,42 +5643,43 @@ confpath
 \bar under
 confpath
 \bar default
- is NULL, it looks environment variable ZLOG_CONF_PATH for configure file.
- If $ZLOG_CONF_PATH is NULL also, all log will be output to stdout with
- inner format.
- Only the first time call zlog_init() per process is effective, other times
- will fail and do nothing.
+ is NULL, it looks for the environment variable ZLOG_CONF_PATH to find the
+ configuration file.
+ If $ZLOG_CONF_PATH is NULL also, all logs will be output to stdout with
+ an internal format.
+ Only the first call to zlog_init() per process is effective, subsequent
+ calls will fail and do nothing.
 \end_layout
 
 \begin_layout Standard
-zlog_reload() is designed to reload configure file.
+zlog_reload() is designed to reload the configuration file.
  From the 
 \bar under
 confpath
 \bar default
- it re-calculate category-rule relationship, rebuild thread buffers, and
- reset user-defined ouput function to rules.
- It can be called at runtime when configure file is changed or using another
- configure file.
- It can be called unlimit times.
+ it re-calculates the category-rule relationships, rebuilds thread buffers,
+ and resets user-defined output function rules.
+ It can be called at runtime when the configuration file is changed or you
+ wish to use another configuration file.
+ It can be called any number of times.
  If 
 \bar under
 confpath
 \bar default
- is NULL, it reloads the last configure file zlog_init() or zlog_reload()
- specified.
+ is NULL, it reloads the last configuration file that zlog_init() or zlog_reload
+() specified.
  If zlog_reload() failed, the current configuration in memory will remain
  unchanged.
  So zlog_reload() is atomic.
 \end_layout
 
 \begin_layout Standard
-zlog_fini() release all memory zlog API
+zlog_fini() releases all zlog API
 \emph on
  
 \emph default
-applied, close opened files.
- It can be called unlimit times.
+memory and closes opened files.
+ It can be called any number of times.
 \end_layout
 
 \end_deeper
@@ -5671,8 +5691,8 @@ RETURN VALUE
 \begin_deeper
 \begin_layout Standard
 On success , zlog_init() and zlog_reload() return zero.
- On error, zlog_init() and zlog_reload() return -1, and detail error log
- will be record to a log file ZLOG_PROFILE_ERROR indicates.
+ On error, zlog_init() and zlog_reload() return -1, and a detailed error
+ log will be recorded to the log file indicated by ZLOG_PROFILE_ERROR.
 \end_layout
 
 \end_deeper
@@ -5706,10 +5726,11 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-zlog_get_category() get a category from zlog's cateogory_table for future
- log, if none, create it.
- Then It goes throuh all rules in configure memory, which comes from configure
- file, And find matched rules corresponds to 
+zlog_get_category() gets a category from zlog's category_table for a future
+ log action.
+ If the category cname does not exist it will be created.
+ Then zlog goes through all rules as determined by the configuration.
+ It returns a pointer to matched rules corresponding to 
 \bar under
 cname
 \bar default
@@ -5717,7 +5738,7 @@ cname
 \end_layout
 
 \begin_layout Standard
-That's how category string in rules matches 
+This is how category string in rules matches 
 \bar under
 cname
 \bar default
@@ -5743,12 +5764,12 @@ cname
 \end_layout
 
 \begin_layout Enumerate
-category string which does not ends with underscore "_"matches 
+category string which does not end with underscore "_"matches 
 \bar under
 cname
 \bar default
  accurately.
- For example, "aa_bb" matches 
+ For example, "aa_bb" matches only a 
 \bar under
 cname
 \bar default
@@ -5764,12 +5785,13 @@ cname
 \end_layout
 
 \begin_layout Standard
-The rules of each category will be automaticlly re-caculate when zlog_reload()
- is called.No need to worry about category's memory release,
+The rules for each category will be automatically re-calculated when zlog_reload
+() is called.
+ No need to worry about category's memory release,
 \emph on
  
 \emph default
-zlog_fini() will clean up at last.
+zlog_fini() will clean up at the end.
 \end_layout
 
 \end_deeper
@@ -5781,8 +5803,8 @@ RETURN VALUE
 \begin_deeper
 \begin_layout Standard
 On success, return the address of zlog_category_t.
- On error, return NULL, and detail error log will be record to a log file
- ZLOG_PROFILE_ERROR indicates.
+ On error, return NULL, and a detailed error log will be recorded to the
+ log file indicated by ZLOG_PROFILE_ERROR.
 \end_layout
 
 \end_deeper
@@ -5972,8 +5994,8 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-These 3 functions are the real log function producing user message, which
- corresponds to %m is configure file.
+These 3 functions are the real log functions producing user messages, which
+ correspond to %m is configuration file entries.
  
 \bar under
 category
@@ -5998,8 +6020,8 @@ vzlog()
 \emph on
  
 \emph default
-is equivalent to zlog(), respectively, except that it is called with a va_list
- instead of a variable number of arguments.
+is equivalent to zlog(), except that it is called with a va_list instead
+ of a variable number of arguments.
  vzlog() invokes the va_copy macro, the value of 
 \bar under
 args
@@ -6059,14 +6081,14 @@ file
 \bar under
 line
 \bar default
- are usually filled with __FILE__ and __LINE__ macro.
- These indicate where log event happens.
+ are usually filled by the __FILE__ and __LINE__ macros.
+ These indicate where the log event happened.
  The parameter 
 \bar under
 func
 \bar default
- is filled with __func__ or __FUNCTION__, if the compiler supports, otherwise
- it will be filled with "<unkown>".
+ is filled with __func__ or __FUNCTION__, if the compiler supports it, otherwise
+ it will be filled with "<unknown>".
 \end_layout
 
 \begin_layout Standard
@@ -6077,7 +6099,7 @@ level
 \bar default
  
 \emph default
-is a int, which usually is in
+is an int in the current level list, which defaults to:
 \end_layout
 
 \begin_layout LyX-Code
@@ -6249,9 +6271,9 @@ RETURN VALUE
 
 \begin_deeper
 \begin_layout Standard
-These functions returns nothing.
- But if there is anything wrong happens, detail error log will be record
- to a log file ZLOG_PROFILE_ERROR indicates.
+These functions return nothing.
+ But if anything wrong happens, a detailed error log will be recorded to
+ the log file indicated by ZLOG_PROFILE_ERROR.
 \end_layout
 
 \end_deeper
@@ -6305,7 +6327,7 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-MDC(Mapped Diagnostic Context) is a thread key-value map, so it has nothing
+MDC (Mapped Diagnostic Context) is a thread key-value map, and has nothing
  to do with category.
 \end_layout
 
@@ -6323,8 +6345,8 @@ value
 \end_layout
 
 \begin_layout Standard
-One thing should remeber is that the map bonds to a thread, thus in one
- thread if you set a key-value pair will not affect other threads.
+One thing you should remember is that the map bonds to a thread, thus if
+ you set a key-value pair in one thread, it will not affect other threads.
 \end_layout
 
 \end_deeper
@@ -6336,13 +6358,13 @@ RETURN VALUE
 \begin_deeper
 \begin_layout Standard
 zlog_put_mdc() returns 0 for success, -1 for fail.
- zlog_get_mdc() returns poiter of 
+ zlog_get_mdc() returns a pointer to 
 \bar under
 value
 \bar default
  for success, NULL for fail or key not exist.
- If there is anything wrong happens, detail error log will be record to
- a log file ZLOG_PROFILE_ERROR indicates.
+ If anything wrong happens, a detailed error log will be recorded to the
+ log file indicated by ZLOG_PROFILE_ERROR.
 \end_layout
 
 \end_deeper
@@ -6531,29 +6553,30 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-dzlog consists of some simlple fuctions that omit 
+dzlog consists of simple functions that omit 
 \emph on
 zlog_category_t
 \emph default
 .
- It use a default category inside and put the category under the protect
- of lock.
+ It uses a default category internally and puts the category under lock
+ protection.
  It is thread safe also.
- Omit category means that users need not to create, save, tranfer 
+ Omitting the category means that users need not create, save, or transfer
+ 
 \emph on
 zlog_category_t
 \emph default
  variables.
- Still, user can get and use other category through normal API at the same
- time for flexibility.
+ Still, you can get and use other category values at the same time through
+ the normal API for flexibility.
 \end_layout
 
 \begin_layout Standard
-dzlog_init() is just as zlog_init(), but need a 
+dzlog_init() is just as zlog_init(), but needs a 
 \bar under
 cname
 \bar default
- for inner default category.
+ for the internal default category.
  zlog_reload() and zlog_fini() can be used as before, to refresh conf_file,
  or release all.
 \end_layout
@@ -6563,9 +6586,10 @@ dzlog_set_category()
 \emph on
  
 \emph default
-is designed for change default category.
- The last default category is instead by new one, and still don't worry
- about memory releasing, all category will be clean up at zlog_fini().
+is designed for changing the default category.
+ The last default category is replaced by the new one.
+ Don't worry about releasing memory since all category allocations will
+ be cleaned up at zlog_fini().
 \end_layout
 
 \begin_layout Standard
@@ -6661,9 +6685,9 @@ RETURN VALUE
 
 \begin_deeper
 \begin_layout Standard
-On success , dzlog_init() and dzlog_set_category() return zero.
- On error, dzlog_init() and dzlog_set_category() return -1, and detail error
- log will be record to a log file ZLOG_PROFILE_ERROR indicates.
+On success, dzlog_init() and dzlog_set_category() return zero.
+ On error, dzlog_init() and dzlog_set_category() return -1, and a detailed
+ error log will be recorded to the log file indicated by ZLOG_PROFILE_ERROR.
 \end_layout
 
 \end_deeper
@@ -6725,8 +6749,8 @@ DESCRIPTION
 
 \begin_deeper
 \begin_layout Standard
-zlog allows user defines his own output function.
- The output function bonds to specail kind of rule in configure file.
+zlog allows a user to define an output function.
+ The output function bonds to a special kind of rule in configuration file.
  A typical rule is:
 \end_layout
 
@@ -6735,22 +6759,22 @@ zlog allows user defines his own output function.
 \end_layout
 
 \begin_layout Standard
-zlog_set_record() do the bonding operation.
- rules with the $
+zlog_set_record() does the bonding operation.
+ Rules with the $
 \bar under
-name
+rname
 \bar default
  will be output through user-defined function 
 \bar under
 record
 \bar default
 .
- The function has the type of zlog_record_fn.
+ The callback function has the type of zlog_record_fn.
  
 \end_layout
 
 \begin_layout Standard
-The member of struct zlog_msg_t is decribed below:
+The members of struct zlog_msg_t are decribed below:
 \end_layout
 
 \begin_layout Standard
@@ -6758,8 +6782,8 @@ The member of struct zlog_msg_t is decribed below:
 \bar under
 path
 \bar default
- comes from the second parm of rule after $name, which is dynamiclly generated
- like dynamic file path.
+ comes from the second parameter of rule after $name, which is generated
+ dynamically like the file path.
  
 \end_layout
 
@@ -6772,11 +6796,11 @@ buf
 \bar under
 len
 \bar default
- are zlog formated log message and its length.
+ are zlog formatted log message and its length.
 \end_layout
 
 \begin_layout Standard
-All settings of zlog_set_record() keeps available after zlog_reload().
+All settings of zlog_set_record() are kept available after zlog_reload().
 \end_layout
 
 \end_deeper
@@ -6788,8 +6812,8 @@ RETURN VALUE
 \begin_deeper
 \begin_layout Standard
 On success, zlog_set_record() returns zero.
- On error, it returns -1, and detail error log will be record to a log file
- ZLOG_PROFILE_ERROR indicates.
+ On error, it returns -1, and a detailed error log will be recorded to the
+ log file indicated by ZLOG_PROFILE_ERROR.
 \end_layout
 
 \end_deeper
@@ -6823,15 +6847,15 @@ environment variable ZLOG_PROFILE_DEBUG indicates zlog's debug log path.
 \end_layout
 
 \begin_layout Standard
-zlog_profile() print all information in memory to zlog's error log file
+zlog_profile() prints all information in memory to zlog's error log file
  at runtime.
- User can compare it to configure file, to find out possible errors.
+ You can compare it to the configuration file to find possible errors.
  
 \end_layout
 
 \end_deeper
 \begin_layout Chapter
-Advance Using
+Advanced Usage
 \end_layout
 
 \begin_layout Section
@@ -6847,11 +6871,11 @@ name "sec:MDC"
 
 \begin_layout Standard
 What is MDC? In log4j it is short for Mapped Diagnostic Context.
- That sounds like a complicate terminology.
+ That sounds like a complicated terminology.
  MDC is just a key-value map.
- Once you set it by function, library will print it to file every time a
- log event happens, or become part of log file path.
- Let's see a example in $(top_builddir)/test/test_mdc.c.
+ Once you set it by function, the zlog library will print it to file every
+ time a log event happens, or become part of log file path.
+ Let's see an example in $(top_builddir)/test/test_mdc.c.
 \end_layout
 
 \begin_layout LyX-Code
@@ -7030,19 +7054,19 @@ $ ./test_mdc
 \end_layout
 
 \begin_layout Standard
-You can see zlog_put_mdc() function set the map with key "myname" and value
- "Zhang", and in configure file 
+You can see zlog_put_mdc() function sets the map with key "myname" and value
+ "Zhang", and in configuration file 
 \emph on
 %M(myname) 
 \emph default
 indicates where the value shows in each log.
- The second time, value of key "myname" is overwriteen to "Li", and the
+ The second time, value of key "myname" is overwritten to "Li", and the
  log changes also.
 \end_layout
 
 \begin_layout Standard
-When should MDC be used? That mainly depends on when user need to seprate
- same log action with different scenes.
+When should MDC be used? That mainly depends on when a user need to separate
+ same log action with different scenarios.
  For example, in .c
 \end_layout
 
@@ -7075,7 +7099,8 @@ in .conf
 \end_layout
 
 \begin_layout Standard
-When program process two customer at the same time, the output maybe:
+When the program processes two customers at the same time, the output could
+ be:
 \end_layout
 
 \begin_layout LyX-Code
@@ -7111,7 +7136,7 @@ Li get out
 \end_layout
 
 \begin_layout Standard
-Now you can distinguish two one customer from another, by use grep afterwards
+Now you can distinguish one customer from another, by using grep afterwards
 \end_layout
 
 \begin_layout LyX-Code
@@ -7123,8 +7148,9 @@ $ grep Li aa.log >Li.log
 \end_layout
 
 \begin_layout Standard
-Or, there is another way, sperate them to different log file when log action
- is taken, in .conf
+Or, another way is to seperate them to different log file when log action
+ is taken.
+ In .conf
 \end_layout
 
 \begin_layout LyX-Code
@@ -7132,7 +7158,7 @@ Or, there is another way, sperate them to different log file when log action
 \end_layout
 
 \begin_layout Standard
-It will produce 3 log
+It will produce 3 logs
 \end_layout
 
 \begin_layout LyX-Code
@@ -7140,15 +7166,14 @@ mdc_.log mdc_Zhang.log mdc_Li.log
 \end_layout
 
 \begin_layout Standard
-That's a quick way, if user kown what he is doing.
+That's a quick way, if you know what you are doing.
 \end_layout
 
 \begin_layout Standard
-About MDC, another thing is that map belongs to thread, each thread has
- it's own map.
+In MDC, the map belongs to a thread and each thread has it's own map.
  In one thread zlog_mdc_put() will not affect other thread's map.
- Still, if you just want to distinguish on thread from another, use %t in
- conversion charactor is enough.
+ Still, if you want to distinguish one thread from another, using the %t
+ conversion character is enough.
 \end_layout
 
 \begin_layout LyX-Code
@@ -7171,12 +7196,12 @@ name "sec:Profile-zlog-Itself"
 \end_layout
 
 \begin_layout Standard
-OK, till now, I suspect that zlog library never fails, it help user's applicatio
-n to write log and debug user's application.
- But if zlog itself has some problem, how to find it out? Other program
- debug through log library, and how can a log library debug itself? The
+Until this point we have assumed that the zlog library never fails.
+ It helps the application to write log entries and to debug the application.
+ But if zlog itself has some problem, how can we find out? Other programs
+ debug through the log library so how can a log library debug itself? The
  answer is the same, zlog library has its own log.
- This profile log is usually shut down, and can be open by set environment
+ This profile log is usually closed, and can be opened by setting environment
  variables.
 \end_layout
 
@@ -7189,15 +7214,15 @@ $ export ZLOG_PROFILE_ERROR=/tmp/zlog.error.log
 \end_layout
 
 \begin_layout Standard
-profile log just has 2 levels, debug and error.
- After Settion, run test_hello program in 
+profile log has just 2 levels, debug and error.
+ After setting them, run test_hello program in 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "sec:Hello-World-Example"
 
 \end_inset
 
-, then the debug log is
+, and the debug log will be
 \end_layout
 
 \begin_layout LyX-Code
@@ -7232,13 +7257,13 @@ zlog.error.log is not created, as no error occurs.
 
 \begin_layout Standard
 As you can see, debug log shows how zlog is inited and finished, but no
- debug log is writen when zlog_info() is executed.
+ debug log is written when zlog_info() is executed.
  That's for efficency.
 \end_layout
 
 \begin_layout Standard
-If there is anything wrong with zlog library, all will show in zlog.error.log,
- for example, using a wrong printf syntax in zlog()
+If there is anything wrong with zlog library, all will show in zlog.error.log.
+ For example, using a wrong printf syntax in zlog()
 \end_layout
 
 \begin_layout LyX-Code
@@ -7289,25 +7314,26 @@ $ cat zlog.error.log
 \end_layout
 
 \begin_layout Standard
-Now, user could find the reason why the expect log doesn't generate, and
+Now, you could find the reason why the expected log doesn't generate, and
  fix the wrong printf syntax.
 \end_layout
 
 \begin_layout Standard
-Runtime profile will make efficency lost.
- Normally, I keep ZLOG_PROFILE_ERROR on and ZLOG_PROFILE_DEBUG off at my
+Runtime profiling causes a loss of efficency.
+ Normally, I keep ZLOG_PROFILE_ERROR on and ZLOG_PROFILE_DEBUG off in my
  environment.
  
 \end_layout
 
 \begin_layout Standard
-There is still another way to profile zlog libraray.
- As we all know, zlog_init() read configure file to memory .
- Through all log actions, the configure structure memory keeps unchanged.
- There is possibility that this memory is damaged by other fuctions in user's
- application, or the memory doesn't equal what configure file describes.
- So I design a function to show this memory at runtime, print it to ZLOG_PROFILE
-_ERROR.
+There is another way to profile the zlog library.
+ zlog_init() reads the configuration file into memory.
+ Throughout all log actions, the configure structure remains unchanged.
+ There is possibility that this memory is damaged by other functions in
+ an application, or the memory doesn't equal what the configuration file
+ describes.
+ So there is a function to show this memory at runtime and print it to ZLOG_PROF
+ILE_ERROR.
 \end_layout
 
 \begin_layout Standard
@@ -7390,7 +7416,7 @@ return 0;
 
 \begin_layout Standard
 zlog_profile() is the function.
- The configure file is simple
+ The configuration file is simple
 \end_layout
 
 \begin_layout LyX-Code
@@ -7523,11 +7549,11 @@ name "sec:User-defined-Level"
 \end_layout
 
 \begin_layout Standard
-Here I write down all steps of how user define own levels.
+Here are all the steps to define your own levels.
 \end_layout
 
 \begin_layout Enumerate
-define levels in configure file.
+Define levels in the configuration file.
 \end_layout
 
 \begin_deeper
@@ -7560,7 +7586,7 @@ my_cat.TRACE            >stdout;
 \end_layout
 
 \begin_layout Standard
-The inner default levels are(no need to write them in conf file):
+The internal default levels are (no need to write them in the conf file):
 \end_layout
 
 \begin_layout LyX-Code
@@ -7592,10 +7618,10 @@ UNKNOWN = 254, LOG_ERR
 \end_layout
 
 \begin_layout Standard
-Now in zlog, a integer(30) and a level string(TRACE) represents a level.
- Note that this integer must be in [1,253], other number is illegal.
- More larger, more important.Now TRACE is more important than DEBUG(30>20),
- and less important than INFO(30<40).
+In zlog, an integer(30) and a level string(TRACE) represent a level.
+ Note that this integer must be in [1,253], any other number is illegal.
+ Higher numbers are more important.
+ TRACE is more important than DEBUG(30>20), and less important than INFO(30<40).
  After the definition, TRACE can be used in rule of configure file.
  This sentence
 \end_layout
@@ -7610,12 +7636,12 @@ means that level >= TRACE, which is TRACE, INFO, NOTICE, WARN, ERROR, FATAL
 \end_layout
 
 \begin_layout Standard
-The conversion charactor %V of format string generate captial of level string
- and %v for lowercase of level string.
+The conversion charactor %V of format string generates the uppercase value
+ of the level string and %v generates the lowercase value of the level string.
 \end_layout
 
 \begin_layout Standard
-Besides, in level defination LOG_DEBUG means when use >syslog in rule, all
+In the level definition LOG_DEBUG means when using >syslog in a rule, all
  TRACE log will output as syslog' s LOG_DEBUG level.
 \end_layout
 
@@ -7715,7 +7741,7 @@ ZLOG_LEVEL_TRACE = 30,
 
 \end_deeper
 \begin_layout Enumerate
-Now, zlog_trace can be used int .c file
+Then zlog_trace can be used int .c file
 \end_layout
 
 \begin_deeper
@@ -7848,9 +7874,9 @@ INFO info hello, zlog - info
 \end_layout
 
 \begin_layout Standard
-That's just what we expect, the configure file only allows >=TRACE ouput
- to screen.
- And %V and %v works well.
+That's just what we expect.
+ The configuration file only allows >=TRACE ouput to screen.
+ And %V and %v work as well.
 \end_layout
 
 \end_deeper
@@ -7866,17 +7892,17 @@ name "sec:User-defined-Output"
 \end_layout
 
 \begin_layout Standard
-The goal of user-defined output is that zlog gives up some right.
- zlog is only responsible for generate path and message dynamiclly as user's
- configure, but leaves the way of how log is output, rotate and cleanup
- for user's desire.
- You can do what ever you want by set a function to special rules.
- Here I write down all steps of how user define own output function.
+The goal of user-defined output is that zlog gives up some rights.
+ zlog is only responsible for generating path and message dynamically as
+ per the user's configuration, but leaves the log output, rotate and cleanup
+ actions for the user to specify.
+ You can do what ever you want by setting a function to special rules.
+ Here are the steps to define your own output function.
  
 \end_layout
 
 \begin_layout Enumerate
-defined output in rules of configure file.
+Define output in rules of configure file.
 \end_layout
 
 \begin_deeper
@@ -7902,7 +7928,7 @@ my_cat.*      $myoutput, " mypath %c %d";simple
 
 \end_deeper
 \begin_layout Enumerate
-set a ouput function for myoutput, then using it
+Set an output function for myoutput, then use it
 \end_layout
 
 \begin_deeper
@@ -8034,7 +8060,7 @@ return 0;
 
 \end_deeper
 \begin_layout Enumerate
-Now we can see the user-defined output() works!
+Now we can see how the user-defined output() works
 \end_layout
 
 \begin_deeper
@@ -8051,14 +8077,14 @@ $ ./test_record
 \end_layout
 
 \begin_layout Standard
-As you can see, msglen is 12, and msg formated by zlog contains a newline
- character.
+As you can see, msglen is 12, and msg is formatted by zlog to contain a
+ newline character.
 \end_layout
 
 \end_deeper
 \begin_layout Enumerate
-There are many miraculous things you can do with user-defined output functions.
- As one user(flw@newsmth.net)'s desire
+There are many other things you can do with user-defined output functions.
+ As one user(flw@newsmth.net) provided:
 \end_layout
 
 \begin_deeper
@@ -8069,7 +8095,7 @@ Log name is foo.log
 \begin_layout Enumerate
 If foo.log is larger than 100M, then generate a new logfile which contains
  all the contents of foo.log.
- And zlog truncate foo.log to 0 and re-append to it when next log happens.
+ And zlog truncates foo.log to 0 and re-appends to it when the next log happens.
 \end_layout
 
 \begin_layout Enumerate
@@ -8078,18 +8104,17 @@ When the time is over 5 minutes after last logging, even if foo.log is not
 \end_layout
 
 \begin_layout Enumerate
-The new file name should be defined by his own needs.
- For example add device no as prefix and time string for postfix.
+The new file name should be defined by your own needs.
+ For example add device number as prefix and time string as postfix.
 \end_layout
 
 \begin_layout Enumerate
-I hope the new logfile can be compressed, to save disk space and network
- bandwidth.
+You might compress the new log file to save disk space and network bandwidth.
 \end_layout
 
 \begin_layout Standard
-I wish him good luck for writing such a function in case of multi-process
- or multi-threads! God bless him! 
+I wish him good luck trying to write such a function for multi-process or
+ multi-thread cases!
 \end_layout
 
 \end_deeper
