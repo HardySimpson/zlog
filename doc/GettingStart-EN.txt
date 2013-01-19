@@ -2,8 +2,8 @@
 
 zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C logging library.
 
-  Actually, in the C world there is NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be easily redirected or reformat. syslog is slow and is designed for system use. 
-  So I write zlog. 
+  Actually, in the C world there was NO good logging library for application like logback in java or log4cxx in c++. printf can work, but can not be redirected easily nor be reformat. syslog is slow and is designed for system use. 
+  So I wrote zlog. 
   It is faster, safer and more powerful than log4c. So it can be widely used. 
 
 1. Install
@@ -23,18 +23,18 @@ $ sudo vi /etc/ld.so.conf
 /usr/local/lib
 $ sudo ldconfig
 
-Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find it. The command metioned above is for linux. Other system should find its own way.
+Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find it. The command metioned above are for linux. Other systems will need a similar set of actions.
 
 
 2. Introduce configure file
 
-There are 3 important conception in zlog: category,format,rule
+There are 3 important conceptions in zlog: category, format and rule.
 
-Category is designed for different input. In source code name of category variable is a charactor string. In program, get different category for log will distinguish them from each other.
+Category specifies different kinds of log entries. In the zlog source code, category is a (zlog_cateogory_t *) variable. In your program, different categories for the log entries will distinguish them from each other.
 
-Format describes log pattern, like with or without time stamp, source file, source line.
+Format describes detail log patterns, such as: with or without time stamp, source file, source line.
 
-Rule consists of category, level, output file(or other channel) and format. In brief, if category string in rule of configure file equals name of category variable in source, they match. Still there is complex match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger output at the level of debug, when father logger output at the level of error)
+Rule consists of category, level, output file (or other channel) and format. In brief, if the category string in a rule in the configuration file equals the name of a category variable in the source, then they match. Still there is complex match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger output at the level of debug, when father logger output at the level of error)
 
 Now write configure file. No matter what's the file name is or where it locates, zlog_init() will read file from agruments.
 $ cat /etc/zlog.conf
