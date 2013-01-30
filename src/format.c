@@ -86,6 +86,7 @@ zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
 	 * pattern      %d(%F %X.%l) %-6V (%c:%F:%L) - %m%n
 	 */
 	memset(a_format->name, 0x00, sizeof(a_format->name));
+	nread = 0;
 	nscan = sscanf(line, " %[^= \t] = %n", a_format->name, &nread);
 	if (nscan != 1) {
 		zc_error("format[%s], syntax wrong", line);

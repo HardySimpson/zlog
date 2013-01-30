@@ -489,6 +489,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 		/* a string begin with %: %12.35d(%F %X,%l) */
 
 		/* process width and precision char in %-12.35P */
+		nread = 0;
 		nscan = sscanf(p, "%%%[.0-9-]%n", a_spec->print_fmt, &nread);
 		if (nscan == 1) {
 			a_spec->gen_msg = zlog_spec_gen_msg_reformat;
@@ -518,8 +519,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 				strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
 				p += 3;
 			} else {
-				nscan =
-				    sscanf(p, "d(%[^)])%n", a_spec->time_fmt, &nread);
+				nread = 0;
+				nscan = sscanf(p, "d(%[^)])%n", a_spec->time_fmt, &nread);
 				if (nscan != 1) {
 					nread = 0;
 				}
@@ -540,6 +541,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 		}
 
 		if (*p == 'M') {
+			nread = 0;
 			nscan = sscanf(p, "M(%[^)])%n", a_spec->mdc_key, &nread);
 			if (nscan != 1) {
 				nread = 0;

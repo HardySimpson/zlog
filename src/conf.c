@@ -341,8 +341,8 @@ exit:
 /* section [global:1] [levels:2] [formats:3] [rules:4] */
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 {
-	int nscan = 0;
-	int nread = 0;
+	int nscan;
+	int nread;
 	char name[MAXLEN_CFG_LINE + 1];
 	char word_1[MAXLEN_CFG_LINE + 1];
 	char word_2[MAXLEN_CFG_LINE + 1];
@@ -426,6 +426,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 		memset(word_1, 0x00, sizeof(word_1));
 		memset(word_2, 0x00, sizeof(word_2));
 		memset(word_3, 0x00, sizeof(word_3));
+		nread = 0;
 		nscan = sscanf(name, "%s%n%s%s", word_1, &nread, word_2, word_3);
 
 		if (STRCMP(word_1, ==, "strict") && STRCMP(word_2, ==, "init")) {

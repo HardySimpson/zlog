@@ -96,14 +96,13 @@ int zc_str_replace_env(char *str, size_t str_size)
 	char env_value[MAXLEN_CFG_LINE + 1];
 	int str_len;
 	int env_value_len;
+	int nscan;
+	int nread;
 
 	str_len = strlen(str);
 	q = str;
 
 	do {
-		int nscan = 0;
-		int nread = 0;
-
 		p = strchr(q, '%');
 		if (!p) {
 			/* can't find more % */
@@ -113,7 +112,7 @@ int zc_str_replace_env(char *str, size_t str_size)
 		memset(fmt, 0x00, sizeof(fmt));
 		memset(env_key, 0x00, sizeof(env_key));
 		memset(env_value, 0x00, sizeof(env_value));
-
+		nread = 0;
 		nscan = sscanf(p + 1, "%[.0-9-]%n", fmt + 1, &nread);
 		if (nscan == 1) {
 			fmt[0] = '%';

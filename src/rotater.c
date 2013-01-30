@@ -168,8 +168,9 @@ static zlog_file_t *zlog_file_check_new(zlog_rotater_t * a_rotater, const char *
 		goto err;
 	}
 
+	nread = 0;
 	nscan = sscanf(a_file->path + a_rotater->num_start_len, "%d%n", &(a_file->index), &(nread));
-	if (nscan == 0) nread = 0; /* if nothing is scaned, nread will be a random number */
+	/* if nothing is scaned, nread will be a random number */
 
 	if (a_rotater->num_width != 0) {
 		if (nread < a_rotater->num_width) {
@@ -387,6 +388,7 @@ static int zlog_rotater_parse_archive_path(zlog_rotater_t * a_rotater)
 			return -1;
 		}
 
+		nread = 0;
 		sscanf(p, "#%d%n", &(a_rotater->num_width), &nread);
 		if (nread == 0) nread = 1;
 		if (*(p+nread) == 'r') {
