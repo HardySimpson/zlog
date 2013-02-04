@@ -71,6 +71,7 @@ static void zlog_clean_rest_thread(void)
 	a_thread = pthread_getspecific(zlog_thread_key);
 	if (!a_thread) return;
 	zlog_thread_del(a_thread);
+	pthread_setspecific(zlog_thread_key, NULL);
 	return;
 }
 
