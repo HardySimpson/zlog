@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	}
 
 	c = zlog_get_category("my_cat");
-	if (!my_cat) {
+	if (!c) {
 		printf("get cat fail\n");
 		zlog_fini();
 		return -2;
