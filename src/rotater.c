@@ -143,7 +143,6 @@ static zlog_file_t *zlog_file_check_new(zlog_rotater_t * a_rotater, const char *
 {
 	int nwrite;
 	int nread;
-	int nscan;
 	zlog_file_t *a_file;
 
 	/* base_path will not be in list */
@@ -169,7 +168,7 @@ static zlog_file_t *zlog_file_check_new(zlog_rotater_t * a_rotater, const char *
 	}
 
 	nread = 0;
-	nscan = sscanf(a_file->path + a_rotater->num_start_len, "%d%n", &(a_file->index), &(nread));
+	sscanf(a_file->path + a_rotater->num_start_len, "%d%n", &(a_file->index), &(nread));
 	/* if nothing is scaned, nread will be a random number */
 
 	if (a_rotater->num_width != 0) {
