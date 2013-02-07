@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 	int i;
 
 	if (argc != 2) {
-		printf("test_init ntime\n");
+		printf("test_leak ntime\n");
 		return -1;
 	}
 
@@ -41,23 +41,26 @@ int main(int argc, char** argv)
 	k = atoi(argv[1]);
 	while (k-- > 0) {
 		i = rand();
-		switch (i % 3) {
+		switch (i % 4) {
 		case 0:
-			rc = zlog_init("zlog.conf");
-			printf("init\n");
+			rc = dzlog_init("test_leak.conf", "xxx");
+			dzlog_info("init");
 			break;
 		case 1:
 			rc = zlog_reload(NULL);
-			printf("update\n");
+			dzlog_info("reload null");
 			break;
 		case 2:
+			rc = zlog_reload("test_leak.2.conf");
+			dzlog_info("reload 2");
+			break;
+		case 3:
 			zlog_fini();
 			printf("fini\n");
 	//		printf("zlog_finish\tj=[%d], rc=[%d]\n", j, rc);
 			break;
 		}
 	}
-
 
 	zlog_fini();
 	return 0;

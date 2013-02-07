@@ -486,7 +486,7 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 
 	switch (*p) {
 	case '%':
-		/* a string begin with %: %12.35d(%F %X,%l) */
+		/* a string begin with %: %12.35d(%F %X) */
 
 		/* process width and precision char in %-12.35P */
 		nread = 0;
