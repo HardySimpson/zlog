@@ -443,7 +443,6 @@ err:
 		}  \
 	}  \
   \
-  zc_error("%d, %d", a_thread->init_version, zlog_env_init_version); \
 	if (a_thread->init_version != zlog_env_init_version) {  \
 		/* as mdc is still here, so can not easily del and new */ \
 		rd = zlog_thread_rebuild_msg_buf(a_thread, \

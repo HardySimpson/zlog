@@ -244,7 +244,7 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 		if (rc > 0) {
 			zc_error("conf limit to %ld, can't extend, so truncate", a_buf->size_max);
 			va_copy(ap, args);
-			size_left = a_buf->end_plus_1 - a_buf->start;
+			size_left = a_buf->end_plus_1 - a_buf->tail;
 			vsnprintf(a_buf->tail, size_left, format, ap);
 			a_buf->tail += size_left - 1;
 			//*(a_buf->tail) = '\0';
