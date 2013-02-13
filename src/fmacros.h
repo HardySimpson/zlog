@@ -3,8 +3,13 @@
 
 #define _BSD_SOURCE
 
-#if defined(__linux__) || defined(__OpenBSD__)
+#if defined(__linux__) || defined(__OpenBSD__) || defined(_AIX)
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 700
+#endif
+#ifndef _XOPEN_SOURCE_EXTENDED
+#define _XOPEN_SOURCE_EXTENDED
+#endif
 #else
 #define _XOPEN_SOURCE
 #endif
