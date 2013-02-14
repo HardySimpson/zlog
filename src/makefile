@@ -61,7 +61,9 @@ ifeq ($(uname_S),Darwin)
 endif
 
 ifeq ($(uname_S),AIX)
-  DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G -o  $(DYLIBNAME) $(LDFLAGS)
+  DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -o  $(DYLIBNAME) $(LDFLAGS)
+  REAL_CFLAGS=$(OPTIMIZATION) -fPIC $(CFLAGS) $(WARNINGS) $(DEBUG) -maix64
+  STLIB_MAKE_CMD=OBJECT_MODE=64 ar rcs $(STLIBNAME)
 endif
 
 all: $(DYLIBNAME) $(BINS)
@@ -148,6 +150,11 @@ INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
 ifeq ($(uname_S),SunOS)
   INSTALL?= cp -r
 endif
+
+ifeq ($(uname_S),AIX)
+  INSTALL?= cp -r
+endif
+
 
 INSTALL?= cp -a
 
