@@ -32,7 +32,7 @@ ZLOG_MINOR=1
 # Fallback to gcc when $CC is not in $PATH.
 CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
 OPTIMIZATION?=-O2
-WARNINGS=-Wall -Werror -Wstrict-prototypes
+WARNINGS=-Wall -Werror -Wstrict-prototypes -fwrapv
 DEBUG?= -g -ggdb
 REAL_CFLAGS=$(OPTIMIZATION) -fPIC $(CFLAGS) $(WARNINGS) $(DEBUG)
 REAL_LDFLAGS=$(LDFLAGS) -lpthread
@@ -58,6 +58,12 @@ ifeq ($(uname_S),Darwin)
   DYLIB_MINOR_NAME=$(LIBNAME).$(HIREDIS_MAJOR).$(HIREDIS_MINOR).$(DYLIBSUFFIX)
   DYLIB_MAJOR_NAME=$(LIBNAME).$(HIREDIS_MAJOR).$(DYLIBSUFFIX)
   DYLIB_MAKE_CMD=$(CC) -shared -Wl,-install_name,$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
+endif
+
+ifeq ($(uname_S),AIX)
+  DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -o  $(DYLIBNAME) $(LDFLAGS)
+  REAL_CFLAGS=$(OPTIMIZATION) -fPIC $(CFLAGS) $(WARNINGS) $(DEBUG) -maix64
+  STLIB_MAKE_CMD=OBJECT_MODE=64 ar rcs $(STLIBNAME)
 endif
 
 all: $(DYLIBNAME) $(BINS)
@@ -144,6 +150,11 @@ INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
 ifeq ($(uname_S),SunOS)
   INSTALL?= cp -r
 endif
+
+ifeq ($(uname_S),AIX)
+  INSTALL?= cp -r
+endif
+
 
 INSTALL?= cp -a
 
