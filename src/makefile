@@ -63,8 +63,7 @@ endif
 ifeq ($(uname_S),AIX)
   # this logic of minor major is not relevant on AIX or at least not widely used
   # not to mention dynamic linker .a preference...
-  DYLIB_MINOR_NAME=$(DYLIB_MAJOR_NAME)
-  DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -o  $(DYLIBNAME) $(LDFLAGS)
+  DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -pthread -o $(DYLIBNAME) $(LDFLAGS)
   REAL_CFLAGS+= -maix64
   STLIB_MAKE_CMD=OBJECT_MODE=64 ar rcs $(STLIBNAME) $(DYLIB_MAJOR_NAME)
 endif
@@ -122,7 +121,10 @@ zlog.o: zlog.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
 
 $(DYLIBNAME): $(OBJ)
 	$(DYLIB_MAKE_CMD) $(OBJ)
-	cp -f $(DYLIBNAME) $(DYLIB_MINOR_NAME) # for test directory
+	# for use in test folder - linux and requirement for aix runtime
+	# resolving
+	cp -f $(DYLIBNAME) $(DYLIB_MAJOR_NAME)
+	cp -f $(DYLIBNAME) $(DYLIB_MINOR_NAME)
 
 $(STLIBNAME): $(OBJ)
 	$(STLIB_MAKE_CMD) $(OBJ)
