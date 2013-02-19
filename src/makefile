@@ -61,9 +61,12 @@ ifeq ($(uname_S),Darwin)
 endif
 
 ifeq ($(uname_S),AIX)
+  # this logic of minor major is not relevant on AIX or at least not widely used
+  # not to mention dynamic linker .a preference...
+  DYLIB_MINOR_NAME=$(DYLIB_MAJOR_NAME)
   DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -o  $(DYLIBNAME) $(LDFLAGS)
-  REAL_CFLAGS=$(OPTIMIZATION) -fPIC $(CFLAGS) $(WARNINGS) $(DEBUG) -maix64
-  STLIB_MAKE_CMD=OBJECT_MODE=64 ar rcs $(STLIBNAME)
+  REAL_CFLAGS+= -maix64
+  STLIB_MAKE_CMD=OBJECT_MODE=64 ar rcs $(STLIBNAME) $(DYLIB_MAJOR_NAME)
 endif
 
 all: $(DYLIBNAME) $(BINS)
