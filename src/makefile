@@ -120,7 +120,7 @@ zlog.o: zlog.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
  record.h rule.h
 
 $(DYLIBNAME): $(OBJ)
-	$(DYLIB_MAKE_CMD) $(OBJ)
+	$(DYLIB_MAKE_CMD) $(OBJ) $(REAL_LDFLAGS)
 	# for use in test folder - linux and requirement for aix runtime
 	# resolving
 	cp -f $(DYLIBNAME) $(DYLIB_MAJOR_NAME)
@@ -134,7 +134,7 @@ static: $(STLIBNAME)
 
 # Binaries:
 zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME) $(DYLIBNAME)
-	$(CC) -o $@ $(REAL_CFLAGS) zlog-chk-conf.o -L. -lzlog $(REAL_LDFLAGS)
+	$(CC) -o $@ zlog-chk-conf.o -L. -lzlog $(REAL_LDFLAGS)
 
 .c.o:
 	$(CC) -std=c99 -pedantic -c $(REAL_CFLAGS) $<
