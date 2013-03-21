@@ -104,14 +104,8 @@ hello, zlog
 
 6. Links:
 
-Download: https://github.com/HardySimpson/zlog/archive/zlog-latest-stable.tar.gz
-Homepage(in English): http://hardysimpson.github.com/zlog
-
-UsersGuide-En(html): http://hardysimpson.github.com/zlog/UsersGuide-EN.html
-SourceCode: git@github.com:HardySimpson/zlog.git
-
-Mail List: https://github.com/HardySimpson/zlog/issues
-Author's Blog(in Chinese): http://my.oschina.net/HardySimpson/blog
+Homepage: http://hardysimpson.github.com/zlog
+Downloads: https://code.google.com/p/hardysimpson-zlog/downloads/list
 Author's Email: HardySimpson1984@gmail.com
 
 auto tools version: https://github.com/bmanojlovic/zlog

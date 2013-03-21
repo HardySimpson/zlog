@@ -242,54 +242,7 @@ MDC，线程键-值对的表，可以扩展用户自定义的字段
 \end_layout
 
 \begin_layout Standard
-软件下载：
-\begin_inset CommandInset href
-LatexCommand href
-target "https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-源代码：
-\begin_inset CommandInset href
-LatexCommand href
-name "git@github.com:HardySimpson/zlog.git"
-target "git@github.com:HardySimpson/zlog.git"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-使用手册(html)：
-\begin_inset CommandInset href
-LatexCommand href
-name "http://hardysimpson.github.com/zlog/UsersGuide-CN.html"
-target "http://hardysimpson.github.com/zlog/UsersGuide-CN.html"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-问题讨论区：
-\begin_inset CommandInset href
-LatexCommand href
-name "https://github.com/HardySimpson/zlog/issues"
-target "https://github.com/HardySimpson/zlog/issues"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-英文主页：
+主页：
 \begin_inset CommandInset href
 LatexCommand href
 name "http://hardysimpson.github.com/zlog/"
@@ -301,23 +254,10 @@ target "http://hardysimpson.github.com/zlog/"
 \end_layout
 
 \begin_layout Standard
-中文主页：
+下载：
 \begin_inset CommandInset href
 LatexCommand href
-name "http://www.oschina.net/p/zlog"
-target "http://www.oschina.net/p/zlog"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-作者博客：
-\begin_inset CommandInset href
-LatexCommand href
-name "http://my.oschina.net/HardySimpson/blog"
-target "http://my.oschina.net/HardySimpson/blog"
+target "https://code.google.com/p/hardysimpson-zlog/downloads/list"
 
 \end_inset
 
