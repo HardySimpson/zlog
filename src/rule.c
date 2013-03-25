@@ -835,9 +835,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 		break;
 	case '$' :
 		sscanf(file_path + 1, "%s", a_rule->record_name);
-
 			
-		if (*file_limit != '\0') {  /* record path exists */
+		if (file_limit) {  /* record path exists */
 			p = strchr(file_limit, '"');
 			if (!p) {
 				zc_error("record_path not start with \", [%s]", file_limit);
