@@ -8,7 +8,7 @@ zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C
 
 1. Install
 
-Download https://github.com/HardySimpson/zlog/archive/zlog-latest-stable.tar.gz
+Downloads: https://code.google.com/p/hardysimpson-zlog/downloads/list
 
 $ tar -zxvf zlog-latest-stable.tar.gz
 $ cd zlog-latest-stable/
