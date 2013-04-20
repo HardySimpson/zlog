@@ -32,8 +32,7 @@ typedef int (*zlog_spec_write_fn) (zlog_spec_t * a_spec,
 			 	zlog_buf_t * a_buf);
 
 /* gen a_thread->msg or gen a_thread->path by using write_fn */
-typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec,
-				zlog_thread_t * a_thread);
+typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec, zlog_thread_t * a_thread);
 
 struct zlog_spec_s {
 	char *str;

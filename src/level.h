@@ -20,13 +20,10 @@
 #ifndef __zlog_level_h
 #define __zlog_level_h
 
-#include "zc_defs.h"
-
 typedef struct zlog_level_s {
-	int int_level;
-	char str_uppercase[MAXLEN_PATH + 1];
-	char str_lowercase[MAXLEN_PATH + 1];
-	size_t str_len;
+	int number;
+	zc_sds str_upper;
+	zc_sds str_lower;
        	int syslog_level;
 } zlog_level_t;
 

@@ -1303,7 +1303,7 @@ mutex_lock用于多线程， fcntl_lock用于多进程。fcntl_lock是POSIX建�
 
 \begin_layout Standard
 如果你设置其他路径作为锁文件，例如/tmp/zlog.lock，zlog会在zlog_init()的时候创建这个文件。如果有多个操作系统用户的进程需要转档同一个日
-志文件，确认这个锁文件对于多个用户都可读写。默认值是/tmp/zlog.lock。
+志文件，确认这个锁文件对于多个用户都可读写。在这种场景下，建议值是/tmp/zlog.lock。
 \end_layout
 
 \end_deeper

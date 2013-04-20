@@ -20,32 +20,26 @@
 #ifndef __zlog_conf_h
 #define __zlog_conf_h
 
-#include "zc_defs.h"
-#include "format.h"
-#include "rotater.h"
-
 typedef struct zlog_conf_s {
-	char file[MAXLEN_PATH + 1];
-	char mtime[20 + 1];
+	zc_sds file;
+	int mtime;
 
 	int strict_init;
-	size_t buf_size_min;
-	size_t buf_size_max;
-
-	char rotate_lock_file[MAXLEN_CFG_LINE + 1];
-	zlog_rotater_t *rotater;
-
-	char default_format_line[MAXLEN_CFG_LINE + 1];
-	zlog_format_t *default_format;
-
+	size_t buf_size;
+	zc_sds rotate_lock_file;
+	zc_sds default_format_line;
 	unsigned int file_perms;
-	size_t fsync_period;
-	size_t reload_conf_period;
+	size_t reload_conf;
+	size_t fsync_write;
+
+	zlog_rotater_t *rotater;
+	zlog_format_t *default_format;
 
 	zc_arraylist_t *levels;
 	zc_arraylist_t *formats;
 	zc_arraylist_t *rules;
-	int time_cache_count;
+
+	int time_spec_count; /* in all rules and formats, to create time caches */
 } zlog_conf_t;
 
 extern zlog_conf_t * zlog_env_conf;

@@ -1,19 +1,21 @@
 [p] 使用valgrind测试性能
+[p] 采用redis的sds，更优雅不会溢出
+[p] 自行管理文件缓存，替代stdio
+[p] 把头文件都放在.c里面，避免依赖
 [ ] hzlog的可定制
 [ ] hex那段重写,内置到buf内,参考od的设计
 [ ] 分类匹配的可定制化, rcat
-[ ] 自行管理文件缓存，替代stdio
 [ ] 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
 [ ] async file输出的增加
 [ ] 兼容性问题 zlog.h内
 [ ] 增加trace级别
 [ ] gettid()
-[ ] 性能对比, log4x, pantheios, glog
 [ ] perl, python, go, c++支持
 [ ] redis对接,协议设计
 [ ] 和rsyslog对接的问题
 [ ] linux fsync->fdatasync, open..
 
+--- 2.0.0 ---
 --- 1.2.8 ---
 [o] gcc __attribute__宏，用于检查zlog的format输出格式
 [o] 支持配置文件行中带#注释
@@ -100,7 +102,7 @@
 [o] 增加zlog_profile接口，诊断配置内存
 [o] 增加MDC,可配置的增加字段
 [o] 测试buf被重写的时候，是否会导致后面的\0没加
-[o] xlog要改名为zlog....
+[o] xlog改名为zlog....
 [o] 取一次ZLOG_ERROR_LOG和ZLOG_DEBUG_LOG，避免多次getenv
 [o] zc_assert一般关闭，调试打开
 [o] 增加!.*, 匹配未被匹配的分类
@@ -125,15 +127,11 @@
 [x] 打印堆栈。。可能需要语言支持
 [x] zlog-input -c category -p priority -f conf
 [x] 采用精细的reo en方法来建立用fo en来智能判断需不需要重开文件,操作系统本身已经做得够好，无须做
+[x] 集中日志系统，已经有好的产品splunk/logstash，且规模较大
+[x] 通过函数来配置
 
 ==========
 编写文章:
 
-打算做一个集中日志系统，设计如下
+[ ] 性能对比, log4x, pantheios, glog
 
-1.应用程序调用日志库，日志库写本地硬盘日志
-2.日志库发送大量日志到本机的服务进程
-3.本机的服务进程通过tcp发送到集中日志的服务器
-4.集中日志服务器将日志存入数据库，共实时显示，事后分析用
-
-本机的服务进程和集中日志服务器都打算使用rsyslog，比较专业

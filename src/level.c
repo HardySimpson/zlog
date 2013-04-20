@@ -30,10 +30,9 @@ void zlog_level_profile(zlog_level_t *a_level, int flag)
 	zc_assert(a_level,);
 	zc_profile(flag, "---level[%p][%d,%s,%s,%d,%d]---",
 		a_level,
-		a_level->int_level,
-		a_level->str_uppercase,
-		a_level->str_lowercase,
-		(int) a_level->str_len,
+		a_level->number,
+		a_level->str_upper,
+		a_level->str_lower,
 		a_level->syslog_level);
 	return;
 }
@@ -47,106 +46,71 @@ void zlog_level_del(zlog_level_t *a_level)
 	return;
 }
 
-static int syslog_level_atoi(char *str)
-{
-	/* guess no unix system will choose -187
-	 * as its syslog level, so it is a safe return value
-	 */
-	zc_assert(str, -187);
-
-	if (STRICMP(str, ==, "LOG_EMERG"))
-		return LOG_EMERG;
-	if (STRICMP(str, ==, "LOG_ALERT"))
-		return LOG_ALERT;
-	if (STRICMP(str, ==, "LOG_CRIT"))
-		return LOG_CRIT;
-	if (STRICMP(str, ==, "LOG_ERR"))
-		return LOG_ERR;
-	if (STRICMP(str, ==, "LOG_WARNING"))
-		return LOG_WARNING;
-	if (STRICMP(str, ==, "LOG_NOTICE"))
-		return LOG_NOTICE;
-	if (STRICMP(str, ==, "LOG_INFO"))
-		return LOG_INFO;
-	if (STRICMP(str, ==, "LOG_DEBUG"))
-		return LOG_DEBUG;
-
-	zc_error("wrong syslog level[%s]", str);
-	return -187;
-}
-
 /* line: TRACE = 10, LOG_ERR */
 zlog_level_t *zlog_level_new(char *line)
 {
 	zlog_level_t *a_level = NULL;
-	int i;
-	int nscan;
-	char str[MAXLEN_CFG_LINE + 1];
-	int l = 0;
-	char sl[MAXLEN_CFG_LINE + 1];
+	zc_sds *argv = NULL;
+	int argc;
 
 	zc_assert(line, NULL);
 
-	memset(str, 0x00, sizeof(str));
-	memset(sl, 0x00, sizeof(sl));
+	a_level = calloc(1, sizeof(zlog_level_t));
+	if (!a_level) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
 
-	nscan = sscanf(line, " %[^= \t] = %d ,%s", str, &l, sl);
-	if (nscan < 2) {
-		zc_error("level[%s], syntax wrong", line);
-		return NULL;
-	}
+	argv = zc_sdssplitargs(line, "=,", &argc);
+	if (!argv) { zc_error("Unbalanced quotes in configuration line"); goto err; }
+	if (argc != 2 || argc != 3) { zc_error("level has 2 or 3 arguments, [%d]", argc); goto err; }
 
 	/* check level and str */
-	if ((l < 0) || (l > 255)) {
-		zc_error("l[%d] not in [0,255], wrong", l);
-		return NULL;
-	}
+	a_level->str_upper = zc_sdsdup(argv[0]);
+	if (!a_level->str_upper) { zc_error("zc_sdsdup fail, errno[%d]", errno); goto err; }
+	zc_sdstoupper(a_level->str_upper);
 
-	if (str[0] == '\0') {
-		zc_error("str[0] = 0");
-		return NULL;
-	}
+	a_level->str_lower = zc_sdsdup(argv[0]);
+	if (!a_level->str_lower) { zc_error("zc_sdsdup fail, errno[%d]", errno); goto err; }
+	zc_sdstolower(a_level->str_lower);
 
-	a_level = calloc(1, sizeof(zlog_level_t));
-	if (!a_level) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
+	a_level->number = atoi(argv[1]);
+	if ((a_level->number < 0) || (a_level->number > 255)) {
+		zc_error("level[%d] not in [0,255], wrong", a_level->number);
+		goto err;
 	}
-
-	a_level->int_level = l;
 
 	/* fill syslog level */
-	if (sl[0] == '\0') {
+	if (argc == 2) {
 		a_level->syslog_level = LOG_DEBUG;
 	} else {
-		a_level->syslog_level = syslog_level_atoi(sl);
-		if (a_level->syslog_level == -187) {
-			zc_error("syslog_level_atoi fail");
-			goto err;
+		int i;
+		static struct {
+			const char *name;
+			const int value;
+		} zlog_syslog_level[] = {
+			{"LOG_EMERG", LOG_EMERG},
+			{"LOG_ALERT", LOG_ALERT},
+			{"LOG_CRIT", LOG_CRIT},
+			{"LOG_ERR", LOG_ERR},
+			{"LOG_WARNING", LOG_WARNING},
+			{"LOG_NOTICE", LOG_NOTICE},
+			{"LOG_INFO", LOG_INFO},
+			{"LOG_DEBUG", LOG_DEBUG},
+			{NULL, 0}
+		};
+
+		for (i = 0; zlog_syslog_level[i].name; i++) {
+			if (STRICMP(argv[2], ==, zlog_syslog_level[i].name));
+			a_level->syslog_level = zlog_syslog_level[i].value;
+			break;
 		}
-	}
 
-	/* strncpy and toupper(str)  */
-	for (i = 0; (i < sizeof(a_level->str_uppercase) - 1) && str[i] != '\0'; i++) {
-		(a_level->str_uppercase)[i] = toupper(str[i]);
-		(a_level->str_lowercase)[i] = tolower(str[i]);
+		if (!zlog_syslog_level[i].name) { zc_error("not valid syslog level [%s]", argv[2]); goto err; }
 	}
-
-	if (str[i] != '\0') {
-		/* overflow */
-		zc_error("not enough space for str, str[%s] > %d", str, i);
-		goto err;
-	} else {
-		(a_level->str_uppercase)[i] = '\0';
-		(a_level->str_lowercase)[i] = '\0';
-	}
-
-	a_level->str_len = i;
 
 	//zlog_level_profile(a_level, ZC_DEBUG);
+	if (argv) zc_sdsfreesplitres(argv, argc);
 	return a_level;
 err:
-	zc_error("line[%s]", line);
-	zlog_level_del(a_level);
+	if (argv) zc_sdsfreesplitres(argv, argc);
+	if (a_level) zlog_level_del(a_level);
 	return NULL;
 }

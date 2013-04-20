@@ -23,7 +23,7 @@
 #include "syslog.h"
 
 #include "zc_defs.h"
-#include "level.h"
+  #include "level.h"
 #include "level_list.h"
 
 /* zlog_level_list == zc_arraylist_t<zlog_level_t> */
@@ -89,6 +89,7 @@ err:
 /*******************************************************************************/
 int zlog_level_list_set(zc_arraylist_t *levels, char *line)
 {
+	int rc;
 	zlog_level_t *a_level;
 
 	a_level = zlog_level_new(line);
@@ -97,10 +98,8 @@ int zlog_level_list_set(zc_arraylist_t *levels, char *line)
 		return -1;
 	}
 
-	if (zc_arraylist_set(levels, a_level->int_level, a_level)) {
-		zc_error("zc_arraylist_set fail");
-		goto err;
-	}
+	rc = zc_arraylist_set(levels, a_level->number, a_level);
+	if (rc) { zc_error("zc_arraylist_set fail"); goto err; }
 
 	return 0;
 err:
@@ -145,7 +144,7 @@ int zlog_level_list_atoi(zc_arraylist_t *levels, char *str)
 	}
 
 	zc_arraylist_foreach(levels, i, a_level) {
-		if (a_level && STRICMP(str, ==, a_level->str_uppercase)) {
+		if (a_level && STRICMP(str, ==, a_level->str_upper)) {
 			return i;
 		}
 	}

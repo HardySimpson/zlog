@@ -32,7 +32,7 @@ typedef enum {
 } zlog_event_cmd;
 
 typedef struct zlog_time_cache_s {
-	char str[MAXLEN_CFG_LINE + 1];
+	zc_sds str;
 	size_t len;
 	time_t sec;
 } zlog_time_cache_t;

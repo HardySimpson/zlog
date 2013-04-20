@@ -25,21 +25,12 @@
 #ifndef __zlog_rule_h
 #define __zlog_rule_h
 
-#include <stdio.h>
-#include <pthread.h>
-
-#include "zc_defs.h"
-#include "format.h"
-#include "thread.h"
-#include "rotater.h"
-#include "record.h"
-
 typedef struct zlog_rule_s zlog_rule_t;
 
 typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 
 struct zlog_rule_s {
-	char category[MAXLEN_CFG_LINE + 1];
+	zc_sds category;
 	char compare_char;
 	/* 
 	 * [*] log all level
@@ -53,13 +44,13 @@ struct zlog_rule_s {
 	unsigned int file_perms;
 	int file_open_flags;
 
-	char file_path[MAXLEN_PATH + 1];
+	zc_sds file_path;
 	zc_arraylist_t *dynamic_specs;
 	int static_fd;
 
 	long archive_max_size;
 	int archive_max_count;
-	char archive_path[MAXLEN_PATH + 1];
+	//char archive_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *archive_specs;
 
 	FILE *pipe_fp;
@@ -74,19 +65,12 @@ struct zlog_rule_s {
 	zlog_format_t *format;
 	zlog_rule_output_fn output;
 
-	char record_name[MAXLEN_PATH + 1];
-	char record_path[MAXLEN_PATH + 1];
-	zlog_record_fn record_func;
+	//char record_name[MAXLEN_PATH + 1];
+	//char record_path[MAXLEN_PATH + 1];
+	//zlog_record_fn record_func;
 };
 
-zlog_rule_t *zlog_rule_new(char * line,
-		zc_arraylist_t * levels,
-		zlog_format_t * default_format,
-		zc_arraylist_t * formats,
-		unsigned int file_perms,
-		size_t fsync_period,
-		int * time_cache_count);
-
+zlog_rule_t *zlog_rule_new(char * line, zlog_conf_t * a_conf);
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);

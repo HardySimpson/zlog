@@ -24,6 +24,7 @@
 #include "zc_arraylist.h"
 #include "zc_hashtable.h"
 #include "zc_xplatform.h"
+#include "zc_sds.h"
 #include "zc_util.h"
 
 #endif

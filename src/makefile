@@ -3,14 +3,15 @@
 # This file is released under the LGPL license, see the COPYING file
 
 OBJ=    \
+  zc_sds.o    \
+  conf.o    \
+  level.o    \
+  level_list.o    \
+  format.o    \
   buf.o    \
   category.o    \
   category_table.o    \
-  conf.o    \
   event.o    \
-  format.o    \
-  level.o    \
-  level_list.o    \
   mdc.o    \
   record.o    \
   record_table.o    \
@@ -111,6 +112,7 @@ zc_arraylist.o: zc_arraylist.c zc_defs.h zc_profile.h zc_arraylist.h \
 zc_hashtable.o: zc_hashtable.c zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h
 zc_profile.o: zc_profile.c fmacros.h zc_profile.h zc_xplatform.h
+zc_sds.o: zc_sds.c zc_sds.h
 zc_util.o: zc_util.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h
 zlog-chk-conf.o: zlog-chk-conf.c fmacros.h zlog.h
@@ -140,7 +142,7 @@ zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME) $(DYLIBNAME)
 	$(CC) -std=c99 -pedantic -c $(REAL_CFLAGS) $<
 
 clean:
-	rm -rf $(DYLIBNAME) $(STLIBNAME) $(BINS) *.o *.gcda *.gcno *.gcov $(DYLIB_MINOR_NAME)
+	rm -rf $(DYLIBNAME) $(STLIBNAME) $(BINS) *.o *.gcda *.gcno *.gcov $(DYLIB_MINOR_NAME) *.so.1
 
 dep:
 	$(CC) -MM *.c

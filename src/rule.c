@@ -23,6 +23,7 @@
 #include <ctype.h>
 #include <syslog.h>
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,7 +31,12 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "rule.h"
+#include "zc_defs.h"
+#include "format.h"
+#include "thread.h"
+#include "record.h"
+  #include "rule.h"
+
 #include "format.h"
 #include "buf.h"
 #include "thread.h"

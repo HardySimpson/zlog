@@ -20,21 +20,16 @@
 #ifndef __zlog_thread_h
 #define  __zlog_thread_h
 
-#include "zc_defs.h"
-#include "event.h"
-#include "buf.h"
-#include "mdc.h"
-
 typedef struct {
 	int init_version;
 	zlog_mdc_t *mdc;
 	zlog_event_t *event;
 
-	zlog_buf_t *pre_path_buf;
+/*	zlog_buf_t *pre_path_buf;
 	zlog_buf_t *path_buf;
 	zlog_buf_t *archive_path_buf;
 	zlog_buf_t *pre_msg_buf;
-	zlog_buf_t *msg_buf;
+	zlog_buf_t *msg_buf; */
 } zlog_thread_t;
 
 
