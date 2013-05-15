@@ -357,8 +357,10 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 			}
 		} else if (STRICMP(argv[0], ==, "default") && STRICMP(argv[1], ==, "format")) {
 			/* so the input now is [default = "xxyy"], fit format's style */
+			char *p;
 			zc_sdsclear(a_conf->default_format_line);
-			zc_sdscatprintf(a_conf->default_format_line, "default = %s", argv[2]);
+			p = zc_sdscatprintf(a_conf->default_format_line, "default = %s", argv[2]);
+			if (!p) { zc_error("zc_sdscatprintf fail, errno[%d]", errno); goto err; }
 		} else if (STRICMP(argv[0], ==, "reload") && STRICMP(argv[1], ==, "conf")) {
 			a_conf->reload_conf = zc_parse_byte_size(argv[2]);
 		} else if (STRICMP(argv[0], ==, "fsync") && STRICMP(argv[1], ==, "write")) {

@@ -22,6 +22,15 @@
 #include <errno.h>
 
 #include "zc_defs.h"
+
+            #include "event.h"
+            #include "mdc.h"
+          #include "thread.h"
+        #include "format.h"
+        #include "rotater.h"
+      #include "conf.h"
+    #include "rule.h"
+  #include "category.h"
 #include "category_table.h"
 
 void zlog_category_table_profile(zc_hashtable_t * categories, int flag)
@@ -56,27 +65,23 @@ zc_hashtable_t *zlog_category_table_new(void)
 			 (zc_hashtable_hash_fn) zc_hashtable_str_hash,
 			 (zc_hashtable_equal_fn) zc_hashtable_str_equal,
 			 NULL, (zc_hashtable_del_fn) zlog_category_del);
-	if (!categories) {
-		zc_error("zc_hashtable_new fail");
-		return NULL;
-	} else {
-		zlog_category_table_profile(categories, ZC_DEBUG);
-		return categories;
-	}
+	if (!categories) { zc_error("zc_hashtable_new fail"); return NULL; }
+
+	zlog_category_table_profile(categories, ZC_DEBUG);
+	return categories;
 }
 /*******************************************************************************/
 int zlog_category_table_update_rules(zc_hashtable_t * categories, zc_arraylist_t * new_rules)
 {
+	int rc;
 	zc_hashtable_entry_t *a_entry;
 	zlog_category_t *a_category;
 
 	zc_assert(categories, -1);
 	zc_hashtable_foreach(categories, a_entry) {
 		a_category = (zlog_category_t *) a_entry->value;
-		if (zlog_category_update_rules(a_category, new_rules)) {
-			zc_error("zlog_category_update_rules fail, try rollback");
-			return -1;
-		}
+		rc = zlog_category_update_rules(a_category, new_rules);
+		if (rc) { zc_error("zlog_category_update_rules fail, try rollback"); return -1; }
 	}
 	return 0;
 }
@@ -111,6 +116,7 @@ void zlog_category_table_rollback_rules(zc_hashtable_t * categories)
 zlog_category_t *zlog_category_table_fetch_category(zc_hashtable_t * categories,
 			const char *category_name, zc_arraylist_t * rules)
 {
+	int rc;
 	zlog_category_t *a_category;
 
 	zc_assert(categories, NULL);
@@ -121,15 +127,9 @@ zlog_category_t *zlog_category_table_fetch_category(zc_hashtable_t * categories,
 
 	/* else not fount, create one */
 	a_category = zlog_category_new(category_name, rules);
-	if (!a_category) {
-		zc_error("zc_category_new fail");
-		return NULL;
-	}
-
-	if(zc_hashtable_put(categories, a_category->name, a_category)) {
-		zc_error("zc_hashtable_put fail");
-		goto err;
-	}
+	if (!a_category) { zc_error("zc_category_new fail"); return NULL; }
+	rc = zc_hashtable_put(categories, a_category->name, a_category);
+	if(rc) { zc_error("zc_hashtable_put fail"); goto err; }
 
 	return a_category;
 err:

@@ -23,10 +23,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
-
-#include <pthread.h>
 #include <unistd.h>
-#include <sys/time.h>
+
+#include <sys/types.h>  /* for pid_t */
+#include <sys/time.h>   /* for struct timeval */
+#include <pthread.h>    /* for pthread_t */
+#include <stdarg.h>     /* for va_list */
 
 #include "zc_defs.h"
 #include "event.h"
@@ -35,15 +37,15 @@ void zlog_event_profile(zlog_event_t * a_event, int flag)
 {
 	zc_assert(a_event,);
 	zc_profile(flag, "---event[%p][%s,%s][%s(%ld),%s(%ld),%ld,%d][%p,%s][%ld,%ld][%ld,%ld][%d]---",
-			a_event,
-			a_event->category_name, a_event->host_name,
-			a_event->file, a_event->file_len,
-			a_event->func, a_event->func_len,
-			a_event->line, a_event->level,
-			a_event->hex_buf, a_event->str_format,	
-			a_event->time_stamp.tv_sec, a_event->time_stamp.tv_usec,
-			(long)a_event->pid, (long)a_event->tid,
-			a_event->time_cache_count);
+		a_event,
+		a_event->category_name, a_event->host_name,
+		a_event->file, a_event->file_len,
+		a_event->func, a_event->func_len,
+		a_event->line, a_event->level,
+		a_event->hex_buf, a_event->str_format,	
+		(long)a_event->time_stamp.tv_sec, (long)a_event->time_stamp.tv_usec,
+		(long)a_event->pid, (long)a_event->tid,
+		a_event->time_cache_count);
 	return;
 }
 
@@ -51,8 +53,20 @@ void zlog_event_profile(zlog_event_t * a_event, int flag)
 
 void zlog_event_del(zlog_event_t * a_event)
 {
+	int i;
 	zc_assert(a_event,);
-	if (a_event->time_caches) free(a_event->time_caches);
+	if (a_event->time_caches) { 
+		for (i = 0; i < a_event->time_cache_count; i++) {
+			if (a_event->time_caches[i].str) zc_sdsfree(a_event->time_caches[i].str);
+		}
+		free(a_event->time_caches);
+	}
+
+	if (a_event->host_name) zc_sdsfree(a_event->host_name);
+	if (a_event->pid_str) zc_sdsfree(a_event->pid_str);
+	if (a_event->tid_str) zc_sdsfree(a_event->tid_str);
+	if (a_event->tid_hex_str) zc_sdsfree(a_event->tid_hex_str);
+	
 	free(a_event);
 	zc_debug("zlog_event_del[%p]", a_event);
 	return;
@@ -60,40 +74,45 @@ void zlog_event_del(zlog_event_t * a_event)
 
 zlog_event_t *zlog_event_new(int time_cache_count)
 {
+	int i;
 	zlog_event_t *a_event;
+	char *p;
+	char h[256 + 1];
 
 	a_event = calloc(1, sizeof(zlog_event_t));
-	if (!a_event) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
+	if (!a_event) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
 
 	a_event->time_caches = calloc(time_cache_count, sizeof(zlog_time_cache_t));
-	if (!a_event->time_caches) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
+	if (!a_event->time_caches) { zc_error("calloc fail, errno[%d]", errno); goto err; }
 	a_event->time_cache_count = time_cache_count;
+	for (i = 0; i < time_cache_count; i++) {
+		a_event->time_caches[i].str = zc_sdsnewlen(NULL, 30);
+		if (!a_event->time_caches[i].str) { zc_error("zc_sdsnewlen fail, errno[%d]", errno); goto err; }
+	}
 
 	/*
 	 * at the zlog_init we gethostname,
 	 * u don't always change your hostname, eh?
 	 */
-	if (gethostname(a_event->host_name, sizeof(a_event->host_name) - 1)) {
-		zc_error("gethostname fail, errno[%d]", errno);
-		goto err;
-	}
+	memset(h, 0x00, sizeof(h));
+	gethostname(h, sizeof(h) - 1);
+	a_event->host_name = zc_sdsnew(h);
+	if (!a_event->host_name) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
 
-	a_event->host_name_len = strlen(a_event->host_name);
+	a_event->pid = 0;
+	a_event->last_pid = getpid();
+	p = zc_sdsprintf(a_event->pid_str, "%u", a_event->last_pid);
+	if (!p) { zc_error("zc_sdsnewlen fail, errno[%d]", errno); goto err; }
 
 	/* tid is bound to a_event
 	 * as in whole lifecycle event persists
 	 * even fork to oth pid, tid not change
 	 */
 	a_event->tid = pthread_self();
-
-	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
-	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "0x%x", (unsigned int)a_event->tid);
+	p = zc_sdsprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
+	if (!p) { zc_error("zc_sdscatprintf fail, errno[%d]", errno); goto err; }
+	p = zc_sdsprintf(a_event->tid_hex_str, "0x%x", (unsigned int)a_event->tid);
+	if (!p) { zc_error("zc_sdscatprintf fail, errno[%d]", errno); goto err; }
 
 	//zlog_event_profile(a_event, ZC_DEBUG);
 	return a_event;
@@ -103,8 +122,7 @@ err:
 }
 
 /*******************************************************************************/
-void zlog_event_set_fmt(zlog_event_t * a_event,
-			char *category_name, size_t category_name_len,
+void zlog_event_set_fmt(zlog_event_t * a_event, zc_sds category_name,
 			const char *file, size_t file_len, const char *func, size_t func_len,  long line, int level,
 			const char *str_format, va_list str_args)
 {
@@ -112,7 +130,6 @@ void zlog_event_set_fmt(zlog_event_t * a_event,
 	 * category_name point to zlog_category_output's category.name
 	 */
 	a_event->category_name = category_name;
-	a_event->category_name_len = category_name_len;
 
 	a_event->file = (char *) file;
 	a_event->file_len = file_len;
@@ -139,8 +156,7 @@ void zlog_event_set_fmt(zlog_event_t * a_event,
 	return;
 }
 
-void zlog_event_set_hex(zlog_event_t * a_event,
-			char *category_name, size_t category_name_len,
+void zlog_event_set_hex(zlog_event_t * a_event, char *category_name,
 			const char *file, size_t file_len, const char *func, size_t func_len,  long line, int level,
 			const void *hex_buf, size_t hex_buf_len)
 {
@@ -148,7 +164,6 @@ void zlog_event_set_hex(zlog_event_t * a_event,
 	 * category_name point to zlog_category_output's category.name
 	 */
 	a_event->category_name = category_name;
-	a_event->category_name_len = category_name_len;
 
 	a_event->file = (char *) file;
 	a_event->file_len = file_len;

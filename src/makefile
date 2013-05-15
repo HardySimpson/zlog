@@ -7,11 +7,11 @@ OBJ=    \
   conf.o    \
   level.o    \
   level_list.o    \
+  event.o    \
   format.o    \
-  buf.o    \
   category.o    \
   category_table.o    \
-  event.o    \
+  buf.o    \
   mdc.o    \
   record.o    \
   record_table.o    \

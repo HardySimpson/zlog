@@ -253,6 +253,10 @@ zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...) {
     return t;
 }
 
+zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...) {
+	return s;
+}
+
 zc_sds zc_sdstrim(zc_sds s, const char *cset) {
     struct zc_sdshdr *sh = (void*) (s-(sizeof(struct zc_sdshdr)));
     char *start, *end, *sp, *ep;

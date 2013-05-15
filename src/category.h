@@ -20,12 +20,8 @@
 #ifndef __zlog_category_h
 #define __zlog_category_h
 
-#include "zc_defs.h"
-#include "thread.h"
-
 typedef struct zlog_category_s {
-	char name[MAXLEN_PATH + 1];
-	size_t name_len;
+	zc_sds name;
 	unsigned char level_bitmap[32];
 	unsigned char level_bitmap_backup[32];
 	zc_arraylist_t *fit_rules;

@@ -648,8 +648,7 @@ void vzlog(zlog_category_t * category,
 
 	zlog_fetch_thread(a_thread, exit);
 
-	zlog_event_set_fmt(a_thread->event,
-		category->name, category->name_len,
+	zlog_event_set_fmt(a_thread->event, category->name, 
 		file, filelen, func, funclen, line, level,
 		format, args);
 

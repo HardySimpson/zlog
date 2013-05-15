@@ -972,18 +972,6 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 }
 
 /*******************************************************************************/
-int zlog_rule_is_wastebin(zlog_rule_t * a_rule)
-{
-	zc_assert(a_rule, -1);
-	
-	if (STRCMP(a_rule->category, ==, "!")) {
-		return 1;
-	}
-
-	return 0;
-}
-
-/*******************************************************************************/
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
 {
 	zc_assert(a_rule, -1);
