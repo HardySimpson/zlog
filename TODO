@@ -1,10 +1,11 @@
 [p] 使用valgrind测试性能
 [p] 采用redis的sds，更优雅不会溢出
-[p] 自行管理文件缓存，替代stdio
+[p] 自行管理文件缓存，替代stdio，write/mmap
+[ ] 二进制日志，binary接口，hex那段重写,内置到buf内,参考od的设计
 [p] 把头文件都放在.c里面，避免依赖
-[ ] hzlog的可定制
-[ ] hex那段重写,内置到buf内,参考od的设计
-[ ] 分类匹配的可定制化, rcat
+[ ] 在osc的git库放一份
+[ ] 打包放在百度盘下载
+[ ] 分类匹配的可定制化, rcat, mdc -> tag
 [ ] 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
 [ ] async file输出的增加
 [ ] 兼容性问题 zlog.h内

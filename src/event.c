@@ -31,6 +31,7 @@
 #include <stdarg.h>     /* for va_list */
 
 #include "zc_defs.h"
+
 #include "event.h"
 
 void zlog_event_profile(zlog_event_t * a_event, int flag)
