@@ -7,9 +7,10 @@
   rotate lock file = self
   reload conf = 3600 # reload configure file once every 3600 second
 
-  buffer size = 8192 # flush zlog's buffer to write(2) kernel buffer, default BUFSIZ of stdio.h 
-  fsync write = 1000 # fsync(2) kernel buffer to disc once every 1000 times of write(2) for each file
-        # once every 30 second on most linux
+  buffer size = 10KB 
+  flush size = 8KB # flush zlog's buffer to write(2) kernel buffer, default BUFSIZ of stdio.h 
+  flush count = 1
+  fsync count = 1000 # fsync(2) kernel buffer to disc once every 1000 times of write(2) for each file
 
 [levels]
   TRACE = 10
