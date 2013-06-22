@@ -17,35 +17,25 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __zlog_conf_h
-#define __zlog_conf_h
+#ifndef __zlog_deepness_h
+#define __zlog_deepness_h
 
-typedef struct zlog_conf_s {
-	zc_sds file;
-	long mtime;
-	int strict_init;
-	long auto_reload;
+typedef struct zlog_deepness_s zlog_deepness_t;
 
-	zc_sds rotate_lock_file;
-	zc_sds default_deepness_str;
-	zc_sds default_format_str;
+struct zlog_deepness_s {
+	unsigned int permisson;
+	zc_sds sign;
+	size_t buffer_size;
+	size_t flush_size;
+	size_t flush_count;
+	ssize_t fsynt_count;
+};
 
-	zlog_rotater_t *rotater;
-	zlog_deepness_t *default_deepness;
-	zlog_format_t *default_format;
+zlog_deepness_t *zlog_deepness_new(char *line);
+void zlog_deepness_del(zlog_deepness_t * a_deepness);
+void zlog_deepness_profile(zlog_deepness_t * a_deepness, int flag);
 
-	zc_arraylist_t *deepness;
-	zc_arraylist_t *levels;
-	zc_arraylist_t *formats;
-	zc_arraylist_t *rules;
-
-	int time_spec_count; /* in all rules and formats, to create time caches */
-} zlog_conf_t;
-
-extern zlog_conf_t * zlog_env_conf;
-
-zlog_conf_t *zlog_conf_new(const char *confpath);
-void zlog_conf_del(zlog_conf_t * a_conf);
-void zlog_conf_profile(zlog_conf_t * a_conf, int flag);
+#define zlog_deepness_has_name(a_deepness, fname) \
+	STRCMP(a_deepness->name, ==, fname)
 
 #endif

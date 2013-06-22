@@ -41,42 +41,45 @@
   #include "level.h"
 #include "level_list.h"
 
+#include "deepness.h"
+
 /*******************************************************************************/
-#ifdef BUFSIZ /* get the size from stdio.h */
-#  define ZLOG_CONF_DEFAULT_BUF_SIZE BUFSIZ
-#else
-#  define ZLOG_CONF_DEFAULT_BUF_SIZE 8192
-#endif
-#define ZLOG_CONF_DEFAULT_FORMAT_LINE "defalut = \"%d %V [%p:%F:%L] %m%n\""
-#define ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE "/tmp/zlog.lock"
-#define ZLOG_CONF_DEFAULT_FILE_PERMS 0600
-#define ZLOG_CONF_DEFAULT_RELOAD_CONF 0
-#define ZLOG_CONF_DEFAULT_FSYNC_PERIOD 0
-#define ZLOG_CONF_DEFAULT_RULE "*.*        >stdout"
+
+#define ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE	"/tmp/zlog.lock"
+#define ZLOG_CONF_DEFAULT_FORMAT		"* = \"%d %V [%p:%F:%L] %m%n\""
+#define ZLOG_CONF_DEFAULT_DEEPNESS		"* = 600,8192,6144,0,-1"
+#define ZLOG_CONF_DEFAULT_RULE			"*.*        >stdout"
+
 /*******************************************************************************/
 
 void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
 {
 	int i;
 	zlog_rule_t *a_rule;
+	zlog_deepness_t *a_deepness;
 	zlog_format_t *a_format;
 
 	zc_assert(a_conf,);
 	zc_profile(flag, "-conf[%p]-", a_conf);
 	zc_profile(flag, "--global--");
-	zc_profile(flag, "---file[%s],mtime[%d]---", a_conf->file, a_conf->mtime);
+
+	zc_profile(flag, "---file[%s],mtime[%ld]---", a_conf->file, a_conf->mtime);
 	zc_profile(flag, "---strict init[%d]---", a_conf->strict_init);
-	zc_profile(flag, "---buffer min[%ld]---", (long) a_conf->buf_size);
-	if (a_conf->default_format) {
-		zc_profile(flag, "---default_format---");
-		zlog_format_profile(a_conf->default_format, flag);
-	}
-	zc_profile(flag, "---file perms[0%o]---", a_conf->file_perms);
-	zc_profile(flag, "---reload conf[%d]---", (int) a_conf->reload_conf);
-	zc_profile(flag, "---fsync period[%ld]---", (long) a_conf->fsync_write);
+	zc_profile(flag, "---auto reload [%ld]---", a_conf->auto_reload);
 
 	zc_profile(flag, "---rotate lock file[%s]---", a_conf->rotate_lock_file);
+	zc_profile(flag, "---default deepness[%s]---", a_conf->default_deepness_str);
+	zc_profile(flag, "---default format[%s]---", a_conf->default_format_str);
+
 	if (a_conf->rotater) zlog_rotater_profile(a_conf->rotater, flag);
+
+
+	if (a_conf->deepness) {
+		zc_profile(flag, "--deepness list[%p]--", a_conf->deepness);
+		zc_arraylist_foreach(a_conf->deepness, i, a_deepness) {
+			zlog_format_profile(a_deepness, flag);
+		}
+	}
 
 	if (a_conf->levels) zlog_level_list_profile(a_conf->levels, flag);
 
@@ -101,13 +104,20 @@ void zlog_conf_del(zlog_conf_t * a_conf)
 {
 	zc_assert(a_conf,);
 	if (a_conf->file) zc_sdsfree(a_conf->file);
+
 	if (a_conf->rotate_lock_file) zc_sdsfree(a_conf->rotate_lock_file);
-	if (a_conf->default_format_line) zc_sdsfree(a_conf->default_format_line);
+	if (a_conf->default_deepness_str) zc_sdsfree(a_conf->default_deepness_str);
+	if (a_conf->default_format_str) zc_sdsfree(a_conf->default_format_str);
+
 	if (a_conf->rotater) zlog_rotater_del(a_conf->rotater);
+	if (a_conf->default_deepness) zlog_deepness_del(a_conf->default_deepness);
 	if (a_conf->default_format) zlog_format_del(a_conf->default_format);
+
+	if (a_conf->deepness) zc_arraylist_del(a_conf->deepness);
 	if (a_conf->levels) zlog_level_list_del(a_conf->levels);
 	if (a_conf->formats) zc_arraylist_del(a_conf->formats);
 	if (a_conf->rules) zc_arraylist_del(a_conf->rules);
+
 	free(a_conf);
 	zc_debug("zlog_conf_del[%p]");
 	return;
@@ -126,21 +136,23 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 
 	/* global section default*/
 	a_conf->strict_init = 1;
-	a_conf->buf_size = ZLOG_CONF_DEFAULT_BUF_SIZE;
-	a_conf->default_format_line = zc_sdsnew(ZLOG_CONF_DEFAULT_FORMAT_LINE);
-	if (!a_conf->default_format_line) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
+
+	a_conf->default_format_str = zc_sdsnew(ZLOG_CONF_DEFAULT_FORMAT);
+	if (!a_conf->default_format_str) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
+	a_conf->default_deepness_str = zc_sdsnew(ZLOG_CONF_DEFAULT_DEEPNESS);
+	if (!a_conf->default_deepness_str) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
 	a_conf->rotate_lock_file = zc_sdsnew(ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE);
 	if (!a_conf->rotate_lock_file) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
-	a_conf->file_perms = ZLOG_CONF_DEFAULT_FILE_PERMS;
-	a_conf->reload_conf = ZLOG_CONF_DEFAULT_RELOAD_CONF;
-	a_conf->fsync_write = ZLOG_CONF_DEFAULT_FSYNC_PERIOD;
 
+	a_conf->deepness = zc_arraylist_new((zc_arraylist_del_fn) zlog_deepness_del);
+	if (!a_conf->deepness) { zc_error("zc_arraylist_new fail"); goto err; }
 	a_conf->levels = zlog_level_list_new();
 	if (!a_conf->levels) { zc_error("zlog_level_list_new fail"); goto err; } 
 	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!a_conf->formats) { zc_error("zc_arraylist_new fail"); goto err; }
 	a_conf->rules = zc_arraylist_new((zc_arraylist_del_fn) zlog_rule_del);
 	if (!a_conf->rules) { zc_error("init rule_list fail"); goto err; }
+
 	if (confpath && confpath[0] != '\0') {
 		a_conf->file = zc_sdsnew(confpath);
 		if (!a_conf->file) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
@@ -175,7 +187,7 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 	a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);
 	if (!a_conf->rotater) { zc_error("zlog_rotater_new fail"); return -1; }
 
-	a_conf->default_format = zlog_format_new(a_conf->default_format_line, &(a_conf->time_spec_count));
+	a_conf->default_format = zlog_format_new(a_conf->default_format_str, &(a_conf->time_spec_count));
 	if (!a_conf->default_format) { zc_error("zlog_format_new fail"); return -1; }
 
 	default_rule = zlog_rule_new(ZLOG_CONF_DEFAULT_RULE, a_conf);
@@ -328,7 +340,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);	
 			if (!a_conf->rotater) { zc_error("zlog_rotater_new fail"); goto err; }
 
-			a_conf->default_format = zlog_format_new(a_conf->default_format_line, &(a_conf->time_spec_count));
+			a_conf->default_format = zlog_format_new(a_conf->default_format_str, &(a_conf->time_spec_count));
 			if (!a_conf->default_format) { zc_error("zlog_format_new fail"); goto err; }
 		}
 		goto exit;
@@ -358,8 +370,8 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 		} else if (STRICMP(argv[0], ==, "default") && STRICMP(argv[1], ==, "format")) {
 			/* so the input now is [default = "xxyy"], fit format's style */
 			char *p;
-			zc_sdsclear(a_conf->default_format_line);
-			p = zc_sdscatprintf(a_conf->default_format_line, "default = %s", argv[2]);
+			zc_sdsclear(a_conf->default_format_str);
+			p = zc_sdscatprintf(a_conf->default_format_str, "default = %s", argv[2]);
 			if (!p) { zc_error("zc_sdscatprintf fail, errno[%d]", errno); goto err; }
 		} else if (STRICMP(argv[0], ==, "reload") && STRICMP(argv[1], ==, "conf")) {
 			a_conf->reload_conf = zc_parse_byte_size(argv[2]);
