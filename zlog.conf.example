@@ -1,59 +1,55 @@
 [global]
-	strict init = true
-	buffer size = 8192 # flush zlog's buffer to write(2) kernel buffer, default BUFSIZ of stdio.h 
-	default format = "%d %V [%p:%F:%L] %m%n"
-	rotate lock file = self
-	file perms = 600
-	reload conf = 3600 # reload configure file once every 3600 second
-	fsync write = 1000 # fsync(2) kernel buffer to disc once every 1000 times of write(2) for each file
-		    # once every 30 second on most linux
+  strict init = true
+
+  default format = "%d %V [%p:%F:%L] %m%n"
+  default file permission = 600
+
+  rotate lock file = self
+  reload conf = 3600 # reload configure file once every 3600 second
+
+  buffer size = 8192 # flush zlog's buffer to write(2) kernel buffer, default BUFSIZ of stdio.h 
+  fsync write = 1000 # fsync(2) kernel buffer to disc once every 1000 times of write(2) for each file
+        # once every 30 second on most linux
 
 [levels]
-	TRACE = 10
-	CRIT = 130, LOG_CRIT
+  TRACE = 10
+  CRIT = 130, LOG_CRIT
 
 [formats]
-	simple = "%m%n"
-	normal = "%d(%F %T.%l) %m%n"
+  simple = "%m%n"
+  normal = "%d(%F %T.%l) %m%n"
 
-#[includes]
-#[rules]
 [default_cat.*]
-	file = "/dev/stdout"
-	format = simple
+   file = "/dev/stdout"
+   format = simple
 
 [*.*]
-	file = -"%12.2E(HOME)/log/%c.log"
-	file = +"%12.2E(HOME)/log/%c.log"
-	archive size = 1MB
-	archive number = 12
-	archive path = "%E(HOME)/log/%c.%D(%F) #2r #3s.log"
-	format = "%d %m%n"
+  file path = -"%12.2E(HOME)/log/%c.log"
+  file path = +"%12.2E(HOME)/log/%c.log"
+  file permission = 0777
+  archive size = 1MB
+  archive number = 12
+  archive path = "%E(HOME)/log/%c.%D(%F) #2r #3s.log"
+  format = "%d %m%n"
 
 [my_cat.!ERROR]
-	syslog facility = LOG_USER
+  syslog facility = LOG_USER
 
 [my_dog.=DEBUG]
-	pipe = /usr/bin/cronolog /www/logs/example_%Y%m%d.log
-	format = normal
+  pipe = /usr/bin/cronolog /www/logs/example_%Y%m%d.log
+  format = normal
 
 [my_mice.*]
-	function = record_func
-	argv = "record_path%c"
-
-
-
-my_mice.* = $record_func , "record_path%c"; normal
+  function = record_func
+  argv = "record_path%c"
 
 [rules]
-default.* = >stdout; simple
-*.*	= -"%12.2E(HOME)/log/%c.log", \
-	 	1MB * 12 ~ "%E(HOME)/log/%c.%D(%F) #2r #3s.log"; \
-		simple
-my_.info = >stderr;
-my_cat.!ERROR = "aa.log"
-my_dog.=DEBUG = >syslog, LOG_LOCAL0; simple
-my_dog.=DEBUG = | /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
-my_mice.* = $record_func , "record_path%c"; normal
-
-
+  default.* >stdout; simple
+  *.*  -"%12.2E(HOME)/log/%c.log", 1MB * 12 ~ "%E(HOME)/log/%c.%D(%F) #2r #3s.log"; simple
+  my_.info stderr;
+  my_cat.!ERROR "aa.log"
+  my_dog.=DEBUG >syslog, LOG_LOCAL0; simple
+  my_dog.=DEBUG | /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
+  my_mice.* $record_func , "record_path%c"; normal
+  
+  
