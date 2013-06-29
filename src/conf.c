@@ -35,13 +35,13 @@
       #include "thread.h"
     #include "format.h"
     #include "rotater.h"
+    #include "deepness.h"
   #include "conf.h"
 #include "rule.h"
 
   #include "level.h"
 #include "level_list.h"
 
-#include "deepness.h"
 
 /*******************************************************************************/
 
@@ -77,7 +77,7 @@ void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
 	if (a_conf->deepness) {
 		zc_profile(flag, "--deepness list[%p]--", a_conf->deepness);
 		zc_arraylist_foreach(a_conf->deepness, i, a_deepness) {
-			zlog_format_profile(a_deepness, flag);
+			zlog_deepness_profile(a_deepness, flag);
 		}
 	}
 
@@ -163,7 +163,7 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 
 	if (a_conf->file) {
 		/* configure file as default lock file, overwrite backup */
-		zc_sdscpy(a_conf->rotate_lock_file , a_conf->file);
+		a_conf->rotate_lock_file = zc_sdscpy(a_conf->rotate_lock_file , a_conf->file);
 		if (!a_conf->rotate_lock_file) { zc_error("zc_sdscpy fail, errno[%d]", errno); goto err; }
 
 		rc = zlog_conf_build_with_file(a_conf);
@@ -189,6 +189,9 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 
 	a_conf->default_format = zlog_format_new(a_conf->default_format_str, &(a_conf->time_spec_count));
 	if (!a_conf->default_format) { zc_error("zlog_format_new fail"); return -1; }
+
+	a_conf->default_deepness = zlog_deepness_new(a_conf->default_deepness_str);
+	if (!a_conf->default_deepness) { zc_error("zlog_deepness_new fail"); return -1; }
 
 	default_rule = zlog_rule_new(ZLOG_CONF_DEFAULT_RULE, a_conf);
 	if (!default_rule) { zc_error("zlog_rule_new fail"); return -1; }
@@ -218,7 +221,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 
 	zc_sds *lines = NULL;
 	int line_count, i;
-	int section = 0; /* [global:1] [levels:2] [formats:3] [rules:4] */
+	int section = 0; /* [global:1] [deepness:2] [levels:3] [formats:4] [rules:5] */
 
 	rc = lstat(a_conf->file, &a_stat);
 	if (rc) { zc_error("lstat conf file[%s] fail, errno[%d]", a_conf->file, errno); return -1; }
@@ -297,17 +300,16 @@ err:
 	return -1;
 }
 
-/* section [global:1] [levels:2] [formats:3] [rules:4] */
+/* section [global:1] [deepness:2] [levels:3] [formats:4] [rules:5] */
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 {
 	int argc;
 	zc_sds *argv = NULL;
 	zlog_format_t *a_format = NULL;
+	zlog_deepness_t *a_deepness = NULL;
 	zlog_rule_t *a_rule = NULL;
 
 	line = zc_sdstrim(line, " \t\r\n");
-	argv = zc_sdssplitargs(line, "=", &argc);
-	if (!argv) { zc_error("Unbalanced quotes in configuration line"); goto err; }
 
 	/* process section tag */
 	if (line[0] == '[') {
@@ -316,12 +318,14 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 		line = zc_sdstrim(line, "[] \t\r\n");
 		if (STRICMP(line, ==, "global")) {
 			*section = 1;
-		} else if (STRICMP(line, ==, "levels")) {
+		} else if (STRICMP(line, ==, "deepness")) {
 			*section = 2;
-		} else if (STRICMP(line, ==, "formats")) {
+		} else if (STRICMP(line, ==, "levels")) {
 			*section = 3;
-		} else if (strchr(line, '.') != NULL) {
+		} else if (STRICMP(line, ==, "formats")) {
 			*section = 4;
+		} else if (strchr(line, '.') != NULL) {
+			*section = 5;
 		} else {
 			zc_error("wrong section name[%s]", line);
 			goto err;
@@ -329,75 +333,90 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 
 		/* check the sequence of section, must increase */
 		if (last_section > *section) {
-			zc_error("wrong sequence of section, must follow global->levels->formats->rules");
+			zc_error("wrong sequence of section, must follow global->deepness->levels->formats->rules");
 			goto err;
 		}
 
-		if (*section == 4 && last_section == 3) {
+		if (*section == 5) {
 			/* now build rotater and default_format when setcion 4 [rules] starts
 			 * from the unchanging global setting,
 			 * for zlog_rule_new() */
 			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);	
 			if (!a_conf->rotater) { zc_error("zlog_rotater_new fail"); goto err; }
 
+			a_conf->default_deepness = zlog_deepness_new(a_conf->default_deepness_str);
+			if (!a_conf->default_deepness) { zc_error("zlog_deepness_new fail"); goto err; }
+
 			a_conf->default_format = zlog_format_new(a_conf->default_format_str, &(a_conf->time_spec_count));
 			if (!a_conf->default_format) { zc_error("zlog_format_new fail"); goto err; }
+
 		}
 		goto exit;
 	} 
 
+	argv = zc_sdssplitargs(line, "=", &argc);
+	if (!argv) { zc_error("Unbalanced quotes in configuration line"); goto err; }
+
 	/* process detail */
 	switch (*section) {
 	case 1:
-		if (STRICMP(argv[0], ==, "strict") && STRICMP(argv[1], ==, "init")) {
+		if (STRICMP(argv[0], ==, " strict") && STRICMP(argv[1], ==, " init")) {
 			/* environment variable ZLOG_STRICT_INIT > conf setting */
-			if (STRICMP(argv[2], ==, "false") && !getenv("ZLOG_STRICT_INIT")) {
+			if (STRICMP(argv[2], ==, " false") && !getenv("ZLOG_STRICT_INIT")) {
 				a_conf->strict_init = 0;
 			} else {
 				a_conf->strict_init = 1;
 			}
-		} else if (STRICMP(argv[0], ==, "buffer") && STRICMP(argv[1], ==, "size")) {
-			a_conf->buf_size = zc_parse_byte_size(argv[2]);
-		} else if (STRICMP(argv[0], ==, "file") && STRICMP(argv[1], ==, "perms")) {
-			sscanf(argv[2], "%o", &(a_conf->file_perms));
-		} else if (STRICMP(argv[0], ==, "rotate") && STRICMP(argv[1], ==, "lock") && STRICMP(argv[2], ==, "file")) {
+		} else if (STRICMP(argv[0], ==, " rotate") && STRICMP(argv[1], ==, " lock")
+				&& STRICMP(argv[2], ==, " file")) {
 			/* may overwrite the inner default value, or last value */
-			if (STRICMP(argv[3], ==, "self")) {
-				zc_sdscpy(a_conf->rotate_lock_file, a_conf->file);
-			} else {
-				zc_sdscpy(a_conf->rotate_lock_file, argv[4]);
-			}
-		} else if (STRICMP(argv[0], ==, "default") && STRICMP(argv[1], ==, "format")) {
-			/* so the input now is [default = "xxyy"], fit format's style */
-			char *p;
-			zc_sdsclear(a_conf->default_format_str);
-			p = zc_sdscatprintf(a_conf->default_format_str, "default = %s", argv[2]);
-			if (!p) { zc_error("zc_sdscatprintf fail, errno[%d]", errno); goto err; }
-		} else if (STRICMP(argv[0], ==, "reload") && STRICMP(argv[1], ==, "conf")) {
-			a_conf->reload_conf = zc_parse_byte_size(argv[2]);
-		} else if (STRICMP(argv[0], ==, "fsync") && STRICMP(argv[1], ==, "write")) {
-			a_conf->fsync_write = zc_parse_byte_size(argv[2]);
+
+			a_conf->rotate_lock_file = zc_sdscpy(a_conf->rotate_lock_file, 
+				STRICMP(argv[3], ==, " self") ?  a_conf->file : argv[3] + 1);
+			if (!a_conf->rotate_lock_file) { zc_error("zc_sdscpy fail, errno[%d]", errno); goto err; }
+
+		} else if (STRICMP(argv[0], ==, " auto") && STRICMP(argv[1], ==, " reload")) {
+			int err;
+			a_conf->auto_reload = zc_strtoz(argv[2] + 1, &err);
+			if (err) {zc_error("zc_strtoz fail"); goto err; }
 		} else {
 			zc_error("[%s] is not any one of global options", line);
 			goto err;
 		}
 		break;
 	case 2:
+		if (STRCMP(argv[0], ==, " *")) {
+			zc_sdscpy(a_conf->default_deepness_str, line);
+		} else {
+			a_deepness = zlog_deepness_new(line);
+			if (!a_deepness) { zc_error("zlog_deepness_new fail [%s]", line); goto err; }
+			if (zc_arraylist_add(a_conf->deepness, a_deepness)) {
+				zc_error("zc_arraylist_add fail");
+				zlog_deepness_del(a_deepness);
+				goto err;
+			}
+		}
+		break;
+	case 3:
 		if (zlog_level_list_set(a_conf->levels, line)) {
 			zc_error("zlog_level_list_set fail");
 			goto err;
 		}
 		break;
-	case 3:
-		a_format = zlog_format_new(line , &(a_conf->time_spec_count));
-		if (!a_format) { zc_error("zlog_format_new fail [%s]", line); goto err; }
-		if (zc_arraylist_add(a_conf->formats, a_format)) {
-			zlog_format_del(a_format);
-			zc_error("zc_arraylist_add fail");
-			goto err;
+	case 4:
+		if (STRCMP(argv[0], ==, " *")) {
+			zc_sdscpy(a_conf->default_format_str, line);
+		} else {
+			a_format = zlog_format_new(line , &(a_conf->time_spec_count));
+			if (!a_format) { zc_error("zlog_format_new fail [%s]", line); goto err; }
+			if (zc_arraylist_add(a_conf->formats, a_format)) {
+				zlog_format_del(a_format);
+				zc_error("zc_arraylist_add fail");
+				goto err;
+			}
 		}
 		break;
-	case 4:
+	case 5:
 		a_rule = zlog_rule_new(line, a_conf);
 		if (!a_rule) { zc_error("zlog_rule_new fail [%s]", line); goto err; }
 		if (zc_arraylist_add(a_conf->rules, a_rule)) {

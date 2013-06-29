@@ -97,6 +97,7 @@ zc_sds zc_sdsfromlonglong(long long value);
 zc_sds zc_sdscatrepr(zc_sds s, const char *p, size_t len);
 zc_sds *zc_sdssplitargs(const char *line, const char *seps, int *argc);
 zc_sds zc_sdsmapchars(zc_sds s, const char *from, const char *to, size_t setlen);
+zc_sds zc_sdssenv(zc_sds s);
 
 /* Low level functions exposed to the user API */
 zc_sds zc_sdsMakeRoomFor(zc_sds s, size_t addlen);

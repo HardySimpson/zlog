@@ -5,6 +5,7 @@
 OBJ=    \
   zc_sds.o    \
   conf.o    \
+  deepness.o    \
   level.o    \
   level_list.o    \
   event.o    \

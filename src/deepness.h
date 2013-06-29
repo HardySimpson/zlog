@@ -23,12 +23,12 @@
 typedef struct zlog_deepness_s zlog_deepness_t;
 
 struct zlog_deepness_s {
-	unsigned int permisson;
 	zc_sds sign;
+	unsigned int perm;
 	size_t buffer_size;
 	size_t flush_size;
 	size_t flush_count;
-	ssize_t fsynt_count;
+	ssize_t fsync_count;
 };
 
 zlog_deepness_t *zlog_deepness_new(char *line);
