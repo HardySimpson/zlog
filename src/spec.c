@@ -468,19 +468,13 @@ void zlog_spec_del(zlog_spec_t * a_spec)
  */
 zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_cache_count)
 {
-	char *p;
-	int nscan = 0;
-	int nread = 0;
 	zlog_spec_t *a_spec;
 
 	zc_assert(pattern_start, NULL);
 	zc_assert(pattern_next, NULL);
 
 	a_spec = calloc(1, sizeof(zlog_spec_t));
-	if (!a_spec) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
+	if (!a_spec) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
 
 	a_spec->str = p = pattern_start;
 

@@ -33,8 +33,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <errno.h>
+
 #include "zc_sds.h"
 #include "zc_xplatform.h"
+#include "zc_profile.h"
 
 zc_sds zc_sdsnewlen(const void *init, size_t initlen) {
     struct zc_sdshdr *sh;
@@ -223,6 +226,47 @@ zc_sds zc_sdscpy(zc_sds s, const char *t) {
 }
 
 zc_sds zc_sdscatvprintf(zc_sds s, const char *fmt, va_list ap) {
+	int nwrite;
+    	va_list cpy;
+	struct zc_sdshdr *sh;
+	size_t curlen = zc_sdslen(s);
+	size_t free = zc_sdsavail(s);
+
+	va_copy(cpy, ap);
+    	sh = (void*) (s-(sizeof(struct zc_sdshdr)));
+	nwrite = vsnprintf(s + curlen, free, fmt, cpy);
+	if (nwrite > 0 && nwrite < free) {
+		sh->len += nwrite;
+		sh->free -= nwrite;
+		return s;
+	} else if (nwrite < 0) {
+                zc_error("vsnprintf fail, errno[%d]", errno);
+                zc_error("nwrite[%d], free[%ld], fmt[%s]", nwrite, free, fmt);
+                return NULL;
+	} /* else nwrite >= free, not enough space */
+
+	s = zc_sdsMakeRoomFor(s, nwrite);
+	if (!s) {
+		zc_error("zc_sdsMakeRoomFor fail, errno[%d]", errno);
+		return NULL;
+	}
+	free = zc_sdsavail(s);
+
+	va_copy(cpy, ap);
+	nwrite = vsnprintf(s + curlen, free, fmt, cpy);
+	if (nwrite < 0) {
+                zc_error("vsnprintf fail, errno[%d]", errno);
+                zc_error("nwrite[%d], free[%ld], fmt[%s]", nwrite, free, fmt);
+                return NULL;
+	} else {
+		sh->len += nwrite;
+		sh->free -= nwrite;
+		return s;
+	}
+}
+
+#if 0
+zc_sds zc_sdscatvprintf(zc_sds s, const char *fmt, va_list ap) {
     va_list cpy;
     char *buf, *t;
     size_t buflen = 16;
@@ -244,6 +288,7 @@ zc_sds zc_sdscatvprintf(zc_sds s, const char *fmt, va_list ap) {
     free(buf);
     return t;
 }
+#endif
 
 zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...) {
     va_list ap;

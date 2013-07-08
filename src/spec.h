@@ -20,10 +20,6 @@
 #ifndef __zlog_spec_h
 #define __zlog_spec_h
 
-#include "event.h"
-#include "buf.h"
-#include "thread.h"
-
 typedef struct zlog_spec_s zlog_spec_t;
 
 /* write buf, according to each spec's Conversion Characters */
@@ -37,6 +33,8 @@ typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec, zlog_thread_t * a_thread)
 struct zlog_spec_s {
 	char *str;
 	int len;
+
+	zc_sds time_fmt;
 
 	char time_fmt[MAXLEN_CFG_LINE + 1];
 	int time_cache_index;

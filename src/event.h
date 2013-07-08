@@ -50,7 +50,7 @@ typedef struct {
 	time_t time_local_sec; 
 	struct tm time_local; /*a cache, time_local == localtime(time_local_sec); */
 
-	zlog_time_cache_t *time_caches;
+	zlog_time_cache_t *time_cache_vector;
 	int time_cache_count;
 
 	zc_sds host_name;

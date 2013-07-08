@@ -66,7 +66,7 @@ void zlog_format_del(zlog_format_t * a_format)
 	return;
 }
 
-zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
+zlog_format_t *zlog_format_new(char *line, int *time_cache_count)
 {
 	zlog_format_t *a_format = NULL;
 	zc_sds *argv = NULL;
@@ -77,10 +77,7 @@ zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
 
 	zc_assert(line, NULL);
 	a_format = calloc(1, sizeof(zlog_format_t));
-	if (!a_format) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
+	if (!a_format) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
 
 	/* line         default = "%d(%F %X.%l) %-6V (%c:%F:%L) - %m%n"
 	 * name         default
@@ -90,8 +87,8 @@ zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
 	if (!argv) { zc_error("Unbalanced quotes in configuration line"); goto err; }
 	if (argc != 2) { zc_error("level has 2 arguments, [%d]", argc); goto err; }
 
-	rc = zc_str_replace_env(a_format->pattern, sizeof(a_format->pattern));
-	if (rc) { zc_error("zc_str_replace_env fail"); goto err; }
+	a_format->pattern = zc_sdsreplaceenv(a_format->pattern);
+	if (a_format->pattern) { zc_error("zc_str_replace_env fail"); goto err; }
 
 	a_format->pattern_specs = zc_arraylist_new((zc_arraylist_del_fn) zlog_spec_del);
 	if (!(a_format->pattern_specs)) { zc_error("zc_arraylist_new fail"); goto err; }

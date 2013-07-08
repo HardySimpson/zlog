@@ -17,10 +17,6 @@
  * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @file rule.h
- * @brief rule decide to output in format by category & level
- */
 
 #ifndef __zlog_rule_h
 #define __zlog_rule_h
