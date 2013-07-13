@@ -37,14 +37,12 @@
 extern char *zlog_git_sha1;
 /*******************************************************************************/
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
-zlog_conf_t *zlog_env_conf;
-static pthread_key_t zlog_thread_key;
-static zc_hashtable_t *zlog_env_categories;
+static zlog_conf_t *zlog_env_conf;
 static zc_hashtable_t *zlog_env_records;
-static zlog_category_t *zlog_default_category;
-static size_t zlog_env_reload_conf_count;
 static int zlog_env_is_init = 0;
-static int zlog_env_init_version = 0;
+static int zlog_env_version = 0;
+
+static pthread_key_t zlog_thread_key;
 /*******************************************************************************/
 /* inner no need thread-safe */
 static void zlog_fini_inner(void)
@@ -56,13 +54,11 @@ static void zlog_fini_inner(void)
 	 * also key not init will cause a core dump
 	 */
 	
-	if (zlog_env_categories) zlog_category_table_del(zlog_env_categories);
-	zlog_env_categories = NULL;
 	zlog_default_category = NULL;
-	if (zlog_env_records) zlog_record_table_del(zlog_env_records);
-	zlog_env_records = NULL;
 	if (zlog_env_conf) zlog_conf_del(zlog_env_conf);
 	zlog_env_conf = NULL;
+	if (zlog_env_records) zlog_record_table_del(zlog_env_records);
+	zlog_env_records = NULL;
 	return;
 }
 
@@ -80,41 +76,23 @@ static int zlog_init_inner(const char *confpath)
 	int rc = 0;
 
 	/* the 1st time in the whole process do init */
-	if (zlog_env_init_version == 0) {
+	if (zlog_env_version == 0) {
 		/* clean up is done by OS when a thread call pthread_exit */
 		rc = pthread_key_create(&zlog_thread_key, (void (*) (void *)) zlog_thread_del);
-		if (rc) {
-			zc_error("pthread_key_create fail, rc[%d]", rc);
-			goto err;
-		}
+		if (rc) { zc_error("pthread_key_create fail, rc[%d]", rc); goto err; }
 
 		/* if some thread do not call pthread_exit, like main thread
 		 * atexit will clean it 
 		 */
 		rc = atexit(zlog_clean_rest_thread);
-		if (rc) {
-			zc_error("atexit fail, rc[%d]", rc);
-			goto err;
-		}
+		if (rc) { zc_error("atexit fail, rc[%d]", rc); goto err; }
 	} /* else maybe after zlog_fini() and need not create pthread_key */
 
 	zlog_env_conf = zlog_conf_new(confpath);
-	if (!zlog_env_conf) {
-		zc_error("zlog_conf_new[%s] fail", confpath);
-		goto err;
-	}
-
-	zlog_env_categories = zlog_category_table_new();
-	if (!zlog_env_categories) {
-		zc_error("zlog_category_table_new fail");
-		goto err;
-	}
+	if (!zlog_env_conf) { zc_error("zlog_conf_new[%s] fail", confpath); goto err; }
 
 	zlog_env_records = zlog_record_table_new();
-	if (!zlog_env_records) {
-		zc_error("zlog_record_table_new fail");
-		goto err;
-	}
+	if (!zlog_env_records) { zc_error("zlog_record_table_new fail"); goto err; }
 
 	return 0;
 err:
@@ -130,92 +108,27 @@ int zlog_init(const char *confpath)
 	zc_debug("------compile time[%s %s], version[%s]------", __DATE__, __TIME__, ZLOG_VERSION);
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
-		return -1;
-	}
+	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return -1; }
 
-	if (zlog_env_is_init) {
-		zc_error("already init, use zlog_reload pls");
-		goto err;
-	}
+	if (zlog_env_is_init) { zc_error("already init, use zlog_reload pls"); goto err; }
 
-	if (zlog_init_inner(confpath)) {
-		zc_error("zlog_init_inner[%s] fail", confpath);
-		goto err;
-	}
+	rc = zlog_init_inner(confpath);
+	if (rc) { zc_error("zlog_init_inner[%s] fail", confpath); goto err; }
 
 	zlog_env_is_init = 1;
-	zlog_env_init_version++;
+	zlog_env_version++;
 
 	zc_debug("------zlog_init success end------");
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return -1;
-	}
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return -1; }
 	return 0;
 err:
 	zc_error("------zlog_init fail end------");
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return -1;
-	}
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return -1; }
 	return -1;
 }
 
-int dzlog_init(const char *confpath, const char *cname)
-{
-	int rc = 0;
-	zc_debug("------dzlog_init start------");
-	zc_debug("------compile time[%s %s], version[%s]------",
-			__DATE__, __TIME__, ZLOG_VERSION);
-
-	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
-		return -1;
-	}
-
-	if (zlog_env_is_init) {
-		zc_error("already init, use zlog_reload pls");
-		goto err;
-	}
-
-	if (zlog_init_inner(confpath)) {
-		zc_error("zlog_init_inner[%s] fail", confpath);
-		goto err;
-	}
-
-	zlog_default_category = zlog_category_table_fetch_category(
-				zlog_env_categories,
-				cname,
-				zlog_env_conf->rules);
-	if (!zlog_default_category) {
-		zc_error("zlog_category_table_fetch_category[%s] fail", cname);
-		goto err;
-	}
-
-	zlog_env_is_init = 1;
-	zlog_env_init_version++;
-
-	zc_debug("------dzlog_init success end------");
-	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return -1;
-	}
-	return 0;
-err:
-	zc_error("------dzlog_init fail end------");
-	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return -1;
-	}
-	return -1;
-}
 /*******************************************************************************/
 int zlog_reload(const char *confpath)
 {
@@ -227,15 +140,9 @@ int zlog_reload(const char *confpath)
 
 	zc_debug("------zlog_reload start------");
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
-		return -1;
-	}
+	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return -1; }
 
-	if (!zlog_env_is_init) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto quit;
-	}
+	if (!zlog_env_is_init) { zc_error("never call zlog_init() or dzlog_init() before"); goto quit; }
 
 	/* use last conf file */
 	if (confpath == NULL) confpath = zlog_env_conf->file;
@@ -255,10 +162,7 @@ int zlog_reload(const char *confpath)
 	zlog_env_reload_conf_count = 0;
 
 	new_conf = zlog_conf_new(confpath);
-	if (!new_conf) {
-		zc_error("zlog_conf_new fail");
-		goto err;
-	}
+	if (!new_conf) { zc_error("zlog_conf_new fail"); goto err; }
 
 	zc_arraylist_foreach(new_conf->rules, i, a_rule) {
 		zlog_rule_set_record(a_rule, zlog_env_records);
@@ -276,6 +180,7 @@ int zlog_reload(const char *confpath)
 
 	if (c_up) zlog_category_table_commit_rules(zlog_env_categories);
 	zlog_conf_del(zlog_env_conf);
+
 	zlog_env_conf = new_conf;
 	zc_debug("------zlog_reload success, total init verison[%d] ------", zlog_env_init_version);
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
@@ -312,15 +217,9 @@ void zlog_fini(void)
 
 	zc_debug("------zlog_fini start------");
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
-		return;
-	}
+	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
-	if (!zlog_env_is_init) {
-		zc_error("before finish, must zlog_init() or dzlog_init() fisrt");
-		goto exit;
-	}
+	if (!zlog_env_is_init) { zc_error("before finish, must zlog_init() or dzlog_init() fisrt"); goto exit; }
 
 	zlog_fini_inner();
 	zlog_env_is_init = 0;
@@ -328,10 +227,7 @@ void zlog_fini(void)
 exit:
 	zc_debug("------zlog_fini end------");
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return;
-	}
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	return;
 }
 /*******************************************************************************/

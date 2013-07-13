@@ -21,15 +21,11 @@
 #define  __zlog_thread_h
 
 typedef struct {
-	int init_version;
+	int version;
+	zlog_conf_t *conf;
 	zlog_mdc_t *mdc;
 	zlog_event_t *event;
-
-/*	zlog_buf_t *pre_path_buf;
-	zlog_buf_t *path_buf;
-	zlog_buf_t *archive_path_buf;
-	zlog_buf_t *pre_msg_buf;
-	zlog_buf_t *msg_buf; */
+	zc_hashtable_t *categories;
 } zlog_thread_t;
 
 
