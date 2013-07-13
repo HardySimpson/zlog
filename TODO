@@ -14,6 +14,8 @@
 [ ] 和rsyslog对接的问题
 [ ] linux fsync->fdatasync, open..
 
+--- 1.2.10 ---
+[o] bugfix, LGPL v3 -> LGPL v2.1
 --- 1.2.8 ---
 [o] gcc __attribute__宏，用于检查zlog的format输出格式
 [o] 支持配置文件行中带#注释
