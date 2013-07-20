@@ -21,6 +21,8 @@
 #include "zc_defs.h"
 #include "rotater.h"
 
+zlog_rotate_t *zlog_env_rotater = NULL;
+
 #define ROLLING  1     /* aa.02->aa.03, aa.01->aa.02, aa->aa.01 */
 #define SEQUENCE 2     /* aa->aa.03 */
 

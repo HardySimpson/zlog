@@ -28,6 +28,8 @@ typedef struct zlog_rotater_s {
 	zc_arraylist_t *files;
 } zlog_rotater_t;
 
+extern zlog_rotate_t *zlog_env_rotater;
+
 zlog_rotater_t *zlog_rotater_new(char *lock_file);
 void zlog_rotater_del(zlog_rotater_t *a_rotater);
 
