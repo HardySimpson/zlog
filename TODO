@@ -15,6 +15,7 @@
 [ ] redis对接,协议设计
 [ ] 和rsyslog对接的问题
 [ ] linux fsync->fdatasync, open..
+[ ] 考虑类似mysql那样双许可证发布，收公司的钱
 
 --- 2.0.0 ---
 --- 1.2.8 ---
