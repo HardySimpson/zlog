@@ -13,20 +13,15 @@
 
 #include "zc_defs.h"
 
-zc_arraylist_t *zc_arraylist_new(zc_arraylist_del_fn del)
+zc_arraylist_t *zc_arraylist_new(int size)
 {
 	zc_arraylist_t *a_list;
 
 	a_list = (zc_arraylist_t *) calloc(1, sizeof(zc_arraylist_t));
-	if (!a_list) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
-	a_list->size = ARRAY_LIST_DEFAULT_SIZE;
+	if (!a_list) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
+	a_list->size = size ? size : ARRAY_LIST_DEFAULT_SIZE;
 	a_list->len = 0;
 
-	/* this could be NULL */
-	a_list->del = del;
 	a_list->array = (void **)calloc(a_list->size, sizeof(void *));
 	if (!a_list->array) {
 		zc_error("calloc fail, errno[%d]", errno);
@@ -95,9 +90,8 @@ int zc_arraylist_add(zc_arraylist_t * a_list, void *data)
 	return zc_arraylist_set(a_list, a_list->len, data);
 }
 
-/* assum idx < len */
-static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx,
-				     void *data)
+/* assume idx < len */
+static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx, void *data)
 {
 	if (a_list->array[idx] == NULL) {
 		a_list->array[idx] = data;
@@ -109,20 +103,23 @@ static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx,
 			return -1;
 		}
 	}
-	memmove(a_list->array + idx + 1, a_list->array + idx,
-		(a_list->len - idx) * sizeof(void *));
+	memmove(a_list->array + idx + 1, a_list->array + idx, (a_list->len - idx) * sizeof(void *));
 	a_list->array[idx] = data;
 	a_list->len++;
 	return 0;
 }
 
-int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp,
-			 void *data)
+int zc_arraylist_sortadd(zc_arraylist_t * a_list, void *data)
 {
 	int i;
 
+	if (!a_list->cmp) {
+		zc_error("no compare function exist");
+		return -1;
+	}
+
 	for (i = 0; i < a_list->len; i++) {
-		if ((*cmp) (a_list->array[i], data) > 0)
+		if ((a_list->cmp) (a_list->array[i], data) > 0)
 			break;
 	}
 
@@ -130,4 +127,28 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp,
 		return zc_arraylist_add(a_list, data);
 	else
 		return zc_arraylist_insert_inner(a_list, i, data);
+}
+
+zc_arraylist_t *zc_arraylist_dup(zc_arraylist_t * a_list)
+{
+	zc_arraylist_t *b_list;
+	int i;
+
+	b_list = zc_arraylist_new(a_list->size);
+	if (!b_list) { zc_error("zc_arraylist_new fail"); return NULL; }
+
+	b_list->del = a_list->del;
+	b_list->dup = a_list->dup;
+	b_list->cmp = a_list->cmp;
+	b_list->len= a_list->len;
+
+	for(i = 0; i < b_list->len; i++) {
+		if (b_list->dup) {
+			b_list->array[i] = b_list->dup(a_list->array[i]);
+		} else {
+			b_list->array[i] = a_list->array[i];
+		}
+	}
+
+	return b_list;
 }
