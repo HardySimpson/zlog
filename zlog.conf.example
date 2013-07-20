@@ -1,28 +1,28 @@
-[global]
-  strict init = true
-  rotate lock file = self
-  auto reload = 3600 # reload configure file once every 3600 second # file mtime
-
-[deepness]
-# sign = permisson, buffer size, flush size, flush count, fsync count
-  * = 600, 10KB, 8KB, 20, 1000
-  + = 
-
-[levels]
-  TRACE = 10
-  CRIT = 130, LOG_CRIT
-
-[formats]
-  * = "%d %V [%p:%F:%L] %m%n"
-  simple = "%m%n"
-  normal = "%d(%F %T.%l) %m%n"
-
-[rules]
-  *.*  		-"%12.2E(HOME)/log/%c.log", 1MB * 12 ~ "%E(HOME)/log/%c.%D(%F) #2r.log"; simple
-  my_.info 	>stderr;
-  my_cat.!ERROR "aa.log"
-  my_dog.=DEBUG >syslog, LOG_LOCAL0; simple
-  my_dog.=DEBUG | /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
-  my_mice.* 	$record_func , "record_path%c"; normal
-  default.* 	>stdout; simple
-  !.*
+    [global]
+      strict init = true
+      rotate lock file = self
+      auto reload = 3600 # reload configure file once every 3600 second # file mtime
+    
+    [deepness]
+    # sign = permisson, buffer size, flush size, flush count, fsync count
+      + = 600, 10KB, 8KB, 20, 1000
+      - = 600, 10KB, 1KB, 1, 20
+    
+    [levels]
+      TRACE = 10
+      CRIT = 130, LOG_CRIT
+    
+    [formats]
+      * = "%d %V [%p:%F:%L] %m%n"
+      simple = "%m%n"
+      normal = "%d(%F %T.%l) %m%n"
+    
+    [rules]
+      *.*  		+"%12.2E(HOME)/log/%c.log", 1MB * 12 ~ "%E(HOME)/log/%c.%D(%F) #2r.log"; simple
+      my_cat.!ERROR 	-"aa.log"
+      my_.info 		>stderr;
+      my_dog.=DEBUG 	>syslog, LOG_LOCAL0; simple
+      my_dog.=DEBUG 	| /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
+      my_mice.* 	$record_func , "record_path%c"; normal
+      default.* 	>stdout; simple
+      !.*
