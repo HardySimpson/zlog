@@ -32,6 +32,7 @@ extern zlog_rotate_t *zlog_env_rotater;
 
 zlog_rotater_t *zlog_rotater_new(char *lock_file);
 void zlog_rotater_del(zlog_rotater_t *a_rotater);
+int zlog_rotater_reload(zlog_rotater_t *a_rotater, char *lock_file);
 
 /*
  * return

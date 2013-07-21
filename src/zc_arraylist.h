@@ -26,7 +26,7 @@ void zc_arraylist_del(zc_arraylist_t * a_list);
 zc_arraylist_t *zc_arraylist_dup(zc_arraylist_t * a_list);
 
 int zc_arraylist_set(zc_arraylist_t * a_list, int i, void *data);
-int zc_arraylist_add(zc_arraylist_t * a_list, void *data);
+int zc_arraylist_add(zc_arraylist_t * a_list, void *data, int *idx);
 int zc_arraylist_sortadd(zc_arraylist_t * a_list, void *data);
 
 #define zc_arraylist_len(a_list)  (a_list->len)

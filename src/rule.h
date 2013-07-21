@@ -55,7 +55,7 @@ struct zlog_rule_s {
 	//zlog_record_fn record_func;
 };
 
-zlog_rule_t *zlog_rule_new(char * line, zlog_conf_t * a_conf);
+zlog_rule_t *zlog_rule_new(char * line, zlog_conf_t *a_conf);
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);

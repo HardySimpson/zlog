@@ -85,9 +85,16 @@ int zc_arraylist_set(zc_arraylist_t * a_list, int idx, void *data)
 	return 0;
 }
 
-int zc_arraylist_add(zc_arraylist_t * a_list, void *data)
+int zc_arraylist_add(zc_arraylist_t * a_list, void *data, int *idx)
 {
-	return zc_arraylist_set(a_list, a_list->len, data);
+	int i;
+
+	for(i = 0; i < a_list->len; i++) {
+		if (a_list->array[i] == NULL) break;
+	}
+
+	if (idx) *idx = i;
+	return zc_arraylist_set(a_list, i, data);
 }
 
 /* assume idx < len */

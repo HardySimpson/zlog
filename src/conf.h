@@ -12,14 +12,14 @@
 typedef struct zlog_conf_s {
 	zc_sds file;
 	long mtime;
+
 	int strict_init;
-	long auto_reload;
+	long expire_time;
 
 	zc_sds rotate_lock_file;
 	zc_sds default_deepness_str;
 	zc_sds default_format_str;
 
-	zlog_rotater_t *rotater;
 	zlog_deepness_t *default_deepness;
 	zlog_format_t *default_format;
 
@@ -29,10 +29,10 @@ typedef struct zlog_conf_s {
 	zc_arraylist_t *rules;
 } zlog_conf_t;
 
-extern zlog_conf_t * zlog_env_conf;
-
 zlog_conf_t *zlog_conf_new(const char *confpath);
 void zlog_conf_del(zlog_conf_t * a_conf);
 void zlog_conf_profile(zlog_conf_t * a_conf, int flag);
+
+zlog_conf_t *zlog_conf_dup(zlog_conf_t *a_conf);
 
 #endif
