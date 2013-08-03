@@ -29,11 +29,12 @@ typedef struct zlog_thread_s zlog_thread_t;
 
 typedef struct zlog_category_s {
 	zc_sds name;
-	int *version;
+	int version;
 	zlog_event_t *event;
 	zlog_mdc_t *mdc;
 	unsigned char level_bitmap[32];
 	zc_arraylist_t *fit_rules;
+	zlog_thread_t *thread;
 } zlog_category_t;
 
 zlog_category_t *zlog_category_new(const char *name, zc_thread_t *a_thread);
@@ -42,7 +43,7 @@ void zlog_category_profile(zlog_category_t *a_category, int flag);
 
 int zlog_category_output(zlog_category_t * a_category);
 
-#define zlog_category_needless_level(a_category, lv) \
+#define zlog_category_without_level(a_category, lv) \
         !((a_category->level_bitmap[lv/8] >> (7 - lv % 8)) & 0x01)
 
 #endif

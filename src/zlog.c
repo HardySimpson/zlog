@@ -210,7 +210,6 @@ zlog_thread_t *zlog_fetch_thread(void)
 	if (a_thread->version != zlog_env_version) {  
 		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
 		if (rc) {  zc_error("zlog_thread_reload fail, rc[%d]", rc);  return NULL; }  
-  
 	}  
 	return a_thread;
 }
@@ -379,7 +378,7 @@ void zlog_clean_mdc(void)
 	zlog_thread_t *a_thread;
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) { zc_error("pthread_rwlock_rdlock fail, rc[%d]", rc); return; }
+	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
 	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto exit; }
 
@@ -390,10 +389,7 @@ void zlog_clean_mdc(void)
 
 exit:
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return;
-	}
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	return;
 }
 
@@ -406,22 +402,27 @@ void vzlog(zlog_category_t * category,
 {
 	int rc;
 
-	if (zlog_category_needless_level(category, level)) return;
+	if (zlog_category_without_level(category, level)) return;
 
 	zlog_event_set_fmt(category->event, category->name, 
 			file, filelen, func, funclen, line, level,
 			format, args);
 
 	rc = zlog_category_output(category);
-	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); goto exit; }
+	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
 
-	if (*(a_category->version) 
+	if (a_category->version != zlog_env_version) {
+		rc = pthread_rwlock_rdlock(&zlog_env_lock);
+		if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		goto reload;
+		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
+		if (rc) { zc_error("zlog_thread_reload fail, rc[%d]", rc); goto exit; }  
+
+exit:
+		rc = pthread_rwlock_unlock(&zlog_env_lock);
+		if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	}
+
 
 	return;
 }
