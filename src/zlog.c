@@ -85,6 +85,7 @@ static int zlog_init_inner(const char *confpath)
 			zc_error("atexit fail, rc[%d]", rc);
 			goto err;
 		}
+		zlog_env_init_version++;
 	} /* else maybe after zlog_fini() and need not create pthread_key */
 
 	zlog_env_conf = zlog_conf_new(confpath);
@@ -128,6 +129,7 @@ int zlog_init(const char *confpath)
 		zc_error("already init, use zlog_reload pls");
 		goto err;
 	}
+
 
 	if (zlog_init_inner(confpath)) {
 		zc_error("zlog_init_inner[%s] fail", confpath);
