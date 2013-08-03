@@ -52,13 +52,16 @@ struct zlog_rule_s {
 
 	//char record_name[MAXLEN_PATH + 1];
 	//char record_path[MAXLEN_PATH + 1];
-	//zlog_record_fn record_func;
+	zlog_record_fn record_func;
 };
 
 zlog_rule_t *zlog_rule_new(char * line, zlog_conf_t *a_conf);
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
-int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
+zlog_rule_t *zlog_rule_dup(zlog_rule_t * a_rule);
+
+int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname);
+
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 

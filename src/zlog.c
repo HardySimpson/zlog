@@ -15,23 +15,22 @@
 #include <pthread.h>
 
 
-
 /*******************************************************************************/
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
 static zlog_conf_t *zlog_env_conf;
 static zc_hashtable_t *zlog_env_records;
 static int zlog_env_inited = 0;
-static int zlog_env_version = 0;
+static int zlog_env_version = -1;
 
 /* 
  * using posix pthread_key cleaup method when user's thread call pthread_exit(),
- * also at the same time, put all threads in a list, explicitly traverse and del them
+ * also at the same time, put all threads in a list,
+ * explicitly traverse and del them at zlog_fini()
  */
 static pthread_key_t zlog_thread_key;
 static zc_arraylist_t *zlog_env_threads;
 
 /*******************************************************************************/
-/* inner no need thread-safe */
 static void zlog_fini_inner(void)
 {
 	/* pthread_key_delete(zlog_thread_key); */
@@ -72,9 +71,10 @@ int zlog_init(const char *confpath)
 
 	if (zlog_env_inited) { zc_error("already init, use zlog_reload pls"); goto err; }
 
-	if (zlog_env_version == 0) {
+	if (zlog_env_version == -1) {
 		rc = pthread_key_create(&zlog_thread_key, (void (*) (void *)) zlog_thread_del_in_list);
 		if (rc) { zc_error("pthread_key_create fail, rc[%d]", rc); goto err; }
+		zlog_env_version = 0;
 	} /* else maybe after zlog_fini() and need not create pthread_key again */
 
 	zlog_env_conf = zlog_conf_new(confpath);
@@ -174,11 +174,8 @@ exit:
 }
 /*******************************************************************************/
 
-/* should be called under the protect of wrlock,
-   as it modifies the zlog_env_threads.
- * slow, will not be called when zlog() with category,
-   category has its own pointer to the thread.
- * but will be called when no category exist.
+/* should be called under the protect of wrlock, as it modifies the zlog_env_threads.
+ * slow, will not be called when do logging, but should be called when no category exist.
  */
 
 zlog_thread_t *zlog_fetch_thread(void)
@@ -188,7 +185,7 @@ zlog_thread_t *zlog_fetch_thread(void)
 
 	a_thread = pthread_getspecific(zlog_thread_key);  
 	if (!a_thread) {  
-		a_thread = zlog_thread_new(zlog_env_conf, zlog_env_records);
+		a_thread = zlog_thread_new(zlog_env_conf, zlog_env_records, zlog_env_version);
 		if (!a_thread) {  zc_error("zlog_thread_new fail"); return NULL;}  
   
 		rc = pthread_setspecific(zlog_thread_key, a_thread);  
@@ -251,46 +248,6 @@ err:
 		return NULL;
 	}
 	return NULL;
-}
-
-/*******************************************************************************/
-int dzlog_set_category(const char *cname)
-{
-	int rc = 0;
-	int i;
-	zlog_thead_t * a_thread;
-
-	zc_assert(cname, -1);
-
-	zc_debug("------dzlog_set_category[%s] start------", cname);
-	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return -1; }
-
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto err; }
-
-	/* traverse all living thread, put a default category in them */
-	zc_arraylist_foreach(zlog_env_threads, i, a_thread) {
-		if (!a_thread) continue; /* skip null slot */
-		a_category = zlog_thread_fetch_category(a_thread, cname, zlog_env_records);
-		if (!a_category) { zc_error("zlog_thread_fetch_category[%s] fail", cname); goto err; }
-		zlog_thread_set_defalut_category(a_thread, a_category);
-	}
-
-	zc_debug("------dzlog_set_category[%s] end, success------ ", cname);
-	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return -1;
-	}
-	return 0;
-err:
-	zc_error("------dzlog_set_category[%s] end, fail------ ", cname);
-	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return -1;
-	}
-	return -1;
 }
 
 /*******************************************************************************/
@@ -405,8 +362,8 @@ void vzlog(zlog_category_t * category,
 	if (zlog_category_without_level(category, level)) return;
 
 	zlog_event_set_fmt(category->event, category->name, 
-			file, filelen, func, funclen, line, level,
-			format, args);
+		file, filelen, func, funclen, line, level,
+		format, args);
 
 	rc = zlog_category_output(category);
 	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
@@ -423,7 +380,6 @@ exit:
 		if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	}
 
-
 	return;
 }
 
@@ -433,152 +389,30 @@ void hzlog(zlog_category_t *category,
 	long line, int level,
 	const void *buf, size_t buflen)
 {
-	zlog_thread_t *a_thread;
+	int rc;
 
-	if (zlog_category_needless_level(category, level)) return;
-
-	pthread_rwlock_rdlock(&zlog_env_lock);
-
-	if (!zlog_env_inited) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto exit;
-	}
-
-	zlog_fetch_thread(a_thread, exit);
+	if (zlog_category_without_level(category, level)) return;
 
 	zlog_event_set_hex(a_thread->event,
 		category->name, category->name_len,
 		file, filelen, func, funclen, line, level,
 		buf, buflen);
 
-	if (zlog_category_output(category, a_thread)) {
-		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line);
-		goto exit;
-	}
+	rc = zlog_category_output(category);
+	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
 
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		goto reload;
-	}
+	if (a_category->version != zlog_env_version) {
+		rc = pthread_rwlock_rdlock(&zlog_env_lock);
+		if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
-exit:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	return;
-reload:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	/* will be wrlock, so after unlock */
-	if (zlog_reload((char *)-1)) {
-		zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
-	}
-	return;
-}
-
-/*******************************************************************************/
-/* for speed up, copy from vzlog */
-void vdzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, va_list args)
-{
-	zlog_thread_t *a_thread;
-
-	if (zlog_category_needless_level(zlog_default_category, level)) return;
-
-	pthread_rwlock_rdlock(&zlog_env_lock);
-
-	if (!zlog_env_inited) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto exit;
-	}
-
-	/* that's the differnce, must judge default_category in lock */
-	if (!zlog_default_category) {
-		zc_error("zlog_default_category is null,"
-			"dzlog_init() or dzlog_set_cateogry() is not called above");
-		goto exit;
-	}
-
-	zlog_fetch_thread(a_thread, exit);
-
-	zlog_event_set_fmt(a_thread->event,
-		zlog_default_category->name, zlog_default_category->name_len,
-		file, filelen, func, funclen, line, level,
-		format, args);
-
-	if (zlog_category_output(zlog_default_category, a_thread)) {
-		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line);
-		goto exit;
-	}
-
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		goto reload;
-	}
+		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
+		if (rc) { zc_error("zlog_thread_reload fail, rc[%d]", rc); goto exit; }  
 
 exit:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	return;
-reload:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	/* will be wrlock, so after unlock */
-	if (zlog_reload((char *)-1)) {
-		zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
-	}
-	return;
-}
-
-void hdzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const void *buf, size_t buflen)
-{
-	zlog_thread_t *a_thread;
-
-	if (zlog_category_needless_level(zlog_default_category, level)) return;
-
-	pthread_rwlock_rdlock(&zlog_env_lock);
-
-	if (!zlog_env_inited) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto exit;
+		rc = pthread_rwlock_unlock(&zlog_env_lock);
+		if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	}
 
-	/* that's the differnce, must judge default_category in lock */
-	if (!zlog_default_category) {
-		zc_error("zlog_default_category is null,"
-			"dzlog_init() or dzlog_set_cateogry() is not called above");
-		goto exit;
-	}
-
-	zlog_fetch_thread(a_thread, exit);
-
-	zlog_event_set_hex(a_thread->event,
-		zlog_default_category->name, zlog_default_category->name_len,
-		file, filelen, func, funclen, line, level,
-		buf, buflen);
-
-	if (zlog_category_output(zlog_default_category, a_thread)) {
-		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line);
-		goto exit;
-	}
-
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		goto reload;
-	}
-
-exit:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	return;
-reload:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	/* will be wrlock, so after unlock */
-	if (zlog_reload((char *)-1)) {
-		zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
-	}
 	return;
 }
 
@@ -588,131 +422,49 @@ void zlog(zlog_category_t * category,
 	long line, const int level,
 	const char *format, ...)
 {
-	zlog_thread_t *a_thread;
+	int rc;
 	va_list args;
 
-	if (category && zlog_category_needless_level(category, level)) return;
-
-	pthread_rwlock_rdlock(&zlog_env_lock);
-
-	if (!zlog_env_inited) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto exit;
-	}
-
-	zlog_fetch_thread(a_thread, exit);
+	if (zlog_category_without_level(category, level)) return;
 
 	va_start(args, format);
-	zlog_event_set_fmt(a_thread->event, category->name, category->name_len,
+	zlog_event_set_fmt(category->event, category->name, 
 		file, filelen, func, funclen, line, level,
 		format, args);
-	if (zlog_category_output(category, a_thread)) {
-		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line);
-		va_end(args);
-		goto exit;
-	}
 	va_end(args);
 
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		goto reload;
-	}
+	rc = zlog_category_output(category);
+	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
+
+	if (a_category->version != zlog_env_version) {
+		rc = pthread_rwlock_rdlock(&zlog_env_lock);
+		if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
+
+		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
+		if (rc) { zc_error("zlog_thread_reload fail, rc[%d]", rc); goto exit; }  
 
 exit:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	return;
-reload:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	/* will be wrlock, so after unlock */
-	if (zlog_reload((char *)-1)) {
-		zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
+		rc = pthread_rwlock_unlock(&zlog_env_lock);
+		if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	}
+
 	return;
 }
-
-/*******************************************************************************/
-void dzlog(const char *file, size_t filelen, const char *func, size_t funclen, long line, int level,
-	const char *format, ...)
-{
-	zlog_thread_t *a_thread;
-	va_list args;
-
-
-	pthread_rwlock_rdlock(&zlog_env_lock);
-
-	if (!zlog_env_inited) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto exit;
-	}
-
-	/* that's the differnce, must judge default_category in lock */
-	if (!zlog_default_category) {
-		zc_error("zlog_default_category is null,"
-			"dzlog_init() or dzlog_set_cateogry() is not called above");
-		goto exit;
-	}
-
-	if (zlog_category_needless_level(zlog_default_category, level)) goto exit;
-
-	zlog_fetch_thread(a_thread, exit);
-
-	va_start(args, format);
-	zlog_event_set_fmt(a_thread->event,
-		zlog_default_category->name, zlog_default_category->name_len,
-		file, filelen, func, funclen, line, level,
-		format, args);
-
-	if (zlog_category_output(zlog_default_category, a_thread)) {
-		zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line);
-		va_end(args);
-		goto exit;
-	}
-	va_end(args);
-
-	if (zlog_env_conf->reload_conf_period &&
-		++zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period ) {
-		/* under the protection of lock read env conf */
-		goto reload;
-	}
-
-exit:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	return;
-reload:
-	pthread_rwlock_unlock(&zlog_env_lock);
-	/* will be wrlock, so after unlock */
-	if (zlog_reload((char *)-1)) {
-		zc_error("reach reload-conf-period but zlog_reload fail, zlog-chk-conf [file] see detail");
-	}
-	return;
-}
-
 /*******************************************************************************/
 void zlog_profile(void)
 {
 	int rc = 0;
 	rc = pthread_rwlock_rdlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
-		return;
-	}
+	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 	zc_warn("------zlog_profile start------ ");
 	zc_warn("is init:[%d]", zlog_env_inited);
-	zc_warn("init version:[%d]", zlog_env_init_version);
+	zc_warn("init version:[%d]", zlog_env_version);
 	zlog_conf_profile(zlog_env_conf, ZC_WARN);
 	zlog_record_table_profile(zlog_env_records, ZC_WARN);
 	zlog_category_table_profile(zlog_env_categories, ZC_WARN);
-	if (zlog_default_category) {
-		zc_warn("-default_category-");
-		zlog_category_profile(zlog_default_category, ZC_WARN);
-	}
 	zc_warn("------zlog_profile end------ ");
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
-		return;
-	}
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return; }
 	return;
 }
 /*******************************************************************************/
@@ -727,40 +479,26 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 	zc_assert(rname, -1);
 	zc_assert(record_output, -1);
 
-	rd = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rd) {
-		zc_error("pthread_rwlock_rdlock fail, rd[%d]", rd);
-		return -1;
-	}
+	rc = pthread_rwlock_wrlock(&zlog_env_lock);
+	if (rc) { zc_error("pthread_rwlock_rdlock fail, rc[%d]", rc); return -1; }
 
-	if (!zlog_env_inited) {
-		zc_error("never call zlog_init() or dzlog_init() before");
-		goto zlog_set_record_exit;
-	}
+	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto err; }
 
 	a_record = zlog_record_new(rname, record_output);
-	if (!a_record) {
-		rc = -1;
-		zc_error("zlog_record_new fail");
-		goto zlog_set_record_exit;
-	}
+	if (!a_record) { zc_error("zlog_record_new fail"); goto err; }
 
 	rc = zc_hashtable_put(zlog_env_records, a_record->name, a_record);
 	if (rc) {
 		zlog_record_del(a_record);
 		zc_error("zc_hashtable_put fail");
-		goto zlog_set_record_exit;
+		goto err;
 	}
 
-	zc_arraylist_foreach(zlog_env_conf->rules, i, a_rule) {
-		zlog_rule_set_record(a_rule, zlog_env_records);
-	}
-
-      zlog_set_record_exit:
-	rd = pthread_rwlock_unlock(&zlog_env_lock);
-	if (rd) {
-		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
-		return -1;
-	}
-	return rc;
+	rc = pthread_rwlock_unlock(&zlog_env_lock);
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return -1; }
+	return 0;
+err:
+	rc = pthread_rwlock_unlock(&zlog_env_lock);
+	if (rc) { zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc); return -1; }
+	return -1;
 }

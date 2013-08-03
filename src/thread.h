@@ -17,18 +17,15 @@ typedef struct zlog_thread_s {
 	zlog_conf_t *conf;	/* deep copy of zlog_env_conf */
 	zlog_mdc_t *mdc;	/* tag map */
 	zlog_event_t *event;	/* info of each log action */
-	zlog_category_t *default_category;	/* has the same category name in dzlog api */
 	zc_hashtable_t *categories;	/* all exist categories of this thread */
 } zlog_thread_t;
 
 
-zlog_thread_t *zlog_thread_new(zlog_conf_t *a_conf);
+zlog_thread_t *zlog_thread_new(zlog_conf_t *a_conf, int version);
 void zlog_thread_del(zlog_thread_t * a_thread);
 void zlog_thread_profile(zlog_thread_t * a_thread, int flag);
 
-#define zlog_thread_set_default_category(t, c) (t->default_category = (c))
-
-zlog_category_t *zlog_thread_fetch_category(zlog_thread_t * a_thread, const char *cname, zc_hashtable_t *records);
-int zlog_thread_update(zlog_thread_t *a_thread, zlog_conf_t * a_conf, zc_hashtable_t *records, int version);
+zlog_category_t *zlog_thread_fetch_category(zlog_thread_t * a_thread, const char *cname);
+int zlog_thread_update(zlog_thread_t *a_thread, zlog_conf_t * a_conf, int version);
 
 #endif

@@ -45,24 +45,16 @@ void zlog_event_del(zlog_event_t * a_event)
 {
 	int i;
 	zc_assert(a_event,);
-	if (a_event->time_caches) { 
-		for (i = 0; i < a_event->time_cache_count; i++) {
-			if (a_event->time_caches[i].str) zc_sdsfree(a_event->time_caches[i].str);
-		}
-		free(a_event->time_caches);
-	}
-
 	if (a_event->host_name) zc_sdsfree(a_event->host_name);
 	if (a_event->pid_str) zc_sdsfree(a_event->pid_str);
 	if (a_event->tid_str) zc_sdsfree(a_event->tid_str);
 	if (a_event->tid_hex_str) zc_sdsfree(a_event->tid_hex_str);
-	
 	free(a_event);
 	zc_debug("zlog_event_del[%p]", a_event);
 	return;
 }
 
-zlog_event_t *zlog_event_new(int time_cache_count)
+zlog_event_t *zlog_event_new(void)
 {
 	int i;
 	zlog_event_t *a_event;

@@ -1,7 +1,6 @@
 [global]
   strict init = true
   rotate lock file = self
-  auto reload = 3600 # reload configure file once every 3600 second # file mtime
 
 [deepness]
 # sign = permisson, buffer size, flush size, flush count, fsync count

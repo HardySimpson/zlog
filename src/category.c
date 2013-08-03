@@ -62,28 +62,43 @@ static void zlog_cateogry_overlay_bitmap(zlog_category_t * a_category, zlog_rule
 	}
 }
 
-static int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist_t * rules)
+zlog_category_t *zlog_category_new(const char *name, int version,
+                        zlog_event_t *a_event, zlog_mdc_t *a_mdc, zc_arraylist *rules)
 {
-	int i,rc;
+	int rc;
 	int count = 0;
-	int fit = 0;
 	zlog_rule_t *a_rule;
+	zlog_rule_t *b_rule;
 	zlog_rule_t *wastebin_rule = NULL;
+	zlog_category_t *a_category;
 
-	/* before set, clean last fit rules first */
-	if (a_category->fit_rules) zc_arraylist_del(a_category->fit_rules);
-	memset(a_category->level_bitmap, 0x00, sizeof(a_category->level_bitmap));
+	zc_assert(name, NULL);
+	zc_assert(rules, NULL);
 
-	a_category->fit_rules = zc_arraylist_new(NULL);
-	if (!(a_category->fit_rules)) { zc_error("zc_arraylist_new fail"); return -1; }
+	a_category = calloc(1, sizeof(zlog_category_t));
+	if (!a_category) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
+
+	a_category->name = zc_sdsnew(name);
+	if (!a_category) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
+	a_category->version = version;
+	a_category->mdc = a_mdc;
+	a_category->event = a_event;
+	a_category->fit_rules = zc_arraylist_new();
+	if (!(a_category->fit_rules)) { zc_error("zc_arraylist_new fail"); goto err; }
+	zc_arraylist_set_del(a_category->fit_rules, zlog_rule_del);
 
 	/* get match rules from all rules */
 	zc_arraylist_foreach(rules, i, a_rule) {
 		fit = zlog_rule_match_category(a_rule, a_category->name);
 		if (fit) {
-			rc = zc_arraylist_add(a_category->fit_rules, a_rule);
-			if (rc) { zc_error("zc_arrylist_add fail"); goto err; }
-			zlog_cateogry_overlay_bitmap(a_category, a_rule);
+
+			b_rule = zlog_rule_dup(a_rule);
+			if (!b_rule) { zc_error("zlog_rule_dup fail"); goto err;}
+
+			rc = zc_arraylist_add(a_category->fit_rules, b_rule);
+			if (rc) { zlog_rule_del(b_rule); zc_error("zc_arrylist_add fail"); goto err; }
+
+			zlog_cateogry_overlay_bitmap(a_category, b_rule);
 			count++;
 		}
 
@@ -92,36 +107,18 @@ static int zlog_category_obtain_rules(zlog_category_t * a_category, zc_arraylist
 
 	if (count == 0 && wastebin_rule != NULL) {
 		zc_debug("category[%s], no match rules, use wastebin_rule", a_category->name);
-		rc = zc_arraylist_add(a_category->fit_rules, a_rule);
-		if (rc) { zc_error("zc_arrylist_add fail"); goto err; }
-		zlog_cateogry_overlay_bitmap(a_category, wastebin_rule);
+
+		b_rule = zlog_rule_dup(wastebin_rule);
+		if (!b_rule) { zc_error("zlog_rule_dup fail"); goto err;}
+
+		rc = zc_arraylist_add(a_category->fit_rules, b_rule);
+		if (rc) { zlog_rule_del(b_rule); zc_error("zc_arrylist_add fail"); goto err; }
+
+		zlog_cateogry_overlay_bitmap(a_category, b_rule);
 		count++;
 	} else if (count == 0 && wastebin_rule == NULL) {
 		zc_debug("category[%s], no match rules & no wastebin_rule", a_category->name);
 	}
-
-	return 0;
-err:
-	zc_arraylist_del(a_category->fit_rules);
-	a_category->fit_rules = NULL;
-	return -1;
-}
-
-zlog_category_t *zlog_category_new(const char *name, zc_arraylist_t * rules)
-{
-	int rc;
-	zlog_category_t *a_category;
-
-	zc_assert(name, NULL);
-	zc_assert(rules, NULL);
-
-	a_category = calloc(1, sizeof(zlog_category_t));
-	if (!a_category) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
-	a_category->name = zc_sdsnew(name);
-	if (!a_category) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
-
-	rc = zlog_category_obtain_rules(a_category, rules);
-	if (rc) { zc_error("zlog_category_fit_rules fail"); goto err; }
 
 	zlog_category_profile(a_category, ZC_DEBUG);
 	return a_category;
@@ -130,80 +127,8 @@ err:
 	return NULL;
 }
 /*******************************************************************************/
-/* update success: fit_rules 1, fit_rules_backup 1 */
-/* update fail: fit_rules 0, fit_rules_backup 1 */
-int zlog_category_update_rules(zlog_category_t * a_category, zc_arraylist_t * new_rules)
-{
-	int rc;
-	zc_assert(a_category, -1);
-	zc_assert(new_rules, -1);
 
-	/* 1st, mv fit_rules fit_rules_backup */
-	if (a_category->fit_rules_backup) zc_arraylist_del(a_category->fit_rules_backup);
-	a_category->fit_rules_backup = a_category->fit_rules;
-	a_category->fit_rules = NULL;
-
-	memcpy(a_category->level_bitmap_backup, a_category->level_bitmap, sizeof(a_category->level_bitmap));
-	
-	/* 2nd, obtain new_rules to fit_rules */
-	rc = zlog_category_obtain_rules(a_category, new_rules);
-	if (rc) {
-		zc_error("zlog_category_obtain_rules fail");
-		a_category->fit_rules = NULL;
-		return -1;
-	}
-
-	/* keep the fit_rules_backup not change, return */
-	return 0;
-}
-
-/* commit fail: fit_rules_backup != 0 */
-/* commit success: fit_rules 1, fit_rules_backup 0 */
-void zlog_category_commit_rules(zlog_category_t * a_category)
-{
-	zc_assert(a_category,);
-	if (!a_category->fit_rules_backup) {
-		zc_warn("a_category->fit_rules_backup is NULL, never update before");
-		return;
-	}
-
-	zc_arraylist_del(a_category->fit_rules_backup);
-	a_category->fit_rules_backup = NULL;
-	memset(a_category->level_bitmap_backup, 0x00, sizeof(a_category->level_bitmap_backup));
-	return;
-}
-
-/* rollback fail: fit_rules_backup != 0 */
-/* rollback success: fit_rules 1, fit_rules_backup 0 */
-/* so whether update succes or not, make things back to old */
-void zlog_category_rollback_rules(zlog_category_t * a_category)
-{
-	zc_assert(a_category,);
-	if (!a_category->fit_rules_backup) {
-		zc_warn("a_category->fit_rules_backup in NULL, never update before");
-		return;
-	}
-
-	if (a_category->fit_rules) {
-		/* update success, rm new and backup */
-		zc_arraylist_del(a_category->fit_rules);
-		a_category->fit_rules = a_category->fit_rules_backup;
-		a_category->fit_rules_backup = NULL;
-	} else {
-		/* update fail, just backup */
-		a_category->fit_rules = a_category->fit_rules_backup;
-		a_category->fit_rules_backup = NULL;
-	}
-
-	memcpy(a_category->level_bitmap, a_category->level_bitmap_backup, sizeof(a_category->level_bitmap));
-	memset(a_category->level_bitmap_backup, 0x00, sizeof(a_category->level_bitmap_backup));
-	
-	return; /* always success */
-}
-
-/*******************************************************************************/
-
-int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread)
+int zlog_category_output(zlog_category_t * a_category)
 {
 	int i;
 	int rc = 0;

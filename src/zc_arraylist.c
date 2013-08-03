@@ -120,10 +120,7 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, void *data)
 {
 	int i;
 
-	if (!a_list->cmp) {
-		zc_error("no compare function exist");
-		return -1;
-	}
+	if (!a_list->cmp) { zc_error("no compare function exist"); return -1; }
 
 	for (i = 0; i < a_list->len; i++) {
 		if ((a_list->cmp) (a_list->array[i], data) > 0)
@@ -131,7 +128,7 @@ int zc_arraylist_sortadd(zc_arraylist_t * a_list, void *data)
 	}
 
 	if (i == a_list->len)
-		return zc_arraylist_add(a_list, data);
+		return zc_arraylist_add(a_list, data, NULL);
 	else
 		return zc_arraylist_insert_inner(a_list, i, data);
 }

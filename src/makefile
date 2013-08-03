@@ -4,6 +4,7 @@
 
 OBJ=    \
   zc_arraylist.o    \
+  zc_hashtable.o    \
   zc_sds.o    \
   conf.o    \
   deepness.o    \
@@ -21,7 +22,6 @@ OBJ=    \
   rule.o    \
   spec.o    \
   thread.o    \
-  zc_hashtable.o    \
   zc_profile.o    \
   zc_util.o    \
   zlog.o

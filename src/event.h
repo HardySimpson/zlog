@@ -14,11 +14,6 @@ typedef enum {
 	ZLOG_HEX = 1,
 } zlog_event_cmd;
 
-typedef struct zlog_time_cache_s {
-	zc_sds str;
-	time_t sec;
-} zlog_time_cache_t;
-
 typedef struct {
 	zc_sds category_name; /* just a pointer to the real category's name */
 	const char *file;
@@ -39,9 +34,6 @@ typedef struct {
 	time_t time_local_sec; 
 	struct tm time_local; /*a cache, time_local == localtime(time_local_sec); */
 
-	zlog_time_cache_t *time_cache_vector;
-	int time_cache_count;
-
 	zc_sds host_name;
 
 	pid_t pid;
@@ -54,7 +46,7 @@ typedef struct {
 } zlog_event_t;
 
 
-zlog_event_t *zlog_event_new(int time_cache_count);
+zlog_event_t *zlog_event_new(void);
 void zlog_event_del(zlog_event_t * a_event);
 void zlog_event_profile(zlog_event_t * a_event, int flag);
 
