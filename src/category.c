@@ -54,16 +54,17 @@ void zlog_category_del(zlog_category_t * a_category)
  * so category can judge whether a log level will be output by itself
  * It is safe when configure is reloaded, when rule will be released an recreated
  */
-static void zlog_cateogry_overlay_bitmap(zlog_category_t * a_category, zlog_rule_t *a_rule)
+static void zlog_cateogry_overlay_charmap(zlog_category_t * a_category, zlog_rule_t *a_rule)
 {
 	int i;
-	for(i = 0; i < sizeof(a_rule->level_bitmap); i++) {
+	for(i = 0; i < sizeof(a_rule->level_charmap); i++) {
 		a_category->level_bitmap[i] |= a_rule->level_bitmap[i];
 	}
 }
 
-zlog_category_t *zlog_category_new(const char *name, int version,
-                        zlog_event_t *a_event, zlog_mdc_t *a_mdc, zc_arraylist *rules)
+zlog_category_t *zlog_category_new(const char *name, zc_arraylist *rules,
+                                int version, zc_sds msg,
+                                zlog_event_t *event, zlog_mdc_t *mdc);
 {
 	int rc;
 	int count = 0;
@@ -80,16 +81,19 @@ zlog_category_t *zlog_category_new(const char *name, int version,
 
 	a_category->name = zc_sdsnew(name);
 	if (!a_category) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
+
 	a_category->version = version;
-	a_category->mdc = a_mdc;
-	a_category->event = a_event;
+	a_category->msg = msg;
+	a_category->mdc = mdc;
+	a_category->event = event;
+
 	a_category->fit_rules = zc_arraylist_new();
 	if (!(a_category->fit_rules)) { zc_error("zc_arraylist_new fail"); goto err; }
 	zc_arraylist_set_del(a_category->fit_rules, zlog_rule_del);
 
 	/* get match rules from all rules */
 	zc_arraylist_foreach(rules, i, a_rule) {
-		fit = zlog_rule_match_category(a_rule, a_category->name);
+		fit = zlog_rule_match_cname(a_rule, a_category->name);
 		if (fit) {
 
 			b_rule = zlog_rule_dup(a_rule);
@@ -98,7 +102,7 @@ zlog_category_t *zlog_category_new(const char *name, int version,
 			rc = zc_arraylist_add(a_category->fit_rules, b_rule);
 			if (rc) { zlog_rule_del(b_rule); zc_error("zc_arrylist_add fail"); goto err; }
 
-			zlog_cateogry_overlay_bitmap(a_category, b_rule);
+			zlog_cateogry_overlay_charmap(a_category, b_rule);
 			count++;
 		}
 
@@ -114,7 +118,7 @@ zlog_category_t *zlog_category_new(const char *name, int version,
 		rc = zc_arraylist_add(a_category->fit_rules, b_rule);
 		if (rc) { zlog_rule_del(b_rule); zc_error("zc_arrylist_add fail"); goto err; }
 
-		zlog_cateogry_overlay_bitmap(a_category, b_rule);
+		zlog_cateogry_overlay_charmap(a_category, b_rule);
 		count++;
 	} else if (count == 0 && wastebin_rule == NULL) {
 		zc_debug("category[%s], no match rules & no wastebin_rule", a_category->name);
@@ -136,7 +140,7 @@ int zlog_category_output(zlog_category_t * a_category)
 
 	/* go through all match rules to output */
 	zc_arraylist_foreach(a_category->fit_rules, i, a_rule) {
-		rc |= zlog_rule_output(a_rule, a_thread);
+		rc |= zlog_rule_output(a_rule, a_category->event, a_category->mdc, a_category->msg);
 	}
 
 	return rc;

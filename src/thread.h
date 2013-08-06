@@ -15,9 +15,11 @@ typedef struct zlog_thread_s {
 	int version;		/* compare to zlog_env_version, for update conf */
 	int idx;		/* index of zlog_env_threads, for cleanup */
 	zlog_conf_t *conf;	/* deep copy of zlog_env_conf */
+	zc_hashtable_t *categories;	/* all exist categories of this thread */
+
 	zlog_mdc_t *mdc;	/* tag map */
 	zlog_event_t *event;	/* info of each log action */
-	zc_hashtable_t *categories;	/* all exist categories of this thread */
+	zc_sds msg;		/* the output msg */
 } zlog_thread_t;
 
 

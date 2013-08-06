@@ -15,36 +15,22 @@ typedef struct zlog_rule_s zlog_rule_t;
 typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread);
 
 struct zlog_rule_s {
-	zc_sds category;
-	char compare_char;
-	/* 
-	 * [*] log all level
-	 * [.] log level >= rule level, default
-	 * [=] log level == rule level 
-	 * [!] log level != rule level
-	 */
-	int level;
-	unsigned char level_bitmap[32]; /* for category determine whether ouput or not */
+	zc_sds cname;
+	unsigned char level_charmap[256]; /* if (level_charmap[i] != 0) allow output */
 
-	unsigned int file_perms;
-	int file_open_flags;
-
+	zlog_deepness_t *file_deep;
 	zc_sds file_path;
-	zc_arraylist_t *dynamic_specs;
-	int static_fd;
+	zc_arraylist_t *file_path_specs;
+	int file_fd;
 
-	long archive_max_size;
+	size_t archive_max_size;
 	int archive_max_count;
-	//char archive_path[MAXLEN_PATH + 1];
+	zc_sds archive_path;
 	zc_arraylist_t *archive_specs;
 
 	FILE *pipe_fp;
 	int pipe_fd;
 
-	size_t fsync_period;
-	size_t fsync_count;
-
-	zc_arraylist_t *levels;
 	int syslog_facility;
 
 	zlog_format_t *format;
@@ -60,11 +46,13 @@ void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
 zlog_rule_t *zlog_rule_dup(zlog_rule_t * a_rule);
 
+
 int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname);
-
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
-int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
+int zlog_rule_output(zlog_rule_t * a_rule, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds msg);
 
+#define zlog_rule_output(a_rule, event, mdc, msg) a_rule->output(event, mdc, msg)
+#define zlog_rule_has_level(a_rule, lv) (a_rule->level_charmap[lv])
 #define zlog_rule_is_wastebin(a_rule) (a_rule && STRCMP(a_rule->category, ==, "!"))
 
 #endif

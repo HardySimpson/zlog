@@ -961,30 +961,28 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 }
 
 /*******************************************************************************/
-int zlog_rule_match_category(zlog_rule_t * a_rule, char *category)
+int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname)
 {
-	zc_assert(a_rule, -1);
-	zc_assert(category, -1);
+	size_t len = zc_sdslen(a_rule->cname);
 
-	if (STRCMP(a_rule->category, ==, "*")) {
+	zc_assert(a_rule, -1);
+	zc_assert(cname, -1);
+
+	if (STRCMP(a_rule->cname, ==, "*")) {
 		/* '*' match anything, so go on */
 		return 1;
-	} else if (STRCMP(a_rule->category, ==, category)) {
+	} else if (STRCMP(a_rule->cname, ==, cname)) {
 		/* accurate compare */
 		return 1;
-	} else {
+	} else if (a_rule->cname[len - 1] == '_') {
 		/* aa_ match aa_xx & aa, but not match aa1_xx */
-		size_t len;
-		len = strlen(a_rule->category);
 
-		if (a_rule->category[len - 1] == '_') {
-			if (strlen(category) == len - 1) {
-				len--;
-			}
+		if (strlen(cname) == len - 1) {
+			len--;
+		}
 
-			if (STRNCMP(a_rule->category, ==, category, len)) {
-				return 1;
-			}
+		if (STRNCMP(a_rule->cname, ==, cname, len)) {
+			return 1;
 		}
 	}
 
