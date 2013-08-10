@@ -23,8 +23,8 @@ void zlog_deepness_profile(zlog_deepness_t * a_deepness, int flag)
 		a_deepness,
 		a_deepness->sign,
 		(long) a_deepness->perm,
-		(long) a_deepness->buffer_size,
-		(long) a_deepness->flush_size,
+		(long) a_deepness->buffer_len,
+		(long) a_deepness->flush_len,
 		(long) a_deepness->flush_count,
 		(long) a_deepness->fsync_count);
 
@@ -58,8 +58,8 @@ zlog_deepness_t *zlog_deepness_new(char *line)
 	/* line         ++ = 600, 10KB, 8KB, 20, 1000
 	   sign		++
 	   perm         600
-	   buffer_size  10KB
-	   flush_size   8KB
+	   buffer_len  10KB
+	   flush_len   8KB
 	   flush_count  20
 	   fsync_count  1000
 	 */
@@ -72,9 +72,9 @@ zlog_deepness_t *zlog_deepness_new(char *line)
 	errno = 0;
         a_deepness->perm = (mode_t)strtol(argv[1] + 1, NULL, 8);
 	if (errno || a_deepness->perm > 0777) { zc_error("Invalid file permissions"); goto err; }
-	e = 0; a_deepness->buffer_size = zc_strtoz(argv[2] + 1, &e);
+	e = 0; a_deepness->buffer_len = zc_strtoz(argv[2] + 1, &e);
 	if (e) { zc_error("zc_strtoz fail"); goto err; }
-	e = 0; a_deepness->flush_size = zc_strtoz(argv[3] + 1, &e);
+	e = 0; a_deepness->flush_len = zc_strtoz(argv[3] + 1, &e);
 	if (e) { zc_error("zc_strtoz fail"); goto err; }
 	e = 0; a_deepness->flush_count = zc_strtoz(argv[4] + 1, &e);
 	if (e) { zc_error("zc_strtoz fail"); goto err; }

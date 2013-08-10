@@ -3,7 +3,7 @@
   rotate lock file = self
 
 [deepness]
-# sign = permisson, buffer size, flush size, flush count, fsync count
+# sign = permisson, buffer size, flush len, flush count, fsync count
   + = 600, 10KB, 8KB, 20, 1000
   - = 600, 10KB, 1KB, 1, 20
 

@@ -46,11 +46,4 @@
 #define zlog_stat stat
 #endif
 
-/* Define zlog_fsync to fdatasync() in Linux and fsync() for all the rest */
-#ifdef __linux__
-#define zlog_fsync fdatasync
-#else
-#define zlog_fsync fsync
-#endif
-
 #endif

@@ -33,14 +33,12 @@ typedef struct zlog_category_s {
 
 	/* link from thread */
 	int version;
-	zc_sds msg;
 	zlog_event_t *event;
 	zlog_mdc_t *mdc;
 } zlog_category_t;
 
 zlog_category_t *zlog_category_new(const char *name, zc_arraylist *rules,
-				int version, zc_sds msg,
-				zlog_event_t *event, zlog_mdc_t *mdc);
+				int version, zlog_event_t *event, zlog_mdc_t *mdc);
 
 void zlog_category_del(zlog_category_t * a_category);
 void zlog_category_profile(zlog_category_t *a_category, int flag);

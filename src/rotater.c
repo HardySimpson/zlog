@@ -529,13 +529,14 @@ static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 }
 
 int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
-		char *base_path, size_t msg_len,
-		char *archive_path, long archive_max_size, int archive_max_count)
+		char *base_path, char *archive_path,
+		size_t archive_max_size, int archive_max_count)
 {
 	int rc = 0;
 	struct zlog_stat info;
 
 	zc_assert(base_path, -1);
+	zc_assert(archive_path, -1);
 
 	if (zlog_rotater_trylock(a_rotater)) {
 		zc_warn("zlog_rotater_trylock fail, maybe lock by other process or threads");

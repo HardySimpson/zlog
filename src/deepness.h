@@ -14,8 +14,8 @@ typedef struct zlog_deepness_s zlog_deepness_t;
 struct zlog_deepness_s {
 	zc_sds sign;
 	unsigned int perm;
-	size_t buffer_size;
-	size_t flush_size;
+	size_t buffer_len;
+	size_t flush_len;
 	size_t flush_count;
 	ssize_t fsync_count;
 };

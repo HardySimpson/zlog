@@ -40,8 +40,8 @@ int zlog_rotater_reload(zlog_rotater_t *a_rotater, char *lock_file);
  * 0	no rotate, or rotate and success
  */
 int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
-		char *base_path, size_t msg_len,
-		char *archive_path, long archive_max_size, int archive_max_count);
+		char *base_path, char *archive_path, 
+		size_t archive_max_size, int archive_max_count);
 
 void zlog_rotater_profile(zlog_rotater_t *a_rotater, int flag);
 

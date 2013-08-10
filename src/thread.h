@@ -19,7 +19,6 @@ typedef struct zlog_thread_s {
 
 	zlog_mdc_t *mdc;	/* tag map */
 	zlog_event_t *event;	/* info of each log action */
-	zc_sds msg;		/* the output msg */
 } zlog_thread_t;
 
 

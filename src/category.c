@@ -63,8 +63,7 @@ static void zlog_cateogry_overlay_charmap(zlog_category_t * a_category, zlog_rul
 }
 
 zlog_category_t *zlog_category_new(const char *name, zc_arraylist *rules,
-                                int version, zc_sds msg,
-                                zlog_event_t *event, zlog_mdc_t *mdc);
+                                int version, zlog_event_t *event, zlog_mdc_t *mdc);
 {
 	int rc;
 	int count = 0;
@@ -83,7 +82,6 @@ zlog_category_t *zlog_category_new(const char *name, zc_arraylist *rules,
 	if (!a_category) { zc_error("zc_sdsnew fail, errno[%d]", errno); goto err; }
 
 	a_category->version = version;
-	a_category->msg = msg;
 	a_category->mdc = mdc;
 	a_category->event = event;
 
@@ -140,7 +138,9 @@ int zlog_category_output(zlog_category_t * a_category)
 
 	/* go through all match rules to output */
 	zc_arraylist_foreach(a_category->fit_rules, i, a_rule) {
-		rc |= zlog_rule_output(a_rule, a_category->event, a_category->mdc, a_category->msg);
+		if (zlog_rule_has_level(a_rule, a_category->event->level)) {
+			rc |= zlog_rule_output(a_rule, a_category->event, a_category->mdc);
+		}
 	}
 
 	return rc;

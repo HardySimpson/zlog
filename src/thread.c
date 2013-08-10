@@ -18,14 +18,13 @@
 void zlog_thread_profile(zlog_thread_t * a_thread, int flag)
 {
 	zc_assert(a_thread,);
-	zc_profile(flag, "--thread[%p][%d][%p,%p,%p,%p,%p][%s]--",
+	zc_profile(flag, "--thread[%p][%d][%p,%p,%p,%p,%p]--",
 			a_thread,
 			a_thread->version,
 			a_thread->conf,
 			a_thread->mdc,
 			a_thread->event,
-			a_thread->categories
-			a_thread->msg);
+			a_thread->categories);
 
 	zlog_conf_profile(a_thread->conf, flag);
 	zlog_mdc_profile(a_thread->mdc, flag);
@@ -42,7 +41,6 @@ void zlog_thread_del(zlog_thread_t * a_thread)
 
 	if (a_thread->mdc) zlog_mdc_del(a_thread->mdc);
 	if (a_thread->event) zlog_event_del(a_thread->event);
-	if (a_thread->msg) zc_sdsfree(a_thread->msg);
 
 	free(a_thread);
 	zc_debug("zlog_thread_del[%p]", a_thread);
@@ -69,9 +67,6 @@ zlog_thread_t *zlog_thread_new(zlog_conf_t *a_conf, int version)
 
 	a_thread->event = zlog_event_new();
 	if (!a_thread->event) { zc_error("zlog_event_new fail"); goto err; }
-
-	a_thread->msg = zc_sdsnewlen(NULL, 512);
-	if (a_thread->msg) { zc_error("zc_sdsnewlen fail"); goto err; }
 
 	//zlog_thread_profile(a_thread, ZC_DEBUG);
 	return a_thread;
