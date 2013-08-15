@@ -13,10 +13,11 @@
 typedef struct zlog_rule_s zlog_rule_t;
 
 typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_event_t * a_event, zlog_mdc_t *a_mdc);
+typedef int (*zlog_rule_flush_fn) (zlog_rule_t * a_rule);
 
 struct zlog_rule_s {
 	zc_sds cname;
-	unsigned char level_charmap[256]; /* if (level_charmap[i] != 0) allow output */
+	unsigned char level_bitmap[32];
 
 	zc_sds buffer;
 	size_t flush_count;
@@ -38,9 +39,11 @@ struct zlog_rule_s {
 
 	int syslog_facility;
 
+	zc_arraylist_t *levels;
 	zlog_format_t *format;
-	zlog_rule_output_fn output;
 
+	zlog_rule_output_fn output;
+	zlog_rule_flush_fn flush;
 	zlog_record_fn record_func;
 };
 
@@ -52,8 +55,14 @@ zlog_rule_t *zlog_rule_dup(zlog_rule_t * a_rule);
 int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname);
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
 
+int zlog_rule_flush(zlog_rule_t * a_rule);
+
 #define zlog_rule_output(a_rule, event, mdc) a_rule->output(a_rule, event, mdc)
-#define zlog_rule_has_level(a_rule, lv) (a_rule->level_charmap[lv])
+#define zlog_rule_flush(a_rule) a_rule->flush(a_rule)
+
+#define zlog_rule_has_level(a_rule, lv)   \
+		(a_rule->level_bitmap[lv/8] & (0x1 << (i % 8))
+
 #define zlog_rule_is_wastebin(a_rule) (a_rule && STRCMP(a_rule->category, ==, "!"))
 
 #endif

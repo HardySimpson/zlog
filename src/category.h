@@ -28,7 +28,7 @@
 
 typedef struct zlog_category_s {
 	zc_sds name;
-	unsigned char level_charmap[256];
+	unsigned char level_bitmap[32];
 	zc_arraylist_t *fit_rules;
 
 	/* link from thread */
@@ -47,7 +47,7 @@ int zlog_category_output(zlog_category_t * a_category);
 int zlog_category_flush(zlog_category_t * a_category);
 
 #define zlog_category_without_level(a_category, lv) \
-        !(a_category->level_charmap[lv])
+        !(a_category->level_bitmap[lv/8] & (0x1 << (i % 8)))
 
 zc_hashtable_type_t zlog_category_hash_type = {
 	zc_hashtable_str_hash;
