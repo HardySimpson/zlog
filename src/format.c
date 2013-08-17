@@ -104,21 +104,14 @@ err:
 }
 
 /*******************************************************************************/
-/* return 0	success, or buf is full
- * return -1	fail
- */
-int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
+int zlog_format_gen_msg(zlog_format_t * a_format, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
 	int i, rc;
 	zlog_spec_t *a_spec;
 
-	zlog_buf_restart(a_thread->msg_buf);
-
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
-		rc = zlog_spec_gen_msg(a_spec, a_thread);
-		if (rc == 0) {
-			return -1;
-		}
+		rc = zlog_spec_gen(a_spec, a_event, a_mdc, a_buffer);
+		if (rc) { zc_error("zlog_spec_gen fail"); return -1; }
 	}
 
 	return 0;

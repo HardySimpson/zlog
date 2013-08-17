@@ -13,11 +13,10 @@ typedef struct zlog_spec_s zlog_spec_t;
 
 typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec,
 			zlog_event_t * a_event, zlog_mdc_t *a_mdc,
-			zc_sds buffer);
+			zc_sds a_buffer);
 
 struct zlog_spec_s {
-	char *str;
-	int len;
+	zc_sds pattern;
 
 	zc_sds time_fmt;
 
@@ -33,11 +32,11 @@ struct zlog_spec_s {
 	zlog_spec_gen_fn gen;
 };
 
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, int * time_cache_count);
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
 void zlog_spec_del(zlog_spec_t * a_spec);
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
 
-#define zlog_spec_gen(a_spec, event, mdc, buffer) \
-	a_spec->gen(a_spec, event, mdc, buffer)
+#define zlog_spec_gen(a_spec, a_event, a_mdc, a_buffer) \
+	a_spec->gen(a_spec, a_event, a_mdc, a_buffer)
 
 #endif

@@ -17,10 +17,10 @@ struct zlog_format_s {
 	zc_arraylist_t *pattern_specs;
 };
 
-zlog_format_t *zlog_format_new(char *line, int * time_cache_count);
+zlog_format_t *zlog_format_new(char *line);
 void zlog_format_del(zlog_format_t * a_format);
 void zlog_format_profile(zlog_format_t * a_format, int flag);
-int zlog_format_gen_msg(zlog_format_t * a_format, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds buffer);
+int zlog_format_gen_msg(zlog_format_t * a_format, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer);
 
 #define zlog_format_has_name(a_format, fname) \
 	STRCMP(a_format->name, ==, fname)

@@ -29,10 +29,9 @@ typedef struct {
 	va_list str_args;
 	zlog_event_cmd generate_cmd;
 
-	struct timeval time_stamp;
-
-	time_t time_local_sec; 
-	struct tm time_local; /*a cache, time_local == localtime(time_local_sec); */
+	struct timeval time_now;
+	time_t time_sec_cache; 
+	struct tm time_local; /* time_local == localtime(time_sec_cache); */
 
 	zc_sds host_name;
 

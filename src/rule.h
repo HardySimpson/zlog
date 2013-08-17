@@ -44,6 +44,8 @@ struct zlog_rule_s {
 
 	zlog_rule_output_fn output;
 	zlog_rule_flush_fn flush;
+
+	zc_sds record_func_name;
 	zlog_record_fn record_func;
 };
 
@@ -57,7 +59,7 @@ int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
 
 int zlog_rule_flush(zlog_rule_t * a_rule);
 
-#define zlog_rule_output(a_rule, event, mdc) a_rule->output(a_rule, event, mdc)
+#define zlog_rule_output(a_rule, a_event, a_mdc) a_rule->output(a_rule, a_event, a_mdc)
 #define zlog_rule_flush(a_rule) a_rule->flush(a_rule)
 
 #define zlog_rule_has_level(a_rule, lv)   \
