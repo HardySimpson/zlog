@@ -45,120 +45,193 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 /*******************************************************************************/
 /* implementation of write function */
 
-static int zlog_spec_gen_time(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer);
+static int zlog_spec_gen_time(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
-	time_t now_sec = a_thread->event->time_now.tv_sec;
-	struct tm *time_local = &(a_thread->event->time_local);
+	time_t now_sec = a_event->time_now.tv_sec;
+	struct tm *time_local = &(a_event->time_local);
+	zc_sds rs;
+	int rc;
 
 	/* the event meet the 1st time_spec in his life cycle */
 	if (!now_sec) {
-		gettimeofday(&(a_thread->event->time_now), NULL);
-		now_sec = a_thread->event->time_stamp.now;
+		rc = gettimeofday(&(a_event->time_now), NULL);
+		if (!rc) { zc_error("gettimeofday fail, errno[%d]", errno); return -1;}
+		now_sec = a_event->time_now.now;
 	}
 
 	/* When this event's last cached time_local is not now */
-	if (a_thread->event->time_sec_cache != now_sec) {
-		localtime_r(&(now_sec), time_local);
-		a_thread->event->time_sec_cache = now_sec;
+	if (a_event->time_local_sec_cache != now_sec) {
+		time_local = localtime_r(&(now_sec), &(a_event->time_local));
+		if (!time_local) { zc_error("localtime_r fail, errno[%d]", errno); return -1;}
+		a_event->time_local_sec_cache = now_sec;
 	}
 
 	/* When this spec's last cache time string is not now */
-	if (a_cache->sec != now_sec) {
-		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str), a_spec->time_fmt, time_local);
-		a_cache->sec = now_sec;
+	if (a_spec->time_str_sec_cache != now_sec) {
+		rs = zc_sdsstrftime(a_spec->time_str, a_spec->time_fmt, time_local);
+		if (!rs) { zc_error("zc_sdsstrftime fail"); return -1; }
+		a_spec->time_str_sec_cache = now_sec;
 	}
 
-	return zlog_buf_append(a_buf, a_cache->str, a_cache->len);
-}
-
-#if 0
-static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	if (!a_thread->event->time_stamp.tv_sec) {
-		gettimeofday(&(a_thread->event->time_stamp), NULL);
-	}
-
-	/* 
-	 * It is modified when time slips one second.
-	 * So it is a strong cache, as Default time format is always %F %T.
-	 * That's why I said %D is faster than %d()
-	 */
-	if (a_thread->event->time_stamp.tv_sec != a_thread->event->time_last_D) {
-
-		a_thread->event->time_last_D = a_thread->event->time_stamp.tv_sec;
-		localtime_r(&(a_thread->event->time_stamp.tv_sec),
-			    &(a_thread->event->time_local));
-
-		strftime(a_thread->event->time_cache_D,
-			sizeof(a_thread->event->time_cache_D),
-			ZLOG_DEFAULT_TIME_FMT, &(a_thread->event->time_local) );
-	}
-	return zlog_buf_append(a_buf, a_thread->event->time_cache_D, sizeof(a_thread->event->time_cache_D) - 1);
-}
-#endif
-
-static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	if (!a_thread->event->time_stamp.tv_sec) {
-		gettimeofday(&(a_thread->event->time_stamp), NULL);
-	}
-	return zlog_buf_printf_dec32(a_buf, (a_thread->event->time_stamp.tv_usec / 1000), 3);
-}
-
-static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	if (!a_thread->event->time_stamp.tv_sec) {
-		gettimeofday(&(a_thread->event->time_stamp), NULL);
-	}
-	return zlog_buf_printf_dec32(a_buf, a_thread->event->time_stamp.tv_usec, 6);
-}
-
-static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	zlog_mdc_kv_t *a_mdc_kv;
-
-	a_mdc_kv = zlog_mdc_get_kv(a_thread->mdc, a_spec->mdc_key);
-	if (!a_mdc_kv) {
-		zc_error("zlog_mdc_get_kv key[%s] fail", a_spec->mdc_key);
-		return 0;
-	}
-
-	return zlog_buf_append(a_buf, a_mdc_kv->value, a_mdc_kv->value_len);
-}
-
-static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	return zlog_buf_append(a_buf, a_spec->str, a_spec->len);
-}
-
-static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	return zlog_buf_append(a_buf, a_thread->event->category_name, a_thread->event->category_name_len);
-}
-
-static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	if (!a_thread->event->file) {
-		return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_spec->time_str,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
 	} else {
-		return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+		rs = zc_sdscatsds(a_buffer, a_spec->time_str);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
 	}
+
+	return 0;
 }
 
-static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_msec(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	int rc;
+	zc_sds rs;
+	char msec[3];
+	int ms;
+
+	if (!a_event->time_now.tv_sec) {
+		rc = gettimeofday(&(a_event->time_now), NULL);
+		if (!rc) { zc_error("gettimeofday fail, errno[%d]", errno); return -1;}
+	}
+
+	ms = a_event->time_now.tv_usec / 1000;
+	msec[2] = ms % 10 + '0'; ms /= 10;
+	msec[1] = ms % 10 + '0'; ms /= 10;
+	msec[0] = ms % 10 + '0';
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, msec, 3
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, msec, 3);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_usec(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	int rc;
+	zc_sds rs;
+	char usec[6];
+	int us;
+
+	if (!a_event->time_now.tv_sec) {
+		rc = gettimeofday(&(a_event->time_now), NULL);
+		if (!rc) { zc_error("gettimeofday fail, errno[%d]", errno); return -1;}
+	}
+
+	us = a_event->time_now.tv_usec
+	usec[5] = us % 10 + '0'; us /= 10;
+	usec[4] = us % 10 + '0'; us /= 10;
+	usec[3] = us % 10 + '0'; us /= 10;
+	usec[2] = us % 10 + '0'; us /= 10;
+	usec[1] = us % 10 + '0'; us /= 10;
+	usec[0] = us % 10 + '0';
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, usec, 6
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, msec, 3);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_mdc(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	zc_sds rs;
+	zlog_mdc_kv_t *kv;
+
+	kv = zlog_mdc_get_kv(mdc, a_spec->mdc_key);
+	if (!kv) { zc_error("zlog_mdc_get_kv key[%s] fail", a_spec->mdc_key); return 0; }
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, kv->value,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, kv->value);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_str(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_spec->pattern,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_spec->pattern);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_category(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_event->category_name,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_event->category_name);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_srcfile(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, a_event->srcfile, a_event->srcfile_len,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, a_event->srcfile, a_event->srcfile_len);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_srcfile_neat(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	char *end;
 	char *p;
+	size_t len;
 
-	if ((p = strrchr(a_thread->event->file, '/')) != NULL) {
-		return zlog_buf_append(a_buf, p + 1,
-			(char*)a_thread->event->file + a_thread->event->file_len - p - 1);
-	} else {
-		if (!a_thread->event->file) {
-			return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
-		} else {
-			return zlog_buf_append(a_buf, a_thread->event->file, a_thread->event->file_len);
+	end = a_event->srcfile + a_event->srcfile_len;
+	for (p = end; p > a_event->srcfile; p--) {
+		if (*p == '/') {
+			len = end - p;
+			if (a_spec->print_fmt) {
+				rs = zc_sdscatlen_adjust(a_buffer, p, len,
+					a_spec->align_left, a_spec->max_width, a_spec->min_width);
+				if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+			} else {
+				rs = zc_sdscatlen(a_buffer, p, len);
+				if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+			}
+			return 0;
 		}
 	}
+
+	/* else back to normal */
+	return zlog_spec_gen_srcfile(a_spec, a_event, a_mdc, a_buffer);
 }
 
 static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)

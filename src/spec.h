@@ -19,13 +19,13 @@ struct zlog_spec_s {
 	zc_sds pattern;
 
 	zc_sds time_fmt;
+	zc_sds time_str;
+	time_t time_str_sec_cache;
 
-	char time_fmt[MAXLEN_CFG_LINE + 1];
-	int time_cache_index;
-	char mdc_key[MAXLEN_PATH + 1];
+	zc_sds mdc_key;
 
-	char print_fmt[MAXLEN_CFG_LINE + 1];
-	int left_adjust;
+	zc_sds print_fmt;
+	int align_left;
 	size_t max_width;
 	size_t min_width;
 
