@@ -168,6 +168,8 @@ static int zlog_spec_gen_mdc(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_
 
 static int zlog_spec_gen_str(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	zc_sds rs;
+
 	if (a_spec->print_fmt) {
 		rs = zc_sdscatsds_adjust(a_buffer, a_spec->pattern,
 			a_spec->align_left, a_spec->max_width, a_spec->min_width);
@@ -182,6 +184,8 @@ static int zlog_spec_gen_str(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_
 
 static int zlog_spec_gen_category(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	zc_sds rs;
+
 	if (a_spec->print_fmt) {
 		rs = zc_sdscatsds_adjust(a_buffer, a_event->category_name,
 			a_spec->align_left, a_spec->max_width, a_spec->min_width);
@@ -196,6 +200,8 @@ static int zlog_spec_gen_category(zlog_spec_t * a_spec, zlog_event_t * a_event, 
 
 static int zlog_spec_gen_srcfile(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	zc_sds rs;
+
 	if (a_spec->print_fmt) {
 		rs = zc_sdscatlen_adjust(a_buffer, a_event->srcfile, a_event->srcfile_len,
 			a_spec->align_left, a_spec->max_width, a_spec->min_width);
@@ -210,6 +216,7 @@ static int zlog_spec_gen_srcfile(zlog_spec_t * a_spec, zlog_event_t * a_event, z
 
 static int zlog_spec_gen_srcfile_neat(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	zc_sds rs;
 	char *end;
 	char *p;
 	size_t len;
@@ -234,85 +241,227 @@ static int zlog_spec_gen_srcfile_neat(zlog_spec_t * a_spec, zlog_event_t * a_eve
 	return zlog_spec_gen_srcfile(a_spec, a_event, a_mdc, a_buffer);
 }
 
-static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_srcline(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	zc_sds rs;
+	unsigned char *p;
+	unsigned char tmp[ZLOG_INT64_LEN + 1];
+	size_t len;
+	uint32_t ui32;
+	uint64_t ui64;
 
-	return zlog_buf_printf_dec64(a_buf, a_thread->event->line, 0);
-}
+	p = tmp + ZLOG_INT64_LEN;
+	if (a_event->line <= ZLOG_MAX_UINT32_VALUE) {
+		/*
+		* To divide 64-bit numbers and to find remainders
+		* on the x86 platform gcc and icc call the libc functions
+		* [u]divdi3() and [u]moddi3(), they call another function
+		* in its turn.  On FreeBSD it is the qdivrem() function,
+		* its source code is about 170 lines of the code.
+		* The glibc counterpart is about 150 lines of the code.
+		*
+		* For 32-bit numbers and some divisors gcc and icc use
+		* a inlined multiplication and shifts.  For example,
+		* unsigned "i32 / 10" is compiled to
+		*
+		*     (i32 * 0xCCCCCCCD) >> 35
+		*/
 
-static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
-{
-	if (!a_thread->event->file) {
-		return zlog_buf_append(a_buf, "(func=null)", sizeof("(func=null)") - 1);
+		ui32 = (uint32_t) ui64;
+
+		do {
+			*--p = (unsigned char) (ui32 % 10 + '0');
+		} while (ui32 /= 10);
+
 	} else {
-		return zlog_buf_append(a_buf, a_thread->event->func, a_thread->event->func_len);
+		ui64 = a_event->line;
+		do {
+			*--p = (unsigned char) (ui64 % 10 + '0');
+		} while (ui64 /= 10);
 	}
+
+
+	/* zero or space padding */
+	len = (tmp + ZLOG_INT64_LEN) - p;
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, p, len,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, p, len);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
+}
+
+static int zlog_spec_gen_srcfunc(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	zc_sds rs;
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, a_event->srcfunc, a_event->srcfunc_len,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, a_event->srcfunc, a_event->srcfunc_len);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
 
-static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_hostname(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
-	return zlog_buf_append(a_buf, a_thread->event->host_name, a_thread->event->host_name_len);
+	zc_sds rs;
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_event->hostname,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_event->hostname);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_newline(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
-	return zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
+	zc_sds rs;
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, FILE_NEWLINE, FILE_NEWLINE_LEN,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, FILE_NEWLINE, FILE_NEWLINE_LEN);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_percent(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
-	return zlog_buf_append(a_buf, "%", 1);
+	zc_sds rs;
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatlen_adjust(a_buffer, "%", 1,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatlen_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatlen(a_buffer, "%", 1);
+		if (!rs) { zc_error("zc_sdscatlen fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_pid(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
+	zc_sds rs;
 	/* 1st in event lifecycle */
-	if (!a_thread->event->pid) {
-		a_thread->event->pid = getpid();
+	if (!a_event->pid) {
+		a_event->pid = getpid();
 
 		/* compare with previous event */
-		if (a_thread->event->pid != a_thread->event->last_pid) {
-			a_thread->event->last_pid = a_thread->event->pid;
-			a_thread->event->pid_str_len
-				= sprintf(a_thread->event->pid_str, "%u", a_thread->event->pid);
+		if (a_event->pid != a_event->last_pid) {
+			a_event->last_pid = a_event->pid;
+			zc_sdsclear(a_event->pid_str);
+			rs = zc_sdscatprintf(a_event->pid_str, "%u", a_thread->event->pid);
+			if (!rs) { zc_error("zc_sdscatprintf fail, errno[%d]", errno); return -1; }
 		}
 	}
 
-	return zlog_buf_append(a_buf, a_thread->event->pid_str, a_thread->event->pid_str_len);
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_event->pid_str,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_event->pid_str);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_tid_hex(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
-
+	zc_sds rs;
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
-	return zlog_buf_append(a_buf, a_thread->event->tid_hex_str, a_thread->event->tid_hex_str_len);
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_event->tid_hex_str,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_event->tid_hex_str);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_tid_long(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
-
+	zc_sds rs;
 	/* don't need to get tid again, as tmap_new_thread fetch it already */
 	/* and fork not change tid */
-	return zlog_buf_append(a_buf, a_thread->event->tid_str, a_thread->event->tid_str_len);
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_event->tid_str,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_event->tid_str);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_level_uppercase(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
 	zlog_level_t *a_level;
+	zc_sds rs;
 
-	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
-	return zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
+	a_level = zlog_level_list_get(a_spec->levels, a_event->level);
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_level->str_upper,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_level->str_upper);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
 
-static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_gen_level_lowercase(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
 	zlog_level_t *a_level;
+	zc_sds rs;
 
-	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
-	return zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
+	a_level = zlog_level_list_get(a_spec->levels, a_event->level);
+
+	if (a_spec->print_fmt) {
+		rs = zc_sdscatsds_adjust(a_buffer, a_level->str_lower,
+			a_spec->align_left, a_spec->max_width, a_spec->min_width);
+		if (!rs) { zc_error("zc_sdscatsds_adjust fail, errno[%d]", errno); return -1; }
+	} else {
+		rs = zc_sdscatsds(a_buffer, a_level->str_lower);
+		if (!rs) { zc_error("zc_sdscatsds fail, errno[%d]", errno); return -1; }
+	}
+
+	return 0;
 }
+
+static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 
 static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
@@ -527,7 +676,7 @@ void zlog_spec_del(zlog_spec_t * a_spec)
  * a const string: /home/bb
  * a string begin with %: %12.35d(%F %X,%l)
  */
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_cache_count)
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, zc_arraylist_t *levels)
 {
 	zlog_spec_t *a_spec;
 

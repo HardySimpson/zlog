@@ -18,6 +18,8 @@ typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec,
 struct zlog_spec_s {
 	zc_sds pattern;
 
+	zc_arraylist_t *levels;
+
 	zc_sds time_fmt;
 	zc_sds time_str;
 	time_t time_str_sec_cache;
@@ -32,7 +34,7 @@ struct zlog_spec_s {
 	zlog_spec_gen_fn gen;
 };
 
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, zc_arraylist_t *levels);
 void zlog_spec_del(zlog_spec_t * a_spec);
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
 

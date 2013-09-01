@@ -2,7 +2,6 @@
 [p] 采用redis的sds，更优雅不会溢出
 [p] 自行管理文件缓存，替代stdio，write/mmap
 [ ] 二进制日志，binary接口，hex那段重写,内置到buf内,参考od的设计
-[p] 把头文件都放在.c里面，避免依赖
 [ ] 在osc的git库放一份
 [ ] 打包放在百度盘下载
 [ ] 分类匹配的可定制化, rcat, mdc -> tag
@@ -14,10 +13,11 @@
 [ ] perl, python, go, c++支持
 [ ] redis对接,协议设计
 [ ] 和rsyslog对接的问题
-[ ] linux fsync->fdatasync, open..
 [ ] 考虑类似mysql那样双许可证发布，收公司的钱
 
 --- 2.0.0 ---
+[p] 把头文件都放在.c里面，避免依赖
+[x] linux fsync->fdatasync, open.. no need, as file size is always modified.
 --- 1.2.8 ---
 [o] gcc __attribute__宏，用于检查zlog的format输出格式
 [o] 支持配置文件行中带#注释
