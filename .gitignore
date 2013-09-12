@@ -1,3 +1,6 @@
+.*
+!.gitignore
+
 *.o
 *.lo
 *.la
@@ -28,6 +31,7 @@ Makefile.in
 missing
 stamp-h1
 tags
+TAGS
 zlog-chk-conf
 zlog-*.tar.gz
 zlog.pc

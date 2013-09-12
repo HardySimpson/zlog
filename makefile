@@ -17,13 +17,17 @@ doc:
 test:
 	cd test && $(MAKE)
 
+TAGS:
+	find . -type f -name "*.[ch]" | xargs etags -
+
 clean:
 	cd src && $(MAKE) $@
 	cd test && $(MAKE) $@
 	cd doc && $(MAKE) $@
+	rm -f TAGS
 
 distclean: clean
 
 dummy:
 
-.PHONY: doc install test
+.PHONY: doc install test TAGS
