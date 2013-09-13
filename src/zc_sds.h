@@ -78,6 +78,14 @@ zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...)
 zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...);
 #endif
 
+zc_sds zc_sdscatvprintf_adjust(zc_sds s, const char *fmt, va_list ap);
+#ifdef __GNUC__
+zc_sds zc_sdscatprintf_adjust(zc_sds s, const char *fmt, ...)
+    __attribute__((format(printf, 2, 3)));
+#else
+zc_sds zc_sdscatprintf_adjust(zc_sds s, const char *fmt, ...);
+#endif
+
 zc_sds zc_sdsvprintf(zc_sds s, const char *fmt, va_list ap);
 #ifdef __GNUC__
 zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...)
@@ -85,6 +93,9 @@ zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...)
 #else
 zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...);
 #endif
+
+zc_sds zc_sdscathex_adjust(zc_sds s, const char *h, size_t len, int align_left, size_t max_width, size_t min_width); 
+zc_sds zc_sdscathex(zc_sds s, const char *h, size_t len);
 
 zc_sds zc_sdstrim(zc_sds s, const char *cset);
 zc_sds zc_sdsrange(zc_sds s, int start, int end);

@@ -462,7 +462,33 @@ static int zlog_spec_gen_level_lowercase(zlog_spec_t * a_spec, zlog_event_t * a_
 }
 
 static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
+{
+	zc_sds rs;
 
+	if (a_event->generate_cmd == ZLOG_FMT) {
+		if (a_spec->print_fmt) {
+			rs = zc_sdscatvprintf_adjust(a_buffer,
+				a_event->str_format, a_event->str_args,
+				a_spec->align_left, a_spec->max_width, a_spec->min_width);
+			if (!rs) { zc_error("zc_sdscatvprintf_adjust fail, errno[%d]", errno); return -1; }
+		} else {
+			rs = zc_sdscatvprintf(a_buffer, a_event->str_format, a_event->str_args);
+			if (!rs) { zc_error("zc_sdscatvprintf fail, errno[%d]", errno); return -1; }
+		}
+	} else if (a_event->generate_cmd == ZLOG_HEX) {
+		if (a_spec->print_fmt) {
+			rs = zc_sdscathex_adjust(a_buffer,
+				a_event->hex_buf, a_event->hex_buf_len,
+				a_spec->align_left, a_spec->max_width, a_spec->min_width);
+			if (!rs) { zc_error("zc_sdscatvprintf_adjust fail, errno[%d]", errno); return -1; }
+		} else {
+			rs = zc_sdscatvprintf(a_buffer, a_event->hex_buf, a_event->hex_buf_len);
+			if (!rs) { zc_error("zc_sdscatvprintf fail, errno[%d]", errno); return -1; }
+		}
+	}
+}
+
+#if 0
 static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	if (a_thread->event->generate_cmd == ZLOG_FMT) {
@@ -558,86 +584,7 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 
 	return 0;
 }
-
-/*******************************************************************************/
-/* implementation of gen function */
-
-static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	/* no need to reprint %1.2d here */
-	return a_spec->write_buf(a_spec, a_thread, a_thread->msg_buf);
-}
-
-static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	int rc;
-
-	zlog_buf_restart(a_thread->pre_msg_buf);
-
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_msg_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, try printf */
-	}
-
-	return zlog_buf_adjust_append(a_thread->msg_buf,
-		zlog_buf_str(a_thread->pre_msg_buf), zlog_buf_len(a_thread->pre_msg_buf),
-		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
-}
-
-/*******************************************************************************/
-static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	/* no need to reprint %1.2d here */
-	return a_spec->write_buf(a_spec, a_thread, a_thread->path_buf);
-}
-
-static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	int rc;
-
-	zlog_buf_restart(a_thread->pre_path_buf);
-
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, try printf */
-	}
-
-	return zlog_buf_adjust_append(a_thread->path_buf,
-		zlog_buf_str(a_thread->pre_path_buf), zlog_buf_len(a_thread->pre_path_buf),
-		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
-}
-
-/*******************************************************************************/
-static int zlog_spec_gen_archive_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	/* no need to reprint %1.2d here */
-	return a_spec->write_buf(a_spec, a_thread, a_thread->archive_path_buf);
-}
-
-static int zlog_spec_gen_archive_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
-{
-	int rc;
-
-	zlog_buf_restart(a_thread->pre_path_buf);
-
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, try printf */
-	}
-
-	return zlog_buf_adjust_append(a_thread->archive_path_buf,
-		zlog_buf_str(a_thread->pre_path_buf), zlog_buf_len(a_thread->pre_path_buf),
-		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
-}
+#endif
 
 /*******************************************************************************/
 static int zlog_spec_parse_print_fmt(zlog_spec_t * a_spec)
