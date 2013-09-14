@@ -486,6 +486,8 @@ static int zlog_spec_gen_usrmsg(zlog_spec_t * a_spec, zlog_event_t * a_event, zl
 			if (!rs) { zc_error("zc_sdscatvprintf fail, errno[%d]", errno); return -1; }
 		}
 	}
+
+	return 0;
 }
 
 #if 0

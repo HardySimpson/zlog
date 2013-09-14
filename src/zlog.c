@@ -19,8 +19,8 @@
 static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
 static zlog_conf_t *zlog_env_conf;
 static zc_hashtable_t *zlog_env_records;
-static int zlog_env_inited = 0;
-static int zlog_env_version = -1;
+static int zlog_env_inited = 0; /* inited is a flag which indicates if zlog is available */
+static int zlog_env_version = -1; /* version lives longer, can go through many times of zlog_init() and zlog_fini() */
 
 /* 
  * using posix pthread_key cleaup method when user's thread call pthread_exit(),
@@ -117,7 +117,7 @@ int zlog_reload(const char *confpath)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return -1; }
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto exit; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto exit; }
 
 	/* use last conf file */
 	if (confpath == NULL) confpath = zlog_env_conf->file;
@@ -161,7 +161,7 @@ void zlog_fini(void)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
-	if (!zlog_env_inited) { zc_error("before finish, must zlog_init() or dzlog_init() fisrt"); goto exit; }
+	if (!zlog_env_inited) { zc_error("before finish, must zlog_init() fisrt"); goto exit; }
 
 	zlog_fini_inner();
 	zlog_env_inited = 0;
@@ -226,7 +226,7 @@ zlog_category_t *zlog_get_category(const char *cname)
 		return NULL;
 	}
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto err; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto err; }
 
 	a_thread = zlog_fetch_thread();
 	if(!a_thread) { zc_error("zlog_fetch_thread fail"); goto err; }
@@ -262,7 +262,7 @@ int zlog_put_mdc(const char *key, const char *value)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return -1; }
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto err; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto err; }
 
 	a_thread = zlog_fetch_thread();
 	if(!a_thread) { zc_error("zlog_fetch_thread fail"); goto err; }
@@ -290,7 +290,7 @@ char *zlog_get_mdc(const char *key)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return NULL; }
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto err; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto err; }
 
 	a_thread = zlog_fetch_thread();
 	if(!a_thread) { zc_error("zlog_fetch_thread fail"); goto err; }
@@ -317,7 +317,7 @@ void zlog_remove_mdc(const char *key)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto exit; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto exit; }
 
 	a_thread = zlog_fetch_thread();
 	if(!a_thread) { zc_error("zlog_fetch_thread fail"); goto err; }
@@ -337,7 +337,7 @@ void zlog_clean_mdc(void)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc); return; }
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto exit; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto exit; }
 
 	a_thread = zlog_fetch_thread();
 	if(!a_thread) { zc_error("zlog_fetch_thread fail"); goto err; }
@@ -482,7 +482,7 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) { zc_error("pthread_rwlock_rdlock fail, rc[%d]", rc); return -1; }
 
-	if (!zlog_env_inited) { zc_error("never call zlog_init() or dzlog_init() before"); goto err; }
+	if (!zlog_env_inited) { zc_error("never call zlog_init() before"); goto err; }
 
 	a_record = zlog_record_new(rname, record_output);
 	if (!a_record) { zc_error("zlog_record_new fail"); goto err; }
