@@ -76,9 +76,47 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 
 static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
+	struct stat stb;
+	int do_file_reload = 0;
+	int redo_inode_stat = 0;
+
 	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
 		zc_error("zlog_format_gen_msg fail");
 		return -1;
+	}
+
+	/* check if the output file was changed by an external tool by comparing the inode to our saved off one */
+	if (stat(a_rule->file_path, &stb)) {
+		if (errno != ENOENT) {
+			zc_error("stat fail on [%s], errno[%d]", a_rule->file_path, errno);
+			return -1;
+		} else {
+			do_file_reload = 1;
+			redo_inode_stat = 1; /* we'll have to restat the newly created file to get the inode info */
+		}
+	} else {
+		do_file_reload = (stb.st_ino != a_rule->static_ino || stb.st_dev != a_rule->static_dev);
+	}
+
+	if (do_file_reload) {
+		close(a_rule->static_fd);
+		a_rule->static_fd = open(a_rule->file_path,
+			O_WRONLY | O_APPEND | O_CREAT | a_rule->file_open_flags,
+			a_rule->file_perms);
+		if (a_rule->static_fd < 0) {
+			zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
+			return -1;
+		}
+
+		/* save off the new dev/inode info from the stat call we already did */
+		if (redo_inode_stat) {
+			if (stat(a_rule->file_path, &stb)) {
+				zc_error("stat fail on new file[%s], errno[%d]", a_rule->file_path, errno);
+				return -1;
+			}
+		}
+		a_rule->static_dev = stb.st_dev;
+		a_rule->static_ino = stb.st_ino;
 	}
 
 	if (write(a_rule->static_fd,
@@ -774,6 +812,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 				a_rule->output = zlog_rule_output_dynamic_file_rotate;
 			}
 		} else {
+			struct stat stb;
+
 			if (a_rule->archive_max_size <= 0) {
 				a_rule->output = zlog_rule_output_static_file_single;
 			} else {
@@ -788,6 +828,14 @@ zlog_rule_t *zlog_rule_new(char *line,
 				zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
 				goto err;
 			}
+
+			/* save off the inode information for checking for a changed file later on */
+			if (fstat(a_rule->static_fd, &stb)) {
+				zc_error("stat [%s] fail, errno[%d], failing to open static_fd", a_rule->file_path, errno);
+				goto err;
+			}
+			a_rule->static_dev = stb.st_dev;
+			a_rule->static_ino = stb.st_ino;
 		}
 		break;
 	case '|' :
