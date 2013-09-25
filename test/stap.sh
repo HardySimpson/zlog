@@ -1,0 +1,1 @@
+sudo stap --ldd -c ./test_hello --all-modules  -D MAXMAPENTRIES=1024 -D MAXACTION=20000 -D MAXTRACE=100 -D MAXSTRINGLEN=4096 -D MAXBACKTRACE=100 test.stp

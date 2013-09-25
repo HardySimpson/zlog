@@ -31,10 +31,7 @@ typedef struct zlog_category_s {
 	unsigned char level_bitmap[32];
 	zc_arraylist_t *fit_rules;
 
-	/* link from thread */
-	int version;
-	zlog_event_t *event;
-	zlog_mdc_t *mdc;
+	zlog_thread_t *thread; /* the thread category belongs to */
 } zlog_category_t;
 
 zlog_category_t *zlog_category_new(const char *name, zc_arraylist *rules,
