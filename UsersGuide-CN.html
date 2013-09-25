@@ -123,7 +123,7 @@ syslog分类模型，比log4j模型更加直接了当
 </LI><LI CLASS="li-itemize">自诊断，可以在运行时输出zlog自己的日志和配置状态
 </LI><LI CLASS="li-itemize">不依赖其他库，只要是个POSIX系统就成(当然还要一个C99兼容的vsnprintf)
 </LI></UL><P>
-相关链接：</P><P>主页：<A HREF="http://hardysimpson.github.com/zlog/">http://hardysimpson.github.com/zlog/</A></P><P>下载：<A HREF="https://code.google.com/p/hardysimpson-zlog/downloads/list">https://code.google.com/p/hardysimpson-zlog/downloads/list</A></P><P>邮箱：<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section 兼容性说明-->
+相关链接：</P><P>主页：<A HREF="http://hardysimpson.github.com/zlog/">http://hardysimpson.github.com/zlog/</A></P><P>下载：<A HREF="https://github.com/HardySimpson/zlog/releases">https://github.com/HardySimpson/zlog/releases</A></P><P>邮箱：<A HREF="mailto:HardySimpson1984@gmail.com">HardySimpson1984@gmail.com</A></P><!--TOC section 兼容性说明-->
 <H2 CLASS="section"><!--SEC ANCHOR --><A NAME="htoc2">1.1</A>  兼容性说明</H2><!--SEC END --><OL CLASS="enumerate" type=1><LI CLASS="li-enumerate">
 zlog是基于POSIX的。目前我手上有的环境只有AIX和linux。在其他的系统下（FreeBSD, NetBSD, OpenBSD,
 OpenSolaris, Mac OS X...）估计也能行，有问题欢迎探讨。
@@ -399,8 +399,8 @@ c = zlog_get_category("my_cat");
 <TT></TT></DT><DD CLASS="dd-list"><TT>
 </TT><TT>[</TT><TT>rules</TT><TT>]</TT><P><TT>my_cat.</TT><TT>*</TT><TT>      "/var/log/my_cat.log"</TT></P><P><TT>my_.NOTICE    "/var/log/my.log"
 </TT></P></DD></DL></DIV><P>
-这两条规则都匹配c分类"my_cat"。通配符"_" 表示上级分类。
-"my_"是"my_cat"和"my_dog"的上级分类。还有一个通配符是"!"，详见<A HREF="#sub:=005206=007C7B=005339=00914D">5.5.2</A></P><!--TOC chapter 配置文件-->
+这两条规则都匹配c分类"my_cat"。通配符"_"
+表示上级分类。 "my_"是"my_cat"和"my_dog"的上级分类。还有一个通配符是"!"，详见<A HREF="#sub:=005206=007C7B=005339=00914D">5.5.2</A></P><!--TOC chapter 配置文件-->
 <H1 CLASS="chapter"><!--SEC ANCHOR --><A NAME="htoc14">Chapter 5</A>  配置文件</H1><!--SEC END --><P>大部分的zlog的行为取决于配置文件：把日志打到哪里去，用什么格式，怎么转档。配置文件是zlog的黑话，我尽量把这个黑话设计的简单明了。这是个配置文件例子：
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
@@ -432,10 +432,10 @@ strict init<P>如果"strict init"是true，zlog_init()将会严格检查所有�
 失败并且返回-1。当"strict init"是false的时候，zlog_init()会忽略错误的格式和规则。
 这个参数默认为true。</P></LI><LI CLASS="li-itemize">reload conf period<P>这个选项让zlog能在一段时间间隔后自动重载配置文件。重载的间隔以每进程写日志的次数来定义。当写日志次数到了一定值后，内部将会调用zlog_reload()进行重载。每次zlog_reload()或者zlog_init()之后重新计数累加。因为zlog_reload()是原子性的，重载失败继续用当前的配置信息，所以自动重载是安全的。默认值是0，自动重载是关闭的。</P></LI><LI CLASS="li-itemize">buffer min
 </LI><LI CLASS="li-itemize">buffer max<P>zlog在堆上为每个线程申请缓存。"buffer min"是单个缓存的最小值，zlog_init()的时候申请这个长度的内存。写日志的时候，如果单条日志长度大于缓存，缓存会自动扩充，直到到"buffer
-max"。 单条日志再长超过"buffer max"就会被截断。如果 "buffer
-max" 是 0，意味着不限制缓存，每次扩充为原先的2倍，直到这个进程用完所有内存为止。缓存大小可以加上 KB,
-MB 或 GB这些单位。默认来说"buffer min"是 1K ， "buffer
-max" 是2MB。</P></LI><LI CLASS="li-itemize">rotate lock file<P>这个选项指定了一个锁文件，用来保证多进程情况下日志安全转档。zlog会在zlog_init()时候以读写权限打开这个文件。确认你执行程序的用户有权限创建和读写这个文件。转档日志的伪代码是：
+max"。 单条日志再长超过"buffer max"就会被截断。如果
+"buffer max" 是 0，意味着不限制缓存，每次扩充为原先的2倍，直到这个进程用完所有内存为止。缓存大小可以加上
+KB, MB 或 GB这些单位。默认来说"buffer min"是 1K ，
+"buffer max" 是2MB。</P></LI><LI CLASS="li-itemize">rotate lock file<P>这个选项指定了一个锁文件，用来保证多进程情况下日志安全转档。zlog会在zlog_init()时候以读写权限打开这个文件。确认你执行程序的用户有权限创建和读写这个文件。转档日志的伪代码是：
 </P><DIV CLASS="flushleft"><DL CLASS="list"><DT CLASS="dt-list">
 
 
@@ -637,7 +637,8 @@ used instead. (TZ)</DIV><P>大意是采用%V定义的年，如果那年的前几
 </TT></DD></DL></DIV><P>
 当zlog_init()被调用的时候，所有规则都会被读到内存中。当zlog_get_category()被调用，规则就被被分配给分类（<A HREF="#sub:=005206=007C7B=005339=00914D">5.5.2</A>）。在实际写日志的时候，例如zlog_info()被调用的时候，就会比较这个INFO和各条规则的等级，来决定这条日志会不会通过这条规则输出。当zlog_reload()被调用的时候，配置文件会被重新读入，包括所有的规则，并且重新计算分类对应的规则。</P><!--TOC subsection 级别匹配-->
 <H3 CLASS="subsection"><!--SEC ANCHOR --><A NAME="htoc23">5.5.1</A>  级别匹配</H3><!--SEC END --><P>zlog有6个默认的级别："DEBUG", "INFO",
-"NOTICE", "WARN", "ERROR"和"FATAL"。就像其他的日志函数库那样，
+"NOTICE", "WARN",
+"ERROR"和"FATAL"。就像其他的日志函数库那样，
 aa.DEBUG意味着任何大于等于DEBUG级别的日志会被输出。当然还有其他的表达式。配置文件中的级别是大小写不敏感的。</P><TABLE BORDER=1 CELLSPACING=0 CELLPADDING=1><TR><TD ALIGN=center NOWRAP>表达式</TD><TD ALIGN=center NOWRAP>含义</TD></TR>
 <TR><TD ALIGN=center NOWRAP>*</TD><TD ALIGN=center NOWRAP>所有等级</TD></TR>
 <TR><TD ALIGN=center NOWRAP>aa.debug</TD><TD ALIGN=center NOWRAP>代码内等级&gt;=debug</TD></TR>
