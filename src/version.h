@@ -1,1 +1,1 @@
-#define ZLOG_VERSION "1.2.11"
+#define ZLOG_VERSION "1.2.12"
