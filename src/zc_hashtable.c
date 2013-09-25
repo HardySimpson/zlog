@@ -237,8 +237,8 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, const void *a_key)
 	unsigned int i;
 
         if (!a_table || !a_key) {
-                zc_error("a_table[%p] or a_key[%p] is NULL, just do nothing");
-                return;
+		zc_error("a_table[%p] or a_key[%p] is NULL, just do nothing", a_table, a_key);
+		return;
         }
 
 	i = a_table->hash(a_key) % a_table->tab_size;
@@ -248,7 +248,7 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, const void *a_key)
 	}
 
 	if (!p) {
-		zc_error("p[%p] not found in hashtable");
+		zc_error("p[%p] not found in hashtable", p);
 		return;
 	}
 
@@ -328,4 +328,3 @@ int zc_hashtable_str_equal(const void *key1, const void *key2)
 {
 	return (STRCMP((const char *)key1, ==, (const char *)key2));
 }
-
