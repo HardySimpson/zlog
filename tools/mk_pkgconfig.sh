@@ -12,7 +12,7 @@ PREFIX="$1"
 LIBRARY_PATH="$2"
 VERSION="$3"
 TARGET_DIR="${PREFIX}/${LIBRARY_PATH}/pkgconfig"
-TARGET="${TARGET_DIR}/zlib.pc"
+TARGET="${TARGET_DIR}/zlog.pc"
 
 mkdir -p ${TARGET_DIR}
 
