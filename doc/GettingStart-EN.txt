@@ -15,6 +15,7 @@ $ cd zlog-latest-stable/
 $ make 
 $ sudo make install
 or
+$ make PREFIX=/usr/local/
 $ sudo make PREFIX=/usr/local/ install
 
 PREFIX indicates the installation destination for zlog. After installation, refresh your dynamic linker to make sure your program can find zlog library.  
