@@ -3,43 +3,56 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
+ */
+
+/* 
+ * category is
+ * 1. the union of all fit rules for output
+ * 2. live only in one thread,
+      and has the rights to access all info of the thread,
+      category -> fit rules -> formats -> specs
+         |-> mdc     |-> levels <-|
+	 |-> event
+
+ * rules may depend other 2 things for output
+ * 1. zlog_env_rotater, access by lock
+ * 2. one record of rezlog_env_records,
+      as record is a funciton pointer stays in a static place, 
+      just keep its adress is safe
  */
 
 #ifndef __zlog_category_h
 #define __zlog_category_h
 
+
 typedef struct zlog_category_s {
 	zc_sds name;
 	unsigned char level_bitmap[32];
-	unsigned char level_bitmap_backup[32];
 	zc_arraylist_t *fit_rules;
-	zc_arraylist_t *fit_rules_backup;
+
+	zlog_thread_t *thread; /* the thread category belongs to */
 } zlog_category_t;
 
-zlog_category_t *zlog_category_new(const char *name, zc_arraylist_t * rules);
+zlog_category_t *zlog_category_new(const char *name, zc_arraylist *rules,
+				int version, zlog_event_t *event, zlog_mdc_t *mdc);
+
 void zlog_category_del(zlog_category_t * a_category);
 void zlog_category_profile(zlog_category_t *a_category, int flag);
 
-int zlog_category_update_rules(zlog_category_t * a_category, zc_arraylist_t * new_rules);
-void zlog_category_commit_rules(zlog_category_t * a_category);
-void zlog_category_rollback_rules(zlog_category_t * a_category);
+int zlog_category_output(zlog_category_t * a_category);
+int zlog_category_flush(zlog_category_t * a_category);
 
-int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread);
+#define zlog_category_without_level(a_category, lv) \
+        !(a_category->level_bitmap[lv/8] & (0x1 << (i % 8)))
 
-#define zlog_category_needless_level(a_category, lv) \
-        !((a_category->level_bitmap[lv/8] >> (7 - lv % 8)) & 0x01)
-
+zc_hashtable_type_t zlog_category_hash_type = {
+	zc_hashtable_str_hash;
+	zc_hashtable_str_equal;
+	NULL;
+	zc_category_del;
+	NULL;
+	NULL;
+};
 
 #endif

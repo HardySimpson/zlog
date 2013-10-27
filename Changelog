@@ -1,22 +1,23 @@
 [p] 使用valgrind测试性能
-[p] 采用redis的sds，更优雅不会溢出
-[p] 自行管理文件缓存，替代stdio，write/mmap
-[ ] 二进制日志，binary接口，hex那段重写,内置到buf内,参考od的设计
-[p] 把头文件都放在.c里面，避免依赖
 [ ] 在osc的git库放一份
+[ ] 对syslog的更好的支持
+[ ] 二进制日志，binary接口，hex那段重写,内置到buf内,参考od的设计
 [ ] 打包放在百度盘下载
-[ ] 分类匹配的可定制化, rcat, mdc -> tag
-[ ] 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
 [ ] async file输出的增加
-[ ] 兼容性问题 zlog.h内
-[ ] 增加trace级别
 [ ] gettid()
 [ ] perl, python, go, c++支持
 [ ] redis对接,协议设计
-[ ] 和rsyslog对接的问题
-[ ] linux fsync->fdatasync, open..
+[ ] 考虑类似mysql那样双许可证发布，收公司的钱
 
 --- 2.0.0 ---
+[p] 把头文件都放在.c里面，避免依赖
+[p] 采用redis的sds，更优雅不会溢出
+[p] 自行管理文件缓存，替代stdio，write/mmap, 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
+[x] linux fsync->fdatasync, open.. no need, as file size is always modified.
+[x] 分类匹配的可定制化, rcat, mdc -> tag
+[x] 和rsyslog对接的问题
+[x] 增加trace级别
+[o] 兼容性问题 zlog.h内
 --- 1.2.8 ---
 [o] gcc __attribute__宏，用于检查zlog的format输出格式
 [o] 支持配置文件行中带#注释

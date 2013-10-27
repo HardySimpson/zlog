@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #include <string.h>
@@ -31,6 +20,7 @@
 
 #include "zc_defs.h"
 #include "rotater.h"
+
 
 #define ROLLING  1     /* aa.02->aa.03, aa.01->aa.02, aa->aa.01 */
 #define SEQUENCE 2     /* aa->aa.03 */
@@ -538,13 +528,14 @@ static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 }
 
 int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
-		char *base_path, size_t msg_len,
-		char *archive_path, long archive_max_size, int archive_max_count)
+		char *base_path, char *archive_path,
+		size_t archive_max_size, int archive_max_count)
 {
 	int rc = 0;
 	struct zlog_stat info;
 
 	zc_assert(base_path, -1);
+	zc_assert(archive_path, -1);
 
 	if (zlog_rotater_trylock(a_rotater)) {
 		zc_warn("zlog_rotater_trylock fail, maybe lock by other process or threads");

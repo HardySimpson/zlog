@@ -1,0 +1,21 @@
+ global bt;
+    global quit = 0
+
+    probe timer.profile {
+        if (pid() == target()) {
+            if (!quit) {
+                bt[backtrace(), ubacktrace()] <<< 1
+            } else {
+                foreach ([sys, usr] in bt- limit 1000) {
+                    print_stack(sys)
+                    print_ustack(usr)
+                    printf("t%dn", @count(bt[sys, usr]))
+                }
+                exit()
+            }
+        }
+    }
+
+    probe timer.s(20) {
+        quit = 1
+    }

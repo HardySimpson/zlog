@@ -3,79 +3,67 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
-/**
- * @file rule.h
- * @brief rule decide to output in format by category & level
- */
 
 #ifndef __zlog_rule_h
 #define __zlog_rule_h
 
 typedef struct zlog_rule_s zlog_rule_t;
 
-typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread);
+typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_event_t * a_event, zlog_mdc_t *a_mdc);
+typedef int (*zlog_rule_flush_fn) (zlog_rule_t * a_rule);
 
 struct zlog_rule_s {
-	zc_sds category;
-	char compare_char;
-	/* 
-	 * [*] log all level
-	 * [.] log level >= rule level, default
-	 * [=] log level == rule level 
-	 * [!] log level != rule level
-	 */
-	int level;
-	unsigned char level_bitmap[32]; /* for category determine whether ouput or not */
+	zc_sds cname;
+	unsigned char level_bitmap[32];
 
-	unsigned int file_perms;
-	int file_open_flags;
+	zc_sds buffer;
+	size_t flush_count;
+	size_t fsync_count;
 
+	zlog_deepness_t *file_deep;
 	zc_sds file_path;
-	zc_arraylist_t *dynamic_specs;
-	int static_fd;
+	zc_sds file_path_dynamic;
+	zc_arraylist_t *file_path_specs;
+	int file_fd;
 
-	long archive_max_size;
+	size_t archive_max_size;
 	int archive_max_count;
-	//char archive_path[MAXLEN_PATH + 1];
+	zc_sds archive_path;
 	zc_arraylist_t *archive_specs;
 
 	FILE *pipe_fp;
 	int pipe_fd;
 
-	size_t fsync_period;
-	size_t fsync_count;
-
-	zc_arraylist_t *levels;
 	int syslog_facility;
 
+	zc_arraylist_t *levels;
 	zlog_format_t *format;
-	zlog_rule_output_fn output;
 
-	//char record_name[MAXLEN_PATH + 1];
-	//char record_path[MAXLEN_PATH + 1];
-	//zlog_record_fn record_func;
+	zlog_rule_output_fn output;
+	zlog_rule_flush_fn flush;
+
+	zc_sds record_func_name;
+	zlog_record_fn record_func;
 };
 
-zlog_rule_t *zlog_rule_new(char * line, zlog_conf_t * a_conf);
+zlog_rule_t *zlog_rule_new(char * line, zlog_conf_t *a_conf);
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
-int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
+zlog_rule_t *zlog_rule_dup(zlog_rule_t * a_rule);
+
+int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname);
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
-int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
+
+int zlog_rule_flush(zlog_rule_t * a_rule);
+
+#define zlog_rule_output(a_rule, a_event, a_mdc) a_rule->output(a_rule, a_event, a_mdc)
+#define zlog_rule_flush(a_rule) a_rule->flush(a_rule)
+
+#define zlog_rule_has_level(a_rule, lv)   \
+		(a_rule->level_bitmap[lv/8] & (0x1 << (i % 8))
 
 #define zlog_rule_is_wastebin(a_rule) (a_rule && STRCMP(a_rule->category, ==, "!"))
 

@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #include <stdlib.h>
@@ -26,45 +15,24 @@
 
 struct zc_hashtable_s {
 	size_t nelem;
-
 	zc_hashtable_entry_t **tab;
 	size_t tab_size;
-
-	zc_hashtable_hash_fn hash;
-	zc_hashtable_equal_fn equal;
-	zc_hashtable_del_fn key_del;
-	zc_hashtable_del_fn value_del;
+	zc_hashtable_type_t *type;
 };
 
-zc_hashtable_t *zc_hashtable_new(size_t a_size,
-				 zc_hashtable_hash_fn hash,
-				 zc_hashtable_equal_fn equal,
-				 zc_hashtable_del_fn key_del,
-				 zc_hashtable_del_fn value_del)
+zc_hashtable_t *zc_hashtable_new(size_t a_size, zc_hashtable_type_t* a_type)
 {
 	zc_hashtable_t *a_table;
 
 	a_table = calloc(1, sizeof(*a_table));
-	if (!a_table) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
+	if (!a_table) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
 
 	a_table->tab = calloc(a_size, sizeof(*(a_table->tab)));
-	if (!a_table->tab) {
-		zc_error("calloc fail, errno[%d]", errno);
-		free(a_table);
-		return NULL;
-	}
+	if (!a_table->tab) { free(a_table); zc_error("calloc fail, errno[%d]", errno); return NULL; }
+
 	a_table->tab_size = a_size;
-
 	a_table->nelem = 0;
-	a_table->hash = hash;
-	a_table->equal = equal;
-
-	/* these two could be NULL */
-	a_table->key_del = key_del;
-	a_table->value_del = value_del;
+	a_table->type = a_type;
 
 	return a_table;
 }
@@ -78,11 +46,11 @@ void zc_hashtable_del(zc_hashtable_t * a_table)
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
 			q = p->next;
-			if (a_table->key_del) {
-				a_table->key_del(p->key);
+			if (a_table->type->key_del) {
+				a_table->type->key_del(p->key);
 			}
-			if (a_table->value_del) {
-				a_table->value_del(p->value);
+			if (a_table->type->value_del) {
+				a_table->type->value_del(p->value);
 			}
 			free(p);
 		}
@@ -103,11 +71,11 @@ void zc_hashtable_clean(zc_hashtable_t * a_table)
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
 			q = p->next;
-			if (a_table->key_del) {
-				a_table->key_del(p->key);
+			if (a_table->type->key_del) {
+				a_table->type->key_del(p->key);
 			}
-			if (a_table->value_del) {
-				a_table->value_del(p->value);
+			if (a_table->type->value_del) {
+				a_table->type->value_del(p->value);
 			}
 			free(p);
 		}
@@ -128,10 +96,7 @@ static int zc_hashtable_rehash(zc_hashtable_t * a_table)
 
 	tab_size = 2 * a_table->tab_size;
 	tab = calloc(tab_size, sizeof(*tab));
-	if (!tab) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return -1;
-	}
+	if (!tab) { zc_error("calloc fail, errno[%d]", errno); return -1; }
 
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
@@ -159,9 +124,9 @@ zc_hashtable_entry_t *zc_hashtable_get_entry(zc_hashtable_t * a_table, const voi
 	unsigned int i;
 	zc_hashtable_entry_t *p;
 
-	i = a_table->hash(a_key) % a_table->tab_size;
+	i = a_table->type->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal(a_key, p->key))
+		if (a_table->type->equal(a_key, p->key))
 			return p;
 	}
 
@@ -173,9 +138,9 @@ void *zc_hashtable_get(zc_hashtable_t * a_table, const void *a_key)
 	unsigned int i;
 	zc_hashtable_entry_t *p;
 
-	i = a_table->hash(a_key) % a_table->tab_size;
+	i = a_table->type->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal(a_key, p->key))
+		if (a_table->type->equal(a_key, p->key))
 			return p->value;
 	}
 
@@ -188,38 +153,28 @@ int zc_hashtable_put(zc_hashtable_t * a_table, void *a_key, void *a_value)
 	unsigned int i;
 	zc_hashtable_entry_t *p = NULL;
 
-	i = a_table->hash(a_key) % a_table->tab_size;
+	i = a_table->type->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal(a_key, p->key))
+		if (a_table->type->equal(a_key, p->key))
 			break;
 	}
 
 	if (p) {
-		if (a_table->key_del) {
-			a_table->key_del(p->key);
-		}
-		if (a_table->value_del) {
-			a_table->value_del(p->value);
-		}
+		if (a_table->type->key_del) { a_table->type->key_del(p->key); }
+		if (a_table->type->value_del) { a_table->type->value_del(p->value); }
 		p->key = a_key;
 		p->value = a_value;
 		return 0;
 	} else {
 		if (a_table->nelem > a_table->tab_size * 1.3) {
 			rc = zc_hashtable_rehash(a_table);
-			if (rc) {
-				zc_error("rehash fail");
-				return -1;
-			}
+			if (rc) { zc_error("rehash fail"); return -1; }
 		}
 
 		p = calloc(1, sizeof(*p));
-		if (!p) {
-			zc_error("calloc fail, errno[%d]", errno);
-			return -1;
-		}
+		if (!p) { zc_error("calloc fail, errno[%d]", errno); return -1; }
 
-		p->hash_key = a_table->hash(a_key);
+		p->hash_key = a_table->type->hash(a_key);
 		p->key = a_key;
 		p->value = a_value;
 		p->next = NULL;
@@ -242,23 +197,16 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, const void *a_key)
 	zc_hashtable_entry_t *p;
 	unsigned int i;
 
-	i = a_table->hash(a_key) % a_table->tab_size;
+	i = a_table->type->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
-		if (a_table->equal(a_key, p->key))
+		if (a_table->type->equal(a_key, p->key))
 			break;
 	}
 
-	if (!p) {
-		zc_error("p[%p] not found in hashtable");
-		return;
-	}
+	if (!p) { zc_error("p[%p] not found in hashtable"); return; }
 
-	if (a_table->key_del) {
-		a_table->key_del(p->key);
-	}
-	if (a_table->value_del) {
-		a_table->value_del(p->value);
-	}
+	if (a_table->type->key_del) { a_table->type->key_del(p->key); }
+	if (a_table->type->value_del) { a_table->type->value_del(p->value); }
 
 	if (p->next) {
 		p->next->prev = p->prev;
@@ -285,8 +233,7 @@ zc_hashtable_entry_t *zc_hashtable_begin(zc_hashtable_t * a_table)
 
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = p->next) {
-			if (p)
-				return p;
+			if (p) return p;
 		}
 	}
 

@@ -35,6 +35,8 @@
 
 #include <sys/types.h>
 #include <stdarg.h>
+#include <time.h>
+#include <stdint.h>
 
 typedef char *zc_sds;
 
@@ -76,6 +78,14 @@ zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...)
 zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...);
 #endif
 
+zc_sds zc_sdscatvprintf_adjust(zc_sds s, const char *fmt, va_list ap);
+#ifdef __GNUC__
+zc_sds zc_sdscatprintf_adjust(zc_sds s, const char *fmt, ...)
+    __attribute__((format(printf, 2, 3)));
+#else
+zc_sds zc_sdscatprintf_adjust(zc_sds s, const char *fmt, ...);
+#endif
+
 zc_sds zc_sdsvprintf(zc_sds s, const char *fmt, va_list ap);
 #ifdef __GNUC__
 zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...)
@@ -83,6 +93,9 @@ zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...)
 #else
 zc_sds zc_sdsprintf(zc_sds s, const char *fmt, ...);
 #endif
+
+zc_sds zc_sdscathex_adjust(zc_sds s, const char *h, size_t len, int align_left, size_t max_width, size_t min_width); 
+zc_sds zc_sdscathex(zc_sds s, const char *h, size_t len);
 
 zc_sds zc_sdstrim(zc_sds s, const char *cset);
 zc_sds zc_sdsrange(zc_sds s, int start, int end);
@@ -97,6 +110,14 @@ zc_sds zc_sdsfromlonglong(long long value);
 zc_sds zc_sdscatrepr(zc_sds s, const char *p, size_t len);
 zc_sds *zc_sdssplitargs(const char *line, const char *seps, int *argc);
 zc_sds zc_sdsmapchars(zc_sds s, const char *from, const char *to, size_t setlen);
+zc_sds zc_sdssenv(zc_sds s);
+
+zc_sds zc_sdscatlen_adjust(zc_sds s, const char *t, size_t len, int align_left, size_t max_width, size_t min_width); 
+#define zc_sdscatsds_adjust(s, t, align_left, max_width, min_width) \
+	zc_sdscatlen_adjust(s, t, zc_sdslen(t), align_left, max_width, min_width)
+
+zc_sds zc_sdsstrftime(zc_sds s, zc_sds fmt, struct tm *tm); 
+zc_sds zc_sdscatuint32(zc_sds s, uint32_t ui32, int width); 
 
 /* Low level functions exposed to the user API */
 zc_sds zc_sdsMakeRoomFor(zc_sds s, size_t addlen);

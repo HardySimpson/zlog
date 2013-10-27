@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #ifndef __zc_arraylist_h
@@ -22,29 +11,30 @@
 
 #define ARRAY_LIST_DEFAULT_SIZE 32
 
-typedef void (*zc_arraylist_del_fn) (void *data);
-typedef int (*zc_arraylist_cmp_fn) (void *data1, void *data2);
-
 /* make zc_arraylist_foreach speed up, so keep struct defination here */
 typedef struct {
 	void **array;
 	int len;
 	int size;
-	zc_arraylist_del_fn del;
+	void (*del)(void *data);
+	void *(*dup)(void *data);
+	int (*cmp)(void *data1, void *data2);
 } zc_arraylist_t;
 
-zc_arraylist_t *zc_arraylist_new(zc_arraylist_del_fn del);
+zc_arraylist_t *zc_arraylist_new(int size);
 void zc_arraylist_del(zc_arraylist_t * a_list);
+zc_arraylist_t *zc_arraylist_dup(zc_arraylist_t * a_list);
 
 int zc_arraylist_set(zc_arraylist_t * a_list, int i, void *data);
-int zc_arraylist_add(zc_arraylist_t * a_list, void *data);
-int zc_arraylist_sortadd(zc_arraylist_t * a_list, zc_arraylist_cmp_fn cmp,
-			 void *data);
+int zc_arraylist_add(zc_arraylist_t * a_list, void *data, int *idx);
+int zc_arraylist_sortadd(zc_arraylist_t * a_list, void *data);
 
 #define zc_arraylist_len(a_list)  (a_list->len)
+#define zc_arraylist_set_dup(a_list, d)  (a_list->dup = (d))
+#define zc_arraylist_set_del(a_list, d)  (a_list->del = (d))
+#define zc_arraylist_set_cmp(a_list, c)  (a_list->cmp = (c))
 
-#define zc_arraylist_get(a_list, i) \
-	 ((i >= a_list->len) ? NULL : a_list->array[i])
+#define zc_arraylist_get(a_list, i) ((i >= a_list->len) ? NULL : a_list->array[i])
 
 #define zc_arraylist_foreach(a_list, i, a_unit) \
 	for(i = 0, a_unit = a_list->array[0]; (i < a_list->len) && (a_unit = a_list->array[i], 1) ; i++)

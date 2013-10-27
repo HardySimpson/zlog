@@ -1,6 +1,5 @@
 [global]
   strict init = true
-
   default format = "%d %V [%p:%F:%L] %m%n"
   default file permission = 600
 
@@ -10,6 +9,11 @@
   buffer size = 8192 # flush zlog's buffer to write(2) kernel buffer, default BUFSIZ of stdio.h 
   fsync write = 1000 # fsync(2) kernel buffer to disc once every 1000 times of write(2) for each file
         # once every 30 second on most linux
+
+[deepness]
+# sign = permisson, buffer size, flush len, flush count, fsync count
+  + = 600, 10KB, 8KB, 20, 1000
+  - = 600, 10KB, 1KB, 1, 20
 
 [levels]
   TRACE = 10
@@ -51,5 +55,3 @@
   my_dog.=DEBUG >syslog, LOG_LOCAL0; simple
   my_dog.=DEBUG | /usr/bin/cronolog /www/logs/example_%Y%m%d.log ; normal
   my_mice.* $record_func , "record_path%c"; normal
-  
-  

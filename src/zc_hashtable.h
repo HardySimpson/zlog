@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #ifndef __zc_hashtalbe_h
@@ -32,15 +21,16 @@ typedef struct zc_hashtable_entry_s {
 
 typedef struct zc_hashtable_s zc_hashtable_t;
 
-typedef unsigned int (*zc_hashtable_hash_fn) (const void *key);
-typedef int (*zc_hashtable_equal_fn) (const void *key1, const void *key2);
-typedef void (*zc_hashtable_del_fn) (void *kv);
+typedef struct zc_hashtable_type_s {
+	unsigned int (*hash) (const void *key);
+	int (*equal) (const void *key1, const void *key2);
+	void (*key_del) (void *key);
+	void (*value_del) (void *value);
+	void *(*key_dup) (void *key);
+	void *(*value_dup) (void *value);
+} zc_hashtable_type_t;
 
-zc_hashtable_t *zc_hashtable_new(size_t a_size,
-				 zc_hashtable_hash_fn hash_fn,
-				 zc_hashtable_equal_fn equal_fn,
-				 zc_hashtable_del_fn key_del_fn,
-				 zc_hashtable_del_fn value_del_fn);
+zc_hashtable_t *zc_hashtable_new(size_t a_size, zc_hashtable_type_t *a_type);
 
 void zc_hashtable_del(zc_hashtable_t * a_table);
 void zc_hashtable_clean(zc_hashtable_t * a_table);

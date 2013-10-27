@@ -3,8 +3,11 @@
 # This file is released under the LGPL license, see the COPYING file
 
 OBJ=    \
+  zc_arraylist.o    \
+  zc_hashtable.o    \
   zc_sds.o    \
   conf.o    \
+  deepness.o    \
   level.o    \
   level_list.o    \
   event.o    \
@@ -19,8 +22,6 @@ OBJ=    \
   rule.o    \
   spec.o    \
   thread.o    \
-  zc_arraylist.o    \
-  zc_hashtable.o    \
   zc_profile.o    \
   zc_util.o    \
   zlog.o

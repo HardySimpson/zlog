@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #include <stdio.h>
@@ -66,7 +55,7 @@ void zlog_format_del(zlog_format_t * a_format)
 	return;
 }
 
-zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
+zlog_format_t *zlog_format_new(char *line, int *time_cache_count)
 {
 	zlog_format_t *a_format = NULL;
 	zc_sds *argv = NULL;
@@ -77,10 +66,7 @@ zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
 
 	zc_assert(line, NULL);
 	a_format = calloc(1, sizeof(zlog_format_t));
-	if (!a_format) {
-		zc_error("calloc fail, errno[%d]", errno);
-		return NULL;
-	}
+	if (!a_format) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
 
 	/* line         default = "%d(%F %X.%l) %-6V (%c:%F:%L) - %m%n"
 	 * name         default
@@ -90,8 +76,8 @@ zlog_format_t *zlog_format_new(char *line, int * time_cache_count)
 	if (!argv) { zc_error("Unbalanced quotes in configuration line"); goto err; }
 	if (argc != 2) { zc_error("level has 2 arguments, [%d]", argc); goto err; }
 
-	rc = zc_str_replace_env(a_format->pattern, sizeof(a_format->pattern));
-	if (rc) { zc_error("zc_str_replace_env fail"); goto err; }
+	a_format->pattern = zc_sdsreplaceenv(a_format->pattern);
+	if (a_format->pattern) { zc_error("zc_str_replace_env fail"); goto err; }
 
 	a_format->pattern_specs = zc_arraylist_new((zc_arraylist_del_fn) zlog_spec_del);
 	if (!(a_format->pattern_specs)) { zc_error("zc_arraylist_new fail"); goto err; }
@@ -118,21 +104,14 @@ err:
 }
 
 /*******************************************************************************/
-/* return 0	success, or buf is full
- * return -1	fail
- */
-int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
+int zlog_format_gen_msg(zlog_format_t * a_format, zlog_event_t * a_event, zlog_mdc_t *a_mdc, zc_sds a_buffer)
 {
 	int i, rc;
 	zlog_spec_t *a_spec;
 
-	zlog_buf_restart(a_thread->msg_buf);
-
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
-		rc = zlog_spec_gen_msg(a_spec, a_thread);
-		if (rc == 0) {
-			return -1;
-		}
+		rc = zlog_spec_gen(a_spec, a_event, a_mdc, a_buffer);
+		if (rc) { zc_error("zlog_spec_gen fail"); return -1; }
 	}
 
 	return 0;

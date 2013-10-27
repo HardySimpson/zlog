@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #ifndef __zlog_event_h
@@ -25,13 +14,9 @@ typedef enum {
 	ZLOG_HEX = 1,
 } zlog_event_cmd;
 
-typedef struct zlog_time_cache_s {
-	zc_sds str;
-	time_t sec;
-} zlog_time_cache_t;
-
 typedef struct {
 	zc_sds category_name; /* just a pointer to the real category's name */
+
 	const char *file;
 	size_t file_len;
 	const char *func;
@@ -45,13 +30,9 @@ typedef struct {
 	va_list str_args;
 	zlog_event_cmd generate_cmd;
 
-	struct timeval time_stamp;
-
-	time_t time_local_sec; 
-	struct tm time_local; /*a cache, time_local == localtime(time_local_sec); */
-
-	zlog_time_cache_t *time_caches;
-	int time_cache_count;
+	struct timeval time_now;
+	struct tm time_local; /* time_local == localtime(time_sec_cache); */
+	time_t time_local_sec_cache; 
 
 	zc_sds host_name;
 
@@ -65,7 +46,7 @@ typedef struct {
 } zlog_event_t;
 
 
-zlog_event_t *zlog_event_new(int time_cache_count);
+zlog_event_t *zlog_event_new(void);
 void zlog_event_del(zlog_event_t * a_event);
 void zlog_event_profile(zlog_event_t * a_event, int flag);
 

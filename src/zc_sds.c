@@ -33,7 +33,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
+#include <errno.h>
+
 #include "zc_sds.h"
+#include "zc_xplatform.h"
+#include "zc_profile.h"
 
 zc_sds zc_sdsnewlen(const void *init, size_t initlen) {
     struct zc_sdshdr *sh;
@@ -222,6 +226,47 @@ zc_sds zc_sdscpy(zc_sds s, const char *t) {
 }
 
 zc_sds zc_sdscatvprintf(zc_sds s, const char *fmt, va_list ap) {
+	int nwrite;
+    	va_list cpy;
+	struct zc_sdshdr *sh;
+	size_t curlen = zc_sdslen(s);
+	size_t free = zc_sdsavail(s);
+
+	va_copy(cpy, ap);
+    	sh = (void*) (s-(sizeof(struct zc_sdshdr)));
+	nwrite = vsnprintf(s + curlen, free, fmt, cpy);
+	if (nwrite > 0 && nwrite < free) {
+		sh->len += nwrite;
+		sh->free -= nwrite;
+		return s;
+	} else if (nwrite < 0) {
+                zc_error("vsnprintf fail, errno[%d]", errno);
+                zc_error("nwrite[%d], free[%ld], fmt[%s]", nwrite, free, fmt);
+                return NULL;
+	} /* else nwrite >= free, not enough space */
+
+	s = zc_sdsMakeRoomFor(s, nwrite);
+	if (!s) {
+		zc_error("zc_sdsMakeRoomFor fail, errno[%d]", errno);
+		return NULL;
+	}
+	free = zc_sdsavail(s);
+
+	va_copy(cpy, ap);
+	nwrite = vsnprintf(s + curlen, free, fmt, cpy);
+	if (nwrite < 0) {
+                zc_error("vsnprintf fail, errno[%d]", errno);
+                zc_error("nwrite[%d], free[%ld], fmt[%s]", nwrite, free, fmt);
+                return NULL;
+	} else {
+		sh->len += nwrite;
+		sh->free -= nwrite;
+		return s;
+	}
+}
+
+#if 0
+zc_sds zc_sdscatvprintf(zc_sds s, const char *fmt, va_list ap) {
     va_list cpy;
     char *buf, *t;
     size_t buflen = 16;
@@ -243,6 +288,7 @@ zc_sds zc_sdscatvprintf(zc_sds s, const char *fmt, va_list ap) {
     free(buf);
     return t;
 }
+#endif
 
 zc_sds zc_sdscatprintf(zc_sds s, const char *fmt, ...) {
     va_list ap;
@@ -475,20 +521,23 @@ int hex_digit_to_int(char c) {
 /* Split a line into arguments, where every argument can be in the
  * following programming-language REPL-alike form:
  *
- * foo bar "newline are supported\n" and "\xff\x00otherstuff"
+ * foo = bar, "newline are supported\n" xx ; "\xff\x00otherstuff"
+ *
+ * when *seps is "=,;"
  *
  * The number of arguments is stored into *argc, and an array
  * of zc_sds is returned.
  *
- * char in *seps* or space is seperator, so
- *
- * "foo, bar" will be split to  [foo] [bar]
+ * The line will be split to
+ * [ foo] [=bar] [,newline are supported] [ xx] [;\xff\x00therstuff]
+ * The 1st char of each token is always the seperator char,
+ * From 2nd char is the token string
  *
  * The caller should free the resulting array of zc_sds strings with
  * zc_sdsfreesplitres().
  *
- * Note that zc_sdscatrepr() is able to convert back a string into
- * a quoted string in the same format zc_sdssplitargs() is able to parse.
+ * -- Note that zc_sdscatrepr() is able to convert back a string into
+ * -- a quoted string in the same format zc_sdssplitargs() is able to parse.
  *
  * The function returns the allocated tokens on success, even when the
  * input string is empty, or NULL if the input contains unbalanced
@@ -503,14 +552,25 @@ zc_sds *zc_sdssplitargs(const char *line, const char *seps, int *argc) {
     *argc = 0;
     while(1) {
         /* skip blanks */
-        while(*p && (isspace(*p) || strchr(seps, *p))) p++;
+        while(*p && isspace(*p)) p++;
+
         if (*p) {
-            /* get a token */
             int inq=0;  /* set to 1 if we are in "quotes" */
             int insq=0; /* set to 1 if we are in 'single quotes' */
             int done=0;
 
             if (current == NULL) current = zc_sdsempty();
+
+	    /* set sep to the 1st char */
+            if (strchr(seps, *p)) {
+                current = zc_sdscatlen(current, p, 1);
+                p++;
+                while(*p && isspace(*p)) p++;
+            } else {
+                current = zc_sdscatlen(current, " ", 1);
+            }
+
+            /* get a token */
             while(!done) {
                 if (inq) {
                     if (*p == '\\' && *(p+1) == 'x' &&
@@ -537,9 +597,6 @@ zc_sds *zc_sdssplitargs(const char *line, const char *seps, int *argc) {
                         }
                         current = zc_sdscatlen(current,&c,1);
                     } else if (*p == '"') {
-                        /* closing quote must be followed by a space or
-                         * nothing at all. */
-                        if (*(p+1) && !isspace(*(p+1))) goto err;
                         done=1;
                     } else if (!*p) {
                         /* unterminated quotes */
@@ -552,9 +609,6 @@ zc_sds *zc_sdssplitargs(const char *line, const char *seps, int *argc) {
                         p++;
                         current = zc_sdscatlen(current,"'",1);
                     } else if (*p == '\'') {
-                        /* closing quote must be followed by a space or
-                         * nothing at all. */
-                        if (*(p+1) && !isspace(*(p+1))) goto err;
                         done=1;
                     } else if (!*p) {
                         /* unterminated quotes */
@@ -563,23 +617,14 @@ zc_sds *zc_sdssplitargs(const char *line, const char *seps, int *argc) {
                         current = zc_sdscatlen(current,p,1);
                     }
                 } else {
-                    switch(*p) {
-                    case ' ':
-                    case '\n':
-                    case '\r':
-                    case '\t':
-                    case '\0':
+                    if (strchr(seps, *p) || isspace(*p) || *p == '\0') {
                         done=1;
-                        break;
-                    case '"':
+                    } else if (*p == '"') {
                         inq=1;
-                        break;
-                    case '\'':
+                    } else if (*p == '\'') {
                         insq=1;
-                        break;
-                    default:
+                    } else {
                         current = zc_sdscatlen(current,p,1);
-                        break;
                     }
                 }
                 if (*p) p++;
@@ -626,6 +671,63 @@ zc_sds zc_sdsmapchars(zc_sds s, const char *from, const char *to, size_t setlen)
         }
     }
     return s;
+}
+
+/*
+ * replace enviroment variable to its value, with printf format
+ * input [xxx%12.3E(HOME)yyy]
+ * output [xxx  /home/useryyy]
+ * The function returns the replaced string on success,
+ * or NULL if the input contains unbalanced quotes like %E(
+ */
+zc_sds zc_sdsreplaceenv(zc_sds s) {
+    char *p, *q = s, *r;
+    zc_sds m = zc_sdsempty();
+    zc_sds fmt = NULL;
+    zc_sds key = NULL;
+
+    while(1) {
+        for(p = q; *p && *p != '%'; p++);
+
+        m = zc_sdscatlen(m, q, p-q);
+        if (*p == '\0') { return m; } 
+	/* else p -> [%...] */
+
+        p++;
+        for(r = p; *r && (isdigit(*r) || *r == '.' || *r == '-'); r++);
+        if (STRNCMP(r, !=, "E(", 2)) {
+            /* not the %12.2E() pattern look for */
+            m = zc_sdscatlen(m, q, r-q);
+            q = r;
+            continue;
+        } /* else r -> [E(HOME)] */
+
+        /* set fmt to printf format string like [%-12.2s] */
+        fmt = zc_sdsnew("%");
+        fmt = zc_sdscatlen(fmt, p, r - p);
+        fmt = zc_sdscatlen(fmt, "s", 1);
+        p = r + 2;
+
+        /* p -> HOME */
+        for (r = p; *r && *r != ')'; r++);
+        if (*r != ')') {
+            /* can not find match  */
+            goto err;
+        } else {
+            key = zc_sdsnewlen(p, r-p);
+            q = r;
+        }
+
+        m = zc_sdscatprintf(m, fmt, getenv(key));
+        zc_sdsfree(fmt); fmt = NULL;
+        zc_sdsfree(key); key = NULL;
+    }
+
+err:
+   if (fmt) zc_sdsfree(fmt);
+   if (key) zc_sdsfree(fmt);
+   if (m) zc_sdsfree(m);
+   return NULL;
 }
 
 #ifdef SDS_TEST_MAIN

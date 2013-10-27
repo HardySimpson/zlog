@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #include "fmacros.h"
@@ -56,24 +45,16 @@ void zlog_event_del(zlog_event_t * a_event)
 {
 	int i;
 	zc_assert(a_event,);
-	if (a_event->time_caches) { 
-		for (i = 0; i < a_event->time_cache_count; i++) {
-			if (a_event->time_caches[i].str) zc_sdsfree(a_event->time_caches[i].str);
-		}
-		free(a_event->time_caches);
-	}
-
 	if (a_event->host_name) zc_sdsfree(a_event->host_name);
 	if (a_event->pid_str) zc_sdsfree(a_event->pid_str);
 	if (a_event->tid_str) zc_sdsfree(a_event->tid_str);
 	if (a_event->tid_hex_str) zc_sdsfree(a_event->tid_hex_str);
-	
 	free(a_event);
 	zc_debug("zlog_event_del[%p]", a_event);
 	return;
 }
 
-zlog_event_t *zlog_event_new(int time_cache_count)
+zlog_event_t *zlog_event_new(void)
 {
 	int i;
 	zlog_event_t *a_event;

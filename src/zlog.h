@@ -3,18 +3,7 @@
  *
  * Copyright (C) 2011 by Hardy Simpson <HardySimpson1984@gmail.com>
  *
- * The zlog Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The zlog Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the zlog Library. If not, see <http://www.gnu.org/licenses/>.
+ * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
 #ifndef __zlog_h
@@ -60,22 +49,6 @@ void vzlog(zlog_category_t * category,
 	const char *format, va_list args);
 void hzlog(zlog_category_t * category,
 	const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const void *buf, size_t buflen);
-
-int dzlog_init(const char *confpath, const char *cname);
-int dzlog_set_category(const char *cname);
-
-void dzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, ...) ZLOG_CHECK_PRINTF(7,8);
-void vdzlog(const char *file, size_t filelen,
-	const char *func, size_t funclen,
-	long line, int level,
-	const char *format, va_list args);
-void hdzlog(const char *file, size_t filelen,
 	const char *func, size_t funclen,
 	long line, int level,
 	const void *buf, size_t buflen);
@@ -128,25 +101,6 @@ typedef enum {
 #define zlog_debug(cat, ...) \
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_DEBUG, __VA_ARGS__)
-/* dzlog macros */
-#define dzlog_fatal(...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_FATAL, __VA_ARGS__)
-#define dzlog_error(...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_ERROR, __VA_ARGS__)
-#define dzlog_warn(...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_WARN, __VA_ARGS__)
-#define dzlog_notice(...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_NOTICE, __VA_ARGS__)
-#define dzlog_info(...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_INFO, __VA_ARGS__)
-#define dzlog_debug(...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_DEBUG, __VA_ARGS__)
 #elif defined __GNUC__
 /* zlog macros */
 #define zlog_fatal(cat, format, args...) \
@@ -166,25 +120,6 @@ typedef enum {
 	ZLOG_LEVEL_INFO, format, ##args)
 #define zlog_debug(cat, format, args...) \
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_DEBUG, format, ##args)
-/* dzlog macros */
-#define dzlog_fatal(format, args...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_FATAL, format, ##args)
-#define dzlog_error(format, args...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_ERROR, format, ##args)
-#define dzlog_warn(format, args...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_WARN, format, ##args)
-#define dzlog_notice(format, args...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_NOTICE, format, ##args)
-#define dzlog_info(format, args...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_INFO, format, ##args)
-#define dzlog_debug(format, args...) \
-	dzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_DEBUG, format, ##args)
 #endif
 
@@ -226,47 +161,6 @@ typedef enum {
 	ZLOG_LEVEL_INFO, buf, buf_len)
 #define hzlog_debug(cat, buf, buf_len) \
 	hzlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_DEBUG, buf, buf_len)
-
-
-/* vdzlog macros */
-#define vdzlog_fatal(format, args) \
-	vdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_FATAL, format, args)
-#define vdzlog_error(format, args) \
-	vdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_ERROR, format, args)
-#define vdzlog_warn(format, args) \
-	vdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_WARN, format, args)
-#define vdzlog_notice(format, args) \
-	vdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_NOTICE, format, args)
-#define vdzlog_info(format, args) \
-	vdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_INFO, format, args)
-#define vdzlog_debug(format, args) \
-	vdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_DEBUG, format, args)
-
-/* hdzlog macros */
-#define hdzlog_fatal(buf, buf_len) \
-	hdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_FATAL, buf, buf_len)
-#define hdzlog_error(buf, buf_len) \
-	hdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_ERROR, buf, buf_len)
-#define hdzlog_warn(buf, buf_len) \
-	hdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_WARN, buf, buf_len)
-#define hdzlog_notice(buf, buf_len) \
-	hdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_NOTICE, buf, buf_len)
-#define hdzlog_info(buf, buf_len) \
-	hdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_INFO, buf, buf_len)
-#define hdzlog_debug(buf, buf_len) \
-	hdzlog(__FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_DEBUG, buf, buf_len)
 
 #ifdef __cplusplus
