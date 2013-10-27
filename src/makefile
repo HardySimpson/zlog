@@ -146,7 +146,7 @@ dep:
 	$(CC) -MM *.c
 
 # Installation related variables and target
-PREFIX?=/usr/local
+PREFIX?=$(DESTDIR)/usr/local
 INCLUDE_PATH?=include
 LIBRARY_PATH?=lib
 INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
