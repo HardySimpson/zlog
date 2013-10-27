@@ -15,6 +15,7 @@ $ cd zlog-latest-stable/
 $ make 
 $ sudo make install
 or
+$ make PREFIX=/usr/local/
 $ sudo make PREFIX=/usr/local/ install
 
 PREFIX指明了安装的路径，安转完之后为了让你的程序能找到zlog动态库

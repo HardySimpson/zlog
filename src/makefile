@@ -27,7 +27,7 @@ BINS=zlog-chk-conf
 LIBNAME=libzlog
 
 ZLOG_MAJOR=1
-ZLOG_MINOR=1
+ZLOG_MINOR=2
 
 # Fallback to gcc when $CC is not in $PATH.
 CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
@@ -46,6 +46,13 @@ DYLIB_MAKE_CMD=$(CC) -shared -Wl,-soname,$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(L
 STLIBNAME=$(LIBNAME).$(STLIBSUFFIX)
 STLIB_MAKE_CMD=ar rcs $(STLIBNAME)
 
+# Installation related variables
+PREFIX?=/usr/local
+INCLUDE_PATH?=include
+LIBRARY_PATH?=lib
+INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
+INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
+
 # Platform-specific overrides
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
 ifeq ($(uname_S),SunOS)
@@ -55,9 +62,9 @@ ifeq ($(uname_S),SunOS)
 endif
 ifeq ($(uname_S),Darwin)
   DYLIBSUFFIX=dylib
-  DYLIB_MINOR_NAME=$(LIBNAME).$(HIREDIS_MAJOR).$(HIREDIS_MINOR).$(DYLIBSUFFIX)
-  DYLIB_MAJOR_NAME=$(LIBNAME).$(HIREDIS_MAJOR).$(DYLIBSUFFIX)
-  DYLIB_MAKE_CMD=$(CC) -shared -Wl,-install_name,$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
+  DYLIB_MINOR_NAME=$(LIBNAME).$(ZLOG_MAJOR).$(ZLOG_MINOR).$(DYLIBSUFFIX)
+  DYLIB_MAJOR_NAME=$(LIBNAME).$(ZLOG_MAJOR).$(DYLIBSUFFIX)
+  DYLIB_MAKE_CMD=$(CC) -dynamiclib -install_name $(INSTALL_LIBRARY_PATH)/$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
 endif
 
 ifeq ($(uname_S),AIX)
@@ -145,13 +152,7 @@ clean:
 dep:
 	$(CC) -MM *.c
 
-# Installation related variables and target
-PREFIX?=/usr/local
-INCLUDE_PATH?=include
-LIBRARY_PATH?=lib
-INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
-INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
-
+# Installation target
 ifeq ($(uname_S),SunOS)
   INSTALL?= cp -r
 endif
