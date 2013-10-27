@@ -152,7 +152,7 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 	if (a_conf->file) {
 		/* configure file as default lock file, overwrite backup */
 		zc_sdscpy(a_conf->rotate_lock_file , a_conf->file);
-		if (!a_conf->rotate_lock_file) { zc_error("zc_sdsdup fail, errno[%d]", errno); goto err; }
+		if (!a_conf->rotate_lock_file) { zc_error("zc_sdscpy fail, errno[%d]", errno); goto err; }
 
 		rc = zlog_conf_build_with_file(a_conf);
 		if (rc) { zc_error("zlog_conf_build_with_file fail"); goto err; }
@@ -308,7 +308,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 			*section = 2;
 		} else if (STRICMP(line, ==, "formats")) {
 			*section = 3;
-		} else if (STRICMP(line, ==, "rules")) {
+		} else if (strchr(line, '.') != NULL) {
 			*section = 4;
 		} else {
 			zc_error("wrong section name[%s]", line);
@@ -316,12 +316,12 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 		}
 
 		/* check the sequence of section, must increase */
-		if (last_section >= *section) {
+		if (last_section > *section) {
 			zc_error("wrong sequence of section, must follow global->levels->formats->rules");
 			goto err;
 		}
 
-		if (*section == 4) {
+		if (*section == 4 && last_section == 3) {
 			/* now build rotater and default_format when setcion 4 [rules] starts
 			 * from the unchanging global setting,
 			 * for zlog_rule_new() */
