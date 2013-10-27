@@ -18,6 +18,7 @@
 [x] 和rsyslog对接的问题
 [x] 增加trace级别
 [o] 兼容性问题 zlog.h内
+[x] linux fsync->fdatasync, open.. no need, as file size is always modified.
 --- 1.2.8 ---
 [o] gcc __attribute__宏，用于检查zlog的format输出格式
 [o] 支持配置文件行中带#注释

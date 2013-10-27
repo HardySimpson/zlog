@@ -152,7 +152,11 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 
 	if (a_conf->file) {
 		/* configure file as default lock file, overwrite backup */
+<<<<<<< HEAD
 		zc_sdscpy(a_conf->rotate_lock_file , a_conf->file);
+=======
+		a_conf->rotate_lock_file = zc_sdscpy(a_conf->rotate_lock_file , a_conf->file);
+>>>>>>> 44022afa2ccce28fc39ef6cce08bcd5fbf2ba331
 		if (!a_conf->rotate_lock_file) { zc_error("zc_sdscpy fail, errno[%d]", errno); goto err; }
 
 		rc = zlog_conf_build_with_file(a_conf);
@@ -327,6 +331,11 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, zc_sds line, int *section)
 		}
 
 		if (*section == 4 && last_section == 3) {
+			zc_error("wrong sequence of section, must follow global->deepness->levels->formats->rules");
+			goto err;
+		}
+
+		if (*section == 5) {
 			/* now build rotater and default_format when setcion 4 [rules] starts
 			 * from the unchanging global setting,
 			 * for zlog_rule_new() */
