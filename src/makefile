@@ -27,7 +27,8 @@ BINS=zlog-chk-conf
 LIBNAME=libzlog
 
 ZLOG_MAJOR=1
-ZLOG_MINOR=1
+ZLOG_MINOR=2
+ZLOG_REVISION=12
 
 # Fallback to gcc when $CC is not in $PATH.
 CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
@@ -45,6 +46,7 @@ DYLIBNAME=$(LIBNAME).$(DYLIBSUFFIX)
 DYLIB_MAKE_CMD=$(CC) -shared -Wl,-soname,$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
 STLIBNAME=$(LIBNAME).$(STLIBSUFFIX)
 STLIB_MAKE_CMD=ar rcs $(STLIBNAME)
+PKG_CONFIG_VERSION=$(ZLOG_MAJOR).$(ZLOG_MINOR).$(ZLOG_REVISION)
 
 # Platform-specific overrides
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
@@ -151,6 +153,7 @@ INCLUDE_PATH?=include
 LIBRARY_PATH?=lib
 INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
 INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
+MK_PKG_CONFIG=../tools/mk_pkgconfig.sh
 
 ifeq ($(uname_S),SunOS)
   INSTALL?= cp -r
@@ -170,6 +173,7 @@ install: $(DYLIBNAME) $(STLIBNAME)
 	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_MINOR_NAME) $(DYLIB_MAJOR_NAME)
 	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_MAJOR_NAME) $(DYLIBNAME)
 	$(INSTALL) $(STLIBNAME) $(INSTALL_LIBRARY_PATH)
+	$(MK_PKG_CONFIG) $(PREFIX) $(LIBRARY_PATH) $(PKG_CONFIG_VERSION)
 
 32bit:
 	@echo ""
