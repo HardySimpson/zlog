@@ -64,6 +64,11 @@ void zc_hashtable_del(zc_hashtable_t * a_table)
 	zc_hashtable_entry_t *p;
 	zc_hashtable_entry_t *q;
 
+	if (!a_table) {
+		zc_error("a_table[%p] is NULL, just do nothing", a_table);
+		return;
+	}
+
 	for (i = 0; i < a_table->tab_size; i++) {
 		for (p = (a_table->tab)[i]; p; p = q) {
 			q = p->next;
@@ -231,6 +236,11 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, const void *a_key)
 	zc_hashtable_entry_t *p;
 	unsigned int i;
 
+        if (!a_table || !a_key) {
+		zc_error("a_table[%p] or a_key[%p] is NULL, just do nothing", a_table, a_key);
+		return;
+        }
+
 	i = a_table->hash(a_key) % a_table->tab_size;
 	for (p = (a_table->tab)[i]; p; p = p->next) {
 		if (a_table->equal(a_key, p->key))
@@ -238,7 +248,7 @@ void zc_hashtable_remove(zc_hashtable_t * a_table, const void *a_key)
 	}
 
 	if (!p) {
-		zc_error("p[%p] not found in hashtable");
+		zc_error("p[%p] not found in hashtable", p);
 		return;
 	}
 
@@ -318,4 +328,3 @@ int zc_hashtable_str_equal(const void *key1, const void *key2)
 {
 	return (STRCMP((const char *)key1, ==, (const char *)key2));
 }
-

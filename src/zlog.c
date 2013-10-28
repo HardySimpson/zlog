@@ -1012,6 +1012,8 @@ void zlog_file_rotate(void)
 	zlog_rule_t *a_rule;
     zlog_thread_t *a_thread;
     
+    zc_debug("------zlog_file_rotate begin------ ");
+    
     pthread_rwlock_rdlock(&zlog_env_lock);
 
 	if (!zlog_env_is_init) {
@@ -1023,12 +1025,18 @@ void zlog_file_rotate(void)
 
 	/* get match rules from all rules */
 	zc_arraylist_foreach(zlog_env_conf->rules, i, a_rule) {
+        
         if (a_rule->rotate != NULL) {
+            zc_debug("------zlog_file_rotate rotate rules %d------ ", i);
             a_rule->rotate(a_rule, a_thread);
+        } else {
+            zc_debug("------zlog_file_rotate not rotate rules %d------ ", i);
         }
 	}
     
 exit:
 	pthread_rwlock_unlock(&zlog_env_lock);
+    
+    zc_debug("------zlog_file_rotate end------ ");
 	return;
 }

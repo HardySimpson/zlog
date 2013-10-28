@@ -257,7 +257,7 @@ target "http://hardysimpson.github.com/zlog/"
 下载：
 \begin_inset CommandInset href
 LatexCommand href
-target "https://code.google.com/p/hardysimpson-zlog/downloads/list"
+target "https://github.com/HardySimpson/zlog/releases"
 
 \end_inset
 
