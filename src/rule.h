@@ -64,6 +64,7 @@ struct zlog_rule_s {
 
 	zlog_format_t *format;
 	zlog_rule_output_fn output;
+    zlog_rule_output_fn rotate;
 
 	char record_name[MAXLEN_PATH + 1];
 	char record_path[MAXLEN_PATH + 1];

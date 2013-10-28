@@ -568,6 +568,25 @@ err:
 	return -1;
 }
 
+static int zlog_rule_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
+{
+    if (a_rule != NULL) {
+        zc_debug("rotate %s category", a_rule->category);
+        if (zlog_rotater_rotate(zlog_env_conf->rotater, 
+            a_rule->file_path, 0,
+            zlog_rule_gen_archive_path(a_rule, a_thread),
+            0, a_rule->archive_max_count)
+            ) {
+            zc_error("zlog_rotater_rotate fail");
+            return -1;
+        } /* success or no rotation do nothing */
+    } else {
+        zc_error("zlog_rotater_rotate fail null pointer");
+        return -1;
+    }
+    return 0;
+}
+
 zlog_rule_t *zlog_rule_new(char *line,
 		zc_arraylist_t *levels,
 		zlog_format_t * default_format,
@@ -605,6 +624,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		zc_error("calloc fail, errno[%d]", errno);
 		return NULL;
 	}
+    a_rule->rotate = NULL;
 
 	a_rule->file_perms = file_perms;
 	a_rule->fsync_period = fsync_period;
@@ -811,6 +831,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 				a_rule->output = zlog_rule_output_dynamic_file_single;
 			} else {
 				a_rule->output = zlog_rule_output_dynamic_file_rotate;
+                a_rule->rotate = zlog_rule_rotate;
+                zc_debug("saved rotate function for %s category", category);
 			}
 		} else {
 			struct stat stb;
@@ -820,6 +842,8 @@ zlog_rule_t *zlog_rule_new(char *line,
 			} else {
 				/* as rotate, so need to reopen everytime */
 				a_rule->output = zlog_rule_output_static_file_rotate;
+                a_rule->rotate = zlog_rule_rotate;
+                zc_debug("saved rotate function for %s category", category);
 			}
 
 			a_rule->static_fd = open(a_rule->file_path,

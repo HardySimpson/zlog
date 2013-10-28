@@ -30,7 +30,6 @@ ZLOG_MAJOR=1
 ZLOG_MINOR=2
 
 # Fallback to gcc when $CC is not in $PATH.
-CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
 OPTIMIZATION?=-O2
 WARNINGS=-Wall -Werror -Wstrict-prototypes -fwrapv
 DEBUG?= -g -ggdb

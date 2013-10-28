@@ -1004,3 +1004,39 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 	}
 	return rc;
 }
+
+/*******************************************************************************/
+void zlog_file_rotate(void)
+{
+    int i;
+	zlog_rule_t *a_rule;
+    zlog_thread_t *a_thread;
+    
+    zc_debug("------zlog_file_rotate begin------ ");
+    
+    pthread_rwlock_rdlock(&zlog_env_lock);
+
+	if (!zlog_env_is_init) {
+		zc_error("never call zlog_init() or dzlog_init() before");
+		goto exit;
+	}
+    
+    zlog_fetch_thread(a_thread, exit);
+
+	/* get match rules from all rules */
+	zc_arraylist_foreach(zlog_env_conf->rules, i, a_rule) {
+        
+        if (a_rule->rotate != NULL) {
+            zc_debug("------zlog_file_rotate rotate rules %d------ ", i);
+            a_rule->rotate(a_rule, a_thread);
+        } else {
+            zc_debug("------zlog_file_rotate not rotate rules %d------ ", i);
+        }
+	}
+    
+exit:
+	pthread_rwlock_unlock(&zlog_env_lock);
+    
+    zc_debug("------zlog_file_rotate end------ ");
+	return;
+}
