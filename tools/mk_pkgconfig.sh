@@ -3,15 +3,16 @@
 
 if [ "$1" = "" ] || [ "$2" = "" ] || [ "$3" = "" ]
 then
-    echo "Usage: $0 <PREFIX> <LIBRARY_PATH> <VERSION>"
+    echo "Usage: $0 <DESTDIR> <PREFIX> <LIBRARY_PATH> <VERSION>"
     echo "Example: $0 /usr/local/ lib 1.2.12"
     exit 1
 fi
 
-PREFIX="$1"
-LIBRARY_PATH="$2"
-VERSION="$3"
-TARGET_DIR="${PREFIX}/${LIBRARY_PATH}/pkgconfig"
+DESTDIR="$1"
+PREFIX="$2"
+LIBRARY_PATH="$3"
+VERSION="$4"
+TARGET_DIR="${DESTDIR}${PREFIX}/${LIBRARY_PATH}/pkgconfig"
 TARGET="${TARGET_DIR}/zlog.pc"
 
 mkdir -p ${TARGET_DIR}
