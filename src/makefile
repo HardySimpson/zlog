@@ -153,6 +153,7 @@ dep:
 	$(CC) -MM *.c
 
 # Installation target
+
 ifeq ($(uname_S),SunOS)
   INSTALL?= cp -r
 endif

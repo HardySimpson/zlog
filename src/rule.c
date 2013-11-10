@@ -483,24 +483,25 @@ static int syslog_facility_atoi(char *facility)
 	 */
 	zc_assert(facility, -187);
 
-	if (STRICMP(facility, ==, "LOG_LOCAL0"))
-		return LOG_LOCAL0;
-	if (STRICMP(facility, ==, "LOG_LOCAL1"))
-		return LOG_LOCAL1;
-	if (STRICMP(facility, ==, "LOG_LOCAL2"))
-		return LOG_LOCAL2;
-	if (STRICMP(facility, ==, "LOG_LOCAL3"))
-		return LOG_LOCAL3;
-	if (STRICMP(facility, ==, "LOG_LOCAL4"))
-		return LOG_LOCAL4;
-	if (STRICMP(facility, ==, "LOG_LOCAL5"))
-		return LOG_LOCAL5;
-	if (STRICMP(facility, ==, "LOG_LOCAL6"))
-		return LOG_LOCAL6;
-	if (STRICMP(facility, ==, "LOG_LOCAL7"))
-		return LOG_LOCAL7;
-	if (STRICMP(facility, ==, "LOG_USER"))
-		return LOG_USER;
+	if (STRICMP(facility, ==, "LOG_LOCAL0")) return LOG_LOCAL0;
+	if (STRICMP(facility, ==, "LOG_LOCAL1")) return LOG_LOCAL1;
+	if (STRICMP(facility, ==, "LOG_LOCAL2")) return LOG_LOCAL2;
+	if (STRICMP(facility, ==, "LOG_LOCAL3")) return LOG_LOCAL3;
+	if (STRICMP(facility, ==, "LOG_LOCAL4")) return LOG_LOCAL4;
+	if (STRICMP(facility, ==, "LOG_LOCAL5")) return LOG_LOCAL5;
+	if (STRICMP(facility, ==, "LOG_LOCAL6")) return LOG_LOCAL6;
+	if (STRICMP(facility, ==, "LOG_LOCAL7")) return LOG_LOCAL7;
+	if (STRICMP(facility, ==, "LOG_USER")) return LOG_USER;
+	if (STRICMP(facility, ==, "LOG_AUTHPRIV")) return LOG_AUTHPRIV;
+	if (STRICMP(facility, ==, "LOG_CRON")) return LOG_CRON;
+	if (STRICMP(facility, ==, "LOG_DAEMON")) return LOG_DAEMON;
+	if (STRICMP(facility, ==, "LOG_FTP")) return LOG_FTP;
+	if (STRICMP(facility, ==, "LOG_KERN")) return LOG_KERN;
+	if (STRICMP(facility, ==, "LOG_LPR")) return LOG_LPR;
+	if (STRICMP(facility, ==, "LOG_MAIL")) return LOG_MAIL;
+	if (STRICMP(facility, ==, "LOG_NEWS")) return LOG_NEWS;
+	if (STRICMP(facility, ==, "LOG_SYSLOG")) return LOG_SYSLOG;
+		return LOG_AUTHPRIV;
 
 	zc_error("wrong syslog facility[%s], must in LOG_LOCAL[0-7] or LOG_USER", facility);
 	return -187;
