@@ -1,5 +1,6 @@
 exe = 		\
 	test_tmp	\
+	test_longlog	\
 	test_buf	\
 	test_bitmap	\
 	test_conf	\
