@@ -43,7 +43,7 @@ Formats describe log patterns, such as: with or without time stamp, source file,
 Rules consist of category, level, output file (or other channel) and format. In brief, if the category string in a rule in the configuration file equals the name of a category variable in the source, then they match. Still there is complex match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger output at the level of debug, when father logger output at the level of error)
 
 Now create a configuration file. The function zlog_init takes the files path as its only argument.
-	$ cat /etc/zlog.conf
+    $ cat /etc/zlog.conf
 
     [formats]
     simple = "%m%n"
@@ -89,7 +89,7 @@ In the configuration file log messages in the category "my_cat" and a level of D
 
 4. Complie, and run it!s
 -------------
-    $ cc -c -o test_hello.o test_hello.c -        I/usr/local/include
+    $ cc -c -o test_hello.o test_hello.c -I/usr/local/include
     $ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog -lpthread
     $ ./test_hello
     hello, zlog
@@ -109,14 +109,11 @@ In the configuration file log messages in the category "my_cat" and a level of D
  *  self debuggable, can output zlog's self debug&error log at runtime
  *  No external dependencies, just based on a POSIX system and a C99 compliant vsnprintf.
 
-
 6.Links:
 -------------
-
  * Homepage: http://hardysimpson.github.com/zlog
  * Downloads: https://github.com/HardySimpson/zlog/releases
  * Author's Email: HardySimpson1984@gmail.com
-
  * auto tools version: https://github.com/bmanojlovic/zlog
  * cmake verion: https://github.com/lisongmin/zlog
  * windows version: https://github.com/lopsd07/WinZlog
