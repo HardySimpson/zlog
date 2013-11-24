@@ -113,12 +113,12 @@ In the configuration file log messages in the category "my_cat" and a level of D
 6.Links:
 -------------
 
-Homepage: http://hardysimpson.github.com/zlog
-Downloads: https://github.com/HardySimpson/zlog/releases
-Author's Email: HardySimpson1984@gmail.com
+ * Homepage: http://hardysimpson.github.com/zlog
+ * Downloads: https://github.com/HardySimpson/zlog/releases
+ * Author's Email: HardySimpson1984@gmail.com
 
-auto tools version: https://github.com/bmanojlovic/zlog
-cmake verion: https://github.com/lisongmin/zlog
-windows version: https://github.com/lopsd07/WinZlog# 开源中国社区
+ * auto tools version: https://github.com/bmanojlovic/zlog
+ * cmake verion: https://github.com/lisongmin/zlog
+ * windows version: https://github.com/lopsd07/WinZlog
 
 
