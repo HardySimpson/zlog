@@ -11,6 +11,12 @@
 
 #include "zc_defs.h"
 
+#ifdef _MSC_VER
+#ifndef PATH_MAX
+#define PATH_MAX 255
+#endif
+#endif
+
 typedef struct zlog_level_s {
 	int int_level;
 	char str_uppercase[MAXLEN_PATH + 1];

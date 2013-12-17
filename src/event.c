@@ -15,10 +15,21 @@
 
 #include <pthread.h>
 #include <unistd.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif 
 
 #include "zc_defs.h"
 #include "event.h"
+
+static long tidname(zlog_event_t *p) {
+#ifdef _MSC_VER
+  return((long)(p->tid.p));
+#else
+  return((long)p->tid);
+#endif
+}
+
 
 void zlog_event_profile(zlog_event_t * a_event, int flag)
 {
@@ -31,7 +42,7 @@ void zlog_event_profile(zlog_event_t * a_event, int flag)
 			a_event->line, a_event->level,
 			a_event->hex_buf, a_event->str_format,	
 			a_event->time_stamp.tv_sec, a_event->time_stamp.tv_usec,
-			(long)a_event->pid, (long)a_event->tid,
+			(long)a_event->pid, tidname(a_event),
 			a_event->time_cache_count);
 	return;
 }
@@ -69,7 +80,11 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 	 * u don't always change your hostname, eh?
 	 */
 	if (gethostname(a_event->host_name, sizeof(a_event->host_name) - 1)) {
+#ifdef _MSC_VER
+		zc_error("gethostname fail, errno[%d]", WSAGetLastError());
+#else
 		zc_error("gethostname fail, errno[%d]", errno);
+#endif
 		goto err;
 	}
 
@@ -81,8 +96,8 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 	 */
 	a_event->tid = pthread_self();
 
-	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
-	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "0x%x", (unsigned int)a_event->tid);
+	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)tidname(a_event));
+	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "0x%x", (unsigned int)tidname(a_event));
 
 	//zlog_event_profile(a_event, ZC_DEBUG);
 	return a_event;
@@ -112,7 +127,11 @@ void zlog_event_set_fmt(zlog_event_t * a_event,
 
 	a_event->generate_cmd = ZLOG_FMT;
 	a_event->str_format = str_format;
+#ifdef _MSC_VER
+	a_event->str_args = str_args;
+#else
 	va_copy(a_event->str_args, str_args);
+#endif
 
 	/* pid should fetch eveytime, as no one knows,
 	 * when does user fork his process

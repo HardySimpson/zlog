@@ -2,9 +2,9 @@
 
 zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C logging library.
 
-  Actually, in the C world there was NO good logging library for applications like logback in java or log4cxx in c++. Using printf can work, but can not be redirected or reformatted easily. syslog is slow and is designed for system use. 
-  So I wrote zlog. 
-  It is faster, safer and more powerful than log4c. So it can be widely used. 
+  Actually, in the C world there was NO good logging library for applications like logback in java or log4cxx in c++. Using printf can work, but can not be redirected or reformatted easily. syslog is slow and is designed for system use.
+  So I wrote zlog.
+  It is faster, safer and more powerful than log4c. So it can be widely used.
 
 1. Install
 
@@ -12,12 +12,12 @@ Downloads: https://github.com/HardySimpson/zlog/releases
 
 $ tar -zxvf zlog-latest-stable.tar.gz
 $ cd zlog-latest-stable/
-$ make 
+$ make
 $ sudo make install
 or
 $ sudo make PREFIX=/usr/local/ install
 
-PREFIX indicates the installation destination for zlog. After installation, refresh your dynamic linker to make sure your program can find zlog library.  
+PREFIX indicates the installation destination for zlog. After installation, refresh your dynamic linker to make sure your program can find zlog library.
 
 $ sudo vi /etc/ld.so.conf
 /usr/local/lib
@@ -25,6 +25,10 @@ $ sudo ldconfig
 
 Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find it. The command metioned above are for linux. Other systems will need a similar set of actions.
 
+On Windows, you need to download the following dependencies:
+pthread 2.9.1: https://sourceware.org/pthreads-win32/
+unixem 1.9.1: http://synesis.com.au/software/unixem.html
+syslog win32: https://github.com/fbzhong/syslog-win32
 
 2. Introduce configure file
 
@@ -51,7 +55,7 @@ my_cat.DEBUG            "/var/log/aa.log", 1M; simple
 3. Using zlog API in C source file
 $ vi test_hello.c
 
-#include <stdio.h> 
+#include <stdio.h>
 
 #include "zlog.h"
 
@@ -78,7 +82,7 @@ int main(int argc, char** argv)
 	zlog_fini();
 
 	return 0;
-} 
+}
 
 4. Complie, and run it!s
 
