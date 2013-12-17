@@ -15,7 +15,9 @@
 #include <stdarg.h>
 #include <time.h>
 #include <sys/types.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 #include "zc_profile.h"
 #include "zc_xplatform.h"
@@ -27,7 +29,11 @@ static void zc_time(char *time_str, size_t time_str_size)
 
 	time(&tt);
 	localtime_r(&tt, &local_time);
+#ifdef _MSC_VER
+	strftime(time_str, time_str_size, "%m-%d %H:%M:%S", &local_time);
+#else
 	strftime(time_str, time_str_size, "%m-%d %T", &local_time);
+#endif
 
 	return;
 }

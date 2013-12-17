@@ -89,6 +89,7 @@ typedef enum {
 	ZLOG_LEVEL_FATAL = 120
 } zlog_level; 
 
+#ifndef _MSC_VER
 #if !defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L
 # if defined __GNUC__ && __GNUC__ >= 2
 #  define __func__ __FUNCTION__
@@ -97,7 +98,11 @@ typedef enum {
 # endif
 #endif
 
-#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#else
+#define __func__ __FUNCTION__
+#endif
+
+#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L || (defined _MSC_VER)
 /* zlog macros */
 #define zlog_fatal(cat, ...) \
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \

@@ -15,4 +15,8 @@
 #include "zc_xplatform.h"
 #include "zc_util.h"
 
+#ifdef _MSC_VER
+#define snprintf(str, size, format, __VA_ARGS__) _snprintf_s(str, size, 10240, format, __VA_ARGS__)
+#define int32 int
+#endif
 #endif
