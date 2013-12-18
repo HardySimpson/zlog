@@ -44,9 +44,14 @@ struct zlog_rule_s {
 
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_specs;
-	int static_fd;
+	zlogfd static_fd;
 	dev_t static_dev;
 	ino_t static_ino;
+
+	char dynamic_file_path[MAXLEN_PATH + 1];
+	zlogfd dynamic_fd;
+	dev_t dynamic_dev;
+	ino_t dynamic_ino;
 
 	long archive_max_size;
 	int archive_max_count;
@@ -54,7 +59,7 @@ struct zlog_rule_s {
 	zc_arraylist_t *archive_specs;
 
 	FILE *pipe_fp;
-	int pipe_fd;
+	zlogfd pipe_fd;
 
 	size_t fsync_period;
 	size_t fsync_count;

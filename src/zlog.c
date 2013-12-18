@@ -25,7 +25,7 @@
 /*******************************************************************************/
 extern char *zlog_git_sha1;
 /*******************************************************************************/
-static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
+pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
 zlog_conf_t *zlog_env_conf;
 static pthread_key_t zlog_thread_key;
 static zc_hashtable_t *zlog_env_categories;
@@ -80,7 +80,11 @@ static int zlog_init_inner(const char *confpath)
 		/* if some thread do not call pthread_exit, like main thread
 		 * atexit will clean it 
 		 */
+#ifdef _MSC_VER
+		rc = 0;
+#else
 		rc = atexit(zlog_clean_rest_thread);
+#endif
 		if (rc) {
 			zc_error("atexit fail, rc[%d]", rc);
 			goto err;
@@ -118,6 +122,13 @@ int zlog_init(const char *confpath)
 	int rc;
 	zc_debug("------zlog_init start------");
 	zc_debug("------compile time[%s %s], version[%s]------", __DATE__, __TIME__, ZLOG_VERSION);
+
+#ifdef _MSC_VER
+	{
+		WSADATA wasd;
+		WSAStartup(MAKEWORD(2,2),&wasd);
+	}
+#endif
 
 	rc = pthread_rwlock_wrlock(&zlog_env_lock);
 	if (rc) {
