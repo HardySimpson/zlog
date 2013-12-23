@@ -275,7 +275,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 	a_rule->static_dev = 0;
 	a_rule->static_ino = 0;
 
-	if (zlog_rotater_rotate(zlog_env_conf->rotater, 
+	if (zlog_rotater_rotate(zlog_env_conf->rotater,
 		a_rule->file_path, len,
 		zlog_rule_gen_archive_path(a_rule, a_thread),
 		a_rule->archive_max_size, a_rule->archive_max_count)
@@ -438,7 +438,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 	a_rule->dynamic_ino = 0;
 	a_rule->dynamic_file_path[0] = '\0';
 
-	if (zlog_rotater_rotate(zlog_env_conf->rotater, 
+	if (zlog_rotater_rotate(zlog_env_conf->rotater,
 		path, len,
 		zlog_rule_gen_archive_path(a_rule, a_thread),
 		a_rule->archive_max_size, a_rule->archive_max_count)
@@ -778,7 +778,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 
 	a_rule->level = zlog_level_list_atoi(levels, p);
 
-	/* level_bit is a bitmap represents which level can be output 
+	/* level_bit is a bitmap represents which level can be output
 	 * 32bytes, [0-255] levels, see level.c
 	 * which bit field is 1 means allow output and 0 not
 	 */
@@ -940,7 +940,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			/* save off the inode information for checking for a changed file later on */
 #ifdef _MSC_VER
 			sfd = _open_osfhandle((intptr_t)a_rule->static_fd, _O_APPEND);
-#elif
+#else
 			sfd = a_rule->static_fd;
 #endif
 			if (fstat(sfd, &stb)) {
@@ -987,7 +987,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		break;
 	case '$' :
 		sscanf(file_path + 1, "%s", a_rule->record_name);
-			
+
 		if (file_limit) {  /* record path exists */
 			p = strchr(file_limit, '"');
 			if (!p) {
@@ -1123,7 +1123,7 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule)
 {
 	zc_assert(a_rule, -1);
-	
+
 	if (STRCMP(a_rule->category, ==, "!")) {
 		return 1;
 	}
@@ -1168,7 +1168,7 @@ int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
 {
 	zlog_record_t *a_record;
 
-	if (a_rule->output != zlog_rule_output_static_record 
+	if (a_rule->output != zlog_rule_output_static_record
 	&&  a_rule->output != zlog_rule_output_dynamic_record) {
 		return 0; /* fliter, may go through not record rule */
 	}

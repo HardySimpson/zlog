@@ -18,7 +18,7 @@
 #ifdef _MSC_VER
 #include "win_compat.h"
 #define tidname(x) (x->tid.p)
-#elif
+#else
 #define tidname(x) (x->tid)
 #endif
 
