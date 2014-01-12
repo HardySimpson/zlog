@@ -13,6 +13,7 @@
 [p] 把头文件都放在.c里面，避免依赖
 [p] 采用redis的sds，更优雅不会溢出
 [p] 自行管理文件缓存，替代stdio，write/mmap, 减少dynamic文件名open的次数，通过日期改变智能推断, file_table?
+[ ] 2层API，读文件和构建对象分开，无配置文件
 [x] linux fsync->fdatasync, open.. no need, as file size is always modified.
 [x] 分类匹配的可定制化, rcat, mdc -> tag
 [x] 和rsyslog对接的问题
