@@ -364,18 +364,6 @@ void vzlog(zlog_category_t * category,
 	rc = zlog_category_output(category);
 	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
 
-	if (a_category->version != zlog_env_version) {
-		rc = pthread_rwlock_rdlock(&zlog_env_lock);
-		if (rc) { zc_error("pthread_mutex_lock fail, rc[%d]", rc); return; }
-
-		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
-		if (rc) { zc_error("zlog_thread_reload fail, rc[%d]", rc); goto exit; }  
-
-exit:
-		rc = pthread_mutex_unlock(&zlog_env_lock);
-		if (rc) { zc_error("pthread_mutex_unlock fail, rc=[%d]", rc); return; }
-	}
-
 	return;
 }
 
@@ -395,20 +383,6 @@ void hzlog(zlog_category_t *category,
 		buf, buflen);
 
 	rc = zlog_category_output(category);
-	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
-
-	if (a_category->version != zlog_env_version) {
-		rc = pthread_rwlock_rdlock(&zlog_env_lock);
-		if (rc) { zc_error("pthread_mutex_lock fail, rc[%d]", rc); return; }
-
-		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
-		if (rc) { zc_error("zlog_thread_reload fail, rc[%d]", rc); goto exit; }  
-
-exit:
-		rc = pthread_mutex_unlock(&zlog_env_lock);
-		if (rc) { zc_error("pthread_mutex_unlock fail, rc=[%d]", rc); return; }
-	}
-
 	return;
 }
 
@@ -430,19 +404,7 @@ void zlog(zlog_category_t * category,
 	va_end(args);
 
 	rc = zlog_category_output(category);
-	if (rc) { zc_error("zlog_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
-
-	if (a_category->version != zlog_env_version) {
-		rc = pthread_rwlock_rdlock(&zlog_env_lock);
-		if (rc) { zc_error("pthread_mutex_lock fail, rc[%d]", rc); return; }
-
-		rc = zlog_thread_update(a_thread, zlog_env_conf, zlog_env_records, zlog_env_version); 
-		if (rc) { zc_error("zlog_thread_reload fail, rc[%d]", rc); goto exit; }  
-
-exit:
-		rc = pthread_mutex_unlock(&zlog_env_lock);
-		if (rc) { zc_error("pthread_mutex_unlock fail, rc=[%d]", rc); return; }
-	}
+	if (rc) { zc_error("zlog_category_output fail, srcfile[%s], srcline[%ld]", file, line); return; }
 
 	return;
 }

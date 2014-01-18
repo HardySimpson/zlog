@@ -908,12 +908,12 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 }
 
 /*******************************************************************************/
-int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname)
+int zlog_rule_match_category_name(zlog_rule_t * a_rule, char *category_name)
 {
 	size_t len = zc_sdslen(a_rule->cname);
 
 	zc_assert(a_rule, -1);
-	zc_assert(cname, -1);
+	zc_assert(category_name, -1);
 
 	if (STRCMP(a_rule->cname, ==, "*")) {
 		/* '*' match anything, so go on */
@@ -924,9 +924,7 @@ int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname)
 	} else if (a_rule->cname[len - 1] == '_') {
 		/* aa_ match aa_xx & aa, but not match aa1_xx */
 
-		if (strlen(cname) == len - 1) {
-			len--;
-		}
+		if (strlen(cname) == len - 1) { len--; }
 
 		if (STRNCMP(a_rule->cname, ==, cname, len)) {
 			return 1;

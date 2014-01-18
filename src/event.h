@@ -15,8 +15,6 @@ typedef enum {
 } zlog_event_cmd;
 
 typedef struct {
-	zc_sds category_name; /* just a pointer to the real category's name */
-
 	const char *file;
 	size_t file_len;
 	const char *func;
@@ -28,6 +26,7 @@ typedef struct {
 	size_t hex_buf_len;
 	const char *str_format;
 	va_list str_args;
+
 	zlog_event_cmd generate_cmd;
 
 	struct timeval time_now;

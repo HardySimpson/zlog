@@ -9,6 +9,7 @@
 aclocal.m4
 autom4te.cache
 build
+cscope.*
 compile
 config.guess
 config.h
