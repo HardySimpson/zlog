@@ -51,11 +51,10 @@ struct zlog_rule_s {
 	zlog_rule_output_fn output;
 	zlog_rule_flush_fn flush;
 
-	zc_sds record_func_name;
-	zlog_rule_record_fn record_func;
+	zlog_udf udf;
 };
 
-zlog_rule_t *zlog_rule_new(char *cname, char *compare, char *level);
+zlog_rule_t *zlog_rule_new(char *cname, char compare, int level);
 
 /*
  * key			value
@@ -78,12 +77,13 @@ zlog_rule_t *zlog_rule_new(char *cname, char *compare, char *level);
  * format_pattern	"%d %m%n"
  */
 int zlog_rule_set(zlog_rule_t *a_rule, char *key, char *value);
-int zlog_rule_set_udf(zlog_rule_t * a_rule, zlog_udf udf);
+#define zlog_rule_set_udf(a_rule, a_udf) \
+	a_rule->udf = a_udf;
 void zlog_rule_del(zlog_rule_t * a_rule);
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
 zlog_rule_t *zlog_rule_dup(zlog_rule_t *a_rule);
 
-int zlog_rule_match_cname(zlog_rule_t * a_rule, char *cname);
+int zlog_rule_match_category_name(zlog_rule_t * a_rule, char *category_name);
 
 #define zlog_rule_output(a_rule, a_event, a_mdc) a_rule->output(a_rule, a_event, a_mdc)
 #define zlog_rule_flush(a_rule) a_rule->flush(a_rule)

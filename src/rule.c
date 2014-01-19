@@ -145,7 +145,6 @@ static int zlog_rule_reopen_file(zlog_rule_t * a_rule)
 static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_event_t *a_event, zlog_mdc_t *a_mdc) 
 {
 	int rc;
-	zlog_deepness_t *deep = a_rule->file_deep;
 	struct zlog_stat info;
 	size_t len;
 	int need_reopen;
@@ -880,6 +879,44 @@ err:
 	zlog_rule_del(a_rule);
 	return NULL;
 }
+/*******************************************************************************/
+
+zlog_rule_t *zlog_rule_new(char *cname, char compare, int level)
+{
+	zlog_rule_t *a_rule;
+	
+	a_rule = calloc(1, sizeof(zlog_rule_t));
+	if (!a_rule) { zc_error("calloc fail, errno[%d]", errno); return NULL; }
+
+	a_rule->cname = zc_sdsnew(cname);
+	if (!a_rule->cname) { zc_error("zc_sdsnew fail, errno[%d]", errno); return NULL; }
+
+	switch (compare) {
+	case '=':
+		memset(a_rule->level_bitmap, 0x00, sizeof(a_rule->level_bitmap));
+		a_rule->level_bitmap[level / 8] |= (1 << (7 - level % 8));
+		break;
+	case '!':
+		memset(a_rule->level_bitmap, 0xFF, sizeof(a_rule->level_bitmap));
+		a_rule->level_bitmap[level / 8] &= ~(1 << (7 - level % 8));
+		break;
+	case '*':
+		memset(a_rule->level_bitmap, 0xFF, sizeof(a_rule->level_bitmap));
+		break;
+	case '.':
+		memset(a_rule->level_bitmap, 0x00, sizeof(a_rule->level_bitmap));
+		a_rule->level_bitmap[level / 8] |= ~(0xFF << (8 - level % 8));
+		memset(a_rule->level_bitmap + level / 8 + 1, 0xFF,
+				sizeof(a_rule->level_bitmap) -  level / 8 - 1);
+		break;
+	}
+
+	return a_rule;
+err:
+	zlog_rule_del(a_rule);
+	return NULL;
+}
+/*******************************************************************************/
 
 void zlog_rule_del(zlog_rule_t * a_rule)
 {
@@ -908,25 +945,31 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 }
 
 /*******************************************************************************/
+int zlog_rule_set(zlog_rule_t *a_rule, char *key, char *value)
+{
+	if (STRCMP(key, ==, "syslog_facility")) {
+	} else if (STRCMP(key, ==, 
+}
+/*******************************************************************************/
 int zlog_rule_match_category_name(zlog_rule_t * a_rule, char *category_name)
 {
-	size_t len = zc_sdslen(a_rule->cname);
+	size_t len = zc_sdslen(a_rule->category_name);
 
 	zc_assert(a_rule, -1);
 	zc_assert(category_name, -1);
 
-	if (STRCMP(a_rule->cname, ==, "*")) {
+	if (STRCMP(a_rule->category_name, ==, "*")) {
 		/* '*' match anything, so go on */
 		return 1;
-	} else if (STRCMP(a_rule->cname, ==, cname)) {
+	} else if (STRCMP(a_rule->category_name, ==, category_name)) {
 		/* accurate compare */
 		return 1;
-	} else if (a_rule->cname[len - 1] == '_') {
+	} else if (a_rule->category_name[len - 1] == '_') {
 		/* aa_ match aa_xx & aa, but not match aa1_xx */
 
-		if (strlen(cname) == len - 1) { len--; }
+		if (strlen(category_name) == len - 1) { len--; }
 
-		if (STRNCMP(a_rule->cname, ==, cname, len)) {
+		if (STRNCMP(a_rule->category_name, ==, category_name, len)) {
 			return 1;
 		}
 	}
@@ -935,19 +978,3 @@ int zlog_rule_match_category_name(zlog_rule_t * a_rule, char *category_name)
 }
 
 /*******************************************************************************/
-
-int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
-{
-	zlog_record_t *a_record;
-
-	if (a_rule->output != zlog_rule_output_static_record 
-	&&  a_rule->output != zlog_rule_output_dynamic_record) {
-		return 0; /* fliter, may go through not record rule */
-	}
-
-	a_record = zc_hashtable_get(records, a_rule->record_name);
-	if (a_record) {
-		a_rule->record_func = a_record->output;
-	}
-	return 0;
-}

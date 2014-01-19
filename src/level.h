@@ -13,7 +13,7 @@ typedef struct zlog_level_s {
 	int number;
 	zc_sds str_upper;
 	zc_sds str_lower;
-       	int syslog_level;
+	int syslog_level;
 } zlog_level_t;
 
 zlog_level_t *zlog_level_new(char *line);
