@@ -423,36 +423,6 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 }
 
 /*******************************************************************************/
-static int syslog_facility_atoi(char *facility)
-{
-	/* guess no unix system will choose -187
-	 * as its syslog facility, so it is a safe return value
-	 */
-	zc_assert(facility, -187);
-
-	if (STRICMP(facility, ==, "LOG_LOCAL0"))
-		return LOG_LOCAL0;
-	if (STRICMP(facility, ==, "LOG_LOCAL1"))
-		return LOG_LOCAL1;
-	if (STRICMP(facility, ==, "LOG_LOCAL2"))
-		return LOG_LOCAL2;
-	if (STRICMP(facility, ==, "LOG_LOCAL3"))
-		return LOG_LOCAL3;
-	if (STRICMP(facility, ==, "LOG_LOCAL4"))
-		return LOG_LOCAL4;
-	if (STRICMP(facility, ==, "LOG_LOCAL5"))
-		return LOG_LOCAL5;
-	if (STRICMP(facility, ==, "LOG_LOCAL6"))
-		return LOG_LOCAL6;
-	if (STRICMP(facility, ==, "LOG_LOCAL7"))
-		return LOG_LOCAL7;
-	if (STRICMP(facility, ==, "LOG_USER"))
-		return LOG_USER;
-
-	zc_error("wrong syslog facility[%s], must in LOG_LOCAL[0-7] or LOG_USER", facility);
-	return -187;
-}
-
 static int zlog_rule_parse_path(char *path_start, /* start with a " */
 		char *path_str, size_t path_size, zc_arraylist_t **path_specs,
 		int *time_cache_count)
@@ -945,10 +915,61 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 }
 
 /*******************************************************************************/
-int zlog_rule_set(zlog_rule_t *a_rule, char *key, char *value)
+static int zlog_syslog_facility_atoi(char *facility)
 {
+	int i;
+	static struct {
+		const char *name;
+		const int value;
+	} zlog_syslog_facility[] = {
+		{"auth", LOG_AUTH },
+		{"authpriv", LOG_AUTHPRIV },
+		{"cron", LOG_CRON },
+		{"daemon", LOG_DAEMON },
+		{"ftp", LOG_FTP },
+		{"kern", LOG_KERN },
+		{"lpr", LOG_LPR },
+		{"mail", LOG_MAIL },
+		{"mark", INTERNAL_MARK },		/* INTERNAL */
+		{"news", LOG_NEWS },
+		{"security", LOG_AUTH },		/* DEPRECATED */
+		{"syslog", LOG_SYSLOG },
+		{"user", LOG_USER },
+		{"uucp", LOG_UUCP },
+		{"local0", LOG_LOCAL0 },
+		{"local1", LOG_LOCAL1 },
+		{"local2", LOG_LOCAL2 },
+		{"local3", LOG_LOCAL3 },
+		{"local4", LOG_LOCAL4 },
+		{"local5", LOG_LOCAL5 },
+		{"local6", LOG_LOCAL6 },
+		{"local7", LOG_LOCAL7 },
+		{ NULL, -1 }
+	}	
+
+	for (i = 0; zlog_syslog_facility[i].name; i++) {
+		if (STRICMP(facility, ==, zlog_syslog_facility[i].name)) {
+			return zlog_syslog_facility[i].vaule;
+		}
+	}
+	return -1;
+}
+
+int zlog_rule_set(zlog_rule_t *a_rule, char *key, void *value)
+{
+	zc_assert(a_rule, -1);
+	zc_assert(key, -1);
+	zc_assert(value, -1);
+
 	if (STRCMP(key, ==, "syslog_facility")) {
-	} else if (STRCMP(key, ==, 
+		a_rule->syslog_facility = zlog_syslog_facility_atoi(value);
+		if (a_rule->syslog_facility == -1) {
+			zc_error("syslog facility[%s] not exist", value);
+			return -1;
+		}
+	} else if (STRCMP(key, ==, "file_path")) {
+
+	}
 }
 /*******************************************************************************/
 int zlog_rule_match_category_name(zlog_rule_t * a_rule, char *category_name)

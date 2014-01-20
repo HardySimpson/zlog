@@ -18,8 +18,6 @@ typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec,
 struct zlog_spec_s {
 	zc_sds pattern;
 
-	zc_arraylist_t *levels;
-
 	zc_sds time_fmt;
 	zc_sds time_str;
 	time_t time_str_sec_cache;
@@ -34,9 +32,20 @@ struct zlog_spec_s {
 	zlog_spec_gen_fn gen;
 };
 
-zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, zc_arraylist_t *levels);
+
+zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end);
 void zlog_spec_del(zlog_spec_t * a_spec);
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
+
+/* 
+ * if (pattern) has %E(), environment variables, replace it with enviroment value
+ *    (pattern) has %%, replace it with %
+ *    then check 
+ *      if (pattern) has any other %, parse and gen a spec (list),
+ *      if (pattern) has none %, do not touch list
+ *  return 0 for success, -1 for error
+ */
+int zlog_spec_gen_list(zc_sds pattern, zc_arraylist_t **list);
 
 #define zlog_spec_gen(a_spec, a_event, a_mdc, a_buffer) \
 	a_spec->gen(a_spec, a_event, a_mdc, a_buffer)

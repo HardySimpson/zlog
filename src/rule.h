@@ -76,7 +76,7 @@ zlog_rule_t *zlog_rule_new(char *cname, char compare, int level);
  *
  * format_pattern	"%d %m%n"
  */
-int zlog_rule_set(zlog_rule_t *a_rule, char *key, char *value);
+int zlog_rule_set(zlog_rule_t *a_rule, char *key, void *value);
 #define zlog_rule_set_udf(a_rule, a_udf) \
 	a_rule->udf = a_udf;
 void zlog_rule_del(zlog_rule_t * a_rule);

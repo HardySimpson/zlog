@@ -807,3 +807,42 @@ err:
 	return NULL;
 }
 
+/*******************************************************************************/
+int zlog_spec_gen_list(zc_sds pattern, zc_arraylist_t **list)
+{
+	/* replace any environment variables like %E(HOME) */
+	rc = zc_str_replace_env(a_rule->record_path, sizeof(a_rule->record_path));
+	if (rc) {
+		zc_error("zc_str_replace_env fail");
+		goto err;
+	}
+
+	/* try to figure out if the log file path is dynamic or static */
+	if (strchr(a_rule->record_path, '%') == NULL) {
+		a_rule->output = zlog_rule_output_static_record;
+	} else {
+		zlog_spec_t *a_spec;
+
+		a_rule->output = zlog_rule_output_dynamic_record;
+
+		a_rule->dynamic_specs = zc_arraylist_new((zc_arraylist_del_fn)zlog_spec_del);
+		if (!(a_rule->dynamic_specs)) {
+			zc_error("zc_arraylist_new fail");
+			goto err;
+		}
+		for (p = a_rule->record_path; *p != '\0'; p = q) {
+			a_spec = zlog_spec_new(p, &q, time_cache_count);
+			if (!a_spec) {
+				zc_error("zlog_spec_new fail");
+				goto err;
+			}
+
+			rc = zc_arraylist_add(a_rule->dynamic_specs, a_spec);
+			if (rc) {
+				zlog_spec_del(a_spec);
+				zc_error("zc_arraylist_add fail");
+				goto err;
+			}
+		}
+	}
+}
