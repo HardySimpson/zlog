@@ -22,6 +22,8 @@ extern "C" {
 #   define ZLOG_CHECK_PRINTF(m,n)
 # endif
 
+/* -------------- high layer api -------------- */
+
 typedef struct zlog_category_s zlog_category_t;
 
 int zlog_init(const char *confpath);
@@ -53,14 +55,8 @@ void hzlog(zlog_category_t * category,
 	long line, int level,
 	const void *buf, size_t buflen);
 
-typedef struct zlog_msg_s {
-	char *buf;
-	size_t len;
-	char *path;
-} zlog_msg_t;
-
-typedef int (*zlog_record_fn)(zlog_msg_t *msg);
-int zlog_set_record(const char *rname, zlog_record_fn record);
+typedef int (*zlog_user_output)(char *buf, size_t bug_len, char *path, size_t path_len);
+int zlog_set_user_output(const char *name, zlog_user_output func);
 
 /******* useful macros, can be redefined at user's h file **********/
 
@@ -162,6 +158,12 @@ typedef enum {
 #define hzlog_debug(cat, buf, buf_len) \
 	hzlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
 	ZLOG_LEVEL_DEBUG, buf, buf_len)
+
+/* -------------- low layer api -------------- */
+
+int zlog_sinit(const char *confstring);
+
+
 
 #ifdef __cplusplus
 }
