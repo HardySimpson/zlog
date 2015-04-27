@@ -795,10 +795,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 				}
 
 				p = strchr(a_rule->archive_path, '#');
-				if ( (p == NULL) && (
-						(strchr(p, 'r') == NULL) || (strchr(p, 's') == NULL)
-					)
-				   ) {
+				if ( (p == NULL) || ((strchr(p, 'r') == NULL) || (strchr(p, 's') == NULL))) {
 					zc_error("archive_path must contain #r or #s");
 					goto err;
 				}
