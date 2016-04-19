@@ -49,7 +49,12 @@ STLIB_MAKE_CMD=ar rcs $(STLIBNAME)
 # Installation related variables
 PREFIX?=/usr/local
 INCLUDE_PATH?=include
-LIBRARY_PATH?=lib
+LBITS := $(shell getconf LONG_BIT)
+ifeq ($(LBITS),64)
+    LIBRARY_PATH?=lib64
+else
+    LIBRARY_PATH?=lib
+endif
 INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
 INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
 
