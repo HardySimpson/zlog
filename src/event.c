@@ -16,6 +16,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/syscall.h>
 
 #include "zc_defs.h"
 #include "event.h"
@@ -83,6 +84,10 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 
 	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
 	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "0x%x", (unsigned int)a_event->tid);
+    
+    a_event->ktid = syscall(SYS_gettid);
+	a_event->ktid_str_len = sprintf(a_event->ktid_str, "%lu", (unsigned long)a_event->ktid);
+
 
 	//zlog_event_profile(a_event, ZC_DEBUG);
 	return a_event;

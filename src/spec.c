@@ -226,6 +226,11 @@ static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thre
 	return zlog_buf_append(a_buf, a_thread->event->tid_str, a_thread->event->tid_str_len);
 }
 
+static int zlog_spec_write_ktid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	return zlog_buf_append(a_buf, a_thread->event->ktid_str, a_thread->event->ktid_str_len);
+}
+
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	zlog_level_t *a_level;
@@ -612,6 +617,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 			break;
 		case 'T':
 			a_spec->write_buf = zlog_spec_write_tid_long;
+			break;
+        case 'K':
+			a_spec->write_buf = zlog_spec_write_ktid_long;
 			break;
 		case '%':
 			a_spec->write_buf = zlog_spec_write_percent;

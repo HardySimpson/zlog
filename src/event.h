@@ -64,6 +64,10 @@ typedef struct {
 
 	char tid_hex_str[30 + 1];
 	size_t tid_hex_str_len;
+
+    pid_t ktid;
+    char ktid_str[30 + 1];
+	size_t ktid_str_len;
 } zlog_event_t;
 
 
