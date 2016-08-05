@@ -1004,3 +1004,5 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 	}
 	return rc;
 }
+
+const char *zlog_version(void) { return ZLOG_VERSION; }
