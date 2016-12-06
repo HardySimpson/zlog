@@ -28,7 +28,9 @@
 #define FILE_NEWLINE_LEN 1
 
 #include <string.h>
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
 
 #define STRCMP(_a_,_C_,_b_) ( strcmp(_a_,_b_) _C_ 0 )
 #define STRNCMP(_a_,_C_,_b_,_n_) ( strncmp(_a_,_b_,_n_) _C_ 0 )

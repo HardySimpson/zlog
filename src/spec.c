@@ -12,11 +12,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 #include <time.h>
 #include <errno.h>
 #include <sys/types.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 #include "conf.h"
 #include "spec.h"
@@ -24,7 +28,11 @@
 #include "zc_defs.h"
 
 
+#ifdef _MSC_VER
+#define ZLOG_DEFAULT_TIME_FMT "%Y-%m-%d %H:%M:%S"
+#else
 #define ZLOG_DEFAULT_TIME_FMT "%F %T"
+#endif
 #define	ZLOG_HEX_HEAD  \
 	"\n             0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F    0123456789ABCDEF"
 
