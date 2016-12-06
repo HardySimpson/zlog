@@ -348,7 +348,7 @@ static int zlog_rotater_roll_files(zlog_rotater_t * a_rotater)
 static int zlog_rotater_parse_archive_path(zlog_rotater_t * a_rotater)
 {
 	int nwrite;
-	int nread;
+	int nread = 0;
 	char *p;
 	size_t len;
 
