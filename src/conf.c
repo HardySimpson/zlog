@@ -32,7 +32,15 @@
 #define ZLOG_CONF_DEFAULT_FILE_PERMS 0600
 #define ZLOG_CONF_DEFAULT_RELOAD_CONF_PERIOD 0
 #define ZLOG_CONF_DEFAULT_FSYNC_PERIOD 0
+
+#ifdef _MSC_VER
+#define DEF_TIME_FMT "%Y-%m-%d %H:%M:%S"
+#define ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE "zlog.lock"
+#else
+#define DEF_TIME_FMT "%F %T"
 #define ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE "/tmp/zlog.lock"
+#endif
+
 /*******************************************************************************/
 
 void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
@@ -239,7 +247,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 		return -1;
 	}
 	localtime_r(&(a_stat.st_mtime), &local_time);
-	strftime(a_conf->mtime, sizeof(a_conf->mtime), "%F %T", &local_time);
+	strftime(a_conf->mtime, sizeof(a_conf->mtime), DEF_TIME_FMT, &local_time);
 
 	if ((fp = fopen(a_conf->file, "r")) == NULL) {
 		zc_error("open configure file[%s] fail", a_conf->file);
