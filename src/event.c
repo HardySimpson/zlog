@@ -60,6 +60,7 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 	a_event->time_caches = calloc(time_cache_count, sizeof(zlog_time_cache_t));
 	if (!a_event->time_caches) {
 		zc_error("calloc fail, errno[%d]", errno);
+		free(a_event);
 		return NULL;
 	}
 	a_event->time_cache_count = time_cache_count;
