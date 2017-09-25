@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 	int op;
 	int quiet = 0;
 	static const char *help = 
-		"useage: zlog-chk-conf [conf files]...\n"
+		"usage: zlog-chk-conf [conf files]...\n"
 		"\t-q,\tsuppress non-error message\n"
 		"\t-h,\tshow help message\n"
 		"zlog version: " ZLOG_VERSION "\n";
