@@ -87,7 +87,7 @@ In the configuration file log messages in the category "my_cat" and a level of D
     	return 0;
     } 
 
-4. Complie, and run it!s
+4. Compile, and run it!
 -------------
     $ cc -c -o test_hello.o test_hello.c -I/usr/local/include
     $ cc -o test_hello test_hello.o -L/usr/local/lib -lzlog -lpthread
