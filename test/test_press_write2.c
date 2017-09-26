@@ -23,9 +23,9 @@ static long loop_count;
 void * work(void *ptr)
 {
 	long j = loop_count;
-	int rc;
-static char log[] = "2012-06-14 20:30:38.481187 INFO   24536:140716226213632:test_press_zlog.c:36 loglog\n";
+    static char log[] = "2012-06-14 20:30:38.481187 INFO   24536:140716226213632:test_press_zlog.c:36 loglog\n";
 	char file[20];
+
 	sprintf(file, "press.%ld.log", (long)ptr);
 
 	int fd;
@@ -33,7 +33,7 @@ static char log[] = "2012-06-14 20:30:38.481187 INFO   24536:140716226213632:tes
 	//FILE *fp;
 
 	while(j-- > 0) {
-		rc = write(fd, log, sizeof(log)-1);
+		write(fd, log, sizeof(log)-1);
 		//fwrite(log, sizeof(log)-1, 1, fp);
 	}
 	//fclose(fp);
