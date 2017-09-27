@@ -48,12 +48,12 @@ STLIB_MAKE_CMD=ar rcs $(STLIBNAME)
 
 # Installation related variables
 PREFIX?=/usr/local
-INCLUDE_PATH?=include
-LIBRARY_PATH?=lib
-BINARY_PATH?=bin
+INCLUDE_PATH=include
+LIBRARY_PATH=lib
+BINARY_PATH=bin
 INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
 INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
-INSTALL_BINARY_PATH= $(PREFIX)/$(BINARY_PATH)
+INSTALL_BINARY_PATH=  $(PREFIX)/$(BINARY_PATH)
 
 # Platform-specific overrides
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
