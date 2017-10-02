@@ -11,6 +11,7 @@ exe = 		\
 	test_level	\
 	test_leak	\
 	test_mdc	\
+	test_multithread	\
 	test_record	\
 	test_pipe	\
 	test_press_zlog		\
