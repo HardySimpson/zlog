@@ -635,12 +635,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 		goto err;
 	}
 
-
 	/* check and set category */
 	for (p = category; *p != '\0'; p++) {
-		if ((!isalnum(*p)) && (*p != '_') && (*p != '*') && (*p != '!')) {
-			zc_error("category name[%s] character is not in [a-Z][0-9][_!*]",
-				 category);
+		if ((!isalnum(*p)) && (*p != '_') && (*p != '-') && (*p != '*') && (*p != '!')) {
+			zc_error("category name[%s] character is not in [a-Z][0-9][_!*-]", category);
 			goto err;
 		}
 	}
