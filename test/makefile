@@ -22,6 +22,9 @@ exe = 		\
 	test_syslog	\
 	test_default	\
 	test_profile	\
+	test_default \
+	test_profile \
+	test_category \
 	test_enabled
 
 all     :       $(exe)
