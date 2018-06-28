@@ -25,6 +25,21 @@
 #define THREAD_LOOP_DELAY 10000	/* 0.01" */
 #define RELOAD_DELAY      10
 
+enum {
+	ZLOG_LEVEL_TRACE = 10,
+	ZLOG_LEVEL_SECURITY = 150,
+	/* must equals conf file setting */
+};
+
+#define zlog_trace(cat, format, args...) \
+	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+	ZLOG_LEVEL_TRACE, format, ##args)
+
+#define zlog_security(cat, format, args...) \
+	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+	ZLOG_LEVEL_SECURITY, format, ##args)
+
+
 struct thread_info {    /* Used as argument to thread_start() */
 	pthread_t thread_id;    /* ID returned by pthread_create() */
 	int       thread_num;   /* Application-defined thread # */
@@ -60,9 +75,9 @@ void *myThread(void *arg)
 {
     struct thread_info *tinfo = arg;
 
-    tinfo->zc = zlog_get_category("thread");
+    tinfo->zc = zlog_get_category("thrd");
 	if (!tinfo->zc) {
-		printf("get thread %d cat fail\n", tinfo->thread_num);
+		printf("get thrd %d cat fail\n", tinfo->thread_num);
 	}
 	else
 	{
@@ -80,6 +95,8 @@ int main(int argc, char** argv)
 {
 	int rc;
 	zlog_category_t *zc;
+	zlog_category_t *mc;
+	zlog_category_t *hl;
 	int i = 0;
 	struct stat stat_0, stat_1;
 
@@ -105,6 +122,20 @@ int main(int argc, char** argv)
 		return -3;
 	}
 
+	mc = zlog_get_category("clsn");
+	if (!mc) {
+		printf("clsn get cat fail\n");
+		zlog_fini();
+		return -3;
+	}
+
+	hl = zlog_get_category("high");
+	if (!hl) {
+		printf("high get cat fail\n");
+		zlog_fini();
+		return -3;
+	}
+
 	/* Interrupt (ANSI).		<Ctrl-C> */
 	if (signal(SIGINT, intercept) == SIG_IGN )
 	{
@@ -119,6 +150,7 @@ int main(int argc, char** argv)
 	{
         tinfo[i].thread_num = i + 1;
         tinfo[i].loop = 0;
+		tinfo[i].zc = zc;
 		if(pthread_create(&tinfo[i].thread_id, NULL, myThread, &tinfo[i]) != 0)
 		{
 			zlog_fatal(zc, "Unable to start thread %d", i);
@@ -132,6 +164,15 @@ int main(int argc, char** argv)
 	for (i=0; i<NB_THREADS; i++)
 	{
 		zlog_info(zc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, tinfo[i].zc);
+		zlog_fatal(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_error(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_warn(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_notice(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_info(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_trace(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_debug(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
+		zlog_security(hl, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, hl);
+		zlog_warn(hl, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, hl);
     }
 
 	/* Log main loop status */
@@ -167,6 +208,6 @@ int main(int argc, char** argv)
 			stat(CONFIG, &stat_0);
 		}
 	}
-	
+
     exit(EXIT_SUCCESS);
 }

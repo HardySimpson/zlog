@@ -20,13 +20,13 @@
  * the return value of vsnprintf(3) is a number tell how many character should
  * be output.  vsnprintf in glibc 2.1 conforms to C99 , but glibc 2.0 doesn't.
  * see manpage of vsnprintf(3) on you platform for more detail.
- 
+
  * So, what should you do if you want to using zlog on the platform that doesn't
  * conform C99? My Answer is, crack zlog with a portable C99-vsnprintf, like this
  * http://sourceforge.net/projects/ctrio/
  * http://www.jhweiss.de/software/snprintf.html
  * If you can see this note, you can fix it yourself? Aren't you? ^_^
- 
+
  * Oh, I put the snprintf in C99 standard here,
  * vsnprintf is the same on return value.
 
@@ -540,13 +540,13 @@ int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len)
 
 	memcpy(a_buf->tail, str, str_len);
 	a_buf->tail = p;
-	// *(a_buf->tail) = '\0'; 
+	// *(a_buf->tail) = '\0';
 	return 0;
 }
 
 /*******************************************************************************/
 int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
-		int left_adjust, size_t in_width, size_t out_width)
+		int left_adjust, int zero_pad, size_t in_width, size_t out_width)
 {
 	size_t append_len = 0;
 	size_t source_len = 0;
@@ -607,7 +607,13 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 					space_len = append_len;
 					source_len = 0;
 				}
-				if (space_len) memset(a_buf->tail, ' ', space_len);
+				if (space_len) {
+					if (zero_pad) {
+						memset(a_buf->tail, '0', space_len);
+					} else {
+						memset(a_buf->tail, ' ', space_len);
+					}
+				}
 				memcpy(a_buf->tail + space_len, str, source_len);
 			}
 			a_buf->tail += append_len;
@@ -626,7 +632,13 @@ int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
 		if (space_len) memset(a_buf->tail + source_len, ' ', space_len);
 		memcpy(a_buf->tail, str, source_len);
 	} else {
-		if (space_len) memset(a_buf->tail, ' ', space_len);
+		if (space_len) {
+			if (zero_pad) {
+				memset(a_buf->tail, '0', space_len);
+			} else {
+				memset(a_buf->tail, ' ', space_len);
+			}
+		}
 		memcpy(a_buf->tail + space_len, str, source_len);
 	}
 	a_buf->tail += append_len;
