@@ -6,6 +6,8 @@
  * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
+#define _GNU_SOURCE // For distros like Centos for syscall interface
+
 #include "fmacros.h"
 #include <string.h>
 #include <stdarg.h>
@@ -16,6 +18,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/time.h>
+
 #include <sys/types.h>
 #include <sys/syscall.h>
 
