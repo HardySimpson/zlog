@@ -932,7 +932,6 @@ zlog_rule_t *zlog_rule_new(char *line,
 		goto err;
 	}
 
-	//zlog_rule_profile(a_rule, ZC_DEBUG);
 	return a_rule;
 err:
 	zlog_rule_del(a_rule);
