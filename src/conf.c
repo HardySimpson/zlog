@@ -497,7 +497,6 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 	default:
 		zc_error("not in any section");
 		return -1;
-		break;
 	}
 
 	return 0;
