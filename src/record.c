@@ -19,8 +19,8 @@ void zlog_record_profile(zlog_record_t *a_record, int flag)
 void zlog_record_del(zlog_record_t *a_record)
 {
 	zc_assert(a_record,);
-	free(a_record);
 	zc_debug("zlog_record_del[%p]", a_record);
+    free(a_record);
 	return;
 }
 

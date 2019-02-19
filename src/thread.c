@@ -56,8 +56,8 @@ void zlog_thread_del(zlog_thread_t * a_thread)
 	if (a_thread->msg_buf)
 		zlog_buf_del(a_thread->msg_buf);
 
-	free(a_thread);
 	zc_debug("zlog_thread_del[%p]", a_thread);
+    free(a_thread);
 	return;
 }
 

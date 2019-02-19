@@ -37,8 +37,8 @@ void zlog_category_del(zlog_category_t * a_category)
 {
 	zc_assert(a_category,);
 	if (a_category->fit_rules) zc_arraylist_del(a_category->fit_rules);
-	free(a_category);
 	zc_debug("zlog_category_del[%p]", a_category);
+    free(a_category);
 	return;
 }
 

@@ -42,8 +42,8 @@ void zlog_event_del(zlog_event_t * a_event)
 {
 	zc_assert(a_event,);
 	if (a_event->time_caches) free(a_event->time_caches);
-	free(a_event);
 	zc_debug("zlog_event_del[%p]", a_event);
+    free(a_event);
 	return;
 }
 

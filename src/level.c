@@ -31,8 +31,8 @@ void zlog_level_profile(zlog_level_t *a_level, int flag)
 void zlog_level_del(zlog_level_t *a_level)
 {
 	zc_assert(a_level,);
-	free(a_level);
 	zc_debug("zlog_level_del[%p]", a_level);
+    free(a_level);
 	return;
 }
 

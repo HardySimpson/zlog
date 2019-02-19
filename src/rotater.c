@@ -73,8 +73,8 @@ void zlog_rotater_del(zlog_rotater_t *a_rotater)
 		zc_error("pthread_mutex_destroy fail, errno[%d]", errno);
 	}
 
-	free(a_rotater);
 	zc_debug("zlog_rotater_del[%p]", a_rotater);
+    free(a_rotater);
 	return;
 }
 
