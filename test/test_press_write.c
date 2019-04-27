@@ -25,12 +25,12 @@ static long loop_count;
 void * work(void *ptr)
 {
 	long j = loop_count;
-	int rc;
-static char aa[] = "2012-06-14 20:30:38.481187 INFO   24536:140716226213632:test_press_zlog.c:36 loglog\n";
+    static char aa[] = "2012-06-14 20:30:38.481187 INFO   24536:140716226213632:test_press_zlog.c:36 loglog\n";
+
 	while(j-- > 0) {
 //		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
 //		fwrite(aa, sizeof(aa)-1, 1, fp);
-		rc = write(fd, aa, sizeof(aa)-1);
+		write(fd, aa, sizeof(aa)-1);
 	}
 	return 0;
 }

@@ -8,14 +8,13 @@
 
 #include <stdio.h>
 #include "zlog.h"
-#include <unistd.h>
 
 int main(int argc, char** argv)
 {
 	int rc;
 	zlog_category_t *zc;
 
-	rc = zlog_init("test_tmp.conf");
+	rc = zlog_init("./test_category.conf");
 	if (rc) {
 		printf("init failed\n");
 		return -1;
@@ -28,15 +27,16 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	zlog_debug(zc, "%s%d", "hello, zlog ", 1);
-	zlog_info(zc, "hello, zlog 2");
+	zlog_debug(zc, "hello, zlog - debug");
 
-	sleep(1);
+	zc = zlog_get_category("my-cat");
+	if (!zc) {
+		printf("get cat fail\n");
+		zlog_fini();
+		return -2;
+	}
 
-	zlog_info(zc, "hello, zlog 3");
-	zlog_debug(zc, "hello, zlog 4");
-
-//	zlog_profile();
+	zlog_info(zc, "hello, zlog - info");
 
 	zlog_fini();
 	

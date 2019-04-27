@@ -739,12 +739,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 		goto err;
 	}
 
-
 	/* check and set category */
 	for (p = category; *p != '\0'; p++) {
-		if ((!isalnum(*p)) && (*p != '_') && (*p != '*') && (*p != '!')) {
-			zc_error("category name[%s] character is not in [a-Z][0-9][_!*]",
-				 category);
+		if ((!isalnum(*p)) && (*p != '_') && (*p != '-') && (*p != '*') && (*p != '!')) {
+			zc_error("category name[%s] character is not in [a-Z][0-9][_!*-]", category);
 			goto err;
 		}
 	}
@@ -901,10 +899,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 				}
 
 				p = strchr(a_rule->archive_path, '#');
-				if ( (p == NULL) && (
-						(strchr(p, 'r') == NULL) || (strchr(p, 's') == NULL)
-					)
-				   ) {
+				if ( (p == NULL) || ((strchr(p, 'r') == NULL) && (strchr(p, 's') == NULL))) {
 					zc_error("archive_path must contain #r or #s");
 					goto err;
 				}

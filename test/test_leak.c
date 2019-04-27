@@ -33,15 +33,15 @@ int main(int argc, char** argv)
 		switch (i % 4) {
 		case 0:
 			rc = dzlog_init("test_leak.conf", "xxx");
-			dzlog_info("init");
+			dzlog_info("init, rc=[%d]", rc);
 			break;
 		case 1:
 			rc = zlog_reload(NULL);
-			dzlog_info("reload null");
+			dzlog_info("reload null, rc=[%d]", rc);
 			break;
 		case 2:
 			rc = zlog_reload("test_leak.2.conf");
-			dzlog_info("reload 2");
+			dzlog_info("reload 2, rc=[%d]", rc);
 			break;
 		case 3:
 			zlog_fini();

@@ -11,6 +11,7 @@ exe = 		\
 	test_level	\
 	test_leak	\
 	test_mdc	\
+	test_multithread	\
 	test_record	\
 	test_pipe	\
 	test_press_zlog		\
@@ -20,7 +21,8 @@ exe = 		\
 	test_press_syslog	\
 	test_syslog	\
 	test_default \
-	test_profile
+	test_profile \
+	test_category
 
 all     :       $(exe)
 
