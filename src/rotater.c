@@ -6,6 +6,12 @@
  * Licensed under the LGPL v2.1, see the file COPYING in base directory.
  */
 
+#ifdef _MSC_VER
+#include <io.h>
+#include <windows.h>
+#include <unixem/glob.h>
+#endif
+
 #include <string.h>
 #include <glob.h>
 #include <stdio.h>
@@ -64,9 +70,15 @@ void zlog_rotater_del(zlog_rotater_t *a_rotater)
 	zc_assert(a_rotater,);
 
 	if (a_rotater->lock_fd) {
+#ifdef _MSC_VER
+		if (CloseHandle(a_rotater->lock_fd)) {
+			zc_error("close fail, errno[%d]", errno);
+		}
+#else
 		if (close(a_rotater->lock_fd)) {
 			zc_error("close fail, errno[%d]", errno);
 		}
+#endif
 	}
 
 	if (pthread_mutex_destroy(&(a_rotater->lock_mutex))) {
@@ -80,7 +92,7 @@ void zlog_rotater_del(zlog_rotater_t *a_rotater)
 
 zlog_rotater_t *zlog_rotater_new(char *lock_file)
 {
-	int fd = 0;
+	zlogfd fd = 0;
 	zlog_rotater_t *a_rotater;
 
 	zc_assert(lock_file, NULL);
@@ -102,12 +114,23 @@ zlog_rotater_t *zlog_rotater_new(char *lock_file)
 	 * user B is unable to read /tmp/zlog.lock
 	 * B has to choose another lock file except /tmp/zlog.lock
 	 */
+#ifdef _MSC_VER
+	fd = CreateFile(lock_file,
+			GENERIC_READ | GENERIC_WRITE,
+			FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+			NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if(fd == INVALID_HANDLE_VALUE) {
+		zc_error("open file[%s] fail, errno[%d]", lock_file, GetLastError());
+		goto err;
+	}
+#else
 	fd = open(lock_file, O_RDWR | O_CREAT,
 		  S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
 	if (fd < 0) {
 		zc_error("open file[%s] fail, errno[%d]", lock_file, errno);
 		goto err;
 	}
+#endif
 
 	a_rotater->lock_fd = fd;
 	a_rotater->lock_file = lock_file;
@@ -469,12 +492,14 @@ err:
 static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 {
 	int rc;
+#ifndef _MSC_VER
 	struct flock fl;
 
 	fl.l_type = F_WRLCK;
 	fl.l_start = 0;
 	fl.l_whence = SEEK_SET;
 	fl.l_len = 0;
+#endif
 
 	rc = pthread_mutex_trylock(&(a_rotater->lock_mutex));
 	if (rc == EBUSY) {
@@ -485,6 +510,12 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 		return -1;
 	}
 
+#ifdef _MSC_VER
+        if (LockFile(a_rotater->lock_fd,999,0,1,0)==0) {
+	      zc_error("lock fd[%d] fail", a_rotater->lock_fd);
+          return(-1); 
+        }
+#else
 	if (fcntl(a_rotater->lock_fd, F_SETLK, &fl)) {
 		if (errno == EAGAIN || errno == EACCES) {
 			/* lock by other process, that's right, go on */
@@ -499,6 +530,7 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 		}
 		return -1;
 	}
+#endif
 
 	return 0;
 }
@@ -506,6 +538,7 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 {
 	int rc = 0;
+#ifndef _MSC_VER
 	struct flock fl;
 
 	fl.l_type = F_UNLCK;
@@ -517,6 +550,12 @@ static int zlog_rotater_unlock(zlog_rotater_t *a_rotater)
 		rc = -1;
 		zc_error("unlock fd[%s] fail, errno[%d]", a_rotater->lock_fd, errno);
 	}
+#else
+	if (UnlockFile(a_rotater->lock_fd,999,0,1,0)==0) {
+          rc = -1;
+	  zc_error("unlock fd[%s] fail", a_rotater->lock_fd);
+        }
+#endif
 
 	if (pthread_mutex_unlock(&(a_rotater->lock_mutex))) {
 		rc = -1;

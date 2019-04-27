@@ -19,6 +19,10 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#ifdef _MSC_VER
+#include <io.h>
+#endif
+
 #include "rule.h"
 #include "format.h"
 #include "buf.h"
@@ -30,6 +34,7 @@
 
 #include "zc_defs.h"
 
+extern pthread_rwlock_t zlog_env_lock;
 
 void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 {
@@ -73,6 +78,63 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag)
 }
 
 /*******************************************************************************/
+static int zlog_rule_exclusive_close_file(zlogfd fd) {
+	// acquire write lock for thread safety.
+	pthread_rwlock_unlock(&zlog_env_lock);
+	pthread_rwlock_wrlock(&zlog_env_lock);
+
+	if (zlogclose(fd) < 0) {
+		zc_error("close fail, maybe cause by write, errno[%d]", errno);
+		return -1;
+	}
+
+	return 0;
+}
+
+static int zlog_rule_safe_reload_file(zlogfd * fd, char *file_path, int file_open_flags, unsigned int file_perms) {
+	// acquire write lock for thread safety.
+	pthread_rwlock_unlock(&zlog_env_lock);
+	pthread_rwlock_wrlock(&zlog_env_lock);
+
+	if (!is_invalid_zlogfd(*fd)) {
+		zlogclose(*fd);
+	}
+
+	*fd = zlogopen(file_path,
+		ZLOG_OPEN_FLAGS | file_open_flags,
+		file_perms);
+	if (is_invalid_zlogfd(*fd)) {
+		zc_error("open file[%s] fail, errno[%d]", file_path, errno);
+		return -1;
+	}
+
+	return 0;
+}
+
+static int zlog_rule_should_reload_file(char * last_file_path, dev_t last_dev, ino_t last_ino,
+										char * current_file_path, struct zlog_stat * stb,
+										int * do_file_reload, int * redo_inode_stat) {
+	/* check if the output file was changed by an external tool by comparing the inode to our saved off one */
+	*do_file_reload = 0;
+	*redo_inode_stat = 0;
+
+	if (STRICMP(last_file_path, !=, current_file_path)) {
+		*do_file_reload = 1;
+		*redo_inode_stat = 1;
+	} else if (stat(last_file_path, stb)) {
+		if(errno != ENOENT) {
+			zc_error("stat fail on [%s], errno[%d]", last_file_path, errno);
+			return -1;
+		} else {
+			*do_file_reload = 1;
+			*redo_inode_stat = 1;
+		}
+	} else {
+		*do_file_reload = (stb->st_ino != last_ino || stb->st_dev != last_dev);
+	}
+
+	return 0;
+}
 
 static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
@@ -85,26 +147,14 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	/* check if the output file was changed by an external tool by comparing the inode to our saved off one */
-	if (stat(a_rule->file_path, &stb)) {
-		if (errno != ENOENT) {
-			zc_error("stat fail on [%s], errno[%d]", a_rule->file_path, errno);
-			return -1;
-		} else {
-			do_file_reload = 1;
-			redo_inode_stat = 1; /* we'll have to restat the newly created file to get the inode info */
-		}
-	} else {
-		do_file_reload = (stb.st_ino != a_rule->static_ino || stb.st_dev != a_rule->static_dev);
+	if (zlog_rule_should_reload_file(a_rule->file_path, a_rule->static_dev, a_rule->static_ino,
+		a_rule->file_path, &stb, &do_file_reload, &redo_inode_stat) < 0) {
+		return -1;
 	}
 
 	if (do_file_reload) {
-		close(a_rule->static_fd);
-		a_rule->static_fd = open(a_rule->file_path,
-			O_WRONLY | O_APPEND | O_CREAT | a_rule->file_open_flags,
-			a_rule->file_perms);
-		if (a_rule->static_fd < 0) {
-			zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
+		if (zlog_rule_safe_reload_file(&a_rule->static_fd, a_rule->file_path,
+			a_rule->file_open_flags, a_rule->file_perms) < 0) {
 			return -1;
 		}
 
@@ -119,7 +169,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		a_rule->static_ino = stb.st_ino;
 	}
 
-	if (write(a_rule->static_fd,
+	if (zlogwrite(a_rule->static_fd,
 			zlog_buf_str(a_thread->msg_buf),
 			zlog_buf_len(a_thread->msg_buf)) < 0) {
 		zc_error("write fail, errno[%d]", errno);
@@ -129,7 +179,7 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 	/* not so thread safe here, as multiple thread may ++fsync_count at the same time */
 	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fsync(a_rule->static_fd)) {
+		if (zlog_fsync(a_rule->static_fd)) {
 			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_fd, errno);
 		}
 	}
@@ -161,42 +211,50 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 {
 	size_t len;
 	struct zlog_stat info;
-	int fd;
+	zlogfd fd;
+	int do_file_reload = 0;
+	int redo_inode_stat = 0;
+
+	fd = a_rule->static_fd;
 
 	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
 		zc_error("zlog_format_gen_msg fail");
 		return -1;
 	}
 
-	fd = open(a_rule->file_path, 
-		a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
+	if (zlog_rule_should_reload_file(a_rule->file_path, a_rule->static_dev, a_rule->static_ino,
+		a_rule->file_path, &info, &do_file_reload, &redo_inode_stat) < 0) {
 		return -1;
+	}
+
+	if (do_file_reload) {
+		if (zlog_rule_safe_reload_file(&fd, a_rule->file_path,
+			a_rule->file_open_flags, a_rule->file_perms) < 0) {
+			return -1;
+		}
+		a_rule->static_fd = fd;
+
+		/* save off the new dev/inode info from the stat call we already did */
+		if (redo_inode_stat) {
+			if (stat(a_rule->file_path, &info)) {
+				zc_error("stat fail on new file[%s], errno[%d]", a_rule->file_path, errno);
+				return -1;
+			}
+		}
+		a_rule->static_dev = info.st_dev;
+		a_rule->static_ino = info.st_ino;
 	}
 
 	len = zlog_buf_len(a_thread->msg_buf);
-	if (write(fd, zlog_buf_str(a_thread->msg_buf), len) < 0) {
+	if (zlogwrite(fd, zlog_buf_str(a_thread->msg_buf), len) < 0) {
 		zc_error("write fail, errno[%d]", errno);
-		close(fd);
+		zlogclose(fd);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
-	}
-
-	if (close(fd) < 0) {
-		zc_error("close fail, maybe cause by write, errno[%d]", errno);
-		return -1;
-	}
-
-	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
-		a_rule->fsync_count = 0;
-		if (fsync(a_rule->static_fd)) {
-			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_fd, errno);
-		}
+		if (zlog_fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
 
 	if (len > a_rule->archive_max_size) {
@@ -205,15 +263,19 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		return 0;
 	}
 
-	if (stat(a_rule->file_path, &info)) {
-		zc_warn("stat [%s] fail, errno[%d], maybe in rotating", a_rule->file_path, errno);
-		return 0;
-	}
-
 	/* file not so big, return */
 	if (info.st_size + len < a_rule->archive_max_size) return 0;
 
-	if (zlog_rotater_rotate(zlog_env_conf->rotater, 
+	if (zlog_rule_exclusive_close_file(fd) < 0) {
+		return -1;
+	}
+
+	// reset static file path.
+	a_rule->static_fd = (zlogfd)(-1);
+	a_rule->static_dev = 0;
+	a_rule->static_ino = 0;
+
+	if (zlog_rotater_rotate(zlog_env_conf->rotater,
 		a_rule->file_path, len,
 		zlog_rule_gen_archive_path(a_rule, a_thread),
 		a_rule->archive_max_size, a_rule->archive_max_count)
@@ -247,7 +309,12 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 
 static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int fd;
+	zlogfd fd;
+	int do_file_reload = 0;
+	int redo_inode_stat = 0;
+	struct zlog_stat stb;
+
+	fd = a_rule->dynamic_fd;
 
 	zlog_rule_gen_path(a_rule, a_thread);
 
@@ -256,27 +323,40 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	fd = open(zlog_buf_str(a_thread->path_buf),
-		a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", zlog_buf_str(a_thread->path_buf), errno);
+	if (zlog_rule_should_reload_file(a_rule->dynamic_file_path, a_rule->dynamic_dev, a_rule->dynamic_ino,
+		zlog_buf_str(a_thread->path_buf), &stb, &do_file_reload, &redo_inode_stat) < 0) {
 		return -1;
 	}
 
-	if (write(fd, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf)) < 0) {
+	if (do_file_reload) {
+		if (zlog_rule_safe_reload_file(&fd, zlog_buf_str(a_thread->path_buf),
+			a_rule->file_open_flags, a_rule->file_perms) < 0) {
+				return -1;
+		}
+
+		a_rule->dynamic_fd = fd;
+		strcpy(a_rule->dynamic_file_path, zlog_buf_str(a_thread->path_buf));
+
+		/* save off the new dev/inode info from the stat call we already did */
+		if (redo_inode_stat) {
+			if (stat(a_rule->dynamic_file_path, &stb)) {
+				zc_error("stat fail on new file[%s], errno[%d]", a_rule->dynamic_file_path, errno);
+				return -1;
+			}
+		}
+		a_rule->dynamic_dev = stb.st_dev;
+		a_rule->dynamic_ino = stb.st_ino;
+	}
+
+	if (zlogwrite(fd, zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf)) < 0) {
 		zc_error("write fail, errno[%d]", errno);
-		close(fd);
+		zlogclose(fd);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
-	}
-
-	if (close(fd) < 0) {
-		zc_error("close fail, maybe cause by write, errno[%d]", errno);
-		return -1;
+		if (zlog_fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
 
 	return 0;
@@ -284,10 +364,14 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 
 static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
-	int fd;
+	zlogfd fd;
 	char *path;
 	size_t len;
 	struct zlog_stat info;
+	int do_file_reload = 0;
+	int redo_inode_stat = 0;
+
+	fd = a_rule->dynamic_fd;
 
 	zlog_rule_gen_path(a_rule, a_thread);
 
@@ -297,27 +381,42 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 	}
 
 	path = zlog_buf_str(a_thread->path_buf);
-	fd = open(path, a_rule->file_open_flags | O_WRONLY | O_APPEND | O_CREAT, a_rule->file_perms);
-	if (fd < 0) {
-		zc_error("open file[%s] fail, errno[%d]", zlog_buf_str(a_thread->path_buf), errno);
-		return -1;
+
+	if (zlog_rule_should_reload_file(a_rule->dynamic_file_path, a_rule->dynamic_dev, a_rule->dynamic_ino,
+		path, &info, &do_file_reload, &redo_inode_stat) < 0) {
+			return -1;
+	}
+
+	if (do_file_reload) {
+		if (zlog_rule_safe_reload_file(&fd, path,
+			a_rule->file_open_flags, a_rule->file_perms) < 0) {
+				return -1;
+		}
+
+		a_rule->dynamic_fd = fd;
+		strcpy(a_rule->dynamic_file_path, path);
+
+		/* save off the new dev/inode info from the stat call we already did */
+		if (redo_inode_stat) {
+			if (stat(a_rule->dynamic_file_path, &info)) {
+				zc_error("stat fail on new file[%s], errno[%d]", a_rule->dynamic_file_path, errno);
+				return -1;
+			}
+		}
+		a_rule->dynamic_dev = info.st_dev;
+		a_rule->dynamic_ino = info.st_ino;
 	}
 
 	len = zlog_buf_len(a_thread->msg_buf);
-	if (write(fd, zlog_buf_str(a_thread->msg_buf), len) < 0) {
+	if (zlogwrite(fd, zlog_buf_str(a_thread->msg_buf), len) < 0) {
 		zc_error("write fail, errno[%d]", errno);
-		close(fd);
+		zlogclose(fd);
 		return -1;
 	}
 
 	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
-		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
-	}
-
-	if (close(fd) < 0) {
-		zc_error("write fail, maybe cause by write, errno[%d]", errno);
-		return -1;
+		if (zlog_fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
 
 	if (len > a_rule->archive_max_size) {
@@ -326,15 +425,20 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		return 0;
 	}
 
-	if (stat(path, &info)) {
-		zc_warn("stat [%s] fail, errno[%d], maybe in rotating", path, errno);
-		return 0;
-	}
-
 	/* file not so big, return */
 	if (info.st_size + len < a_rule->archive_max_size) return 0;
 
-	if (zlog_rotater_rotate(zlog_env_conf->rotater, 
+	if (zlog_rule_exclusive_close_file(fd) < 0) {
+		return -1;
+	}
+
+	// reset dynamic file path.
+	a_rule->dynamic_fd = (zlogfd)(-1);
+	a_rule->dynamic_dev = 0;
+	a_rule->dynamic_ino = 0;
+	a_rule->dynamic_file_path[0] = '\0';
+
+	if (zlog_rotater_rotate(zlog_env_conf->rotater,
 		path, len,
 		zlog_rule_gen_archive_path(a_rule, a_thread),
 		a_rule->archive_max_size, a_rule->archive_max_count)
@@ -353,7 +457,7 @@ static int zlog_rule_output_pipe(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 		return -1;
 	}
 
-	if (write(a_rule->pipe_fd,
+	if (zlogwrite(a_rule->pipe_fd,
 			zlog_buf_str(a_thread->msg_buf),
 			zlog_buf_len(a_thread->msg_buf)) < 0) {
 		zc_error("write fail, errno[%d]", errno);
@@ -449,7 +553,7 @@ static int zlog_rule_output_stdout(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	if (write(STDOUT_FILENO,
+	if (zlogwrite(STDOUT_FILENO,
 		zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf)) < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		return -1;
@@ -467,7 +571,7 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	if (write(STDERR_FILENO,
+	if (zlogwrite(STDERR_FILENO,
 		zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf)) < 0) {
 		zc_error("write fail, errno[%d]", errno);
 		return -1;
@@ -672,7 +776,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 
 	a_rule->level = zlog_level_list_atoi(levels, p);
 
-	/* level_bit is a bitmap represents which level can be output 
+	/* level_bit is a bitmap represents which level can be output
 	 * 32bytes, [0-255] levels, see level.c
 	 * which bit field is 1 means allow output and 0 not
 	 */
@@ -763,7 +867,9 @@ zlog_rule_t *zlog_rule_new(char *line,
 		a_rule->fsync_period = 0;
 
 		p = file_path + 1;
+#ifndef _MSC_VER
 		a_rule->file_open_flags = O_SYNC;
+#endif
 		/* fall through */
 	case '"' :
 		if (!p) p = file_path;
@@ -809,6 +915,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			}
 		} else {
 			struct stat stb;
+			int sfd = -1;
 
 			if (a_rule->archive_max_size <= 0) {
 				a_rule->output = zlog_rule_output_static_file_single;
@@ -817,16 +924,21 @@ zlog_rule_t *zlog_rule_new(char *line,
 				a_rule->output = zlog_rule_output_static_file_rotate;
 			}
 
-			a_rule->static_fd = open(a_rule->file_path,
-				O_WRONLY | O_APPEND | O_CREAT | a_rule->file_open_flags,
+			a_rule->static_fd = zlogopen(a_rule->file_path,
+				ZLOG_OPEN_FLAGS | a_rule->file_open_flags,
 				a_rule->file_perms);
-			if (a_rule->static_fd < 0) {
+			if (is_invalid_zlogfd(a_rule->static_fd)) {
 				zc_error("open file[%s] fail, errno[%d]", a_rule->file_path, errno);
 				goto err;
 			}
 
 			/* save off the inode information for checking for a changed file later on */
-			if (fstat(a_rule->static_fd, &stb)) {
+#ifdef _MSC_VER
+			sfd = _open_osfhandle((intptr_t)a_rule->static_fd, _O_APPEND);
+#else
+			sfd = a_rule->static_fd;
+#endif
+			if (fstat(sfd, &stb)) {
 				zc_error("stat [%s] fail, errno[%d], failing to open static_fd", a_rule->file_path, errno);
 				goto err;
 			}
@@ -834,6 +946,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			a_rule->static_ino = stb.st_ino;
 		}
 		break;
+#ifndef _MSC_VER
 	case '|' :
 		a_rule->pipe_fp = popen(output + 1, "w");
 		if (!a_rule->pipe_fp) {
@@ -847,6 +960,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		}
 		a_rule->output = zlog_rule_output_pipe;
 		break;
+#endif
 	case '>' :
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility = syslog_facility_atoi(file_limit);
@@ -868,7 +982,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 		break;
 	case '$' :
 		sscanf(file_path + 1, "%s", a_rule->record_name);
-			
+
 		if (file_limit) {  /* record path exists */
 			p = strchr(file_limit, '"');
 			if (!p) {
@@ -947,15 +1061,17 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 		a_rule->dynamic_specs = NULL;
 	}
 	if (a_rule->static_fd) {
-		if (close(a_rule->static_fd)) {
+		if (zlogclose(a_rule->static_fd)) {
 			zc_error("close fail, maybe cause by write, errno[%d]", errno);
 		}
 	}
+#ifndef _MSC_VER
 	if (a_rule->pipe_fp) {
 		if (pclose(a_rule->pipe_fp) == -1) {
 			zc_error("pclose fail, errno[%d]", errno);
 		}
 	}
+#endif
 	if (a_rule->archive_specs) {
 		zc_arraylist_del(a_rule->archive_specs);
 		a_rule->archive_specs = NULL;
@@ -1002,7 +1118,7 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule)
 {
 	zc_assert(a_rule, -1);
-	
+
 	if (STRCMP(a_rule->category, ==, "!")) {
 		return 1;
 	}
@@ -1047,7 +1163,7 @@ int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
 {
 	zlog_record_t *a_record;
 
-	if (a_rule->output != zlog_rule_output_static_record 
+	if (a_rule->output != zlog_rule_output_static_record
 	&&  a_rule->output != zlog_rule_output_dynamic_record) {
 		return 0; /* fliter, may go through not record rule */
 	}

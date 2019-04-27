@@ -14,7 +14,11 @@
 typedef struct zlog_rotater_s {
 	pthread_mutex_t lock_mutex;
 	char *lock_file;
+#ifdef _MSC_VER
+	HANDLE lock_fd;
+#else
 	int lock_fd;
+#endif
 
 	/* single-use members */
 	char *base_path;			/* aa.log */
