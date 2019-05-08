@@ -37,6 +37,7 @@ char *zlog_get_mdc(const char *key);
 void zlog_remove_mdc(const char *key);
 void zlog_clean_mdc(void);
 
+int zlog_level_switch(zlog_category_t * category, int level);
 int zlog_level_enabled(zlog_category_t * category, int level);
 
 void zlog(zlog_category_t * category,
