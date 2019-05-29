@@ -34,6 +34,7 @@ struct zlog_spec_s {
 
 	char print_fmt[MAXLEN_CFG_LINE + 1];
 	int left_adjust;
+	int left_fill_zeros;
 	size_t max_width;
 	size_t min_width;
 

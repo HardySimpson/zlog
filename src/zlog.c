@@ -609,6 +609,25 @@ exit:
 	return;
 }
 
+int zlog_level_switch(zlog_category_t * category, int level)
+{
+    // This is NOT thread safe.
+    memset(category->level_bitmap, 0x00, sizeof(category->level_bitmap));
+    category->level_bitmap[level / 8] |= ~(0xFF << (8 - level % 8));
+    memset(category->level_bitmap + level / 8 + 1, 0xFF,
+	    sizeof(category->level_bitmap) -  level / 8 - 1);
+
+    return 0;
+}
+
+/*******************************************************************************/
+int zlog_level_enabled(zlog_category_t * category, int level)
+{
+    if (category && zlog_category_needless_level(category, level)) return -1;
+
+    return 0;
+}
+
 /*******************************************************************************/
 void vzlog(zlog_category_t * category,
 	const char *file, size_t filelen,

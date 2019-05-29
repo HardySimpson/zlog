@@ -41,12 +41,12 @@ int main(int argc, char** argv)
 	zlog_buf_append(a_buf, aa, strlen(aa));
 	zc_error("a_buf->start[%s]", a_buf->start);
 	zc_error("------------");
-	
+
 	aa = "0";
 	zlog_buf_append(a_buf, aa, strlen(aa));
 	zc_error("a_buf->start[%s]", a_buf->start);
 	zc_error("------------");
-	
+
 	aa = "22345";
 	zlog_buf_append(a_buf, aa, strlen(aa));
 	zc_error("a_buf->start[%s]", a_buf->start);
@@ -59,14 +59,14 @@ int main(int argc, char** argv)
 		for (j = 0; j <= 5; j++) {
 			zlog_buf_restart(a_buf);
 			zc_error("left[1],max[%d],min[%d]", i, j);
-			zlog_buf_adjust_append(a_buf, aa, strlen(aa), 1, i, j);
+			zlog_buf_adjust_append(a_buf, aa, strlen(aa), 1, 0, i, j);
 			zc_error("a_buf->start[%s]", a_buf->start);
 
 			zc_error("-----");
 
 			zlog_buf_restart(a_buf);
 			zc_error("left[0],max[%d],min[%d]", i, j);
-			zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, i, j);
+			zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 0, i, j);
 			zc_error("a_buf->start[%s]", a_buf->start);
 			zc_error("------------");
 		}
@@ -74,30 +74,30 @@ int main(int argc, char** argv)
 
 	aa = "1234567890";
 	zc_error("left[0],max[%d],min[%d]", 15, 5);
-	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 15, 5);
+	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 0, 15, 5);
 	zc_error("a_buf->start[%s]", a_buf->start);
 	zc_error("------------");
 
 	aa = "1234567890";
 	zlog_buf_restart(a_buf);
 	zc_error("left[0],max[%d],min[%d]", 25, 5);
-	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 1, 25, 5);
+	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 1, 0, 25, 5);
 	zc_error("a_buf->start[%s]", a_buf->start);
 	zc_error("------------");
 
 	zlog_buf_restart(a_buf);
 	zc_error("left[0],max[%d],min[%d]", 19, 5);
-	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 19, 5);
+	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 0, 19, 5);
 	zc_error("a_buf->start[%s]", a_buf->start);
 	zc_error("------------");
 
 	zlog_buf_restart(a_buf);
 	zc_error("left[0],max[%d],min[%d]", 20, 5);
-	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 20, 5);
+	zlog_buf_adjust_append(a_buf, aa, strlen(aa), 0, 0, 20, 5);
 	zc_error("a_buf->start[%s]", a_buf->start);
 	zc_error("------------");
 
 	zlog_buf_del(a_buf);
-	
+
 	return 0;
 }

@@ -1,7 +1,9 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass extbook
 \use_default_options true
 \begin_modules
@@ -14,16 +16,18 @@ figs-within-sections
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
-\font_sans default
-\font_typewriter default
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
-
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -45,16 +49,26 @@ figs-within-sections
 \pdf_pdfusetitle true
 \papersize default
 \use_geometry true
-\use_amsmath 1
-\use_esint 1
-\use_mhchem 1
-\use_mathdots 1
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
 \cite_engine basic
+\cite_engine_type default
+\biblio_style plain
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date false
+\justification true
 \use_refstyle 0
+\use_minted 0
 \index 索引
 \shortcut idx
 \color #008000
@@ -63,7 +77,10 @@ figs-within-sections
 \tocdepth 3
 \paragraph_separation indent
 \paragraph_indentation default
-\quotes_language english
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
 \papercolumns 1
 \papersides 1
 \paperpagestyle default
@@ -82,7 +99,7 @@ zlog
 status collapsed
 
 \begin_layout Plain Layout
-A single spark can start a prairie fire -- Mao Zedong
+A single spark can start a prairie fire – Mao Zedong
 \end_layout
 
 \end_inset
@@ -111,6 +128,7 @@ If you have comments or error corrections, post
 LatexCommand href
 name "a issue"
 target "https://github.com/HardySimpson/zlog/issues/new"
+literal "false"
 
 \end_inset
 
@@ -120,6 +138,7 @@ LatexCommand href
 name "HardySimpson1984@gmail.com"
 target "HardySimpson1984@gmail.com"
 type "mailto:"
+literal "false"
 
 \end_inset
 
@@ -230,6 +249,7 @@ Homepage:
 LatexCommand href
 name "http://hardysimpson.github.com/zlog"
 target "http://hardysimpson.github.com/zlog"
+literal "false"
 
 \end_inset
 
@@ -241,6 +261,7 @@ Downloads:
 \begin_inset CommandInset href
 LatexCommand href
 target "https://github.com/HardySimpson/zlog/releases"
+literal "false"
 
 \end_inset
 
@@ -254,6 +275,7 @@ LatexCommand href
 name "HardySimpson1984@gmail.com"
 target "HardySimpson1984@gmail.com"
 type "mailto:"
+literal "false"
 
 \end_inset
 
@@ -289,6 +311,7 @@ zlog uses a feature of C99 compliant vsnprintf.
 LatexCommand href
 name "ctrio"
 target "http://sourceforge.net/projects/ctrio/"
+literal "false"
 
 \end_inset
 
@@ -297,6 +320,7 @@ target "http://sourceforge.net/projects/ctrio/"
 LatexCommand href
 name "C99-snprintf"
 target "http://www.jhweiss.de/software/snprintf.html"
+literal "false"
 
 \end_inset
 
@@ -307,6 +331,10 @@ target "http://www.jhweiss.de/software/snprintf.html"
 \begin_layout Enumerate
 Some people offer versions of zlog for other platforms.
  Thanks!
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -315,6 +343,7 @@ auto tools version:
 \begin_inset CommandInset href
 LatexCommand href
 target "https://github.com/bmanojlovic/zlog"
+literal "false"
 
 \end_inset
 
@@ -326,6 +355,7 @@ cmake verion:
 \begin_inset CommandInset href
 LatexCommand href
 target "https://github.com/lisongmin/zlog"
+literal "false"
 
 \end_inset
 
@@ -337,6 +367,7 @@ windows version:
 \begin_inset CommandInset href
 LatexCommand href
 target "https://github.com/lopsd07/WinZlog"
+literal "false"
 
 \end_inset
 
@@ -350,6 +381,10 @@ zlog 1.2 Release Notes
 
 \begin_layout Enumerate
 zlog 1.2 provides these features:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -377,6 +412,10 @@ Other code compatible details, bug fixes.
 \begin_layout Enumerate
 zlog 1.2 is binary compatible with zlog 1.0.
  The differences are:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -478,6 +517,7 @@ Download:
 \begin_inset CommandInset href
 LatexCommand href
 target "https://github.com/HardySimpson/zlog/archive/latest-stable.tar.gz"
+literal "false"
 
 \end_inset
 
@@ -611,6 +651,10 @@ This example can be found in $(top_builddir)/test/test_hello.c, test_hello.conf
 
 \begin_layout Enumerate
 Write a new c source file:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -636,6 +680,10 @@ int main(int argc, char** argv)
 
 \begin_layout LyX-Code
 {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -657,6 +705,10 @@ rc = zlog_init("test_hello.conf");
 
 \begin_layout LyX-Code
 if (rc) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -685,6 +737,10 @@ c = zlog_get_category("my_cat");
 
 \begin_layout LyX-Code
 if (!c) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -731,6 +787,10 @@ return 0;
 \end_deeper
 \begin_layout Enumerate
 Write a configuration file in the same path as test_hello.c:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -757,6 +817,10 @@ my_cat.DEBUG    >stdout; simple
 \end_deeper
 \begin_layout Enumerate
 Compile and run it:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -801,6 +865,10 @@ int main(int argc, char** argv)
 
 \begin_layout LyX-Code
 {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -814,6 +882,10 @@ rc = dzlog_init("test_default.conf", "my_cat");
 
 \begin_layout LyX-Code
 if (rc) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1128,7 +1200,7 @@ These 2 rules match category "c" with the name "my_cat".
  See 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Category-Matching"
+reference "subsec:Category-Matching"
 
 \end_inset
 
@@ -1306,6 +1378,10 @@ Global section begins with [global].
 
 \begin_layout Itemize
 strict init
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1327,6 +1403,10 @@ If "strict init = true
 \end_deeper
 \begin_layout Itemize
 reload conf period
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1349,6 +1429,10 @@ buffer min
 
 \begin_layout Itemize
 buffer max
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1370,6 +1454,10 @@ zlog allocates a log buffer in each thread.
 \end_deeper
 \begin_layout Itemize
 rotate lock file
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1385,11 +1473,19 @@ write(log_file, a_log)
 
 \begin_layout LyX-Code
 if (log_file > 1M) 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
 \begin_layout LyX-Code
 if (pthread_mutex_lock succ && fcntl_lock(lock_file) succ) 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1440,6 +1536,10 @@ If you choose another path as lock file, for example, /tmp/zlog.lock, zlog
 \end_deeper
 \begin_layout Itemize
 default format
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1463,6 +1563,10 @@ It will yield output like this:
 \end_deeper
 \begin_layout Itemize
 file perms
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1476,6 +1580,10 @@ This specifies all log file permissions when they are created.
 \end_deeper
 \begin_layout Itemize
 fsync period
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -1711,7 +1819,7 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="21" columns="3">
+<lyxtabular version="3" rows="22" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="left" valignment="top" width="50text%">
@@ -1798,7 +1906,7 @@ Used to output the date of the logging event.
  see 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Time-Character"
+reference "subsec:Time-Character"
 
 \end_inset
 
@@ -2023,6 +2131,37 @@ Used to output the hostname of system, which is from gethostname(2)
 
 \begin_layout Plain Layout
 zlog-dev
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%k
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the kernel thread id.
+ On Linux, that's the LWP using syscall(SYS_gettid) and on OSX, pthread_threadid
+_np.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2136
 \end_layout
 
 \end_inset
@@ -2298,7 +2437,7 @@ Used to output the hexadecimal form of the thread id that generated the
 \end_layout
 
 \begin_layout Plain Layout
-"0x%x",(unsigned int) pthread_t
+"%x",(unsigned int) pthread_t
 \end_layout
 
 \end_inset
@@ -2307,7 +2446,7 @@ Used to output the hexadecimal form of the thread id that generated the
 \begin_inset Text
 
 \begin_layout Plain Layout
-0xba01e700
+ba01e700
 \end_layout
 
 \end_inset
@@ -2460,7 +2599,7 @@ Below are various format modifier examples for the category conversion specifier
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="6" columns="5">
+<lyxtabular version="3" rows="7" columns="5">
 <features tabularvalignment="middle">
 <column alignment="center" valignment="top" width="9text%">
 <column alignment="center" valignment="top" width="8text%">
@@ -2562,7 +2701,7 @@ Left pad with spaces if the category name is less than 20 characters long.
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2571,11 +2710,59 @@ Left pad with spaces if the category name is less than 20 characters long.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 true
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+none
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Right pad with spaces if the category name is less than 20 characters long.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%020c
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+false
 \end_layout
 
 \end_inset
@@ -2602,8 +2789,7 @@ none
 \begin_inset Text
 
 \begin_layout Plain Layout
-Right pad with spaces if the category name is less than 20 characters long.
- 
+Left pad with 0's if the category name is less than 20 characters long.
 \end_layout
 
 \end_inset
@@ -2765,7 +2951,7 @@ Right pad with spaces if the category name is shorter than 20 characters.
 Time Character
 \begin_inset CommandInset label
 LatexCommand label
-name "sub:Time-Character"
+name "subsec:Time-Character"
 
 \end_inset
 
@@ -4093,7 +4279,7 @@ When zlog_init() is called, all rules will be read into memory.
  category, in the way 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sub:Category-Matching"
+reference "subsec:Category-Matching"
 
 \end_inset
 
@@ -4124,8 +4310,8 @@ There are six default levels in zlog, "DEBUG", "INFO", "NOTICE", "WARN",
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="2">
 <features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
 \begin_inset Text
@@ -4249,7 +4435,7 @@ reference "sec:User-defined-Level"
 Category Matching
 \begin_inset CommandInset label
 LatexCommand label
-name "sub:Category-Matching"
+name "subsec:Category-Matching"
 
 \end_inset
 
@@ -4484,8 +4670,8 @@ zlog supports various output methods.
 \begin_inset Tabular
 <lyxtabular version="3" rows="8" columns="3">
 <features tabularvalignment="middle">
-<column alignment="left" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top">
+<column alignment="center" valignment="top">
 <column alignment="left" valignment="top" width="30text%">
 <row>
 <cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
@@ -4744,6 +4930,10 @@ $name
 
 \begin_layout Itemize
 stdout, stderr, syslog
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4778,6 +4968,10 @@ What will happen then? The log will be written to the file whose fd is now
 \end_deeper
 \begin_layout Itemize
 pipeline output
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4894,11 +5088,19 @@ Unrelated multiple processes, no matter how long a single log is, will cause
 \end_deeper
 \begin_layout Itemize
 file
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
 \begin_layout Itemize
 file path
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4928,6 +5130,10 @@ file of zlog is powerful, for example
 
 \begin_layout Enumerate
 output to named pipe(FIFO), which must be created by mkfifo(1) before use
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4938,6 +5144,10 @@ output to named pipe(FIFO), which must be created by mkfifo(1) before use
 \end_deeper
 \begin_layout Enumerate
 output to null, do nothing at all
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4948,6 +5158,10 @@ output to null, do nothing at all
 \end_deeper
 \begin_layout Enumerate
 output to console, in any case
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4958,6 +5172,10 @@ output to console, in any case
 \end_deeper
 \begin_layout Enumerate
 output a log to each tid, in the directory where the process running
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4969,6 +5187,10 @@ output a log to each tid, in the directory where the process running
 \begin_layout Enumerate
 output to file with pid name, every day, in $HOME/log directory, rotate
  log at 1GB, keep 5 log files
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -4988,6 +5210,10 @@ aa_.*      "/var/log/%c.log"
 \end_deeper
 \begin_layout Itemize
 rotate action 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5066,6 +5292,10 @@ name "ite:synchronous-I/O-file"
 \end_inset
 
 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5112,6 +5342,10 @@ sys	 0m6.950s
 \end_deeper
 \begin_layout Itemize
 format name
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5160,6 +5394,10 @@ Why rotation? I have see more than once in a production environment, that
 
 \begin_layout Enumerate
 Split log by date or time.
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5211,6 +5449,10 @@ or using cronolog for faster performace:
 \end_deeper
 \begin_layout Enumerate
 Split log by size.
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5330,6 +5572,10 @@ The 3rd argument after the file name shows the archive file name.
 \end_deeper
 \begin_layout Enumerate
 Split log by size, and add time tag to archive file.
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5380,6 +5626,10 @@ Do rotation every 100MB.
 \end_deeper
 \begin_layout Enumerate
 Compress, move and delete old archive.
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5544,6 +5794,10 @@ initialize and finish
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5571,6 +5825,10 @@ void zlog_fini(void);
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5627,6 +5885,10 @@ memory and closes opened files.
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5644,6 +5906,10 @@ category operation
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5663,6 +5929,10 @@ cname
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5739,6 +6009,10 @@ zlog_fini() will clean up at the end.
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5756,6 +6030,10 @@ log functions and macros
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5931,6 +6209,10 @@ buflen
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6045,6 +6327,10 @@ is an int in the current level list, which defaults to:
 
 \begin_layout LyX-Code
 typedef enum {                 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6208,6 +6494,10 @@ hzlog_debug(cat, buf, buf_len)
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6225,6 +6515,10 @@ MDC operation
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6264,6 +6558,10 @@ void zlog_clean_mdc(void);
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6294,6 +6592,10 @@ One thing you should remember is that the map bonds to a thread, thus if
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6323,6 +6625,10 @@ name "sec:dzlog-API"
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6490,6 +6796,10 @@ buflen
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6622,6 +6932,10 @@ hdzlog_debug(buf, buf_len)
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6639,6 +6953,10 @@ User-defined Output
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6686,6 +7004,10 @@ record
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6748,6 +7070,10 @@ All settings of zlog_set_record() are kept available after zlog_reload().
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 RETURN VALUE
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6765,6 +7091,10 @@ debug and profile
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 SYNOPSIS
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6776,6 +7106,10 @@ void zlog_profile(void);
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
 DESCRIPTION
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6853,6 +7187,10 @@ int main(int argc, char** argv)
 
 \begin_layout LyX-Code
 {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6870,6 +7208,10 @@ rc = zlog_init("test_mdc.conf");
 
 \begin_layout LyX-Code
 if (rc) { 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -6894,6 +7236,10 @@ zc = zlog_get_category("my_cat");
 
 \begin_layout LyX-Code
 if (!zc) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7303,6 +7649,10 @@ int main(int argc, char** argv)
 
 \begin_layout LyX-Code
 {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7316,6 +7666,10 @@ rc = dzlog_init("test_profile.conf", "my_cat");
 
 \begin_layout LyX-Code
 if (rc) { 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7495,6 +7849,10 @@ Here are all the steps to define your own levels.
 
 \begin_layout Enumerate
 Define levels in the configuration file.
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7589,6 +7947,10 @@ In the level definition LOG_DEBUG means when using >syslog in a rule, all
 \end_deeper
 \begin_layout Enumerate
 Using the new log level in source file, the direct way is like this
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7638,6 +8000,10 @@ $ cat $(top_builddir)/test/test_level.h
 
 \begin_layout LyX-Code
 enum {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7683,6 +8049,10 @@ ZLOG_LEVEL_TRACE = 30,
 \end_deeper
 \begin_layout Enumerate
 Then zlog_trace can be used int .c file
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7704,6 +8074,10 @@ int main(int argc, char** argv)
 
 \begin_layout LyX-Code
 {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7725,6 +8099,10 @@ rc = zlog_init("test_level.conf");
 
 \begin_layout LyX-Code
 if (rc) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7749,6 +8127,10 @@ zc = zlog_get_category("my_cat");
 
 \begin_layout LyX-Code
 if (!zc) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7799,6 +8181,10 @@ return 0;
 \end_deeper
 \begin_layout Enumerate
 Now we can see the output
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7844,6 +8230,10 @@ The goal of user-defined output is that zlog gives up some rights.
 
 \begin_layout Enumerate
 Define output in rules of configure file.
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7870,6 +8260,10 @@ my_cat.*      $myoutput, " mypath %c %d";simple
 \end_deeper
 \begin_layout Enumerate
 Set an output function for myoutput, then use it
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7887,6 +8281,10 @@ int output(zlog_msg_t *msg)
 
 \begin_layout LyX-Code
 { 
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7915,6 +8313,10 @@ int main(int argc, char** argv)
 
 \begin_layout LyX-Code
 {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7924,6 +8326,10 @@ int rc;
 
 \begin_layout LyX-Code
 zlog_category_t *zc;
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -7960,6 +8366,10 @@ zc = zlog_get_category("my_cat");
 
 \begin_layout LyX-Code
 if (!zc) {
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -8002,6 +8412,10 @@ return 0;
 \end_deeper
 \begin_layout Enumerate
 Now we can see how the user-defined output() works
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -8026,6 +8440,10 @@ As you can see, msglen is 12, and msg is formatted by zlog to contain a
 \begin_layout Enumerate
 There are many other things you can do with user-defined output functions.
  As one user(flw@newsmth.net) provided:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -8064,7 +8482,7 @@ Epilog
 \end_layout
 
 \begin_layout Verse
-Here's to alcohol, the cause of -- and solution to -- all life’s problems.
+Here's to alcohol, the cause of – and solution to – all life’s problems.
  
 \end_layout
 

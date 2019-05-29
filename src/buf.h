@@ -40,7 +40,7 @@ void zlog_buf_profile(zlog_buf_t * a_buf, int flag);
 int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args);
 int zlog_buf_append(zlog_buf_t * a_buf, const char *str, size_t str_len);
 int zlog_buf_adjust_append(zlog_buf_t * a_buf, const char *str, size_t str_len,
-			int left_adjust, size_t in_width, size_t out_width);
+			int left_adjust, int zero_pad, size_t in_width, size_t out_width);
 int zlog_buf_printf_dec32(zlog_buf_t * a_buf, uint32_t ui32, int width);
 int zlog_buf_printf_dec64(zlog_buf_t * a_buf, uint64_t ui64, int width);
 int zlog_buf_printf_hex(zlog_buf_t * a_buf, uint32_t ui32, int width);

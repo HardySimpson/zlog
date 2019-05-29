@@ -32,12 +32,12 @@
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 {
 	zc_assert(a_spec,);
-	zc_profile(flag, "----spec[%p][%.*s][%s|%d][%s,%ld,%ld][%s]----",
+	zc_profile(flag, "----spec[%p][%.*s][%s|%d][%s,%ld,%ld,%s][%s]----",
 		a_spec,
 		a_spec->len, a_spec->str,
 		a_spec->time_fmt,
 		a_spec->time_cache_index,
-		a_spec->print_fmt, (long)a_spec->max_width, (long)a_spec->min_width,
+		a_spec->print_fmt, (long)a_spec->max_width, (long)a_spec->min_width, a_spec->left_fill_zeros ? "true" : "false",
 		a_spec->mdc_key);
 	return;
 }
@@ -79,7 +79,7 @@ static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
 	}
 
-	/* 
+	/*
 	 * It is modified when time slips one second.
 	 * So it is a strong cache, as Default time format is always %F %T.
 	 * That's why I said %D is faster than %d()
@@ -213,7 +213,7 @@ static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
-	/* don't need to get tid again, as tmap_new_thread fetch it already */
+	/* don't need to get tid again, as tmap_new_thread fetched it already */
 	/* and fork not change tid */
 	return zlog_buf_append(a_buf, a_thread->event->tid_hex_str, a_thread->event->tid_hex_str_len);
 }
@@ -221,9 +221,17 @@ static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
-	/* don't need to get tid again, as tmap_new_thread fetch it already */
+	/* don't need to get tid again, as tmap_new_thread fetched it already */
 	/* and fork not change tid */
 	return zlog_buf_append(a_buf, a_thread->event->tid_str, a_thread->event->tid_str_len);
+}
+
+static int zlog_spec_write_ktid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+
+	/* don't need to get ktid again, as tmap_new_thread fetched it already */
+	/* and fork not change tid */
+	return zlog_buf_append(a_buf, a_thread->event->ktid_str, a_thread->event->ktid_str_len);
 }
 
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
@@ -363,7 +371,7 @@ static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_th
 
 	return zlog_buf_adjust_append(a_thread->msg_buf,
 		zlog_buf_str(a_thread->pre_msg_buf), zlog_buf_len(a_thread->pre_msg_buf),
-		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
+		a_spec->left_adjust, a_spec->left_fill_zeros, a_spec->min_width, a_spec->max_width);
 }
 
 /*******************************************************************************/
@@ -389,7 +397,7 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_t
 
 	return zlog_buf_adjust_append(a_thread->path_buf,
 		zlog_buf_str(a_thread->pre_path_buf), zlog_buf_len(a_thread->pre_path_buf),
-		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
+		a_spec->left_adjust, a_spec->left_fill_zeros, a_spec->min_width, a_spec->max_width);
 }
 
 /*******************************************************************************/
@@ -415,7 +423,7 @@ static int zlog_spec_gen_archive_path_reformat(zlog_spec_t * a_spec, zlog_thread
 
 	return zlog_buf_adjust_append(a_thread->archive_path_buf,
 		zlog_buf_str(a_thread->pre_path_buf), zlog_buf_len(a_thread->pre_path_buf),
-		a_spec->left_adjust, a_spec->min_width, a_spec->max_width);
+		a_spec->left_adjust, a_spec->left_fill_zeros, a_spec->min_width, a_spec->max_width);
 }
 
 /*******************************************************************************/
@@ -428,8 +436,11 @@ static int zlog_spec_parse_print_fmt(zlog_spec_t * a_spec)
 	p = a_spec->print_fmt;
 	if (*p == '-') {
 		a_spec->left_adjust = 1;
-		p++; 
+		p++;
 	} else {
+		if (*p == '0') {
+			a_spec->left_fill_zeros = 1;
+		}
 		a_spec->left_adjust = 0;
 	}
 
@@ -585,6 +596,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 			break;
 		case 'H':
 			a_spec->write_buf = zlog_spec_write_hostname;
+			break;
+		case 'k':
+			a_spec->write_buf = zlog_spec_write_ktid;
 			break;
 		case 'L':
 			a_spec->write_buf = zlog_spec_write_srcline;

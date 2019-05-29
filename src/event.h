@@ -48,7 +48,7 @@ typedef struct {
 	struct timeval time_stamp;
 
 	time_t time_local_sec;
-	struct tm time_local;	
+	struct tm time_local;
 
 	zlog_time_cache_t *time_caches;
 	int time_cache_count;
@@ -64,6 +64,12 @@ typedef struct {
 
 	char tid_hex_str[30 + 1];
 	size_t tid_hex_str_len;
+
+#if defined __linux__ || __APPLE__
+	pid_t ktid;
+	char ktid_str[30+1];
+	size_t ktid_str_len;
+#endif
 } zlog_event_t;
 
 
