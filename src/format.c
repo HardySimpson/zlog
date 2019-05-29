@@ -46,8 +46,8 @@ void zlog_format_del(zlog_format_t * a_format)
 	if (a_format->pattern_specs) {
 		zc_arraylist_del(a_format->pattern_specs);
 	}
-	free(a_format);
 	zc_debug("zlog_format_del[%p]", a_format);
+    free(a_format);
 	return;
 }
 

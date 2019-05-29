@@ -277,7 +277,7 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 		}
 
 		line_offset = 0;
-		byte_offset = 0;
+		//byte_offset = 0;
 
 		while (1) {
 			unsigned char c;
@@ -458,8 +458,8 @@ static int zlog_spec_parse_print_fmt(zlog_spec_t * a_spec)
 void zlog_spec_del(zlog_spec_t * a_spec)
 {
 	zc_assert(a_spec,);
-	free(a_spec);
 	zc_debug("zlog_spec_del[%p]", a_spec);
+    free(a_spec);
 }
 
 /* a spec may consist of
