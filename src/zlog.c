@@ -1023,5 +1023,10 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 	}
 	return rc;
 }
+/*******************************************************************************/
+int zlog_level_enabled(zlog_category_t *category, const int level)
+{
+	return category && (zlog_category_needless_level(category, level) == 0);
+}
 
 const char *zlog_version(void) { return ZLOG_VERSION; }

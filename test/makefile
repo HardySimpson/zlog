@@ -20,9 +20,10 @@ exe = 		\
 	test_press_write2	\
 	test_press_syslog	\
 	test_syslog	\
-	test_default \
-	test_profile \
-	test_category
+	test_default	\
+	test_profile	\
+	test_category   \
+	test_enabled
 
 all     :       $(exe)
 
