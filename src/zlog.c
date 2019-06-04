@@ -621,14 +621,6 @@ int zlog_level_switch(zlog_category_t * category, int level)
 }
 
 /*******************************************************************************/
-int zlog_level_enabled(zlog_category_t * category, int level)
-{
-    if (category && zlog_category_needless_level(category, level)) return -1;
-
-    return 0;
-}
-
-/*******************************************************************************/
 void vzlog(zlog_category_t * category,
 	const char *file, size_t filelen,
 	const char *func, size_t funclen,
