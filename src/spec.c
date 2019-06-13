@@ -49,7 +49,6 @@ static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 {
 	zlog_time_cache_t * a_cache = a_thread->event->time_caches + a_spec->time_cache_index;
 	time_t now_sec = a_thread->event->time_stamp.tv_sec;
-	struct tm *time_local = &(a_thread->event->time_local);
 
 	/* the event meet the 1st time_spec in his life cycle */
 	if (!now_sec) {
@@ -57,15 +56,34 @@ static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 		now_sec = a_thread->event->time_stamp.tv_sec;
 	}
 
-	/* When this event's last cached time_local is not now */
-	if (a_thread->event->time_local_sec != now_sec) {
-		localtime_r(&(now_sec), time_local);
-		a_thread->event->time_local_sec = now_sec;
+	const char *time_fmt = a_spec->time_fmt;
+	int utc = 0;
+
+	if (time_fmt[0] == '!') {
+		++time_fmt;
+		utc = 1;
+	}
+
+	struct tm *time;
+
+	/* When this event's last cached struct *tm is not now */
+	if (utc) {
+		time = &(a_thread->event->time_utc);
+		if (a_thread->event->time_utc_sec != now_sec) {
+			gmtime_r(&now_sec, time);
+			a_thread->event->time_utc_sec = now_sec;
+		}
+	} else {
+		time = &(a_thread->event->time_local);
+		if (a_thread->event->time_local_sec != now_sec) {
+			localtime_r(&now_sec, time);
+			a_thread->event->time_local_sec = now_sec;
+		}
 	}
 
 	/* When this spec's last cache time string is not now */
 	if (a_cache->sec != now_sec) {
-		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str), a_spec->time_fmt, time_local);
+		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str), time_fmt, time);
 		a_cache->sec = now_sec;
 	}
 

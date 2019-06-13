@@ -47,6 +47,9 @@ typedef struct {
 
 	struct timeval time_stamp;
 
+	time_t time_utc_sec;
+	struct tm time_utc;
+
 	time_t time_local_sec;
 	struct tm time_local;
 
