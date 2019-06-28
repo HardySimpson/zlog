@@ -23,6 +23,7 @@
 
 #define MAXLEN_PATH 1024
 #define MAXLEN_CFG_LINE (MAXLEN_PATH * 4)
+#define MAXLINES_NO 128
 
 #define FILE_NEWLINE "\n"
 #define FILE_NEWLINE_LEN 1
