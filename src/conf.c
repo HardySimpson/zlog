@@ -45,6 +45,7 @@ void zlog_conf_profile(zlog_conf_t * a_conf, int flag)
 	zc_profile(flag, "-conf[%p]-", a_conf);
 	zc_profile(flag, "--global--");
 	zc_profile(flag, "---file[%s],mtime[%s]---", a_conf->file, a_conf->mtime);
+	zc_profile(flag, "---in-memory conf[%s]---", a_conf->cfg_ptr);
 	zc_profile(flag, "---strict init[%d]---", a_conf->strict_init);
 	zc_profile(flag, "---buffer min[%ld]---", a_conf->buf_size_min);
 	zc_profile(flag, "---buffer max[%ld]---", a_conf->buf_size_max);
@@ -93,11 +94,18 @@ void zlog_conf_del(zlog_conf_t * a_conf)
 
 static int zlog_conf_build_without_file(zlog_conf_t * a_conf);
 static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
+static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf);
 
-zlog_conf_t *zlog_conf_new(const char *confpath)
+enum{
+    NO_CFG,
+    FILE_CFG,
+    IN_MEMORY_CFG
+};
+
+zlog_conf_t *zlog_conf_new(const char *config)
 {
 	int nwrite = 0;
-	int has_conf_file = 0;
+	int cfg_source = 0;
 	zlog_conf_t *a_conf = NULL;
 
 	a_conf = calloc(1, sizeof(zlog_conf_t));
@@ -106,15 +114,20 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 		return NULL;
 	}
 
-	if (confpath && confpath[0] != '\0') {
-		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", confpath);
-		has_conf_file = 1;
+	// Find content of pointer. If it starts with '[' then content are configurations.
+	if (config && config[0] != '\0' && config[0] != '[') {
+		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", config);
+		cfg_source = FILE_CFG;
 	} else if (getenv("ZLOG_CONF_PATH") != NULL) {
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONF_PATH"));
-		has_conf_file = 1;
-	} else {
+		cfg_source = FILE_CFG;
+	} else if (config[0]=='[') {
+        memset(a_conf->file, 0x00, sizeof(a_conf->file));
+        nwrite = snprintf(a_conf->cfg_ptr, sizeof(a_conf->cfg_ptr), "%s", config);
+        cfg_source = IN_MEMORY_CFG;
+    } else {
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
-		has_conf_file = 0;
+		cfg_source = NO_CFG;
 	}
 	if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
 		zc_error("not enough space for path name, nwrite=[%d], errno[%d]", nwrite, errno);
@@ -125,7 +138,7 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 	a_conf->strict_init = 1;
 	a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
 	a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
-	if (has_conf_file) {
+	if (cfg_source == FILE_CFG) {
 		/* configure file as default lock file */
 		strcpy(a_conf->rotate_lock_file, a_conf->file);
 	} else {
@@ -155,11 +168,16 @@ zlog_conf_t *zlog_conf_new(const char *confpath)
 		goto err;
 	}
 
-	if (has_conf_file) {
+	if (cfg_source == FILE_CFG) {
 		if (zlog_conf_build_with_file(a_conf)) {
 			zc_error("zlog_conf_build_with_file fail");
 			goto err;
 		}
+	} else if (cfg_source == IN_MEMORY_CFG) {
+				if(zlog_conf_build_with_in_memory(a_conf)){
+					zc_error("zlog_conf_build_with_in_memory fail");
+					goto err;
+				}
 	} else {
 		if (zlog_conf_build_without_file(a_conf)) {
 			zc_error("zlog_conf_build_without_file fail");
@@ -327,7 +345,33 @@ exit:
 	fclose(fp);
 	return rc;
 }
+/**********************************************************************/
+static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf)
+{
+	int rc = 0;
+	char line[MAXLEN_CFG_LINE + 1];
+	char *pline = NULL;
+	int section = 0;
+	pline = line;
+	memset(&line, 0x00, sizeof(line));
+	pline = strtok((char *)a_conf->cfg_ptr, "\n");
 
+	while (pline != NULL) {
+		rc = zlog_conf_parse_line(a_conf, pline, &section);
+		if (rc < 0) {
+			zc_error("parse in-memory configurations[%s] line [%s] fail", a_conf->cfg_ptr, pline);
+			goto exit;
+		} else if (rc > 0) {
+			zc_error("parse in-memory configurations[%s] line [%s] fail", a_conf->cfg_ptr, pline);
+			zc_warn("as strict init is set to false, ignore and go on");
+			rc = 0;
+			continue;
+		}
+		pline = strtok(NULL, "\n");
+	}
+	exit:
+	return rc;
+}
 /* section [global:1] [levels:2] [formats:3] [rules:4] */
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 {
