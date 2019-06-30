@@ -125,11 +125,15 @@ zlog_conf_t *zlog_conf_new(const char *config)
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		nwrite = snprintf(a_conf->cfg_ptr, sizeof(a_conf->cfg_ptr), "%s", config);
 		cfg_source = IN_MEMORY_CFG;
+		if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
+			zc_error("not enough space for configurations, nwrite=[%d], errno[%d]", nwrite, errno);
+			goto err;
+		}
 	} else {
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		cfg_source = NO_CFG;
 	}
-	if (nwrite < 0 || nwrite >= sizeof(a_conf->file)) {
+	if (nwrite < 0 || nwrite >= sizeof(a_conf->file) && cfg_source == FILE_CFG) {
 		zc_error("not enough space for path name, nwrite=[%d], errno[%d]", nwrite, errno);
 		goto err;
 	}
