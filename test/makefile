@@ -4,6 +4,7 @@ exe = 		\
 	test_buf	\
 	test_bitmap	\
 	test_conf	\
+	test_conf2  \
 	test_hashtable	\
 	test_hello	\
 	test_hex	\
