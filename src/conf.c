@@ -97,9 +97,9 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
 static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf);
 
 enum{
-    NO_CFG,
-    FILE_CFG,
-    IN_MEMORY_CFG
+	NO_CFG,
+	FILE_CFG,
+	IN_MEMORY_CFG
 };
 
 zlog_conf_t *zlog_conf_new(const char *config)
@@ -122,10 +122,10 @@ zlog_conf_t *zlog_conf_new(const char *config)
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONF_PATH"));
 		cfg_source = FILE_CFG;
 	} else if (config[0]=='[') {
-        memset(a_conf->file, 0x00, sizeof(a_conf->file));
-        nwrite = snprintf(a_conf->cfg_ptr, sizeof(a_conf->cfg_ptr), "%s", config);
-        cfg_source = IN_MEMORY_CFG;
-    } else {
+		memset(a_conf->file, 0x00, sizeof(a_conf->file));
+		nwrite = snprintf(a_conf->cfg_ptr, sizeof(a_conf->cfg_ptr), "%s", config);
+		cfg_source = IN_MEMORY_CFG;
+	} else {
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		cfg_source = NO_CFG;
 	}
@@ -154,7 +154,7 @@ zlog_conf_t *zlog_conf_new(const char *config)
 	if (!a_conf->levels) {
 		zc_error("zlog_level_list_new fail");
 		goto err;
-	} 
+	}
 
 	a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
 	if (!a_conf->formats) {
@@ -174,10 +174,10 @@ zlog_conf_t *zlog_conf_new(const char *config)
 			goto err;
 		}
 	} else if (cfg_source == IN_MEMORY_CFG) {
-				if(zlog_conf_build_with_in_memory(a_conf)){
-					zc_error("zlog_conf_build_with_in_memory fail");
-					goto err;
-				}
+		if(zlog_conf_build_with_in_memory(a_conf)){
+			zc_error("zlog_conf_build_with_in_memory fail");
+			goto err;
+		}
 	} else {
 		if (zlog_conf_build_without_file(a_conf)) {
 			zc_error("zlog_conf_build_without_file fail");
@@ -360,7 +360,7 @@ static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf)
 		rc = zlog_conf_parse_line(a_conf, pline, &section);
 		if (rc < 0) {
 			zc_error("parse in-memory configurations[%s] line [%s] fail", a_conf->cfg_ptr, pline);
-			goto exit;
+			break;
 		} else if (rc > 0) {
 			zc_error("parse in-memory configurations[%s] line [%s] fail", a_conf->cfg_ptr, pline);
 			zc_warn("as strict init is set to false, ignore and go on");
@@ -369,7 +369,6 @@ static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf)
 		}
 		pline = strtok(NULL, "\n");
 	}
-	exit:
 	return rc;
 }
 /* section [global:1] [levels:2] [formats:3] [rules:4] */
@@ -387,7 +386,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 
 	if (strlen(line) > MAXLEN_CFG_LINE) {
 		zc_error ("line_len[%ld] > MAXLEN_CFG_LINE[%ld], may cause overflow",
-		     strlen(line), MAXLEN_CFG_LINE);
+			strlen(line), MAXLEN_CFG_LINE);
 		return -1;
 	}
 
@@ -430,7 +429,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			/* now build rotater and default_format
 			 * from the unchanging global setting,
 			 * for zlog_rule_new() */
-			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);	
+			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);
 			if (!a_conf->rotater) {
 				zc_error("zlog_rotater_new fail");
 				return -1;
@@ -465,7 +464,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 
 		if (STRCMP(word_1, ==, "strict") && STRCMP(word_2, ==, "init")) {
 			/* if environment variable ZLOG_STRICT_INIT is set
-			 * then always make it strict 
+			 * then always make it strict
 			 */
 			if (STRICMP(value, ==, "false") && !getenv("ZLOG_STRICT_INIT")) {
 				a_conf->strict_init = 0;
