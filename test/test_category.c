@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	int rc;
 	zlog_category_t *zc;
 
-	rc = zlog_init("./test_category.conf");
+	rc = zlog_init("test_category.conf");
 	if (rc) {
 		printf("init failed\n");
 		return -1;
