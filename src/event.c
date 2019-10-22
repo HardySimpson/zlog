@@ -78,7 +78,10 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 		zc_error("gethostname fail, errno[%d]", errno);
 		goto err;
 	}
-
+	if (pthread_getname_np(a_event->tid, a_event->tid_str, sizeof(a_event->tid_str)) != 0)
+               a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
+       else
+               a_event->tid_str_len = strlen(a_event->tid_str);
 	a_event->host_name_len = strlen(a_event->host_name);
 
 	/* tid is bound to a_event

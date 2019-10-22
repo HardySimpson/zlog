@@ -59,7 +59,7 @@ typedef struct {
 	size_t pid_str_len;
 
 	pthread_t tid;
-	char tid_str[30 + 1];
+	char tid_str[56 + 1];
 	size_t tid_str_len;
 
 	char tid_hex_str[30 + 1];
