@@ -309,7 +309,7 @@ void zlog_fini(void)
 	}
 
 	if (!zlog_env_is_init) {
-		zc_error("before finish, must zlog_init() or dzlog_init() fisrt");
+		zc_error("before finish, must zlog_init() or dzlog_init() first");
 		goto exit;
 	}
 
