@@ -64,7 +64,7 @@ static void zlog_clean_rest_thread(void)
 	return;
 }
 
-static int zlog_init_inner(const char *confpath)
+static int zlog_init_inner(const char *config)
 {
 	int rc = 0;
 
@@ -88,9 +88,9 @@ static int zlog_init_inner(const char *confpath)
 		zlog_env_init_version++;
 	} /* else maybe after zlog_fini() and need not create pthread_key */
 
-	zlog_env_conf = zlog_conf_new(confpath);
+	zlog_env_conf = zlog_conf_new(config);
 	if (!zlog_env_conf) {
-		zc_error("zlog_conf_new[%s] fail", confpath);
+		zc_error("zlog_conf_new[%s] fail", config);
 		goto err;
 	}
 
@@ -113,7 +113,7 @@ err:
 }
 
 /*******************************************************************************/
-int zlog_init(const char *confpath)
+int zlog_init(const char *config)
 {
 	int rc;
 	zc_debug("------zlog_init start------");
@@ -131,8 +131,8 @@ int zlog_init(const char *confpath)
 	}
 
 
-	if (zlog_init_inner(confpath)) {
-		zc_error("zlog_init_inner[%s] fail", confpath);
+	if (zlog_init_inner(config)) {
+		zc_error("zlog_init_inner[%s] fail", config);
 		goto err;
 	}
 
@@ -156,7 +156,7 @@ err:
 	return -1;
 }
 
-int dzlog_init(const char *confpath, const char *cname)
+int dzlog_init(const char *config, const char *cname)
 {
 	int rc = 0;
 	zc_debug("------dzlog_init start------");
@@ -174,8 +174,8 @@ int dzlog_init(const char *confpath, const char *cname)
 		goto err;
 	}
 
-	if (zlog_init_inner(confpath)) {
-		zc_error("zlog_init_inner[%s] fail", confpath);
+	if (zlog_init_inner(config)) {
+		zc_error("zlog_init_inner[%s] fail", config);
 		goto err;
 	}
 
@@ -208,7 +208,7 @@ err:
 	return -1;
 }
 /*******************************************************************************/
-int zlog_reload(const char *confpath)
+int zlog_reload(const char *config)
 {
 	int rc = 0;
 	int i = 0;
@@ -229,13 +229,13 @@ int zlog_reload(const char *confpath)
 	}
 
 	/* use last conf file */
-	if (confpath == NULL) confpath = zlog_env_conf->file;
+	if (config == NULL) config = zlog_env_conf->file;
 
 	/* reach reload period */
-	if (confpath == (char*)-1) {
+	if (config == (char*)-1) {
 		/* test again, avoid other threads already reloaded */
 		if (zlog_env_reload_conf_count > zlog_env_conf->reload_conf_period) {
-			confpath = zlog_env_conf->file;
+			config = zlog_env_conf->file;
 		} else {
 			/* do nothing, already done */
 			goto quit;
@@ -245,7 +245,7 @@ int zlog_reload(const char *confpath)
 	/* reset counter, whether automaticlly or mannually */
 	zlog_env_reload_conf_count = 0;
 
-	new_conf = zlog_conf_new(confpath);
+	new_conf = zlog_conf_new(config);
 	if (!new_conf) {
 		zc_error("zlog_conf_new fail");
 		goto err;

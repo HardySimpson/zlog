@@ -7,16 +7,22 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <string.h>
+
 #include "zlog.h"
+#include "test_conf2.conf.h"
 
 int main(int argc, char** argv)
 {
 	int rc;
 	zlog_category_t *zc;
 
-	rc = zlog_init("test_category.conf");
+	rc = zlog_init(test_conf2_conf);
 	if (rc) {
-		printf("init failed\n");
+		printf("init failed, save [] in a config file and try zlog-chk-conf for more detail [%s]\n", test_conf2_conf);
 		return -1;
 	}
 
@@ -27,18 +33,10 @@ int main(int argc, char** argv)
 		return -2;
 	}
 
-	zlog_debug(zc, "hello, zlog - debug");
-
-	zc = zlog_get_category("my-cat");
-	if (!zc) {
-		printf("get cat fail\n");
-		zlog_fini();
-		return -2;
-	}
-
-	zlog_info(zc, "hello, zlog - info");
+	zlog_info(zc, "hello, zlog");
 
 	zlog_fini();
+	printf("log end\n");
 	
 	return 0;
 }
