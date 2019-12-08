@@ -944,7 +944,7 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 		zc_arraylist_del(a_rule->dynamic_specs);
 		a_rule->dynamic_specs = NULL;
 	}
-	if (a_rule->static_fd) {
+	if (a_rule->static_fd > 0) {
 		if (close(a_rule->static_fd)) {
 			zc_error("close fail, maybe cause by write, errno[%d]", errno);
 		}
