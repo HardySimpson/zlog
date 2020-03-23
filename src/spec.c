@@ -45,11 +45,23 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 /*******************************************************************************/
 /* implementation of write function */
 
-static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_time_internal(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, short use_utc)
 {
 	zlog_time_cache_t * a_cache = a_thread->event->time_caches + a_spec->time_cache_index;
 	time_t now_sec = a_thread->event->time_stamp.tv_sec;
-	struct tm *time_local = &(a_thread->event->time_local);
+	struct tm *time;
+	time_t *time_sec;
+	typedef struct tm *(*zlog_spec_time_fn) (const time_t*, struct tm *);
+	zlog_spec_time_fn time_stamp_convert_function;
+	if( use_utc ) {
+		time = &(a_thread->event->time_utc);
+		time_sec =  &(a_thread->event->time_utc_sec);
+		time_stamp_convert_function = gmtime_r;
+	} else {
+		time = &(a_thread->event->time_local);
+		time_sec =  &(a_thread->event->time_local_sec);
+		time_stamp_convert_function = localtime_r;
+	}
 
 	/* the event meet the 1st time_spec in his life cycle */
 	if (!now_sec) {
@@ -58,18 +70,28 @@ static int zlog_spec_write_time(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 	}
 
 	/* When this event's last cached time_local is not now */
-	if (a_thread->event->time_local_sec != now_sec) {
-		localtime_r(&(now_sec), time_local);
-		a_thread->event->time_local_sec = now_sec;
+	if (*time_sec != now_sec) {
+		time_stamp_convert_function(&(now_sec), time);
+		*time_sec = now_sec;
 	}
 
 	/* When this spec's last cache time string is not now */
 	if (a_cache->sec != now_sec) {
-		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str), a_spec->time_fmt, time_local);
+		a_cache->len = strftime(a_cache->str, sizeof(a_cache->str), a_spec->time_fmt, time);
 		a_cache->sec = now_sec;
 	}
 
 	return zlog_buf_append(a_buf, a_cache->str, a_cache->len);
+}
+
+static int zlog_spec_write_time_UTC(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	return zlog_spec_write_time_internal(a_spec, a_thread, a_buf, 1);
+}
+
+static int zlog_spec_write_time_local(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	return zlog_spec_write_time_internal(a_spec, a_thread, a_buf, 0);
 }
 
 #if 0
@@ -508,7 +530,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 
 		p += nread;
 
-		if (*p == 'd') {
+		if (*p == 'd' || *p == 'g') {
+			short use_utc = *p == 'g';
 			if (*(p+1) != '(') {
 				/* without '(' , use default */
 				strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
@@ -533,7 +556,11 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 
 			a_spec->time_cache_index = *time_cache_count;
 			(*time_cache_count)++;
-			a_spec->write_buf = zlog_spec_write_time;
+			if (use_utc) {
+				a_spec->write_buf = zlog_spec_write_time_UTC;
+			} else {
+				a_spec->write_buf = zlog_spec_write_time_local;
+			}
 
 			*pattern_next = p;
 			a_spec->len = p - a_spec->str;
@@ -586,13 +613,19 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 			strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
 			a_spec->time_cache_index = *time_cache_count;
 			(*time_cache_count)++;
-			a_spec->write_buf = zlog_spec_write_time;
+			a_spec->write_buf = zlog_spec_write_time_local;
 			break;
 		case 'F':
 			a_spec->write_buf = zlog_spec_write_srcfile;
 			break;
 		case 'f':
 			a_spec->write_buf = zlog_spec_write_srcfile_neat;
+			break;
+        case 'G':
+            strcpy(a_spec->time_fmt, ZLOG_DEFAULT_TIME_FMT);
+			a_spec->time_cache_index = *time_cache_count;
+			(*time_cache_count)++;
+			a_spec->write_buf = zlog_spec_write_time_UTC;
 			break;
 		case 'H':
 			a_spec->write_buf = zlog_spec_write_hostname;
