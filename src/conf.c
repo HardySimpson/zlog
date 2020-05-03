@@ -275,6 +275,10 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 	while (fgets((char *)pline, sizeof(line) - (pline - line), fp) != NULL) {
 		++line_no;
 		line_len = strlen(pline);
+		if (0 == line_len) {
+			continue;
+		}
+
 		if (pline[line_len - 1] == '\n') {
 			pline[line_len - 1] = '\0';
 		}
