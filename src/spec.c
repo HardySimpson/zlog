@@ -188,6 +188,11 @@ static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	return zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
 }
 
+static int zlog_spec_write_cr(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+{
+	return zlog_buf_append(a_buf, "\r", 1);
+}
+
 static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	return zlog_buf_append(a_buf, "%", 1);
@@ -608,6 +613,9 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 			break;
 		case 'n':
 			a_spec->write_buf = zlog_spec_write_newline;
+			break;
+		case 'r':
+			a_spec->write_buf = zlog_spec_write_cr;
 			break;
 		case 'p':
 			a_spec->write_buf = zlog_spec_write_pid;
