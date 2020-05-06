@@ -24,6 +24,7 @@ exe = 		\
 	test_default	\
 	test_profile	\
 	test_category   \
+	test_prompt	\
 	test_enabled
 
 all     :       $(exe)
