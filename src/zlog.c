@@ -302,10 +302,27 @@ void zlog_fini(void)
 	int rc = 0;
 
 	zc_debug("------zlog_fini start------");
-	rc = pthread_rwlock_wrlock(&zlog_env_lock);
-	if (rc) {
-		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
-		return;
+
+	do {
+		zc_error(">> pthread_rwlock_trywrlock");
+		rc = pthread_rwlock_trywrlock(&zlog_env_lock);
+		if (rc) {
+			zc_error("zlog_fini: pthread_rwlock_trywrlock fail, rc[%d]", rc);
+			usleep(100 * 1000);
+		}
+	} while(rc != 0 && rc != EDEADLK && rc != EBUSY);
+
+	if (rc != EBUSY) {
+		rc = pthread_rwlock_wrlock(&zlog_env_lock);
+		if (rc) {
+			zc_error("zlog_fini: pthread_rwlock_wrlock fail, rc[%d]", rc);
+			if (rc != EDEADLK && rc != EBUSY) {
+				zc_error("zlog_fini: pthread_rwlock_wrlock fail, rc[%d], early exit", rc);
+				return;
+			}
+		}
+	} else {
+		zc_error("zlog_fini: pthread_rwlock_wrlock skipping, last rc[%d]", rc);
 	}
 
 	if (!zlog_env_is_init) {
@@ -534,6 +551,7 @@ char *zlog_get_mdc(char *key)
 	return value;
 err:
 	rc = pthread_rwlock_unlock(&zlog_env_lock);
+
 	if (rc) {
 		zc_error("pthread_rwlock_unlock fail, rc=[%d]", rc);
 		return NULL;
@@ -1007,7 +1025,7 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 		zlog_rule_set_record(a_rule, zlog_env_records);
 	}
 
-      zlog_set_record_exit:
+zlog_set_record_exit:
 	rd = pthread_rwlock_unlock(&zlog_env_lock);
 	if (rd) {
 		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
