@@ -636,7 +636,7 @@ void vzlog(zlog_category_t * category,
 	 * but it is safe, the bitmap is valid as long as category exist,
 	 * And will be the right value after zlog_reload()
 	 *
-	 * For speed up, if one log will not be ouput,
+	 * For speed up, if one log will not be output,
 	 * There is no need to aquire rdlock.
 	 */
 	if (zlog_category_needless_level(category, level)) return;

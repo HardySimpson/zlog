@@ -98,7 +98,7 @@ In the configuration file log messages in the category "my_cat" and a level of D
 -------------
  *  syslog model, better than log4j model
  *  log format customization
- *  multiple output destinations including static file path, dynamic file path, stdout, stderr, syslog, user-defined ouput
+ *  multiple output destinations including static file path, dynamic file path, stdout, stderr, syslog, user-defined output
  *  runtime manually or automatically refresh configure(safely)
  *  high-performance, 250'000 logs/second on my laptop, about 1000 times faster than syslog(3) with rsyslogd
  *  user-defined log level
