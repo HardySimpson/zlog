@@ -133,7 +133,7 @@ zlog_conf_t *zlog_conf_new(const char *config)
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		cfg_source = NO_CFG;
 	}
-	if (nwrite < 0 || nwrite >= sizeof(a_conf->file) && cfg_source == FILE_CFG) {
+	if ((nwrite < 0) || ((nwrite >= sizeof(a_conf->file)) && (cfg_source == FILE_CFG))) {
 		zc_error("not enough space for path name, nwrite=[%d], errno[%d]", nwrite, errno);
 		goto err;
 	}
