@@ -95,7 +95,7 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 #elif __APPLE__
     uint64_t tid64;
     pthread_threadid_np(NULL, &tid64);
-    a_event->tid = (pid_t)tid64;
+    a_event->tid = (pthread_t)tid64;
 #endif
 
 #if defined __linux__ || __APPLE__
