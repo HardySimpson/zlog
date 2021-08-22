@@ -442,12 +442,38 @@ static int zlog_rule_output_stdout(zlog_rule_t * a_rule,
 		return -1;
 	}
 
-	if (write(STDOUT_FILENO,
-		zlog_buf_str(a_thread->msg_buf), zlog_buf_len(a_thread->msg_buf)) < 0) {
-		zc_error("write fail, errno[%d]", errno);
-		return -1;
-	}
+    enum {
+        ZLOG_LEVEL_DEBUG = 20,
+        ZLOG_LEVEL_INFO = 40,
+        ZLOG_LEVEL_NOTICE = 60,
+        ZLOG_LEVEL_WARN = 80,
+        ZLOG_LEVEL_ERROR = 100,
+        ZLOG_LEVEL_FATAL = 120
+    } ;
 
+    switch (a_thread->event->level) {
+    case ZLOG_LEVEL_DEBUG:
+        fprintf(stdout, "\033[36m%s\033[m\n", zlog_buf_str(a_thread->msg_buf));
+        break;
+    case ZLOG_LEVEL_INFO:
+        fprintf(stdout, "\033[32m%s\033[m\n", zlog_buf_str(a_thread->msg_buf));
+        break;
+    case ZLOG_LEVEL_NOTICE:
+        fprintf(stdout, "\033[34m%s\033[m\n", zlog_buf_str(a_thread->msg_buf));
+        break;
+    case ZLOG_LEVEL_WARN:
+        fprintf(stdout, "\033[33m%s\033[m\n", zlog_buf_str(a_thread->msg_buf));
+        break;
+    case ZLOG_LEVEL_ERROR:
+        fprintf(stdout, "\033[31m%s\033[m\n", zlog_buf_str(a_thread->msg_buf));
+        break;
+    case ZLOG_LEVEL_FATAL:
+        fprintf(stdout, "\033[31m%s\033[m\n", zlog_buf_str(a_thread->msg_buf));
+        break;
+    default:
+        break;
+    }
+    fflush(stdout);
 	return 0;
 }
 

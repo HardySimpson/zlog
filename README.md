@@ -118,4 +118,41 @@ In the configuration file log messages in the category "my_cat" and a level of D
  * cmake verion: https://github.com/lisongmin/zlog
  * windows version: https://github.com/lopsd07/WinZlog
 
+7.CPP Stream Output and colorful stdout
+
+example:
+````c++
+#include <iostream>
+#include "zlog.h"
+
+using namespace std;
+
+int main()
+{
+    if(zlog_init("zlog.conf") < 0)
+    {
+        cout << "init zlog failed" << endl;
+        return -1;
+    }
+
+    zlog_category_t *tag = zlog_get_category("test");
+
+    zlog_debug(tag, "debug msg");
+    zlog_info(tag, "info msg");
+    zlog_warn(tag, "warn msg");
+    zlog_error(tag, "error msg");
+
+    const string stag("LOG");
+    ZLOGD(stag) << "debug msg: " << stag;
+    ZLOGI(stag) << "info msg: " << stag;
+    ZLOGN(stag) << "notice msg: " << stag;
+    ZLOGW(stag) << "warn msg: " << stag;
+    ZLOGE(stag) << "error msg: " << stag;
+    ZLOGF(stag) << "fatal msg: " << stag;
+    zlog_fini();
+    return 0;
+}
+````
+output:
+![output](output.png)
 

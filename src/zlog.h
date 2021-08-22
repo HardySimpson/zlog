@@ -9,6 +9,8 @@
 #ifndef __zlog_h
 #define __zlog_h
 
+#include <sstream>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -275,5 +277,75 @@ typedef enum {
 #ifdef __cplusplus
 }
 #endif
+
+struct CPPZLOG{
+    CPPZLOG(const std::string &tag, const char *file, size_t filelen, const char *func, size_t funclen,
+         long line, const int level)
+        : _category(zlog_get_category(tag.data()))
+        , _file(file)
+        , _filelen(filelen)
+        , _func(func)
+        , _funclen(funclen)
+        , _line(line)
+        , _level(level)
+    {
+    }
+
+    ~CPPZLOG() {
+        switch(_level)
+        {
+        case ZLOG_LEVEL_DEBUG:
+            zlog(_category, _file, _filelen, _func, _funclen, _line, _level, "%s", _stream.str().c_str());
+            break;
+        case ZLOG_LEVEL_INFO:
+            zlog(_category, _file, _filelen, _func, _funclen, _line, _level, "%s", _stream.str().c_str());
+            break;
+        case ZLOG_LEVEL_NOTICE:
+            zlog(_category, _file, _filelen, _func, _funclen, _line, _level, "%s", _stream.str().c_str());
+            break;
+        case ZLOG_LEVEL_WARN:
+            zlog(_category, _file, _filelen, _func, _funclen, _line, _level, "%s", _stream.str().c_str());
+            break;
+        case ZLOG_LEVEL_ERROR:
+            zlog(_category, _file, _filelen, _func, _funclen, _line, _level, "%s", _stream.str().c_str());
+            break;
+        case ZLOG_LEVEL_FATAL:
+            zlog(_category, _file, _filelen, _func, _funclen, _line, _level, "%s", _stream.str().c_str());
+            break;
+        }
+    }
+
+    zlog_category_t *_category;
+    const char *_file;
+    size_t _filelen;
+    const char *_func;
+    size_t _funclen;
+    long _line;
+    const int _level;
+
+    std::ostringstream _stream;
+    std::ostringstream &stream() {
+       return _stream;
+    }
+
+};
+
+#define ZLOGD(tag) CPPZLOG(tag, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+                        ZLOG_LEVEL_DEBUG).stream()
+
+#define ZLOGI(tag) CPPZLOG(tag, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+                        ZLOG_LEVEL_INFO).stream()
+
+#define ZLOGN(tag) CPPZLOG(tag, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+                        ZLOG_LEVEL_NOTICE).stream()
+
+#define ZLOGW(tag) CPPZLOG(tag, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+                        ZLOG_LEVEL_WARN).stream()
+
+#define ZLOGE(tag) CPPZLOG(tag, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+                        ZLOG_LEVEL_ERROR).stream()
+
+#define ZLOGF(tag) CPPZLOG(tag, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
+                        ZLOG_LEVEL_FATAL).stream()
 
 #endif
