@@ -121,7 +121,7 @@ zlog_conf_t *zlog_conf_new(const char *config)
 	} else if (getenv("ZLOG_CONF_PATH") != NULL) {
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONF_PATH"));
 		cfg_source = FILE_CFG;
-	} else if (config[0]=='[') {
+	} else if (config && config[0]=='[') {
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		nwrite = snprintf(a_conf->cfg_ptr, sizeof(a_conf->cfg_ptr), "%s", config);
 		cfg_source = IN_MEMORY_CFG;
