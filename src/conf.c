@@ -305,7 +305,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 				/* Oops the buffer is full - what now? */
 				pline = line;
 			} else {
-				for (p--; isspace((int)*p); --p)
+				for (p--; p >= line && isspace((int)*p); --p)
 					/*EMPTY*/;
 				p++;
 				*p = 0;
