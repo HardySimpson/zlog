@@ -111,7 +111,7 @@ In the configuration file log messages in the category "my_cat" and a level of D
 
 6.Links:
 -------------
- * Homepage: http://hardysimpson.github.com/zlog
+ * Homepage: http://hardysimpson.github.io/zlog
  * Downloads: https://github.com/HardySimpson/zlog/releases
  * Author's Email: HardySimpson1984@gmail.com
  * auto tools version: https://github.com/bmanojlovic/zlog
