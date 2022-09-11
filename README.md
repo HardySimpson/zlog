@@ -109,7 +109,7 @@ In the configuration file log messages in the category "my_cat" and a level of D
  *  self debuggable, can output zlog's self debug&error log at runtime
  *  No external dependencies, just based on a POSIX system and a C99 compliant vsnprintf.
 
-6.Links:
+6. Links:
 -------------
  * Homepage: http://hardysimpson.github.io/zlog
  * Downloads: https://github.com/HardySimpson/zlog/releases
