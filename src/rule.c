@@ -10,7 +10,11 @@
 
 #include <string.h>
 #include <ctype.h>
+#ifndef _WIN32
 #include <syslog.h>
+#else
+#include "zlog_win.h"
+#endif
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -358,6 +362,7 @@ static int zlog_rule_output_pipe(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 
 static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_thread)
 {
+#ifndef _WIN32
 	zlog_level_t *a_level;
 
 	if (zlog_format_gen_msg(a_rule->format, a_thread)) {
@@ -374,6 +379,7 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_threa
 	zlog_buf_seal(a_thread->msg_buf);
 	syslog(a_rule->syslog_facility | a_level->syslog_level,
 		"%s",  zlog_buf_str(a_thread->msg_buf));
+#endif
 	return 0;
 }
 
@@ -471,6 +477,7 @@ static int zlog_rule_output_stderr(zlog_rule_t * a_rule,
 /*******************************************************************************/
 static int syslog_facility_atoi(char *facility)
 {
+#ifndef _WIN32
 	/* guess no unix system will choose -187
 	 * as its syslog facility, so it is a safe return value
 	 */
@@ -496,6 +503,7 @@ static int syslog_facility_atoi(char *facility)
 	if (STRICMP(facility, ==, "LOG_SYSLOG")) return LOG_SYSLOG;
 		return LOG_AUTHPRIV;
 
+#endif
 	zc_error("wrong syslog facility[%s], must in LOG_LOCAL[0-7] or LOG_USER", facility);
 	return -187;
 }
@@ -756,8 +764,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 		a_rule->fsync_period = 0;
 
 		p = file_path + 1;
+#ifndef _WIN32
 		a_rule->file_open_flags = O_SYNC;
 		/* fall through */
+#endif
 	case '"' :
 		if (!p) p = file_path;
 
@@ -849,12 +859,16 @@ zlog_rule_t *zlog_rule_new(char *line,
 	case '>' :
 		if (STRNCMP(file_path + 1, ==, "syslog", 6)) {
 			a_rule->syslog_facility = syslog_facility_atoi(file_limit);
+#ifdef _WIN32
+            zc_error("syslog not support under windows!");
+#else
 			if (a_rule->syslog_facility == -187) {
 				zc_error("-187 get");
 				goto err;
 			}
 			a_rule->output = zlog_rule_output_syslog;
 			openlog(NULL, LOG_NDELAY | LOG_NOWAIT | LOG_PID, LOG_USER);
+#endif
 		} else if (STRNCMP(file_path + 1, ==, "stdout", 6)) {
 			a_rule->output = zlog_rule_output_stdout;
 		} else if (STRNCMP(file_path + 1, ==, "stderr", 6)) {
@@ -949,11 +963,13 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 			zc_error("close fail, maybe cause by write, errno[%d]", errno);
 		}
 	}
+#ifndef _WIN32
 	if (a_rule->pipe_fp) {
 		if (pclose(a_rule->pipe_fp) == -1) {
 			zc_error("pclose fail, errno[%d]", errno);
 		}
 	}
+#endif
 	if (a_rule->archive_specs) {
 		zc_arraylist_del(a_rule->archive_specs);
 		a_rule->archive_specs = NULL;
