@@ -1,7 +1,13 @@
 #ifndef __zlog_fmacro_h
 #define __zlog_fmacro_h
 
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE
+#endif
+
+#ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
+#endif
 
 #if defined(__linux__) || defined(__OpenBSD__) || defined(_AIX)
 #ifndef _XOPEN_SOURCE
@@ -10,8 +16,20 @@
 #ifndef _XOPEN_SOURCE_EXTENDED
 #define _XOPEN_SOURCE_EXTENDED
 #endif
-#elif !defined(__APPLE__)   // Enables 'phtread_threadid_np' in MacOSX SDKs
+#if defined(__APPLE__)
+#include <AvailabilityMacros.h>
+#else
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
+#endif
+#endif
+#ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE
+#endif
+#endif
+
+#ifndef _LARGEFILE_SOURCE
+#define _LARGEFILE_SOURCE
 #endif
 
 #ifndef _LARGEFILE_SOURCE

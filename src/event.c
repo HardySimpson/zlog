@@ -24,6 +24,9 @@
 
 #include "zc_defs.h"
 #include "event.h"
+#ifdef _WIN32
+#include <Winsock2.h>
+#endif
 
 void zlog_event_profile(zlog_event_t * a_event, int flag)
 {

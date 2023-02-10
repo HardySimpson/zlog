@@ -23,11 +23,17 @@
 static void zc_time(char *time_str, size_t time_str_size)
 {
 	time_t tt;
-	struct tm local_time;
 
 	time(&tt);
+#ifdef _WIN32
+	struct tm *local_time;
+	local_time = localtime(&tt);
+	strftime(time_str, time_str_size, "%m-%d %H:%M:%S", local_time);
+#else
+	struct tm local_time;
 	localtime_r(&tt, &local_time);
-	strftime(time_str, time_str_size, "%m-%d %T", &local_time);
+	strftime(time_str, time_str_size, "%m-%d %H:%M:%S", &local_time);
+#endif
 
 	return;
 }
