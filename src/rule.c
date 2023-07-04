@@ -780,7 +780,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 
 		if (file_limit) {
 			memset(archive_max_size, 0x00, sizeof(archive_max_size));
-			nscan = sscanf(file_limit, " %[0-9MmKkBb] * %d ~",
+			nscan = sscanf(file_limit, " %[0-9GgMmKkBb] * %d ~",
 					archive_max_size, &(a_rule->archive_max_count));
 			if (nscan) {
 				a_rule->archive_max_size = zc_parse_byte_size(archive_max_size);
