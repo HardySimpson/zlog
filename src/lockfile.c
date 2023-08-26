@@ -28,7 +28,7 @@ LOCK_FD lock_file(char* path)
 		zc_error("lock file error : %d ", err);
     }
 #else
-    LOCK_FD fd = open(path, O_RDWR | O_CREAT | O_EXCL, S_IRWXU | S_IRWXG | S_IRWXO);
+    LOCK_FD fd = open(path, O_RDWR | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
     if (fd == INVALID_LOCK_FD)
     {
 		zc_error("lock file error : %s ", strerror(errno));
