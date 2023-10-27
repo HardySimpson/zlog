@@ -1,4 +1,4 @@
-﻿/**
+/**
  * =============================================================================
  *
  * \file lockfile.h
@@ -17,7 +17,7 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <WinBase.h>
-#define LOCK_FD HANDLE
+#define LOCK_FD         HANDLE
 #define INVALID_LOCK_FD INVALID_HANDLE_VALUE
 #else //_WIN32
 #include <string.h>
@@ -26,7 +26,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#define LOCK_FD int
+#define LOCK_FD         int
 #define INVALID_LOCK_FD -1
 #endif
 #include <stdbool.h>
@@ -42,4 +42,3 @@ LOCK_FD lock_file(char* path);
 bool unlock_file(LOCK_FD fd);
 
 #endif //__ZLOG_LOCK_FILE_H__
-
