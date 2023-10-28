@@ -7,7 +7,6 @@
  */
 
 #include <string.h>
-#include <syslog.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>

@@ -14,7 +14,13 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "zlog_win.h"
+#endif
+
 #include <time.h>
 
 #include "conf.h"
@@ -23,6 +29,12 @@
 #include "level_list.h"
 #include "rotater.h"
 #include "zc_defs.h"
+
+#ifdef _WIN32
+#define STATS_FILE stat
+#else
+#define STATS_FILE lstat
+#endif
 
 /*******************************************************************************/
 #define ZLOG_CONF_DEFAULT_FORMAT "default = \"%D %V [%p:%F:%L] %m%n\""
@@ -94,6 +106,8 @@ void zlog_conf_del(zlog_conf_t * a_conf)
 
 static int zlog_conf_build_without_file(zlog_conf_t * a_conf);
 static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
+static int zlog_conf_build_with_string(zlog_conf_t *a_conf,
+	const char *conf_string);
 static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf);
 
 enum{
@@ -101,7 +115,7 @@ enum{
 	FILE_CFG,
 	IN_MEMORY_CFG
 };
-
+/*******************************************************************************/
 zlog_conf_t *zlog_conf_new(const char *config)
 {
 	int nwrite = 0;
@@ -121,7 +135,7 @@ zlog_conf_t *zlog_conf_new(const char *config)
 	} else if (getenv("ZLOG_CONF_PATH") != NULL) {
 		nwrite = snprintf(a_conf->file, sizeof(a_conf->file), "%s", getenv("ZLOG_CONF_PATH"));
 		cfg_source = FILE_CFG;
-	} else if (config[0]=='[') {
+	} else if (config && config[0]=='[') {
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		nwrite = snprintf(a_conf->cfg_ptr, sizeof(a_conf->cfg_ptr), "%s", config);
 		cfg_source = IN_MEMORY_CFG;
@@ -133,7 +147,7 @@ zlog_conf_t *zlog_conf_new(const char *config)
 		memset(a_conf->file, 0x00, sizeof(a_conf->file));
 		cfg_source = NO_CFG;
 	}
-	if (nwrite < 0 || nwrite >= sizeof(a_conf->file) && cfg_source == FILE_CFG) {
+	if ((nwrite < 0) || ((nwrite >= sizeof(a_conf->file)) && (cfg_source == FILE_CFG))) {
 		zc_error("not enough space for path name, nwrite=[%d], errno[%d]", nwrite, errno);
 		goto err;
 	}
@@ -196,6 +210,71 @@ err:
 	return NULL;
 }
 /*******************************************************************************/
+zlog_conf_t *zlog_conf_new_from_string(const char *config_string)
+{
+    zlog_conf_t *a_conf = NULL;
+
+    a_conf = calloc(1, sizeof(zlog_conf_t));
+    if (!a_conf) {
+        zc_error("calloc fail, errno[%d]", errno);
+        return NULL;
+    }
+
+    // no configuration file
+    memset(a_conf->file, 0x00, sizeof(a_conf->file));
+
+    a_conf->levels = zlog_level_list_new();
+    if (!a_conf->levels) {
+        zc_error("zlog_level_list_new fail");
+        goto err;
+    }
+
+    a_conf->formats = zc_arraylist_new((zc_arraylist_del_fn) zlog_format_del);
+    if (!a_conf->formats) {
+        zc_error("zc_arraylist_new fail");
+        goto err;
+    }
+
+    a_conf->rules = zc_arraylist_new((zc_arraylist_del_fn) zlog_rule_del);
+    if (!a_conf->rules) {
+        zc_error("init rule_list fail");
+        goto err;
+    }
+
+    strcpy(a_conf->rotate_lock_file, "zlog-rotate.lock");
+    a_conf->strict_init = 1;
+    a_conf->buf_size_min = ZLOG_CONF_DEFAULT_BUF_SIZE_MIN;
+    a_conf->buf_size_max = ZLOG_CONF_DEFAULT_BUF_SIZE_MAX;
+    strcpy(a_conf->default_format_line, ZLOG_CONF_DEFAULT_FORMAT);
+    a_conf->file_perms = ZLOG_CONF_DEFAULT_FILE_PERMS;
+    a_conf->reload_conf_period = ZLOG_CONF_DEFAULT_RELOAD_CONF_PERIOD;
+    a_conf->fsync_period = ZLOG_CONF_DEFAULT_FSYNC_PERIOD;
+
+    a_conf->default_format = zlog_format_new(a_conf->default_format_line,
+            &(a_conf->time_cache_count));
+    if (!a_conf->default_format) {
+        zc_error("zlog_format_new fail");
+        goto err;
+    }
+
+    a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);
+    if (!a_conf->rotater) {
+        zc_error("zlog_rotater_new fail");
+        goto err;
+    }
+
+    if (zlog_conf_build_with_string(a_conf, config_string)) {
+        zc_error("zlog_conf_build_with_string fail");
+        goto err;
+    }
+
+    zlog_conf_profile(a_conf, ZC_DEBUG);
+    return a_conf;
+err:
+    zlog_conf_del(a_conf);
+    return NULL;
+}
+/*******************************************************************************/
 static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 {
 	zlog_rule_t *default_rule;
@@ -237,6 +316,136 @@ static int zlog_conf_build_without_file(zlog_conf_t * a_conf)
 /*******************************************************************************/
 static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section);
 
+char *sgets(char *s, int size, char **string)
+{
+    if (*string == NULL) return NULL;
+
+    char* nlp = strchr(*string, '\n');
+    char *fstring = *string;
+    if (nlp == NULL) {
+        if (strlen(fstring) > 0) {
+            nlp = fstring + strlen(fstring);
+        } else {
+            return NULL;
+        }
+    }
+
+    int ss =  (int)(nlp + 1 -  fstring);
+    if (size > ss)
+        size = ss;
+
+    memcpy(s, *string, size);
+    s[size] = 0;
+    if (strlen(*string) == strlen(s)) {
+        *string = NULL;
+    } else {
+        *string += size;
+    }
+    return s;
+}
+
+static int zlog_conf_build_with_string(zlog_conf_t *a_conf,
+        const char *conf_string)
+{
+    int rc = 0;
+    char line[MAXLEN_CFG_LINE + 1];
+    size_t line_len;
+    char *pline = NULL;
+    char *p = NULL;
+    int line_no = 0;
+    int i = 0;
+    int in_quotation = 0;
+    char *conf_string_l = (char*) conf_string;
+
+    int section = 0;
+    /* [global:1] [levels:2] [formats:3] [rules:4] */
+
+    if (a_conf == NULL) {
+        return -1;
+    }
+
+    /* Now process the file.
+     */
+    pline = line;
+    memset(&line, 0x00, sizeof(line));
+    while (sgets(pline, MAXLEN_CFG_LINE, &conf_string_l) != NULL) {
+        ++line_no;
+        line_len = strlen(pline);
+        if (pline[line_len - 1] == '\n') {
+            pline[line_len - 1] = '\0';
+        }
+
+        /* check for end-of-section, comments, strip off trailing
+         * spaces and newline character.
+         */
+        p = pline;
+        while (*p && isspace((int)*p))
+            ++p;
+        if (*p == '\0' || *p == '#')
+            continue;
+
+        for (i = 0; p[i] != '\0'; ++i) {
+            pline[i] = p[i];
+        }
+        pline[i] = '\0';
+
+        for (p = pline + strlen(pline) - 1; isspace((int)*p); --p)
+            /*EMPTY*/;
+
+        if (*p == '\\') {
+            if ((p - line) > MAXLEN_CFG_LINE - 30) {
+                /* Oops the buffer is full - what now? */
+                pline = line;
+            } else {
+                for (p--; isspace((int)*p); --p)
+                    /*EMPTY*/;
+                p++;
+                *p = 0;
+                pline = p;
+                continue;
+            }
+        } else {
+            memmove(line, pline, strlen(pline)+1);
+        }
+
+        *++p = '\0';
+
+        /* clean the tail comments start from # and not in quotation */
+        in_quotation = 0;
+        for (p = line; *p != '\0'; p++) {
+            if (*p == '"') {
+                in_quotation ^= 1;
+                continue;
+            }
+
+            if (*p == '#' && !in_quotation) {
+                *p = '\0';
+                break;
+            }
+        }
+
+        /* we now have the complete line,
+         * and are positioned at the first non-whitespace
+         * character. So let's process it
+         */
+        rc = zlog_conf_parse_line(a_conf, line, &section);
+        if (rc < 0) {
+            zc_error("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
+            zc_error("line[%s]", line);
+            goto exit;
+        } else if (rc > 0) {
+            zc_warn("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
+            zc_warn("line[%s]", line);
+            zc_warn("as strict init is set to false, ignore and go on");
+            rc = 0;
+            continue;
+        }
+    }
+
+exit:
+    return rc;
+}
+
 static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 {
 	int rc = 0;
@@ -255,13 +464,13 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 	int section = 0;
 	/* [global:1] [levels:2] [formats:3] [rules:4] */
 
-	if (lstat(a_conf->file, &a_stat)) {
+	if (STATS_FILE(a_conf->file, &a_stat)) {
 		zc_error("lstat conf file[%s] fail, errno[%d]", a_conf->file,
 			 errno);
 		return -1;
 	}
 	localtime_r(&(a_stat.st_mtime), &local_time);
-	strftime(a_conf->mtime, sizeof(a_conf->mtime), "%F %T", &local_time);
+	strftime(a_conf->mtime, sizeof(a_conf->mtime), "%Y-%m-%d %H:%M:%S", &local_time);
 
 	if ((fp = fopen(a_conf->file, "r")) == NULL) {
 		zc_error("open configure file[%s] fail", a_conf->file);
@@ -277,6 +486,10 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 	while (fgets((char *)pline, sizeof(line) - (pline - line), fp) != NULL) {
 		++line_no;
 		line_len = strlen(pline);
+		if (0 == line_len) {
+			continue;
+		}
+
 		if (pline[line_len - 1] == '\n') {
 			pline[line_len - 1] = '\0';
 		}
@@ -303,7 +516,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 				/* Oops the buffer is full - what now? */
 				pline = line;
 			} else {
-				for (p--; isspace((int)*p); --p)
+				for (p--; p >= line && isspace((int)*p); --p)
 					/*EMPTY*/;
 				p++;
 				*p = 0;
@@ -384,7 +597,7 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 {
 	int nscan;
 	int nread;
-	char name[MAXLEN_CFG_LINE + 1];
+	char name[MAXLEN_CFG_LINE + 1] = "";
 	char word_1[MAXLEN_CFG_LINE + 1];
 	char word_2[MAXLEN_CFG_LINE + 1];
 	char word_3[MAXLEN_CFG_LINE + 1];

@@ -10,11 +10,12 @@
 #define __zlog_rotater_h
 
 #include "zc_defs.h"
+#include "lockfile.h"
 
 typedef struct zlog_rotater_s {
 	pthread_mutex_t lock_mutex;
 	char *lock_file;
-	int lock_fd;
+	LOCK_FD lock_fd;
 
 	/* single-use members */
 	char *base_path;			/* aa.log */

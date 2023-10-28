@@ -1819,7 +1819,7 @@ The recognized conversion characters are
 
 \begin_layout Standard
 \begin_inset Tabular
-<lyxtabular version="3" rows="22" columns="3">
+<lyxtabular version="3" rows="23" columns="3">
 <features islongtable="true" longtabularalignment="center">
 <column alignment="center" valignment="top" width="10text%">
 <column alignment="left" valignment="top" width="50text%">
@@ -1927,7 +1927,7 @@ for more detail.
 \end_layout
 
 \begin_layout Plain Layout
-%d(%T.ms) 17:17:42.035
+%d(%T).%ms 17:17:42.035
 \end_layout
 
 \begin_layout Plain Layout
@@ -2102,6 +2102,51 @@ Used to output the source file name, the string after the last '/' of $F.
 
 \begin_layout Plain Layout
 test_hello.c
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%g()
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Used to output the date of the logging event in UTC in stead of local time.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+%g(%F) 2011-12-01
+\end_layout
+
+\begin_layout Plain Layout
+%g(%m-%d %T) 12-01 15:17:42
+\end_layout
+
+\begin_layout Plain Layout
+%g(%T.ms) 15:17:42.035
+\end_layout
+
+\begin_layout Plain Layout
+%g 2012-02-14 15:03:12
+\end_layout
+
+\begin_layout Plain Layout
+%g() 2012-02-14 15:03:12
 \end_layout
 
 \end_inset

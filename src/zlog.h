@@ -25,7 +25,9 @@ extern "C" {
 typedef struct zlog_category_s zlog_category_t;
 
 int zlog_init(const char *config);
+int zlog_init_from_string(const char *config_string);
 int zlog_reload(const char *config);
+int zlog_reload_from_string(const char *conf_string);
 void zlog_fini(void);
 
 void zlog_profile(void);

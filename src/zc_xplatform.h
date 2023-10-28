@@ -45,6 +45,9 @@
 #if defined(__APPLE__) && !defined(MAC_OS_X_VERSION_10_6)
 #define zlog_fstat fstat64
 #define zlog_stat stat64
+#elif defined(_WIN32)
+#define zlog_fstat _fstat
+#define zlog_stat _stat
 #else
 #define zlog_fstat fstat
 #define zlog_stat stat

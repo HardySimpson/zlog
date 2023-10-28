@@ -20,7 +20,7 @@ void zlog_level_list_profile(zc_arraylist_t *levels, int flag);
 /* if l is wrong or str=="", return -1 */
 int zlog_level_list_set(zc_arraylist_t *levels, char *line);
 
-/* spec ouput use, fast */
+/* spec output use, fast */
 /* rule output use, fast */
 /* if not found, return levels[254] */
 zlog_level_t *zlog_level_list_get(zc_arraylist_t *levels, int l);

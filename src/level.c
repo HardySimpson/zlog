@@ -9,7 +9,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
-#include "syslog.h"
+#ifndef _WIN32
+#include <syslog.h>
+#else
+#include "zlog_win.h"
+#endif
 
 #include "zc_defs.h"
 #include "level.h"
