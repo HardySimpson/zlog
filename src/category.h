@@ -32,7 +32,6 @@ void zlog_category_rollback_rules(zlog_category_t * a_category);
 int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread);
 
 #define zlog_category_needless_level(a_category, lv) \
-    (a_category && !((a_category->level_bitmap[lv/8] >> (7 - lv % 8)) & 0x01))
-
+        a_category && (zlog_env_conf->level > lv || !((a_category->level_bitmap[lv/8] >> (7 - lv % 8)) & 0x01))
 
 #endif
