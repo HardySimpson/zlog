@@ -21,5 +21,5 @@ cc_library(
             "src/zlog_win.h",
         ],
     ),
-    visibility = ["//main:__pkg__"],
+    visibility = ["//visibility:public"],
 )
