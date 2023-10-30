@@ -477,6 +477,8 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 		return -1;
 	}
 
+	a_conf->log_level[0] = '\0';
+
 	/* Now process the file.
 	 */
 	pline = line;
@@ -557,6 +559,8 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 			continue;
 		}
 	}
+
+	a_conf->level = zlog_level_list_atoi(a_conf->levels, a_conf->log_level);
 
 exit:
 	fclose(fp);
@@ -688,6 +692,8 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			} else {
 				a_conf->strict_init = 1;
 			}
+		} else if (STRCMP(word_1, ==, "log") && STRCMP(word_2, ==, "level")) {
+			strcpy(a_conf->log_level, value);
 		} else if (STRCMP(word_1, ==, "buffer") && STRCMP(word_2, ==, "min")) {
 			a_conf->buf_size_min = zc_parse_byte_size(value);
 		} else if (STRCMP(word_1, ==, "buffer") && STRCMP(word_2, ==, "max")) {
