@@ -552,11 +552,11 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 				p += 3;
 			} else {
 				nread = 0;
-				nscan = sscanf(p, "d(%[^)])%n", a_spec->time_fmt, &nread);
+				nscan = sscanf(p + 1, "(%[^)])%n", a_spec->time_fmt, &nread);
 				if (nscan != 1) {
 					nread = 0;
 				}
-				p += nread;
+				p += nread + 1;
 				if (*(p - 1) != ')') {
 					zc_error("in string[%s] can't find match \')\'", a_spec->str);
 					goto err;
