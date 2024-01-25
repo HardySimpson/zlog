@@ -5,7 +5,7 @@
 #======================================
 SET(CPACK_PACKAGE_VENDOR "zlog")
 SET(CPACK_PACKAGE_CONTACT "HardySimpson1984@gmail.com")
-SET(CPACK_RPM_PACKAGE_LICENSE "LGPL")
+SET(CPACK_RPM_PACKAGE_LICENSE "Apache License Version 2.0")
 
 #======================================
 # default install prefix.
