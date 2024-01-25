@@ -3,7 +3,7 @@ Version:        1.2.8
 Release:        1
 Summary:        zlog logger framework
 
-License:        LGPL
+License:        Apache License, Version 2.0
 URL:            http://hardysimpson.github.io/zlog/
 
 BuildRequires:  gcc make

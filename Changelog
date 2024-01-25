@@ -1,117 +1,222 @@
---- 1.2.12 ---
-[o] bugfix for avoid segmentation fault if call zlog_init() many times
-[o] static file rule to emulate python's WatchedFileHandler mode when used with external log rotation
---- 1.2.10 ---
-[o] bugfix, LGPL v3 -> LGPL v2.1
---- 1.2.8 ---
-[o] gcc __attribute__宏，用于检查zlog的format输出格式
-[o] 支持配置文件行中带#注释
---- 1.2.5 ---
-[o] 保证在单个线程退出的时候自动删除thread, 用atexit来注册函数解决主线程退出的问题
-[o] 缓存多个时间，保证所有的%d在strftime的时候都能每秒缓存，达到和原先%D一样的速度
-[o] 鉴于上面那点，去掉%D的使用，虽然库还支持，但文档和实例代码都用%d
-[o] 修复makefile静态链接zlog-chk-conf
---- 1.2.4 ---
-[o] 不再维持thread_list链表，每次写日志时判断配置有无更新，来刷新每线程的缓存大小
---- 1.2.0 ---
-[o] rotate和zip的方案
-[o] 把一部分static变量化为全局变量，减少接口参数
-[o] fstat64
-[o] pipe, cronolog
-[o] record忽略第二参数
-[o] __VA_ARGS__的跨平台
-[o] 增加git/版本在代码中的标志(redis)
-[o] 去除auto tools的使用，自行makefile[redis]
-[o] 宏都小写化
-[o] const
-[x] 每线程内置rule-> file fd write time
-[x] 用时间作为判断重载配置reload conf period，而不是次数，需要每次取时间计算，暂不考虑
-[x] zlog_set_conf("section", "command");
-[x] format,spec,level采用直接数组的方式重写，性能提高不大
-[x] 增加manpage,  df, 案例
---- 1.1.3 ---
-[o] zlog_record动态一点
---- 1.1.2 ---
-[o] 修正rule.c, path_buf封顶
---- 1.1.1 ---
-[o] 修正rule.c, 不使用FILE*, 避免日志交错
---- 1.1.0 ---
-[x] spec改为switch循环, 如果可能的话rule也照样--发现switch的效率不如函数指针
-[x] 把__LINE__ 变成string--需要改接口
-[o] 建立bit位来判断,无锁判断
-[o] 寻找快速的方法把us, srcline变成字符串
-[o] 在一开始就判断是否需要输出,
-[o] 使用pthread_key_t线程私有变量来存储zlog_thread_t，仅有1%不到的提高
-[o] 增加%D，缓存strftime的结果
-[o] 缓存pid, tid的字符串形式
-[o] 去掉rc的使用[redis]
-[o] 对ZLOG_FMT和ZLOG_HEX清算,部分成功
---- 1.0.7 ---
-[x] 自己实现部分的strftime，进一步提高效率--替换后发现vsnprintf消耗增加，未能超越原有strftime的效率
-[o] %t显示为16进制
-[o] 零碎的性能优化，10%把
---- 1.0.6 ---
-[o] 每秒取一次localtime_r，加速1倍以上
---- 1.0.5 ---
-[o] 修复1.0.4的问题，reopen文件时用读写锁保护
---- 1.0.4 ---
-[o] 测试多线程的效率
-[o] 缓存静态文件的FILE*和fd，优化，加速3倍
---- 1.0.3 ---
-[o] 基于日志笔数自动刷新配置
-[o] 基于日志笔数自动做sync到硬盘操作
---- 1.0.2 ---
-[o] 增加同步写入到硬盘选项，打开后极为费时
---- 1.0.1 ---
-[o] 采用配置文件作为锁文件
---- 1.0.0 ---
-[o] 改变配置文件的布局，去掉@ &这种符号，改用[global],[format]这样的形式来
-[o] 把reload改成原子性的，失败用旧的
-[o] 优化spec_gen_msg部分, spec内采用自己写的buf_append对齐来代替buf_sprintf
-[o] 引入__func__
-[o] 文件的权限设置
-[o] 输出函数自定义
---- 0.9 ---
-[o] 采用更加面向对象的方法来写
-[o] 使用arraylist来代替linklist为内部数据结构
-[o] 改进配置文件的格式
-[o] 打造线程安全的日志函数库
-[o] 解决微秒毫秒在配置中的表示
-[o] 把event并到thread内避免开内存
-[o] 增加init读取配置文件的api
-[o] default] format的解析，初始化全无的时候的输出，zlog_chk_conf的编写
-[o] 把category独立出来
-[o] 增加update接口
-[o] buf的大小无法通过zlog_init动态的改变，可以zlog_update重建所有缓存解决，呵呵
-[o] 调整文件创建权限，采用类似fopen的办法，为0666&(~umask)
-[o] syslog输出，搞定但发现syslog暴慢
-[o] 转档的模式，是否需要轮询等，解决为传统模式
-[o] 增加zlog_profile接口，诊断配置内存
-[o] 增加MDC,可配置的增加字段
-[o] 测试buf被重写的时候，是否会导致后面的\0没加
-[o] xlog要改名为zlog....
-[o] 取一次ZLOG_ERROR_LOG和ZLOG_DEBUG_LOG，避免多次getenv
-[o] zc_assert一般关闭，调试打开
-[o] 增加!.*, 匹配未被匹配的分类
-[o] priority->level
-[o] level自定义
-[o] rule syslog open
-[o] default format移到全局配置
-[o] reset level, 用arraylist来做试试看
-[o] ylog, 更简单的接口, 改名为dzlog的一堆接口来解决
-[o] zlog-gen-conf
-[o] rotate控制个数
---- 废弃想法 ---
-[x] 使用writev来写日志，提高效率，达到一次形成，多次输出的目的, writev内部也是开buffermemcpy
-[x] 尝试信号量的方法来打成线程安全的转档互斥问题
-[x] zlog.h变长参数宏的问题（参考glib的log解决）
-[x] rule的dynamic] file可以从format获取
-[x] 修改arraylist的读取长度，循环等
-[x] 运行期间指定是否采用线程
-[x] buf_append 优化——为了安全，不优化这个
-[x] 用某种自动编译器以及文档生成器
-[x] 输出到管道,有名管道和文件一样
-[x] 打印堆栈。。可能需要语言支持
-[x] zlog-input -c category -p priority -f conf
-[x] 采用精细的reo en方法来建立用fo en来智能判断需不需要重开文件,操作系统本身已经做得够好，无须做
+zlog (1.2.17) unstable; urgency=medium
+
+  * Change License to Apache 2.0, for more people.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.16) unstable; urgency=medium
+
+  * Minor bug fixes.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.15) unstable; urgency=medium
+
+  * Added support for %r to insert a carriage return.
+  * Minor bug fixes.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.14) unstable; urgency=medium
+
+  * Added support for all syslog facilities.
+  * Test: Added long log test.
+  * Added '-' to the list of accepted characters in category name.
+  * Added API to get zlog version.
+  * Added %k formatter with leading 0's formatting.
+  * Added API for category log level checking.
+  * Fixed compile errors on some platforms.
+  * Minor bug fixes.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.12) unstable; urgency=medium
+
+  * Bugfix to avoid segmentation fault if zlog_init() is called many times.
+  * Static file rule to emulate Python's WatchedFileHandler mode when used with external log rotation.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.10) unstable; urgency=medium
+
+  * Bugfix: LGPL v3 -> LGPL v2.1.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.8) unstable; urgency=medium
+
+  * Added gcc __attribute__ macro for checking zlog's format output.
+  * Added support for # comments in configuration file.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.5) unstable; urgency=medium
+
+  * Ensured automatic deletion of thread on single-thread exit using atexit.
+  * Cached multiple times to ensure every %d is cached every second during strftime.
+  * Removed usage of %D, although library still supports it, documentation and example code use %d.
+  * Fixed makefile for static linking zlog-chk-conf.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.4) unstable; urgency=medium
+
+  * No longer maintains thread_list; checks configuration for updates during each log write.
+  
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.2.0) unstable; urgency=medium
+
+  * Introduced rotate and zip scheme.
+  * Globalized some static variables to reduce interface parameters.
+  * Added fstat64.
+  * Implemented pipe, cronolog.
+  * Ignored second parameter in record.
+  * Cross-platform support for __VA_ARGS__.
+  * Added git/version flags in code (redis).
+  * Removed auto tools, using custom makefile (redis).
+  * Lowercased macros.
+  * Used const.
+  * Introduced per-thread rule->file fd write time.
+  * Used time for reload conf period calculation.
+  * Added zlog_set_conf("section", "command").
+  * Rewrote format, spec, level using direct arrays for improved performance.
+  * Added manpage, df, examples.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.1.3) unstable; urgency=medium
+
+  * Dynamically adjusted zlog_record.
+  
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.1.2) unstable; urgency=medium
+
+  * Corrected rule.c, capped path_buf.
+  
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.1.1) unstable; urgency=medium
+
+  * Corrected rule.c, avoided using FILE* to prevent interleaved logs.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.1.0) unstable; urgency=medium
+
+  * Switched spec to switch loop, introduced bit-wise lock-free checks.
+  * Established bit flags for us, srcline.
+  * Added pthread_key_t for thread-private storage.
+  * Added %D, cached strftime results.
+  * Cached pid, tid as strings.
+  * Removed rc usage (redis).
+  * Cleaned up ZLOG_FMT and ZLOG_HEX.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.7) unstable; urgency=medium
+
+  * Partial implementation of custom strftime for efficiency.
+  * %t displayed in hexadecimal.
+  * Various minor performance optimizations.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.6) unstable; urgency=medium
+
+  * Obtained localtime_r every second for over 1x acceleration.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.5) unstable; urgency=medium
+
+  * Fixed issue from 1.0.4; used read-write lock for reopening files.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.4) unstable; urgency=medium
+
+  * Tested multi-threading efficiency.
+  * Cached static file's FILE* and fd for 3x optimization.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.3) unstable; urgency=medium
+
+  * Automatic configuration refresh based on log count.
+  * Automatic sync to disk based on log count.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.2) unstable; urgency=medium
+
+  * Added synchronous write to disk option (time-consuming when open).
+  
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.1) unstable; urgency=medium
+
+  * Used configuration file as lock file.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (1.0.0) unstable; urgency=medium
+
+  * Changed configuration file layout.
+  * Made reload atomic, falling back to old on failure.
+  * Optimized spec_gen_msg using custom buf_append alignment.
+  * Introduced __func__.
+  * Set file permissions.
+  * Customizable output function.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
+zlog (0.9) unstable; urgency=medium
+
+  * Shifted towards an object-oriented approach.
+  * Used arraylist instead of linklist as an internal data structure.
+  * Improved configuration file format.
+  * Created a thread-safe logging function library.
+  * Resolved microsecond/millisecond representation in configuration.
+  * Merged event into thread to avoid memory allocation.
+  * Added init API for reading configuration files.
+  * Parsed default format when initialized without configuration, wrote zlog_chk_conf.
+  * Isolated category.
+  * Added update API.
+  * Adjusted buf size dynamically through zlog_init, rebuilt all caches using zlog_update.
+  * Aligned file creation permissions similar to fopen (0666 & (~umask)).
+  * Handled syslog output, though syslog was found slow.
+  * Traditional mode for rotation, polling, etc.
+  * Added zlog_profile API for diagnosing configuration memory.
+  * Added MDC with configurable additional fields.
+  * Tested buffer rewriting to ensure trailing \0.
+  * Renamed xlog to zlog.
+  * Retrieved ZLOG_ERROR_LOG and ZLOG_DEBUG_LOG once to avoid multiple getenv calls.
+  * Closed zc_assert by default, opened for debugging.
+  * Added match for !.*, matching unmatched categories.
+  * Changed priority to level.
+  * Customizable level.
+  * Syslog open in rule.
+  * Moved default format to global configuration.
+  * Reset level using arraylist.
+  * Introduced ylog, simplified interface, renamed to dzlog.
+  * Added zlog-gen-conf.
+  * Controlled rotate count.
+  * Abandoned ideas:
+    - [x] Used writev to write logs, improve efficiency, achieve one-time formation, multiple outputs -- writev internally also uses buffer memcpy.
+    - [x] Tried semaphore method to make it thread-safe for archiving mutual exclusion problems.
+    - [x] zlog.h variable-length parameter macro problem (refer to glib's log solution).
+    - [x] dynamic] file in rule can be obtained from format.
+    - [x] Modified arraylist read length, loop, etc.
+    - [x] Specified whether to use threads during runtime.
+    - [x] buf_append optimization -- for safety, did not optimize this.
+    - [x] Used some automatic compiler and document generator.
+    - [x] Output to pipes, named pipes same as files.
+    - [x] Print stack... may need language support.
+    - [x] zlog-input -c category -p priority -f conf.
+    - [x] Used fine-grained reo en method to intelligently determine whether to reopen the file with fo en, the operating system itself has done well enough, no need to do.
+
+ -- [Hardy Simpson] <hardysimpson1984@gmail.com>
+
 

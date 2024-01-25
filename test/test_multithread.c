@@ -1,14 +1,16 @@
-/*
- * This file is part of the zlog Library.
- *
- * Copyright (C) 2017 by Philippe Corbes <philippe.corbes@gmail.com>
- *
- * Licensed under the LGPL v2.1, see the file COPYING in base directory.
- *
- * This test programm start NB_THREADS threads.
- * Each thread loop and log an Info message every THREAD_LOOP_DELAY us (=10ms).
- * The main loop check configuration file modification every seconds and reload configuration on file update.
- * The main loop force reload configuration every RELOAD_DELAY " (=10").
+/* Copyright (c) Hardy Simpson
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <stdio.h>
