@@ -1,59 +1,168 @@
-.*
-!.gitignore
+# Created by https://www.toptal.com/developers/gitignore/api/linux,windows,macos,cmake,c++,c
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,windows,macos,cmake,c++,c
 
+### C ###
+# Prerequisites
+*.d
+
+# Object files
 *.o
-*.lo
-*.la
-*.gcda
-*.gcno
-aclocal.m4
-autom4te.cache
-build
-compile
-config.guess
-config.h
-config.h.in
-config.h.in~
-config.log
-config.status
-config.sub
-configure
-depcomp
-.deps
-install-sh
-.libs
-libtool
-libzlog.so*
-libzlog.a*
-ltmain.sh
-Makefile
-Makefile.in
-missing
-stamp-h1
-tags
-TAGS
-zlog-chk-conf
-zlog-*.tar.gz
-zlog.pc
-callgrind*
-err.log
-test_*
-!test_*.c
-!test_*.conf
-!test_*.h
-doc/*.lyx~
-doc/*.pdf
-doc/obj.think
-doc/zlog.3
-doc/zlogtest.xls
-doc/*.haux
-doc/*.html
-doc/*.htoc
-doc/*.tex
-test/press*
-test/*.png
-cscope*
-release.h
-*.pyc
+*.ko
+*.obj
+*.elf
 
+# Linker output
+*.ilk
+*.map
+*.exp
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
 *.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Kernel Module Compile Results
+*.mod*
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
+Mkfile.old
+dkms.conf
+
+### C++ ###
+# Prerequisites
+
+# Compiled Object files
+*.slo
+
+# Precompiled Headers
+
+# Compiled Dynamic libraries
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+
+# Executables
+
+### CMake ###
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+### CMake Patch ###
+# External projects
+*-prefix/
+
+### Linux ###
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
+
+### macOS ###
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+### macOS Patch ###
+# iCloud generated files
+*.icloud
+
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# End of https://www.toptal.com/developers/gitignore/api/linux,windows,macos,cmake,c++,c
