@@ -552,7 +552,8 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 				p += 3;
 			} else {
 				nread = 0;
-				nscan = sscanf(p, "d(%[^)])%n", a_spec->time_fmt, &nread);
+				p++;
+				nscan = sscanf(p, "(%[^)])%n", a_spec->time_fmt, &nread);
 				if (nscan != 1) {
 					nread = 0;
 				}
