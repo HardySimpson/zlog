@@ -880,8 +880,10 @@ zlog_rule_t *zlog_rule_new(char *line,
 		}
 		break;
 	case '$' :
-		sscanf(file_path + 1, "%s", a_rule->record_name);
-			
+		// read only MAXLEN_PATH characters from the file_path + 1
+		strncpy(a_rule->record_name, file_path + 1, MAXLEN_PATH);
+		a_rule->record_name[MAXLEN_PATH] = '\0';
+		
 		if (file_limit) {  /* record path exists */
 			p = strchr(file_limit, '"');
 			if (!p) {
