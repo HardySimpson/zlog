@@ -2,7 +2,8 @@
 
 zlog is a reliable, high-performance, thread safe, flexible, clear-model, pure C logging library.
 
-Actually, in the C world there was NO good logging library for applications like logback in java or log4cxx in c++. Using printf can work, but can not be redirected or reformatted easily. syslog is slow and is designed for system use.
+Actually, in the C world there was NO good logging library for applications like logback in java or log4cxx in c++.
+Using printf can work, but can not be redirected or reformatted easily. syslog is slow and is designed for system use.
 So I wrote zlog.
 It is faster, safer and more powerful than log4c. So it can be widely used.
 
@@ -24,7 +25,8 @@ make PREFIX=/usr/local/
 sudo make PREFIX=/usr/local/ install
 ```
 
-PREFIX indicates the installation destination for zlog. After installation, refresh your dynamic linker to make sure your program can find zlog library.  
+PREFIX indicates the installation destination for zlog. After installation, refresh your dynamic linker to make sure
+your program can find zlog library.
 
 ```bash
 $ sudo vi /etc/ld.so.conf
@@ -32,17 +34,23 @@ $ sudo vi /etc/ld.so.conf
 $ sudo ldconfig
 ```
 
-Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find it. The command metioned above are for linux. Other systems will need a similar set of actions.
+Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find
+it. The command metioned above are for linux. Other systems will need a similar set of actions.
 
 ## 2. Configuration file
 
 There are 3 important concepts in zlog: categories, formats and rules.
 
-Categories specify different kinds of log entries. In the zlog source code, category is a `zlog_cateogory_t *` variable. In your program, different categories for the log entries will distinguish them from each other.
+Categories specify different kinds of log entries. In the zlog source code, category is a `zlog_cateogory_t *` variable.
+In your program, different categories for the log entries will distinguish them from each other.
 
 Formats describe log patterns, such as: with or without time stamp, source file, source line.
 
-Rules consist of category, level, output file (or other channel) and format. In brief, if the category string in a rule in the configuration file equals the name of a category variable in the source, then they match. Still there is complex match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger output at the level of debug, when father logger output at the level of error)
+Rules consist of category, level, output file (or other channel) and format. In brief, if the category string in a rule
+in the configuration file equals the name of a category variable in the source, then they match. Still there is complex
+match range of category. Rule decouples variable conditions. For example, log4j must specify a level for each logger(or
+inherit from father logger). That's not convenient when each grade of logger has its own level for output(child logger
+output at the level of debug, when father logger output at the level of error)
 
 Now create a configuration file. The function zlog_init takes the files path as its only argument.
 
@@ -55,7 +63,9 @@ simple = "%m%n"
 my_cat.DEBUG    >stdout; simple
 ```
 
-In the configuration file log messages in the category `my_cat` and a level of DEBUG or higher are output to standard output, with the format of simple `%m - usermessage %n - newline`. If you want to direct out to a file and limit the files maximum size, use this configuration
+In the configuration file log messages in the category `my_cat` and a level of DEBUG or higher are output to standard
+output, with the format of simple `%m - usermessage %n - newline`. If you want to direct out to a file and limit the
+files maximum size, use this configuration
 
 ```config
 my_cat.DEBUG            "/var/log/aa.log", 1M; simple
@@ -111,7 +121,8 @@ hello, zlog
 
 * syslog model, better than log4j model
 * log format customization
-* multiple output destinations including static file path, dynamic file path, stdout, stderr, syslog, user-defined output
+* multiple output destinations including static file path, dynamic file path, stdout, stderr, syslog, user-defined
+  output
 * runtime manually or automatically refresh configure(safely)
 * high-performance, 250'000 logs/second on my laptop, about 1000 times faster than syslog(3) with rsyslogd
 * user-defined log level
