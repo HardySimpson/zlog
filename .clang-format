@@ -1,0 +1,13 @@
+# Coding Style Proposal - Verify
+
+Language: Cpp
+BasedOnStyle: Microsoft
+
+################################################
+ReflowComments: false
+SortIncludes: false # can break build; turning off
+SortUsingDeclarations: false # can break build; turning off
+FixNamespaceComments: false
+
+BreakStringLiterals: false
+ColumnLimit: 100
