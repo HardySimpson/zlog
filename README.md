@@ -41,7 +41,7 @@ it. The command metioned above are for linux. Other systems will need a similar 
 
 There are 3 important concepts in zlog: categories, formats and rules.
 
-Categories specify different kinds of log entries. In the zlog source code, category is a `zlog_cateogory_t *` variable.
+Categories specify different kinds of log entries. In the zlog source code, category is a `zlog_category_t *` variable.
 In your program, different categories for the log entries will distinguish them from each other.
 
 Formats describe log patterns, such as: with or without time stamp, source file, source line.
