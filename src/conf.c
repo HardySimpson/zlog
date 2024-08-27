@@ -567,7 +567,9 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 		}
 	}
 
-	a_conf->level = zlog_level_list_atoi(a_conf->levels, a_conf->log_level);
+	if (a_conf->log_level[0] != '\0') {
+		a_conf->level = zlog_level_list_atoi(a_conf->levels, a_conf->log_level);
+	}
 
 exit:
 	fclose(fp);
