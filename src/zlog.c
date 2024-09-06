@@ -809,9 +809,9 @@ void vzlog(zlog_category_t * category,
 	 * For speed up, if one log will not be output,
 	 * There is no need to aquire rdlock.
 	 */
-	if (zlog_category_needless_level(category, level)) return;
-
 	pthread_rwlock_rdlock(&zlog_env_lock);
+	
+	if (zlog_category_needless_level(category, level)) return;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -856,9 +856,9 @@ void hzlog(zlog_category_t *category,
 {
 	zlog_thread_t *a_thread;
 
-	if (zlog_category_needless_level(category, level)) return;
-
 	pthread_rwlock_rdlock(&zlog_env_lock);
+	
+	if (zlog_category_needless_level(category, level)) return;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -904,9 +904,9 @@ void vdzlog(const char *file, size_t filelen,
 {
 	zlog_thread_t *a_thread;
 
-	if (zlog_category_needless_level(zlog_default_category, level)) return;
-
 	pthread_rwlock_rdlock(&zlog_env_lock);
+	
+	if (zlog_category_needless_level(zlog_default_category, level)) return;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -957,9 +957,9 @@ void hdzlog(const char *file, size_t filelen,
 {
 	zlog_thread_t *a_thread;
 
-	if (zlog_category_needless_level(zlog_default_category, level)) return;
-
 	pthread_rwlock_rdlock(&zlog_env_lock);
+	
+	if (zlog_category_needless_level(zlog_default_category, level)) return;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -1012,9 +1012,9 @@ void zlog(zlog_category_t * category,
 	zlog_thread_t *a_thread;
 	va_list args;
 
-	if (category && zlog_category_needless_level(category, level)) return;
-
 	pthread_rwlock_rdlock(&zlog_env_lock);
+	
+	if (category && zlog_category_needless_level(category, level)) return;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -1188,7 +1188,13 @@ int zlog_set_record(const char *rname, zlog_record_fn record_output)
 /*******************************************************************************/
 int zlog_level_enabled(zlog_category_t *category, const int level)
 {
-	return category && ((zlog_category_needless_level(category, level) == 0));
+	int enable = 0;
+
+	pthread_rwlock_rdlock(&zlog_env_lock);
+	enable = category && ((zlog_category_needless_level(category, level) == 0));
+	pthread_rwlock_unlock(&zlog_env_lock);
+	
+	return enable;
 }
 
 const char *zlog_version(void) { return ZLOG_VERSION; }
