@@ -811,7 +811,7 @@ void vzlog(zlog_category_t * category,
 	 */
 	pthread_rwlock_rdlock(&zlog_env_lock);
 	
-	if (zlog_category_needless_level(category, level)) return;
+	if (zlog_category_needless_level(category, level)) goto exit;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -858,7 +858,7 @@ void hzlog(zlog_category_t *category,
 
 	pthread_rwlock_rdlock(&zlog_env_lock);
 	
-	if (zlog_category_needless_level(category, level)) return;
+	if (zlog_category_needless_level(category, level)) goto exit;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -906,7 +906,7 @@ void vdzlog(const char *file, size_t filelen,
 
 	pthread_rwlock_rdlock(&zlog_env_lock);
 	
-	if (zlog_category_needless_level(zlog_default_category, level)) return;
+	if (zlog_category_needless_level(zlog_default_category, level)) goto exit;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -959,7 +959,7 @@ void hdzlog(const char *file, size_t filelen,
 
 	pthread_rwlock_rdlock(&zlog_env_lock);
 	
-	if (zlog_category_needless_level(zlog_default_category, level)) return;
+	if (zlog_category_needless_level(zlog_default_category, level)) goto exit;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
@@ -1014,7 +1014,7 @@ void zlog(zlog_category_t * category,
 
 	pthread_rwlock_rdlock(&zlog_env_lock);
 	
-	if (category && zlog_category_needless_level(category, level)) return;
+	if (category && zlog_category_needless_level(category, level)) goto exit;
 
 	if (!zlog_env_is_init) {
 		zc_error("never call zlog_init() or dzlog_init() before");
