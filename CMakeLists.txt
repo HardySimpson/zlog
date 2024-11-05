@@ -33,7 +33,9 @@ SET(ZLOG_SO_VERSION ${CPACK_PACKAGE_VERSION_MAJOR})
 message(STATUS "platform : ${CMAKE_SYSTEM}")
 
 add_definitions("-g -Wall -Wstrict-prototypes")
-set(CMAKE_C_FLAGS "-std=c99 -pedantic -D_DEFAULT_SOURCE")
+set(CMAKE_C_FLAGS "-std=c99 -pedantic -D_DEFAULT_SOURCE -fstack-protector \
+                   --param=ssp-buffer-size=4 -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2 \
+                   -fstack-clash-protection -fstack-protector-strong -fcf-protection -O2")
 set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -DDEBUG")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
 
