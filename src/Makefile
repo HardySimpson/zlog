@@ -41,7 +41,9 @@ LIBNAME=libzlog
 
 ZLOG_MAJOR=1
 ZLOG_MINOR=2
+ZLOG_PATCH=12
 
+ZLOG_CSTRING_VERSION := $(shell printf '\\"%d.%d.%d\\"' $(ZLOG_MAJOR) $(ZLOG_MINOR) $(ZLOG_PATCH))
 
 # for mingw (cut the last part of the uname)
 UNAME := $(shell uname | cut -c -5)
@@ -80,9 +82,11 @@ PREFIX?=/usr/local
 INCLUDE_PATH?=include
 LIBRARY_PATH?=lib
 BINARY_PATH=bin
+PKGCONFIG_PATH?=pkgconfig
 INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
 INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
 INSTALL_BINARY_PATH=  $(PREFIX)/$(BINARY_PATH)
+INSTALL_PKGCONFIG_PATH= $(PREFIX)/$(LIBRARY_PATH)/$(PKGCONFIG_PATH)
 
 # Platform-specific overrides
 uname_S := $(shell sh -c 'uname -s 2>/dev/null || echo not')
@@ -170,8 +174,29 @@ lockfile.o: lockfile.c
 zlog.o: zlog.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
  zc_hashtable.h zc_xplatform.h zc_util.h format.h thread.h event.h buf.h \
  mdc.h rotater.h category_table.h category.h record_table.h \
- record.h rule.h
+ record.h rule.h version.h
 zlog_win.o: zlog_win.c
+
+version.h: Makefile
+	@echo "Generating version.h"
+	@echo "#define ZLOG_VERSION $(ZLOG_CSTRING_VERSION)" > version.h
+
+zlog.pc: Makefile
+	@echo "Generating zlog.pc"
+	@echo ""                                         >> zlog.pc
+	@echo "prefix=$(PREFIX)"                         >> zlog.pc
+	@echo "exec_prefix=\$${prefix}"                  >> zlog.pc
+	@echo "libdir=\$${exec_prefix}/$(LIBRARY_PATH)"  >> zlog.pc
+	@echo "includedir=\$${prefix}/$(INCLUDE_PATH)"   >> zlog.pc
+	@echo ""                                         >> zlog.pc
+	@echo "Name: zlog"                               >> zlog.pc
+	@echo "Description: The zlog C logger framework" >> zlog.pc
+	@echo "URL: http://hardysimpson.github.io/zlog/" >> zlog.pc
+	@echo "Version: $(ZLOG_MAJOR).$(ZLOG_MINOR).$(ZLOG_PATCH)" \
+	                                                 >> zlog.pc
+	@echo "Libs: -L\$${libdir} -lzlog"               >> zlog.pc
+	@echo "Cflags: -I\$${includedir}"                >> zlog.pc
+	@echo ""                                         >> zlog.pc
 
 $(DYLIBNAME): $(OBJ)
 	$(DYLIB_MAKE_CMD) $(OBJ) $(REAL_LDFLAGS)
@@ -182,6 +207,8 @@ $(DYLIBNAME): $(OBJ)
 
 $(STLIBNAME): $(OBJ)
 	$(STLIB_MAKE_CMD) $(OBJ)
+
+pkgconf: zlog.pc
 
 dynamic: $(DYLIBNAME)
 static: $(STLIBNAME)
@@ -194,7 +221,7 @@ zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME) $(DYLIBNAME)
 	$(CC) -std=c99 -pedantic -c $(REAL_CFLAGS) $<
 
 clean:
-	rm -rf $(DYLIBNAME) $(STLIBNAME) $(BINS) *.o *.gcda *.gcno *.gcov $(DYLIB_MINOR_NAME) $(DYLIB_MAJOR_NAME)
+	rm -rf $(DYLIBNAME) $(STLIBNAME) $(BINS) *.o *.gcda *.gcno *.gcov $(DYLIB_MINOR_NAME) $(DYLIB_MAJOR_NAME) zlog.pc
 
 dep:
 	$(CC) -MM *.c
@@ -212,14 +239,15 @@ endif
 
 INSTALL?= cp -a
 
-install: $(DYLIBNAME) $(STLIBNAME)
-	mkdir -p $(INSTALL_INCLUDE_PATH) $(INSTALL_LIBRARY_PATH) $(INSTALL_BINARY_PATH)
+install: $(DYLIBNAME) $(STLIBNAME) zlog.pc
+	mkdir -p $(INSTALL_INCLUDE_PATH) $(INSTALL_LIBRARY_PATH) $(INSTALL_BINARY_PATH) $(INSTALL_PKGCONFIG_PATH)
 	$(INSTALL) zlog.h $(INSTALL_INCLUDE_PATH)
 	$(INSTALL) zlog-chk-conf $(INSTALL_BINARY_PATH)
 	$(INSTALL) $(DYLIBNAME) $(INSTALL_LIBRARY_PATH)/$(DYLIB_MINOR_NAME)
 	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_MINOR_NAME) $(DYLIB_MAJOR_NAME)
 	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_MAJOR_NAME) $(DYLIBNAME)
 	$(INSTALL) $(STLIBNAME) $(INSTALL_LIBRARY_PATH)
+	$(INSTALL) zlog.pc $(INSTALL_PKGCONFIG_PATH)
 
 32bit:
 	@echo ""
