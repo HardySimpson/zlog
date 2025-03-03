@@ -183,7 +183,7 @@ version.h: Makefile
 
 zlog.pc: Makefile
 	@echo "Generating zlog.pc"
-	@echo ""                                         >> zlog.pc
+	@echo ""                                         >  zlog.pc
 	@echo "prefix=$(PREFIX)"                         >> zlog.pc
 	@echo "exec_prefix=\$${prefix}"                  >> zlog.pc
 	@echo "libdir=\$${exec_prefix}/$(LIBRARY_PATH)"  >> zlog.pc
