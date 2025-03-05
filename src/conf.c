@@ -659,12 +659,19 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 			/* now build rotater and default_format
 			 * from the unchanging global setting,
 			 * for zlog_rule_new() */
+			if(a_conf->rotater){
+                		zlog_rotater_del(a_conf->rotater);
+                		a_conf->rotater = NULL;
+			}
 			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);
 			if (!a_conf->rotater) {
 				zc_error("zlog_rotater_new fail");
 				return -1;
 			}
-
+			if(a_conf->default_format){
+				zlog_format_del(a_conf->default_format);
+				a_conf->default_format = NULL;
+			}
 			a_conf->default_format = zlog_format_new(a_conf->default_format_line,
 							&(a_conf->time_cache_count));
 			if (!a_conf->default_format) {
