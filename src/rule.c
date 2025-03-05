@@ -395,7 +395,7 @@ static int zlog_rule_output_static_record(zlog_rule_t * a_rule, zlog_thread_t * 
 	zlog_msg_t msg;
 
 	if (!a_rule->record_func) {
-		zc_error("user defined record funcion for [%s] not set, no output",
+		zc_error("user defined record function for [%s] not set, no output",
 			a_rule->record_name);
 		return -1;
 	}
@@ -422,7 +422,7 @@ static int zlog_rule_output_dynamic_record(zlog_rule_t * a_rule, zlog_thread_t *
 	zlog_msg_t msg;
 
 	if (!a_rule->record_func) {
-		zc_error("user defined record funcion for [%s] not set, no output",
+		zc_error("user defined record function for [%s] not set, no output",
 			a_rule->record_name);
 		return -1;
 	}
