@@ -112,7 +112,8 @@ typedef enum {
 # endif
 #endif
 
-#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L || \
+    defined __cplusplus && __cplusplus >= 201103L
 /* zlog macros */
 #define zlog_fatal(cat, ...) \
 	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
