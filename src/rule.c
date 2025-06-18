@@ -521,8 +521,8 @@ static int zlog_rule_parse_path(char *path_start, /* start with a " */
 {
 	char *p, *q;
 	size_t len;
-	zlog_spec_t *a_spec;
-	zc_arraylist_t *specs;
+	zlog_spec_t *a_spec = NULL;
+	zc_arraylist_t *specs = NULL;
 
 	p = path_start + 1;
 
@@ -550,10 +550,10 @@ static int zlog_rule_parse_path(char *path_start, /* start with a " */
 	}
 
 	specs = zc_arraylist_new((zc_arraylist_del_fn)zlog_spec_del);
-	if (!path_specs) {
+	if (specs == NULL) {
 		zc_error("zc_arraylist_new fail");
 		return -1;
-	}
+ 	}
 
 	for (p = path_str; *p != '\0'; p = q) {
 		a_spec = zlog_spec_new(p, &q, time_cache_count);
@@ -561,18 +561,21 @@ static int zlog_rule_parse_path(char *path_start, /* start with a " */
 			zc_error("zlog_spec_new fail");
 			goto err;
 		}
+			
 
 		if (zc_arraylist_add(specs, a_spec)) {
 			zc_error("zc_arraylist_add fail");
+			zlog_spec_del(a_spec);
 			goto err;
 		}
+		a_spec = NULL;
 	}
 
 	*path_specs = specs;
 	return 0;
 err:
 	if (specs) zc_arraylist_del(specs);
-	if (a_spec) zlog_spec_del(a_spec);
+		if (a_spec) zlog_spec_del(a_spec);
 	return -1;
 }
 
