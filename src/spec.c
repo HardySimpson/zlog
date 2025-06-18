@@ -283,8 +283,19 @@ static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t *
 static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 	zlog_level_t *a_level;
+	if (a_thread == NULL ||
+        a_thread->event == NULL ||
+        a_thread->event->level == NULL) {
+        zlog_spec_write_error(a_spec, "zlog_spec_write_level_uppercase: Event or level object is NULL. Cannot process.");
+        return -1;
+    }
+
 
 	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+	if (a_level == NULL) {
+        zlog_spec_write_error(a_spec, "zlog_spec_write_level_uppercase: Invalid log level returned for '%s'.", a_thread->event->level? a_thread->event->level : "NULL_LEVEL_STRING");
+        return -1;
+    }
 	return zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
 }
 
