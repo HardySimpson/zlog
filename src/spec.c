@@ -62,16 +62,12 @@ static int zlog_spec_write_time_internal(zlog_spec_t * a_spec, zlog_thread_t * a
 	time_t now_sec = a_thread->event->time_stamp.tv_sec;
 	struct tm *time;
 	time_t *time_sec;
-	typedef struct tm *(*zlog_spec_time_fn) (const time_t*, struct tm *);
-	zlog_spec_time_fn time_stamp_convert_function;
 	if( use_utc ) {
 		time = &(a_thread->event->time_utc);
 		time_sec =  &(a_thread->event->time_utc_sec);
-		time_stamp_convert_function = gmtime_r;
 	} else {
 		time = &(a_thread->event->time_local);
 		time_sec =  &(a_thread->event->time_local_sec);
-		time_stamp_convert_function = localtime_r;
 	}
 
 	/* the event meet the 1st time_spec in his life cycle */
@@ -82,7 +78,11 @@ static int zlog_spec_write_time_internal(zlog_spec_t * a_spec, zlog_thread_t * a
 
 	/* When this event's last cached time_local is not now */
 	if (*time_sec != now_sec) {
-		time_stamp_convert_function(&(now_sec), time);
+		if (use_utc) {
+			gmtime_r(&(now_sec), time);
+		} else {
+			localtime_r(&(now_sec), time);
+		}
 		*time_sec = now_sec;
 	}
 
@@ -241,7 +241,7 @@ static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 		if (a_thread->event->pid != a_thread->event->last_pid) {
 			a_thread->event->last_pid = a_thread->event->pid;
 			a_thread->event->pid_str_len
-				= sprintf(a_thread->event->pid_str, "%u", a_thread->event->pid);
+				= sprintf(a_thread->event->pid_str, "%ld", (long)a_thread->event->pid);
 		}
 	}
 
@@ -264,6 +264,7 @@ static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thre
 	return zlog_buf_append(a_buf, a_thread->event->tid_str, a_thread->event->tid_str_len);
 }
 
+#if defined __linux__ || __APPLE__
 static int zlog_spec_write_ktid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
 
@@ -271,6 +272,7 @@ static int zlog_spec_write_ktid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 	/* and fork not change tid */
 	return zlog_buf_append(a_buf, a_thread->event->ktid_str, a_thread->event->ktid_str_len);
 }
+#endif
 
 static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
 {
@@ -647,9 +649,11 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_next, int *time_c
 		case 'H':
 			a_spec->write_buf = zlog_spec_write_hostname;
 			break;
+#if defined __linux__ || __APPLE__
 		case 'k':
 			a_spec->write_buf = zlog_spec_write_ktid;
 			break;
+#endif
 		case 'L':
 			a_spec->write_buf = zlog_spec_write_srcline;
 			break;
