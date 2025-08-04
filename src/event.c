@@ -28,8 +28,9 @@
 #include <sys/time.h>
 
 #include <sys/types.h>
+#if defined __linux__ || __APPLE__
 #include <sys/syscall.h>
-
+#endif
 #include "zc_defs.h"
 #include "event.h"
 #ifdef _WIN32

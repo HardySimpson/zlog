@@ -20,7 +20,11 @@
 #include <stdarg.h>
 #include <string.h>
 
+#ifndef _WIN32
 #include <unistd.h>
+#else
+#include "zlog_win.h"
+#endif
 
 #include "zlog.h"
 #include "version.h"
