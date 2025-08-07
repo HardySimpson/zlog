@@ -36,6 +36,10 @@
 #include <Winsock2.h>
 #endif
 
+#ifdef __APPLE__
+#include <AvailabilityMacros.h>
+#endif
+
 void zlog_event_profile(zlog_event_t * a_event, int flag)
 {
 	zc_assert(a_event,);
@@ -103,9 +107,13 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 
 #ifdef __linux__
 	a_event->ktid = syscall(SYS_gettid);
-#elif __APPLE__
+#elif defined(__APPLE__)
     uint64_t tid64;
+#if MAC_OS_X_VERSION_MAX_ALLOWED < 1060 || defined(__POWERPC__)
+    tid64 = pthread_mach_thread_np(pthread_self());
+#else
     pthread_threadid_np(NULL, &tid64);
+#endif
     a_event->tid = (pthread_t)tid64;
 #endif
 
