@@ -53,8 +53,10 @@ ifeq ($(UNAME), MINGW)
   OBJ := $(OBJ) zlog_win.o
 endif
 
-# Fallback to gcc when $CC is not in $PATH.
-CC:=$(shell sh -c 'type $(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
+CROSS_COMPILE?=
+CC:=$(CROSS_COMPILE)$(shell sh -c 'type $(CROSS_COMPILE)$(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
+AR:=$(CROSS_COMPILE)ar
+STRIP:=$(CROSS_COMPILE)strip
 OPTIMIZATION?=-O2
 
 ifeq ($(UNAME), MINGW)
@@ -75,7 +77,7 @@ DYLIB_MAJOR_NAME=$(LIBNAME).$(DYLIBSUFFIX).$(ZLOG_MAJOR)
 DYLIBNAME=$(LIBNAME).$(DYLIBSUFFIX)
 DYLIB_MAKE_CMD=$(CC) -shared -Wl,-soname,$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
 STLIBNAME=$(LIBNAME).$(STLIBSUFFIX)
-STLIB_MAKE_CMD=ar rcs $(STLIBNAME)
+STLIB_MAKE_CMD=$(AR) rcs $(STLIBNAME)
 
 # Installation related variables
 PREFIX?=/usr/local
@@ -112,7 +114,7 @@ ifeq ($(uname_S),AIX)
   # not to mention dynamic linker .a preference...
   DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -pthread -o $(DYLIBNAME) $(LDFLAGS)
   REAL_CFLAGS+= -maix64
-  STLIB_MAKE_CMD=OBJECT_MODE=64 ar rcs $(STLIBNAME) $(DYLIB_MAJOR_NAME)
+  STLIB_MAKE_CMD=OBJECT_MODE=64 $(AR) rcs $(STLIBNAME) $(DYLIB_MAJOR_NAME)
 endif
 
 ifeq ($(UNAME), MINGW)
@@ -255,6 +257,20 @@ install: $(DYLIBNAME) $(STLIBNAME) zlog.pc
 	@echo ""
 	$(MAKE) CFLAGS="-m32" LDFLAGS="-m32"
 
+# Cross-compilation examples:
+# For ARM64: make CROSS_COMPILE=aarch64-linux-gnu-
+# For ARM:   make CROSS_COMPILE=arm-linux-gnueabihf-
+# For MIPS:  make CROSS_COMPILE=mips-linux-gnu-
+cross-compile-help:
+	@echo "Cross-compilation usage examples:"
+	@echo "  make CROSS_COMPILE=aarch64-linux-gnu-    # For ARM64"
+	@echo "  make CROSS_COMPILE=arm-linux-gnueabihf-  # For ARM"
+	@echo "  make CROSS_COMPILE=mips-linux-gnu-       # For MIPS"
+	@echo "  make CROSS_COMPILE=x86_64-w64-mingw32-   # For Windows x64"
+	@echo ""
+	@echo "You can also override individual tools:"
+	@echo "  make CC=clang AR=llvm-ar STRIP=llvm-strip"
+
 gprof:
 	$(MAKE) CFLAGS="-pg" LDFLAGS="-pg"
 
@@ -270,4 +286,4 @@ coverage: gcov
 noopt:
 	$(MAKE) OPTIMIZATION=""
 
-.PHONY: all clean dep install 32bit gprof gcov noopt
+.PHONY: all clean dep install 32bit gprof gcov noopt cross-compile-help
