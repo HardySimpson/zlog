@@ -41,17 +41,17 @@ int main(int argc, char** argv)
 
 	for (int i =0; i<15;i++){
 		zlog_info(pzc, "prompt>");
-		sleep(1);
-		if (! (i%3))
-			zlog_debug(zc, "dummy log entry %d",i);
-		if (! (i%5))
-			zlog_info(zc, "hello, zlog %d",i);
-	}
-	zlog_info(zc, "done");
+        usleep(300000);
+        if (!(i % 3))
+            zlog_debug(zc, "dummy log entry %d", i);
+        if (!(i % 5))
+            zlog_info(zc, "hello, zlog %d", i);
+    }
+    zlog_info(zc, "done");
 
-//	zlog_profile();
+    //	zlog_profile();
 
-	zlog_fini();
+    zlog_fini();
 
-	return 0;
+    return 0;
 }

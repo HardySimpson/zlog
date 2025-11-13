@@ -26,8 +26,15 @@ set(not_auto_add_test
         test_press_syslog
         test_syslog
         test_longlog
+        test_multithread
+        test_dzlog_conf
 )
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    list(REMOVE_ITEM SRCS ./test_buf.c) # release does not export buf functions
+endif()
+
+# single command test
 foreach (test_src ${SRCS})
     string(REGEX MATCH "^.*/([^/]+)[.]c$" test_name ${test_src})
     set(test_name ${CMAKE_MATCH_1})
@@ -43,6 +50,7 @@ foreach (test_src ${SRCS})
     endif ()
 endforeach (test_src)
 
+# test with args
 add_test(test_hello "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_hello" hello_output 3)
 add_test(test_longlog "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_longlog" 2222)
 add_test(test_bitmap "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_bitmap" 0xaa55 0x66)
@@ -53,3 +61,25 @@ file(COPY
         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if (UNIX)
+find_program(BASH NAMES bash REQUIRED)
+find_program(MD5_EXECUTABLE NAMES md5sum REQUIRED)
+
+# tests defined in scripts
+set(script_test
+    consumer_static_file_single
+    varify_static_file_single
+)
+
+foreach (case ${script_test})
+    set(TEST_WORKING_DIR "${CMAKE_BINARY_DIR}/Testing/Temporary/${case}")
+    file(MAKE_DIRECTORY ${TEST_WORKING_DIR})
+
+    add_test(NAME ${case}
+        COMMAND ${BASH} ${CMAKE_SOURCE_DIR}/scripts/test.sh -t ${case}
+        WORKING_DIRECTORY ${TEST_WORKING_DIR}
+    )
+    set_property(TEST ${case} PROPERTY ENVIRONMENT "bin_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY};conf_dir=${CMAKE_CURRENT_BINARY_DIR}")
+endforeach(case)
+
+endif (UNIX)
