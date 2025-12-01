@@ -1,0 +1,96 @@
+notes
+==========
+new w thread
+
+thread local data:
+	thread const data, (pid, thread name
+	per print:
+		tmp store, func, file, line, level
+        va_list(stack), format string, ts
+        category
+    perf conf data:
+        fifo buf
+
+init 
+    global config
+    new rules
+
+format 2 layers:
+    1st defined in conf.[rule], convert to serial of func calls
+        2nd, %m userdata, per print
+
+per thread
+    log
+	r lock // for global config
+	-> init set once thread local data.
+    * cache func,file...,level to a_thread.event
+        va_list(stack), format string,
+        -> need to save to fifo
+	out log
+        category for each rule
+            zlog_format_gen_msg(rule.format 
+                for each format.pattern_specs // parsed conf rule
+                    zlog_spec_gen_msg, zlog_spec_gen_msg_direct, zlog_spec_write*
+            save to buf
+            sig -> wthread
+            // buf -> shared file
+    
+	if ver diff
+		rebuild msgbuf, event
+	unlock
+
+	check if reload global config
+
+w thread:
+    iter threads
+        category 
+        format log
+        buf -> file
+    check if reload config
+
+
+category -> standlone, per print, shared by threads
+    rule * n // ref conf.rules
+
+conf.formats
+    n * spec
+
+pthread_cond
+    lock
+    set
+    signal
+    unlock
+
+    lock
+    check
+    wait,unlock
+    unlock
+
+
+TODO
+==================
+todo:
+    conf reload -> done
+    remove thread msg buf for consumer enabled. -> done
+
+test:
+    add per zlog_spec_write_* -> done
+    multi thread test -> done
+    add mdc test
+    reload cover all case test -> done
+    fd lead check -> done
+    doc to md -> done
+    test optimize
+
+consumer fifo size config -> done
+
+perf:
+    perf record -F 999 -g -- ./test_consumer_static_file_single
+    localtime_r/strftime per log call overhead.
+
+asan:
+    LD_PRELOAD=/usr/lib/gcc/x86_64-linux-gnu/11/libasan.so ASAN_OPTIONS=detect_leaks=1 ./test_consumer_static_record
+
+bug:
+    circle buf boundary -> done by double map
+
