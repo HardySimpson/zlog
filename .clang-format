@@ -1,13 +1,16 @@
-# Coding Style Proposal - Verify
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+BreakBeforeBraces: Linux
+AllowShortIfStatementsOnASingleLine: false
+AllowShortCaseExpressionOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+IndentCaseLabels: false
 
-Language: Cpp
-BasedOnStyle: Microsoft
-
-################################################
-ReflowComments: false
-SortIncludes: false # can break build; turning off
-SortUsingDeclarations: false # can break build; turning off
-FixNamespaceComments: false
-
-BreakStringLiterals: false
 ColumnLimit: 100
+
+ForEachMacros: [
+  "zc_arraylist_foreach",
+  "zc_hashtable_foreach"
+]

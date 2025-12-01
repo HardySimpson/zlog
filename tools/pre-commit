@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+if git rev-parse --verify HEAD >/dev/null 2>&1  
+then  
+	against=HEAD  
+else  
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi  
+  
+gitroot=$(git rev-parse --show-toplevel)
+clangformat=clang-format
+clangformatpy="$gitroot/tools/git-clang-format.py --binary=$clangformat"
+
+# Test clang-format  
+clangformatout=$($clangformatpy --diff --staged -q)
+  
+# Redirect output to stderr.  
+exec 1>&2  
+  
+if [ "$clangformatout" != "" ]  
+then
+    $clangformatpy --staged
+    exit 0
+fi
