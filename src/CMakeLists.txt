@@ -22,6 +22,9 @@ if (WIN32)
 endif ()
 
 set_target_properties(zlog PROPERTIES VERSION ${ZLOG_VERSION} SOVERSION ${ZLOG_SO_VERSION})
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set_target_properties(zlog PROPERTIES C_VISIBILITY_PRESET hidden)
+endif()
 
 add_library(zlog_s
         STATIC

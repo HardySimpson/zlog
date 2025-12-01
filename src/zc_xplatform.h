@@ -16,6 +16,7 @@
 #define __zc_xplatform_h
 
 #include <limits.h>
+#define XFUNC __attribute__((visibility("default")))
 
 #define ZLOG_INT32_LEN   sizeof("-2147483648") - 1
 #define ZLOG_INT64_LEN   sizeof("-9223372036854775808") - 1
