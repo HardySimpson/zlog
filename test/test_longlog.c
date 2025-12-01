@@ -58,16 +58,15 @@ int main(int argc, char** argv)
 			zlog_info(zc, str32);
 			break;
 		case 1:
-			zlog_info(zc, str64);
-			break;
-		case 2:
-			zlog_info(zc, str16);
-			break;
-		}
-	}
+            zlog_info(zc, str32 str8);
+            break;
+        case 2:
+            zlog_info(zc, str16);
+            break;
+        }
+    }
 
+    zlog_fini();
 
-	zlog_fini();
-	
-	return 0;
+    return 0;
 }

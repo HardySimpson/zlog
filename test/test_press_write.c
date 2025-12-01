@@ -37,7 +37,7 @@ void * work(void *ptr)
 	while(j-- > 0) {
 //		fprintf(fp, "2012-05-16 17:24:58.282603 INFO   22471:test_press_zlog.c:33 loglog\n");
 //		fwrite(aa, sizeof(aa)-1, 1, fp);
-		write(fd, aa, sizeof(aa)-1);
+		(void)(write(fd, aa, sizeof(aa)-1) + 1); /* bypass warning */
 	}
 	return 0;
 }

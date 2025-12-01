@@ -33,14 +33,13 @@ enum {
 	/* must equals conf file setting */
 };
 
-#define zlog_trace(cat, format, args...) \
-	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_TRACE, format, ##args)
+#define zlog_trace(cat, ...)                                                                       \
+    zlog(cat, __FILE__, sizeof(__FILE__) - 1, __func__, sizeof(__func__) - 1, __LINE__,            \
+         ZLOG_LEVEL_TRACE, __VA_ARGS__)
 
-#define zlog_security(cat, format, args...) \
-	zlog(cat, __FILE__, sizeof(__FILE__)-1, __func__, sizeof(__func__)-1, __LINE__, \
-	ZLOG_LEVEL_SECURITY, format, ##args)
-
+#define zlog_security(cat, ...)                                                                    \
+    zlog(cat, __FILE__, sizeof(__FILE__) - 1, __func__, sizeof(__func__) - 1, __LINE__,            \
+         ZLOG_LEVEL_SECURITY, __VA_ARGS__)
 
 struct thread_info {    /* Used as argument to thread_start() */
 	pthread_t thread_id;    /* ID returned by pthread_create() */
@@ -165,16 +164,16 @@ int main(int argc, char** argv)
 	sleep(1);
 	for (i=0; i<NB_THREADS; i++)
 	{
-		zlog_info(zc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, tinfo[i].zc);
-		zlog_fatal(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_error(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_warn(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_notice(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_info(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_trace(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_debug(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, mc);
-		zlog_security(hl, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, hl);
-		zlog_warn(hl, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, hl);
+        zlog_info(zc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)tinfo[i].zc);
+        zlog_fatal(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_error(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_warn(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_notice(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_info(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_trace(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_debug(mc, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)mc);
+        zlog_security(hl, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)hl);
+        zlog_warn(hl, "Thread [%d], zlog_category:@%p", tinfo[i].thread_num, (void *)hl);
     }
 
 	/* Log main loop status */
