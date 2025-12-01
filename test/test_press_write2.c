@@ -40,7 +40,7 @@ void * work(void *ptr)
 	//FILE *fp;
 
 	while(j-- > 0) {
-		write(fd, log, sizeof(log)-1);
+		(void)(write(fd, log, sizeof(log)-1) + 1); /* bypass warning */
 		//fwrite(log, sizeof(log)-1, 1, fp);
 	}
 	//fclose(fp);
