@@ -46,7 +46,19 @@ struct fifo *fifo_create(unsigned int size)
     unsigned total_page_map_size = (total_page_cnt + data_page_cnt_p2) * page_size;
     unsigned data_page_p2_size = data_page_cnt_p2 * page_size;
 
-    /* todo: comment */
+    /**
+     * since fifo store variable size elements, it is possible to wrap around at buffer end,
+     * example: buf.size == 100
+     *  write addr == buf[90], write size == 20
+     *  then write [10-19] need to write start from buf[0]
+     *
+     * to solve this take linux kernel bpf ringbuf as reference:
+     * alloc buffer based on page, make a contiguous double map, for example:
+     * buffer.size == 4096, map1.addr: 0-4095, map2.addr: 4096-8191
+     * map1 and map2 actually point to the same phy addr.
+     * write addr == 4090, write size == 20
+     * write[6] will write to 4096, the phy addr is 0, wrap as expected
+     */
     int fd = memfd_create("x", 0);
     if (fd < 0) {
         zc_error("failed to create memfd, err %d", fd);
