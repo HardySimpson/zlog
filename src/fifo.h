@@ -6,6 +6,19 @@
 /* todo: optimize page size macro */
 #define PAGE_SIZE 4096
 
+/**
+ * fifo - single in/out lockless ringbuf, take linux kernel kfifo as reference.
+ * alloc buffer based on page size
+ * todo: due to memfd, windows does not support now.
+ *
+ * @base_addr: start addr of buffer, private do not touch
+ * @base_addr_len: total buffer size, private do not touch
+ * @in: push index
+ * @out: pop index
+ * @mask: (buffer size - sizeof(fifo)) - 1
+ * @memfd: anonymous file 
+ * @data: point to buffer that is used to push/pop
+ */
 struct fifo {
     unsigned char *base_addr;
     unsigned base_addr_len;

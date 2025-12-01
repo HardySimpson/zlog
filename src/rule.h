@@ -31,8 +31,9 @@
 #include "record.h"
 
 typedef struct zlog_rule_s zlog_rule_t;
+struct zlog_output_data;
 
-typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread);
+typedef int (*zlog_rule_output_fn) (zlog_rule_t * a_rule, zlog_thread_t * a_thread, struct zlog_output_data *);
 
 struct zlog_rule_s {
 	char category[MAXLEN_CFG_LINE + 1];
@@ -54,6 +55,7 @@ struct zlog_rule_s {
 	int static_fd;
 	dev_t static_dev;
 	ino_t static_ino;
+    int rotate_fd;
 
 	long archive_max_size;
 	int archive_max_count;
@@ -77,6 +79,7 @@ struct zlog_rule_s {
 	zlog_record_fn record_func;
 };
 
+struct zlog_conf_s;
 zlog_rule_t *zlog_rule_new(char * line,
 		zc_arraylist_t * levels,
 		zlog_format_t * default_format,
@@ -90,6 +93,6 @@ void zlog_rule_profile(zlog_rule_t * a_rule, int flag);
 int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule);
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
-int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread);
+int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread, struct zlog_output_data *data);
 
 #endif

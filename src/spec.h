@@ -21,15 +21,17 @@
 #include "thread.h"
 
 typedef struct zlog_spec_s zlog_spec_t;
+struct zlog_output_data;
 
 /* write buf, according to each spec's Conversion Characters */
 typedef int (*zlog_spec_write_fn) (zlog_spec_t * a_spec,
 			 	zlog_thread_t * a_thread,
-			 	zlog_buf_t * a_buf);
+			 	zlog_buf_t * a_buf, struct zlog_output_data *);
 
 /* gen a_thread->msg or gen a_thread->path by using write_fn */
 typedef int (*zlog_spec_gen_fn) (zlog_spec_t * a_spec,
-				zlog_thread_t * a_thread);
+				zlog_thread_t * a_thread, struct zlog_output_data *);
+
 
 struct zlog_spec_s {
 	char *str;
@@ -55,13 +57,13 @@ zlog_spec_t *zlog_spec_new(char *pattern_start, char **pattern_end, int * time_c
 void zlog_spec_del(zlog_spec_t * a_spec);
 void zlog_spec_profile(zlog_spec_t * a_spec, int flag);
 
-#define zlog_spec_gen_msg(a_spec, a_thread) \
-	a_spec->gen_msg(a_spec, a_thread)
+#define zlog_spec_gen_msg(a_spec, a_thread, data) \
+	a_spec->gen_msg(a_spec, a_thread, data)
 
-#define zlog_spec_gen_path(a_spec, a_thread) \
-	a_spec->gen_path(a_spec, a_thread)
+#define zlog_spec_gen_path(a_spec, a_thread, data) \
+	a_spec->gen_path(a_spec, a_thread, data)
 
 #define zlog_spec_gen_archive_path(a_spec, a_thread) \
-	a_spec->gen_archive_path(a_spec, a_thread)
+	a_spec->gen_archive_path(a_spec, a_thread, NULL)
 
 #endif

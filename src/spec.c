@@ -24,11 +24,14 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include "conf.h"
 #include "spec.h"
 #include "level_list.h"
 #include "zc_defs.h"
+#include "misc.h"
+#include "category.h"
 
 #ifdef _WIN32
 #define ZLOG_DEFAULT_TIME_FMT "%Y-%m-%d %H:%M:%S"
@@ -56,8 +59,19 @@ void zlog_spec_profile(zlog_spec_t * a_spec, int flag)
 /*******************************************************************************/
 /* implementation of write function */
 
-static int zlog_spec_write_time_internal(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, short use_utc)
+static int zlog_spec_write_time_internal(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, short use_utc, struct zlog_output_data *data)
 {
+    if (data) {
+        struct tm time;
+        if (use_utc) {
+            gmtime_r(&data->meta->ts.tv_sec, &time); /* perf point */
+        } else {
+            localtime_r(&data->meta->ts.tv_sec, &time);/* perf point */
+        }
+        size_t len = strftime(data->time_str.str, data->time_str.len, a_spec->time_fmt, &time);/* perf point */
+        return zlog_buf_append(a_buf, data->time_str.str, len);
+    }
+
 	zlog_time_cache_t * a_cache = a_thread->event->time_caches + a_spec->time_cache_index;
 	time_t now_sec = a_thread->event->time_stamp.tv_sec;
 	struct tm *time;
@@ -95,14 +109,14 @@ static int zlog_spec_write_time_internal(zlog_spec_t * a_spec, zlog_thread_t * a
 	return zlog_buf_append(a_buf, a_cache->str, a_cache->len);
 }
 
-static int zlog_spec_write_time_UTC(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_time_UTC(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
-	return zlog_spec_write_time_internal(a_spec, a_thread, a_buf, 1);
+	return zlog_spec_write_time_internal(a_spec, a_thread, a_buf, 1, data);
 }
 
-static int zlog_spec_write_time_local(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_time_local(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
-	return zlog_spec_write_time_internal(a_spec, a_thread, a_buf, 0);
+	return zlog_spec_write_time_internal(a_spec, a_thread, a_buf, 0, data);
 }
 
 #if 0
@@ -131,23 +145,31 @@ static int zlog_spec_write_time_D(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 }
 #endif
 
-static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_ms(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        return zlog_buf_printf_dec32(a_buf, data->meta->ts.tv_nsec / 1000000, 3);
+    }
+
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
 	}
 	return zlog_buf_printf_dec32(a_buf, (a_thread->event->time_stamp.tv_usec / 1000), 3);
 }
 
-static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_us(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        return zlog_buf_printf_dec32(a_buf, data->meta->ts.tv_nsec / 1000, 6);
+    }
+
 	if (!a_thread->event->time_stamp.tv_sec) {
 		gettimeofday(&(a_thread->event->time_stamp), NULL);
 	}
 	return zlog_buf_printf_dec32(a_buf, a_thread->event->time_stamp.tv_usec, 6);
 }
 
-static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	zlog_mdc_kv_t *a_mdc_kv;
 
@@ -160,18 +182,28 @@ static int zlog_spec_write_mdc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 	return zlog_buf_append(a_buf, a_mdc_kv->value, a_mdc_kv->value_len);
 }
 
-static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_str(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	return zlog_buf_append(a_buf, a_spec->str, a_spec->len);
 }
 
-static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_category(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        return zlog_buf_append(a_buf, data->meta->category->name, data->meta->category->name_len);
+        /* todo: add hex */
+    }
 	return zlog_buf_append(a_buf, a_thread->event->category_name, a_thread->event->category_name_len);
 }
 
-static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        if (!data->meta->file) {
+            return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
+        }
+        return zlog_buf_append(a_buf, data->meta->file, data->meta->filelen);
+    }
 	if (!a_thread->event->file) {
 		return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
 	} else {
@@ -179,9 +211,19 @@ static int zlog_spec_write_srcfile(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	}
 }
 
-static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	char *p;
+
+    if (data) {
+        if ((p = strrchr(data->meta->file, '/')) != NULL) {
+            return zlog_buf_append(a_buf, p + 1, (char*)data->meta->file + data->meta->filelen - p - 1);
+        }
+        if (!data->meta->file) {
+            return zlog_buf_append(a_buf, "(file=null)", sizeof("(file=null)") - 1);
+        }
+        return zlog_buf_append(a_buf, data->meta->file, data->meta->filelen);
+    }
 
 	if ((p = strrchr(a_thread->event->file, '/')) != NULL) {
 		return zlog_buf_append(a_buf, p + 1,
@@ -195,14 +237,24 @@ static int zlog_spec_write_srcfile_neat(zlog_spec_t * a_spec, zlog_thread_t * a_
 	}
 }
 
-static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_srcline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        return zlog_buf_printf_dec64(a_buf, data->meta->line, 0);
+    }
 
 	return zlog_buf_printf_dec64(a_buf, a_thread->event->line, 0);
 }
 
-static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        if (!data->meta->file) {
+            return zlog_buf_append(a_buf, "(func=null)", sizeof("(func=null)") - 1);
+        }
+        return zlog_buf_append(a_buf, data->meta->func, data->meta->funclen);
+    }
+
 	if (!a_thread->event->file) {
 		return zlog_buf_append(a_buf, "(func=null)", sizeof("(func=null)") - 1);
 	} else {
@@ -211,27 +263,30 @@ static int zlog_spec_write_srcfunc(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 }
 
 
-static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_hostname(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	return zlog_buf_append(a_buf, a_thread->event->host_name, a_thread->event->host_name_len);
 }
 
-static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_newline(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        return zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
+    }
 	return zlog_buf_append(a_buf, FILE_NEWLINE, FILE_NEWLINE_LEN);
 }
 
-static int zlog_spec_write_cr(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_cr(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	return zlog_buf_append(a_buf, "\r", 1);
 }
 
-static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_percent(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	return zlog_buf_append(a_buf, "%", 1);
 }
 
-static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	/* 1st in event lifecycle */
 	if (!a_thread->event->pid) {
@@ -248,7 +303,7 @@ static int zlog_spec_write_pid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, z
 	return zlog_buf_append(a_buf, a_thread->event->pid_str, a_thread->event->pid_str_len);
 }
 
-static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 
 	/* don't need to get tid again, as tmap_new_thread fetched it already */
@@ -256,15 +311,18 @@ static int zlog_spec_write_tid_hex(zlog_spec_t * a_spec, zlog_thread_t * a_threa
 	return zlog_buf_append(a_buf, a_thread->event->tid_hex_str, a_thread->event->tid_hex_str_len);
 }
 
-static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_tid_long(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 
 	/* don't need to get tid again, as tmap_new_thread fetched it already */
 	/* and fork not change tid */
+    if (data) {
+        return zlog_buf_append(a_buf, data->thread->event->tid_str, data->thread->event->tid_str_len);
+    }
 	return zlog_buf_append(a_buf, a_thread->event->tid_str, a_thread->event->tid_str_len);
 }
 
-static int zlog_spec_write_ktid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_ktid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 
 	/* don't need to get ktid again, as tmap_new_thread fetched it already */
@@ -272,24 +330,42 @@ static int zlog_spec_write_ktid(zlog_spec_t * a_spec, zlog_thread_t * a_thread, 
 	return zlog_buf_append(a_buf, a_thread->event->ktid_str, a_thread->event->ktid_str_len);
 }
 
-static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_level_lowercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	zlog_level_t *a_level;
 
-	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+    if (data) {
+        a_level = zlog_level_list_get(zlog_env_conf->levels,data->meta->level);
+    } else {
+        a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+    }
 	return zlog_buf_append(a_buf, a_level->str_lowercase, a_level->str_len);
 }
 
-static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_level_uppercase(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
 	zlog_level_t *a_level;
 
-	a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+    if (data) {
+        a_level = zlog_level_list_get(zlog_env_conf->levels,data->meta->level);
+    } else {
+        a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+    }
 	return zlog_buf_append(a_buf, a_level->str_uppercase, a_level->str_len);
 }
 
-static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf)
+static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread, zlog_buf_t * a_buf, struct zlog_output_data *data)
 {
+    if (data) {
+        assert(data->usr_str);
+        struct msg_usr_str *str = (struct msg_usr_str *)data->usr_str;
+        if (str->formatted_string_size == 0) {
+            return 0;
+        }
+        /* printf(kj */
+        return zlog_buf_append(a_buf, str->formatted_string, str->formatted_string_size - 1);
+        /* todo: add hex */
+    }
 	if (a_thread->event->generate_cmd == ZLOG_FMT) {
 		if (a_thread->event->str_format) {
 			return zlog_buf_vprintf(a_buf,
@@ -387,45 +463,57 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 /*******************************************************************************/
 /* implementation of gen function */
 
-static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+static int zlog_spec_gen_msg_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	/* no need to reprint %1.2d here */
-	return a_spec->write_buf(a_spec, a_thread, a_thread->msg_buf);
+    if (data) {
+        return a_spec->write_buf(a_spec, data->thread, data->tmp_buf, data);
+    }
+    return a_spec->write_buf(a_spec, a_thread, a_thread->msg_buf, data);
 }
 
-static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+static int zlog_spec_gen_msg_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	int rc;
 
-	zlog_buf_restart(a_thread->pre_msg_buf);
+        zlog_buf_t *msg_buf;
+        zlog_buf_t *pre_msg_buf;
+        if (data) {
+            msg_buf = data->tmp_buf;
+            pre_msg_buf = data->pre_tmp_buf;
+        } else {
+            msg_buf = a_thread->msg_buf;
+            pre_msg_buf = a_thread->pre_msg_buf;
+        }
+        zlog_buf_restart(pre_msg_buf);
 
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_msg_buf);
-	if (rc < 0) {
-		zc_error("a_spec->gen_buf fail");
-		return -1;
-	} else if (rc > 0) {
-		/* buf is full, try printf */
-	}
+        rc = a_spec->write_buf(a_spec, a_thread, pre_msg_buf, data);
+        if (rc < 0) {
+            zc_error("a_spec->gen_buf fail");
+            return -1;
+        } else if (rc > 0) {
+            /* buf is full, try printf */
+        }
 
-	return zlog_buf_adjust_append(a_thread->msg_buf,
-		zlog_buf_str(a_thread->pre_msg_buf), zlog_buf_len(a_thread->pre_msg_buf),
-		a_spec->left_adjust, a_spec->left_fill_zeros, a_spec->min_width, a_spec->max_width);
+        return zlog_buf_adjust_append(msg_buf, zlog_buf_str(pre_msg_buf), zlog_buf_len(pre_msg_buf),
+                                      a_spec->left_adjust, a_spec->left_fill_zeros,
+                                      a_spec->min_width, a_spec->max_width);
 }
 
 /*******************************************************************************/
-static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+static int zlog_spec_gen_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	/* no need to reprint %1.2d here */
-	return a_spec->write_buf(a_spec, a_thread, a_thread->path_buf);
+	return a_spec->write_buf(a_spec, a_thread, a_thread->path_buf, data);
 }
 
-static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	int rc;
 
 	zlog_buf_restart(a_thread->pre_path_buf);
 
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf);
+	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf, data);
 	if (rc < 0) {
 		zc_error("a_spec->gen_buf fail");
 		return -1;
@@ -439,19 +527,19 @@ static int zlog_spec_gen_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_t
 }
 
 /*******************************************************************************/
-static int zlog_spec_gen_archive_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+static int zlog_spec_gen_archive_path_direct(zlog_spec_t * a_spec, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	/* no need to reprint %1.2d here */
-	return a_spec->write_buf(a_spec, a_thread, a_thread->archive_path_buf);
+	return a_spec->write_buf(a_spec, a_thread, a_thread->archive_path_buf, data);
 }
 
-static int zlog_spec_gen_archive_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread)
+static int zlog_spec_gen_archive_path_reformat(zlog_spec_t * a_spec, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	int rc;
 
 	zlog_buf_restart(a_thread->pre_path_buf);
 
-	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf);
+	rc = a_spec->write_buf(a_spec, a_thread, a_thread->pre_path_buf, data);
 	if (rc < 0) {
 		zc_error("a_spec->gen_buf fail");
 		return -1;

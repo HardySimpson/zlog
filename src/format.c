@@ -24,6 +24,7 @@
 #include "thread.h"
 #include "spec.h"
 #include "format.h"
+#include "misc.h"
 
 void zlog_format_profile(zlog_format_t * a_format, int flag)
 {
@@ -152,15 +153,20 @@ err:
 /* return 0	success, or buf is full
  * return -1	fail
  */
-int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread)
+int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	int i;
 	zlog_spec_t *a_spec;
 
-	zlog_buf_restart(a_thread->msg_buf);
+    if (data) {
+        a_thread = data->thread;
+        zlog_buf_restart(data->tmp_buf);
+    } else {
+        zlog_buf_restart(a_thread->msg_buf);
+    }
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
-		if (zlog_spec_gen_msg(a_spec, a_thread) == 0) {
+		if (zlog_spec_gen_msg(a_spec, a_thread, data) == 0) {
 			continue;
 		} else {
 			return -1;

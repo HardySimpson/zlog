@@ -225,7 +225,7 @@ void zlog_category_rollback_rules(zlog_category_t * a_category)
 
 /*******************************************************************************/
 
-int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread)
+int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	int i;
 	int rc = 0;
@@ -233,7 +233,7 @@ int zlog_category_output(zlog_category_t * a_category, zlog_thread_t * a_thread)
 
 	/* go through all match rules to output */
 	zc_arraylist_foreach(a_category->fit_rules, i, a_rule) {
-		rc = zlog_rule_output(a_rule, a_thread);
+		rc = zlog_rule_output(a_rule, a_thread, data);
 	}
 
 	return rc;
