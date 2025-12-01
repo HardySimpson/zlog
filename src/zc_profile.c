@@ -45,7 +45,7 @@ static void zc_time(char *time_str, size_t time_str_size)
 	return;
 }
 
-int zc_profile_inner(int flag, const char *file, const long line, const char *fmt, ...)
+XFUNC int zc_profile_inner(int flag, const char *file, const long line, const char *fmt, ...)
 {
 	va_list args;
 	char time_str[20 + 1];
