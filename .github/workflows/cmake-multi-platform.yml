@@ -25,7 +25,7 @@ jobs:
       # todo: add windows-latest
       matrix:
         os: [ubuntu-latest]
-        build_type: [Release, Debug]
+        build_type: [Release, Debug, Tsan]
         c_compiler: [gcc, clang, cl]
         include:
           # - os: windows-latest
