@@ -63,7 +63,8 @@ void zlog_thread_del(zlog_thread_t * a_thread)
         zc_debug("fullcnt %d\n", a_thread->producer.full_cnt);
 	}
     zc_debug("zlog_thread_del[%lx], producer en %d, cnt %d", a_thread->event->tid,
-             a_thread->producer.en, a_thread->producer.refcnt);
+             a_thread->producer.en,
+             atomic_load_explicit(&a_thread->producer.refcnt, memory_order_relaxed));
     if (a_thread->mdc)
         zlog_mdc_del(a_thread->mdc);
     if (a_thread->event)
@@ -142,7 +143,8 @@ zlog_thread_t *zlog_thread_new(int init_version, size_t buf_size_min, size_t buf
     if (conf->log_consumer.en) {
         a_thread->producer.en = true;
         atomic_init(&a_thread->producer.refcnt, 1);
-        zc_debug("init %lx, refcnt %d", pthread_self(), a_thread->producer.refcnt);
+        zc_debug("init %lx, refcnt %d", pthread_self(),
+                 atomic_load_explicit(&a_thread->producer.refcnt, memory_order_relaxed));
     }
 
     // zlog_thread_profile(a_thread, ZC_DEBUG);
@@ -226,5 +228,6 @@ void zlog_thread_rebuild_producer(zlog_thread_t * thread, bool en)
     thread->producer.en = en;
     thread->producer.full_cnt = 0;
     atomic_init(&thread->producer.refcnt, 1);
-    zc_debug("init %lx, refcnt %d", pthread_self(), thread->producer.refcnt);
+    zc_debug("init %lx, refcnt %d", pthread_self(),
+             atomic_load_explicit(&thread->producer.refcnt, memory_order_relaxed));
 }

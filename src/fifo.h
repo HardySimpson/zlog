@@ -1,6 +1,7 @@
 #ifndef __FIFO_H
 #define __FIFO_H
 
+#include <stdatomic.h>
 #include <stdio.h>
 
 /* todo: optimize page size macro */
@@ -23,8 +24,8 @@ struct fifo {
     unsigned char *base_addr;
     unsigned base_addr_len;
 
-    unsigned in;
-    unsigned out;
+    atomic_uint in;
+    atomic_uint out;
     unsigned mask;
     int memfd;
     _Alignas(PAGE_SIZE) char data[];
@@ -32,12 +33,6 @@ struct fifo {
 
 struct fifo *fifo_create(unsigned int size);
 void fifo_destroy(struct fifo *fifo);
-
-char *fifo_in_ref(struct fifo *fifo, unsigned int size);
-void fifo_in_commit(struct fifo *fifo, unsigned int size);
-
-unsigned int fifo_out_ref(struct fifo *fifo, char **buf);
-void fifo_out_commit(struct fifo *fifo, unsigned int size);
 
 /**
  * fifo_in_reserve -
@@ -58,7 +53,8 @@ static inline size_t fifo_size(struct fifo *fifo)
 
 static inline unsigned int fifo_used(struct fifo *fifo)
 {
-    return fifo->in - fifo->out;
+    return atomic_load_explicit(&fifo->in, memory_order_relaxed) -
+           atomic_load_explicit(&fifo->out, memory_order_relaxed);
 }
 
 static inline unsigned int fifo_unused(struct fifo *fifo)

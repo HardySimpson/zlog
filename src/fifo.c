@@ -1,7 +1,6 @@
 #define _GNU_SOURCE // For distros like Centos for syscall interface
 #include <assert.h>
 #include <errno.h>
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
@@ -100,8 +99,8 @@ struct fifo *fifo_create(unsigned int size)
     fifo->memfd = fd;
     fifo->base_addr = base_addr;
     fifo->base_addr_len = total_page_map_size;
-    fifo->in = 0;
-    fifo->out = 0;
+    atomic_init(&fifo->in, 0);
+    atomic_init(&fifo->out, 0);
     fifo->mask = data_page_p2_size - 1;
     return fifo;
 
@@ -126,55 +125,22 @@ void fifo_destroy(struct fifo *fifo)
     close(fd);
 }
 
-char *fifo_in_ref(struct fifo *fifo, unsigned int size)
-{
-    unsigned int free_size =
-        fifo_size(fifo) - (fifo->in - atomic_load_explicit(&fifo->out, memory_order_acquire));
-    if (size > free_size) {
-        /* zc_error("fifo not enough space"); */
-        return NULL;
-    }
-
-    return &fifo->data[fifo->in & fifo->mask];
-}
-
-void fifo_in_commit(struct fifo *fifo, unsigned int size)
-{
-    assert(fifo_unused(fifo) >= size);
-    atomic_store_explicit(&fifo->in, fifo->in + size, memory_order_release);
-}
-
-unsigned int fifo_out_ref(struct fifo *fifo, char **buf)
-{
-    unsigned int used_size = atomic_load_explicit(&fifo->in, memory_order_acquire) - fifo->out;
-    if (used_size == 0)
-        return 0;
-
-    *buf = &fifo->data[fifo->out & fifo->mask];
-    return used_size;
-}
-
-void fifo_out_commit(struct fifo *fifo, unsigned int size)
-{
-    assert(size <= fifo_used(fifo));
-    atomic_store_explicit(&fifo->out, fifo->out + size, memory_order_release);
-}
-
 struct msg_head *fifo_reserve(struct fifo *fifo, unsigned int size)
 {
+    unsigned old_in = atomic_load_explicit(&fifo->in, memory_order_relaxed);
     unsigned int free_size =
-        fifo_size(fifo) - (fifo->in - atomic_load_explicit(&fifo->out, memory_order_acquire));
+        fifo_size(fifo) - (old_in - atomic_load_explicit(&fifo->out, memory_order_acquire));
     unsigned total_size = size + msg_head_size();
     if (total_size > free_size) {
         zc_error("fifo not enough space");
         return NULL;
     }
 
-    struct msg_head *head = (struct msg_head *)&fifo->data[fifo->in & fifo->mask];
+    struct msg_head *head = (struct msg_head *)&fifo->data[old_in & fifo->mask];
     head->total_size = total_size;
-    head->flags = MSG_HEAD_FLAG_RESERVED;
+    atomic_load_explicit(&head->flags, memory_order_relaxed);
 
-    atomic_store_explicit(&fifo->in, fifo->in + total_size, memory_order_release);
+    atomic_store_explicit(&fifo->in, old_in + total_size, memory_order_release);
     return head;
 }
 
@@ -196,16 +162,18 @@ void fifo_discard(struct fifo *fifo, struct msg_head *head)
 
 struct msg_head *fifo_peek(struct fifo *fifo)
 {
-    unsigned int used_size = atomic_load_explicit(&fifo->in, memory_order_acquire) - fifo->out;
+    unsigned out = atomic_load_explicit(&fifo->out, memory_order_relaxed);
+    unsigned int used_size = atomic_load_explicit(&fifo->in, memory_order_acquire) - out;
     if (used_size == 0)
         return NULL;
 
-    struct msg_head *head = (struct msg_head *)&fifo->data[fifo->out & fifo->mask];
+    struct msg_head *head = (struct msg_head *)&fifo->data[out & fifo->mask];
 
     return head;
 }
 
 void fifo_out(struct fifo *fifo, struct msg_head *head)
 {
-    atomic_store_explicit(&fifo->out, fifo->out + head->total_size, memory_order_release);
+    unsigned out = atomic_load_explicit(&fifo->out, memory_order_relaxed);
+    atomic_store_explicit(&fifo->out, out + head->total_size, memory_order_release);
 }

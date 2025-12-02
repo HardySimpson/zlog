@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <stdalign.h>
+#include <stdatomic.h>
 #include <stddef.h>
 
 #define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
@@ -33,7 +34,7 @@ enum msg_head_flag {
 
 struct msg_head {
     unsigned total_size;
-    unsigned flags;
+    atomic_uint flags;
 
     char data[];
 };

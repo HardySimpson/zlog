@@ -16,6 +16,7 @@
 #ifndef __zlog_thread_h
 #define  __zlog_thread_h
 
+#include <stdatomic.h>
 #include <stdbool.h>
 
 #include "zc_defs.h"
@@ -44,7 +45,7 @@ typedef struct zlog_thread_s {
     struct {
         /* change per conf start */
         bool en;
-        int refcnt;
+        atomic_int refcnt;
         /* change per conf end */
         unsigned int full_cnt;
     } producer;
