@@ -138,7 +138,7 @@ struct msg_head *fifo_reserve(struct fifo *fifo, unsigned int size)
 
     struct msg_head *head = (struct msg_head *)&fifo->data[old_in & fifo->mask];
     head->total_size = total_size;
-    atomic_load_explicit(&head->flags, memory_order_relaxed);
+    atomic_store_explicit(&head->flags, MSG_HEAD_FLAG_RESERVED, memory_order_relaxed);
 
     atomic_store_explicit(&fifo->in, old_in + total_size, memory_order_release);
     return head;
