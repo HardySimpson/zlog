@@ -24,7 +24,7 @@ jobs:
       # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
       # todo: add windows-latest
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, ubuntu-22.04-arm]
         build_type: [Release, Debug, Tsan]
         c_compiler: [gcc, clang]
 
