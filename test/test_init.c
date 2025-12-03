@@ -39,7 +39,6 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	zlog_info(zc, "before update");
-	sleep(1);
 	rc = zlog_reload("test_init.2.conf");
 	if (rc) {
 		printf("update fail\n");
@@ -48,7 +47,6 @@ int main(int argc, char** argv)
 	zlog_profile();
 	zlog_fini();
 
-	sleep(1);
 	zlog_init("test_init.conf");
 	zc = zlog_get_category("my_cat");
 	if (!zc) {

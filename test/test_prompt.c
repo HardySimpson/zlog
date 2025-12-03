@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
 	for (int i =0; i<15;i++){
 		zlog_info(pzc, "prompt>");
-        usleep(300000);
+        usleep(30000);
         if (!(i % 3))
             zlog_debug(zc, "dummy log entry %d", i);
         if (!(i % 5))

@@ -38,8 +38,6 @@ int main(int argc, char** argv)
 	zlog_debug(zc, "%s%d", "hello, zlog ", 1);
 	zlog_info(zc, "hello, zlog 2");
 
-	sleep(1);
-
 	zlog_info(zc, "hello, zlog 3");
 	zlog_debug(zc, "hello, zlog 4");
 
