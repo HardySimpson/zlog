@@ -98,6 +98,11 @@ fifo()
     target="cf64f2750cd39abc18d86cb152d0ec77"
     testcnt=350000
     eval "$asan_pre $bin_dir/fifo_test -s 0x800000 -e 16 -n $testcnt > $output"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
     # rm -f $target ; touch $target
     # i=0
     # while [ "$i" -lt "$testcnt" ]; do
