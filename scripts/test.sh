@@ -92,6 +92,27 @@ test_simple()
     eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10"
 }
 
+fifo()
+{
+    output="output"
+    target="cf64f2750cd39abc18d86cb152d0ec77"
+    testcnt=350000
+    eval "$asan_pre $bin_dir/fifo_test -s 0x800000 -e 16 -n $testcnt > $output"
+    # rm -f $target ; touch $target
+    # i=0
+    # while [ "$i" -lt "$testcnt" ]; do
+        # echo "data $i" >> $target
+        # i=$(($i + 1))
+    # done
+    md5output=$(md5sum $output | awk '{ print $1 }')
+    if [ "$md5output" = "$target" ]; then
+        echo "match, $md5output == $target"
+        return 0
+    fi
+    echo "failed, $md5output != $target"
+    return 1
+}
+
 while getopts "t:a::v" opt; do
   case $opt in
     t)

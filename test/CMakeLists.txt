@@ -28,10 +28,12 @@ set(not_auto_add_test
         test_longlog
         test_multithread
         test_dzlog_conf
+        fifo_test
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     list(REMOVE_ITEM SRCS ./test_buf.c) # release does not export buf functions
+    list(REMOVE_ITEM SRCS ./fifo_test.c) # release does not export buf functions
 endif()
 
 # single command test
@@ -76,7 +78,12 @@ find_program(MD5_EXECUTABLE NAMES md5sum REQUIRED)
 set(script_test
     consumer_static_file_single
     varify_static_file_single
+    fifo
 )
+
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    list(REMOVE_ITEM script_test fifo)
+endif()
 
 foreach (case ${script_test})
     set(TEST_WORKING_DIR "${CMAKE_BINARY_DIR}/Testing/Temporary/${case}")
