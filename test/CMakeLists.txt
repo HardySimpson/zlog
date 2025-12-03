@@ -29,6 +29,7 @@ set(not_auto_add_test
         test_multithread
         test_dzlog_conf
         fifo_test
+        test_pipe
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
