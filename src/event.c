@@ -99,7 +99,7 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 	a_event->tid = pthread_self();
 
 	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
-	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "%x", (unsigned int)a_event->tid);
+	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "%lx", (unsigned long)a_event->tid);
 
 #ifdef __linux__
 	a_event->ktid = syscall(SYS_gettid);
