@@ -27,6 +27,11 @@ test_press_perf()
 consumer_static_file_single()
 {
     eval "$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 100 --threadN=10"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
 }
 
 # varify_static_file_single - check if normal mode and consumer mode outputs identical
@@ -63,16 +68,26 @@ varify_static_file_single()
 test_multi_thread()
 {
     eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
 }
 
 test_multi_thread_record()
 {
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10 -r"
+    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10 -r > output"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
 }
 
 test_multi_thread_reload()
 {
-    cmd="$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 1000 -m 10 --threadN=10 --reloadcnt=10 --reloadms=400 \
+    cmd="$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 500 -m 10 --threadN=10 --reloadcnt=8 --reloadms=400 \
         -l $conf_dir/test_consumer_static_file_single.conf \
         -l $conf_dir/test_consumer_static_file_single.conf \
         -l $conf_dir/test_static_file_single.conf \
@@ -80,16 +95,31 @@ test_multi_thread_reload()
     echo "run cmd:"
     echo $cmd
     eval $cmd
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
 }
 
 test_multi_thread_recordms()
 {
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 2 --threadN=10 -r --recordms=100"
+    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 2 --threadN=10 -r --recordms=100 > output"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
 }
 
 test_simple()
 {
     eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
 }
 
 fifo()

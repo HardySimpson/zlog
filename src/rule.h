@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <pthread.h>
+#include <stdatomic.h>
 
 #include "zc_defs.h"
 #include "format.h"
@@ -66,7 +67,7 @@ struct zlog_rule_s {
 	int pipe_fd;
 
 	size_t fsync_period;
-	size_t fsync_count;
+	atomic_size_t fsync_count;
 
 	zc_arraylist_t *levels;
 	int syslog_facility;
