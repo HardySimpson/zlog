@@ -3,6 +3,13 @@ include_directories("${CMAKE_HOME_DIRECTORY}/src")
 
 aux_source_directory(. SRCS)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Asan")
+    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
+        add_link_options(-fsanitize=address)
+    endif()
+endif()
+
 if (WIN32)
     #message(STATUS ${SRCS})
     list(REMOVE_ITEM SRCS ./test_press_syslog.c)
@@ -80,6 +87,7 @@ set(script_test
     consumer_static_file_single
     varify_static_file_single
     fifo
+    test_multi_thread_reload
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")

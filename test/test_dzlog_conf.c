@@ -149,7 +149,7 @@ static int test(struct conf *conf)
         }
     }
 
-    for (int i = 0; i < conf->reload_cnt; i++) {
+    for (int i = 0; i < conf->reload_cnt && conf->reload_file_num; i++) {
         assert(!zlog_reload(conf->reload_files[i % conf->reload_file_num]));
         usleep(conf->reload_ms * 1000);
     }

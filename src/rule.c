@@ -146,8 +146,8 @@ static int zlog_rule_output_static_file_single(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	/* not so thread safe here, as multiple thread may ++fsync_count at the same time */
-	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
+	/* achieve thread safe by define fsync_count as atomic and and only the == one will do sync */
+	if (a_rule->fsync_period && ++a_rule->fsync_count == a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fsync(a_rule->static_fd)) {
 			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_fd, errno);
@@ -226,7 +226,7 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count == a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
@@ -331,7 +331,7 @@ static int zlog_rule_output_dynamic_file_single(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count == a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
@@ -381,7 +381,7 @@ static int zlog_rule_output_dynamic_file_rotate(zlog_rule_t * a_rule, zlog_threa
 		return -1;
 	}
 
-	if (a_rule->fsync_period && ++a_rule->fsync_count >= a_rule->fsync_period) {
+	if (a_rule->fsync_period && ++a_rule->fsync_count == a_rule->fsync_period) {
 		a_rule->fsync_count = 0;
 		if (fsync(fd)) zc_error("fsync[%d] fail, errno[%d]", fd, errno);
 	}
