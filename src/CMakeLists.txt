@@ -26,13 +26,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set_target_properties(zlog PROPERTIES C_VISIBILITY_PRESET hidden)
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Asan")
-    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(zlog PRIVATE -fsanitize=address -g -fno-omit-frame-pointer)
-        target_link_options(zlog PRIVATE -fsanitize=address)
-    endif()
-endif()
-
 add_library(zlog_s
         STATIC
         ${SRCS}
@@ -66,12 +59,3 @@ install(FILES
         COMPONENT zlog
         DESTINATION include
 )
-
-if (CMAKE_BUILD_TYPE STREQUAL "Tsan")
-    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(zlog PRIVATE -fsanitize=thread -g -O1  -fno-omit-frame-pointer)
-        target_link_options(zlog PRIVATE -fsanitize=thread)
-        target_compile_options(zlog-chk-conf PRIVATE -fsanitize=thread -g -O1  -fno-omit-frame-pointer)
-        target_link_options(zlog-chk-conf PRIVATE -fsanitize=thread)
-    endif()
-endif()

@@ -3,13 +3,6 @@ include_directories("${CMAKE_HOME_DIRECTORY}/src")
 
 aux_source_directory(. SRCS)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Asan")
-    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-        add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g)
-        add_link_options(-fsanitize=address)
-    endif()
-endif()
-
 if (WIN32)
     #message(STATUS ${SRCS})
     list(REMOVE_ITEM SRCS ./test_press_syslog.c)
@@ -53,13 +46,6 @@ foreach (test_src ${SRCS})
 
     add_executable("${test_name}" "${test_src}")
     target_link_libraries(${test_name} zlog)
-
-    if (CMAKE_BUILD_TYPE STREQUAL "Tsan")
-        if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-            target_compile_options(${test_name} PRIVATE -fsanitize=thread -g -O1  -fno-omit-frame-pointer)
-            target_link_options(${test_name} PRIVATE -fsanitize=thread)
-        endif()
-    endif()
 
     list(FIND not_auto_add_test ${test_name} not_auto_test)
     if (not_auto_test EQUAL -1)
