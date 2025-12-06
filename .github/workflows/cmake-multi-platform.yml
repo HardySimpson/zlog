@@ -25,8 +25,11 @@ jobs:
       # todo: add windows-latest
       matrix:
         os: [ubuntu-latest, ubuntu-22.04-arm]
-        build_type: [Release, Debug, Tsan]
+        build_type: [Release, Debug, Tsan, Asan]
         c_compiler: [gcc, clang]
+        exclude:
+            - c_compiler: gcc
+              build_type: Asan
 
     steps:
     - uses: actions/checkout@v4

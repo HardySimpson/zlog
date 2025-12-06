@@ -70,8 +70,6 @@ static void handle_log(struct log_consumer *logc, struct msg_head *head, bool *e
                 logc->flush.done = true;
                 assert(!pthread_cond_signal(&logc->flush.cond));
                 assert(!pthread_mutex_unlock(&logc->flush.siglock));
-                zc_debug("consumer flush rec %d, send %d\n", logc->event.sig_recv,
-                         logc->event.sig_send);
             }
             offset += msg_cmd_size();
             break;
@@ -109,42 +107,39 @@ static void *logc_func(void *arg)
 {
     struct log_consumer *logc = arg;
     bool exit = false;
-    unsigned prev_sig_send = 0;
-    for (bool prev_sig_send_valid = false; !exit;) {
+
+    for (; !exit;) {
+        unsigned int sig_send_cache;
         pthread_mutex_lock(&logc->event.siglock);
-        /* impossible */
-        if (logc->event.sig_recv > logc->event.sig_send) {
-            assert(0);
-        }
         /* empty */
-        if (logc->event.sig_recv == logc->event.sig_send ||
-            (prev_sig_send_valid && prev_sig_send == logc->event.sig_send)) {
+        if (logc->event.sig_recv == logc->event.sig_send) {
             pthread_cond_wait(&logc->event.cond, &logc->event.siglock);
         }
-        /* todo: optimize prev_sig_send readability */
-        prev_sig_send = logc->event.sig_send;
+        sig_send_cache = logc->event.sig_send;
         pthread_mutex_unlock(&logc->event.siglock);
         /* has data */
 
-        struct msg_head *head = fifo_peek(logc->event.queue);
-        assert(head);
-        unsigned flag = atomic_load_explicit(&head->flags, memory_order_acquire);
-        if (flag == MSG_HEAD_FLAG_RESERVED) {
-            /* not commit yet, continue wait */
-            prev_sig_send_valid = true;
-            continue;
-        }
+        for (struct msg_head *head = fifo_peek(logc->event.queue); head;
+             head = fifo_peek(logc->event.queue)) {
+            logc->event.sig_recv++;
 
-        logc->event.sig_recv++;
-        if (flag == MSG_HEAD_FLAG_COMMITED) {
-            handle_log(logc, head, &exit);
-        } else if (flag == MSG_HEAD_FLAG_DISCARDED) {
-        } else {
-            assert(1);
-        }
-        prev_sig_send_valid = false;
+            unsigned flag = atomic_load_explicit(&head->flags, memory_order_acquire);
+            if (flag == MSG_HEAD_FLAG_RESERVED) {
+                if (logc->event.sig_recv == sig_send_cache) {
+                    /* goto wait til fist commited */
+                    break;
+                }
+                continue;
+            }
 
-        fifo_out(logc->event.queue, head);
+            if (flag == MSG_HEAD_FLAG_COMMITED) {
+                handle_log(logc, head, &exit);
+            } else if (flag == MSG_HEAD_FLAG_DISCARDED) {
+            } else {
+                assert(1);
+            }
+            fifo_out(logc->event.queue, head);
+        }
     }
     return NULL;
 }
