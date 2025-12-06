@@ -75,6 +75,28 @@ test_multi_thread()
     fi
 }
 
+test_multi_thread_ftrue()
+{
+    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/consumer_static_file_single_cmp.conf -n 1000 --threadN=50"
+    ret=$?
+    if [[ "$ret" -ne 0 ]]; then
+        echo "failed to test ${FUNCNAME[0]}"
+        return 1
+    fi
+
+    md5target="dc0877b6f5c669ed259fbc650be11ead"
+    for file in zlog.txt.*; do
+        md5output=$(md5sum $file | awk '{ print $1 }')
+        if [ "$md5output" != "$md5target" ]; then
+            echo "failed, $file $md5output != $md5target"
+            return 1
+        fi
+        echo "$file match, $md5output == $md5target"
+    done
+
+    return 0
+}
+
 test_multi_thread_record()
 {
     eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10 -r > output"
@@ -133,12 +155,6 @@ fifo()
         echo "failed to test ${FUNCNAME[0]}"
         return 1
     fi
-    # rm -f $target ; touch $target
-    # i=0
-    # while [ "$i" -lt "$testcnt" ]; do
-        # echo "data $i" >> $target
-        # i=$(($i + 1))
-    # done
     md5output=$(md5sum $output | awk '{ print $1 }')
     if [ "$md5output" = "$target" ]; then
         echo "match, $md5output == $target"
@@ -146,6 +162,17 @@ fifo()
     fi
     echo "failed, $md5output != $target"
     return 1
+}
+
+dump_loop_targetfile()
+{
+    target=outputi
+    rm -f $target ; touch $target
+    i=999
+    while [ "$i" -ge "0" ]; do
+        echo "loglog $i" >> $target
+        i=$(($i - 1))
+    done
 }
 
 while getopts "t:a::v" opt; do

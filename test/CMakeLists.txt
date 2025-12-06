@@ -74,6 +74,7 @@ set(script_test
     varify_static_file_single
     fifo
     test_multi_thread_reload
+    test_multi_thread_ftrue
 )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
