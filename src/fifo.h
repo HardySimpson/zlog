@@ -4,6 +4,19 @@
 #include <stdatomic.h>
 #include <stdio.h>
 
+enum msg_head_flag {
+    MSG_HEAD_FLAG_RESERVED = 1,
+    MSG_HEAD_FLAG_COMMITED,
+    MSG_HEAD_FLAG_DISCARDED,
+};
+
+struct msg_head {
+    unsigned total_size;
+    atomic_uint flags;
+
+    char data[];
+};
+
 /* todo: optimize page size macro */
 #define PAGE_SIZE 4096
 
@@ -60,6 +73,11 @@ static inline unsigned int fifo_used(struct fifo *fifo)
 static inline unsigned int fifo_unused(struct fifo *fifo)
 {
     return fifo_size(fifo) - fifo_used(fifo);
+}
+
+static inline unsigned int msg_head_size(void)
+{
+    return sizeof(struct msg_head);
 }
 
 #endif
