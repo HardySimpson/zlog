@@ -3,7 +3,6 @@
 
 #include <pthread.h>
 #include <stdalign.h>
-#include <stdatomic.h>
 #include <stddef.h>
 
 #define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
@@ -24,19 +23,6 @@ enum _msg_type {
 enum _msg_cmd {
     MSG_CMD_EXIT = 1,
     MSG_CMD_FLUSH,
-};
-
-enum msg_head_flag {
-    MSG_HEAD_FLAG_RESERVED = 1,
-    MSG_HEAD_FLAG_COMMITED,
-    MSG_HEAD_FLAG_DISCARDED,
-};
-
-struct msg_head {
-    unsigned total_size;
-    atomic_uint flags;
-
-    char data[];
 };
 
 struct msg_type {
@@ -82,11 +68,6 @@ struct zlog_output_data {
         size_t len;
     } time_str;
 };
-
-static inline unsigned int msg_head_size(void)
-{
-    return sizeof(struct msg_head);
-}
 
 static inline unsigned int msg_usr_str_size(void)
 {
