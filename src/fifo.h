@@ -41,7 +41,7 @@ struct fifo {
     atomic_uint out;
     unsigned mask;
     int memfd;
-    _Alignas(PAGE_SIZE) char data[];
+    __attribute__((aligned(PAGE_SIZE))) char data[];
 };
 
 struct fifo *fifo_create(unsigned int size);
