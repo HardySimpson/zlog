@@ -34,28 +34,10 @@ SET(ZLOG_SO_VERSION ${CPACK_PACKAGE_VERSION_MAJOR})
 
 message(STATUS "platform : ${CMAKE_SYSTEM}")
 
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF) # Optional: set to ON for extensions
-
+add_definitions("-g -Wall -Wstrict-prototypes")
+set(CMAKE_C_FLAGS "-std=c99 -pedantic -D_DEFAULT_SOURCE")
+set(CMAKE_C_FLAGS_DEBUG "-ggdb3 -DDEBUG")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
-if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24")
-    set(CMAKE_COMPILE_WARNING_AS_ERROR ON)
-else()
-    add_compile_options(-Werror)
-endif()
-
-add_compile_options(-g -Wall -Wstrict-prototypes -pedantic -D_DEFAULT_SOURCE)
-add_compile_options(
-    "$<$<CONFIG:Release>:>"
-    "$<$<CONFIG:Debug>:-ggdb3;-DDEBUG>"
-    "$<$<CONFIG:Asan>:-fsanitize=address;-g;-fno-omit-frame-pointer>"
-    "$<$<CONFIG:Tsan>:-fsanitize=thread;-g;-O1;-fno-omit-frame-pointer>"
-)
-add_link_options(
-    "$<$<CONFIG:Asan>:-fsanitize=address>"
-    "$<$<CONFIG:Tsan>:-fsanitize=thread>"
-)
 
 if (WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 ")
@@ -80,5 +62,7 @@ include(cmake/LoadLibraries.cmake)
 add_subdirectory(src)
 add_subdirectory(cpack)
 
-enable_testing()
-add_subdirectory(test)
+if (UNIT_TEST)
+    enable_testing()
+    add_subdirectory(test)
+endif ()
