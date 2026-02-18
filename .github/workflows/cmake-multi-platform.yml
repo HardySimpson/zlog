@@ -59,3 +59,44 @@ jobs:
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest --build-config ${{ matrix.build_type }}
+
+  build-macos:
+    runs-on: macos-latest
+
+    strategy:
+      fail-fast: false
+
+      # Mirror the Ubuntu build matrix: Release/Debug/Tsan/Asan x clang.
+      # macOS only ships Apple Clang; gcc is an alias for it on macOS runners.
+      matrix:
+        build_type: [Release, Debug, Tsan, Asan]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install GNU coreutils
+      # Provides md5sum (used by test scripts) which is absent on macOS by default.
+      run: |
+        brew install coreutils
+        echo "$(brew --prefix)/opt/coreutils/libexec/gnubin" >> $GITHUB_PATH
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_C_COMPILER=clang
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DUNIT_TEST=ON
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j$(sysctl -n hw.ncpu)
+
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ctest --build-config ${{ matrix.build_type }}
