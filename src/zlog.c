@@ -912,7 +912,9 @@ static void _log(zlog_category_t * category,
         goto exit;
     }
 
-	if (zlog_category_needless_level(category, level)) goto exit;
+	if (zlog_category_needless_level(category, level)) {
+		goto exit;
+	}
 
 	zlog_fetch_thread(a_thread, exit);
 

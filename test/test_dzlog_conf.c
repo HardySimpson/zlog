@@ -129,7 +129,7 @@ static int test(struct conf *conf)
             printf("init failed\n");
             return -1;
         }
-        assert(!zlog_set_record("myoutput", output));
+        if (zlog_set_record("myoutput", output)) { fprintf(stderr, "zlog_set_record failed\n"); return -1; }
     } else {
         ret = dzlog_init(conf->filename, "default");
         if (ret) {
@@ -143,20 +143,23 @@ static int test(struct conf *conf)
         thread_func(conf);
     } else {
         tids = malloc(conf->threadn * sizeof(*tids));
-        assert(tids);
+        if (!tids) { perror("malloc"); return -1; }
         for (int i = 0; i < conf->threadn; i++) {
-            assert(!pthread_create(&(tids[i]), NULL, thread_func, conf));
+            int r = pthread_create(&(tids[i]), NULL, thread_func, conf);
+            if (r) { fprintf(stderr, "pthread_create: %d\n", r); return -1; }
         }
     }
 
     for (int i = 0; i < conf->reload_cnt && conf->reload_file_num; i++) {
-        assert(!zlog_reload(conf->reload_files[i % conf->reload_file_num]));
+        int r = zlog_reload(conf->reload_files[i % conf->reload_file_num]);
+        if (r) { fprintf(stderr, "zlog_reload failed\n"); return -1; }
         usleep(conf->reload_ms * 1000);
     }
 
     if (conf->threadn) {
         for (int i = 0; i < conf->threadn; i++) {
-            assert(!pthread_join(tids[i], NULL));
+            int r = pthread_join(tids[i], NULL);
+            if (r) { fprintf(stderr, "pthread_join: %d\n", r); return -1; }
         }
         free(tids);
     }
