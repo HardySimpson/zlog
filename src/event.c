@@ -103,13 +103,13 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 
 #ifdef __linux__
 	a_event->ktid = syscall(SYS_gettid);
-#elif __APPLE__
+#elif defined(__APPLE__)
     uint64_t tid64;
     pthread_threadid_np(NULL, &tid64);
-    a_event->tid = (pthread_t)tid64;
+    a_event->ktid = (pid_t)tid64;
 #endif
 
-#if defined __linux__ || __APPLE__
+#if defined(__linux__) || defined(__APPLE__)
 	a_event->ktid_str_len = sprintf(a_event->ktid_str, "%u", (unsigned int)a_event->ktid);
 #endif
 
