@@ -1,6 +1,7 @@
 #define _GNU_SOURCE // For distros like Centos for syscall interface
 #include <assert.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
@@ -58,7 +59,17 @@ struct fifo *fifo_create(unsigned int size)
      * write addr == 4090, write size == 20
      * write[6] will write to 4096, the phy addr is 0, wrap as expected
      */
+#if defined(__linux__)
     int fd = memfd_create("x", 0);
+#elif defined(__APPLE__)
+    char tmp_path[] = "/tmp/zlog_fifo_XXXXXX";
+    int fd = mkstemp(tmp_path);
+    if (fd >= 0) {
+        unlink(tmp_path); /* remove name, keep fd open as anonymous */
+    }
+#else
+#error "memfd_create or anonymous tmpfile required but not available"
+#endif
     if (fd < 0) {
         zc_error("failed to create memfd, err %d", fd);
         return NULL;

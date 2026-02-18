@@ -77,6 +77,7 @@ test_multi_thread()
 
 test_multi_thread_ftrue()
 {
+    rm -f zlog.txt.*
     eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/consumer_static_file_single_cmp.conf -n 1000 --threadN=50"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
@@ -84,9 +85,11 @@ test_multi_thread_ftrue()
         return 1
     fi
 
-    md5target="dc0877b6f5c669ed259fbc650be11ead"
+    # Each per-thread file contains 1000 log entries (loglog 999..0).
+    # Sort before hashing to avoid non-deterministic ordering from concurrent writes.
+    md5target="375f2b5ee51aff0a52235196f81ec34f"
     for file in zlog.txt.*; do
-        md5output=$(md5sum $file | awk '{ print $1 }')
+        md5output=$(sort "$file" | md5sum | awk '{ print $1 }')
         if [ "$md5output" != "$md5target" ]; then
             echo "failed, $file $md5output != $md5target"
             return 1

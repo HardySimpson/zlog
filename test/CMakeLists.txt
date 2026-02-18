@@ -66,7 +66,14 @@ file(COPY
 
 if (UNIX)
 find_program(BASH NAMES bash REQUIRED)
-find_program(MD5_EXECUTABLE NAMES md5sum REQUIRED)
+find_program(MD5_EXECUTABLE NAMES md5sum md5 REQUIRED)
+
+# Determine where test executables are placed
+if (CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(TEST_BIN_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+else ()
+    set(TEST_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR})
+endif ()
 
 # tests defined in scripts
 set(script_test
@@ -89,7 +96,7 @@ foreach (case ${script_test})
         COMMAND ${BASH} ${CMAKE_SOURCE_DIR}/scripts/test.sh -t ${case}
         WORKING_DIRECTORY ${TEST_WORKING_DIR}
     )
-    set_property(TEST ${case} PROPERTY ENVIRONMENT "bin_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY};conf_dir=${CMAKE_CURRENT_BINARY_DIR}")
+    set_property(TEST ${case} PROPERTY ENVIRONMENT "bin_dir=${TEST_BIN_DIR};conf_dir=${CMAKE_CURRENT_BINARY_DIR}")
 endforeach(case)
 
 endif (UNIX)

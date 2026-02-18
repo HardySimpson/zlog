@@ -3,6 +3,7 @@
 
 #include <stdatomic.h>
 #include <stdio.h>
+#include <sys/param.h>
 
 enum msg_head_flag {
     MSG_HEAD_FLAG_RESERVED = 1,
@@ -17,8 +18,15 @@ struct msg_head {
     char data[];
 };
 
-/* todo: optimize page size macro */
+/* PAGE_SIZE must be a compile-time constant for __attribute__((aligned(...))).
+ * Use platform/arch detection to match the actual system page size. */
+#ifndef PAGE_SIZE
+#if defined(__APPLE__) && defined(__aarch64__)
+#define PAGE_SIZE 16384  /* Apple Silicon uses 16KB pages */
+#else
 #define PAGE_SIZE 4096
+#endif
+#endif
 
 /**
  * fifo - single in/out lockless ringbuf, take linux kernel kfifo as reference.
