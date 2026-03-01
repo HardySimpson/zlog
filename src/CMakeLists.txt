@@ -49,8 +49,8 @@ target_link_libraries(zlog-chk-conf zlog)
 install(TARGETS
         zlog zlog_s zlog-chk-conf
         COMPONENT zlog
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION bin
 )
 
