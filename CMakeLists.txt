@@ -52,6 +52,26 @@ message(STATUS "platform : ${CMAKE_SYSTEM}")
 
 add_definitions("-g -Wall -Wstrict-prototypes")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic -D_DEFAULT_SOURCE")
+
+# defined signed overflow, as in the makefile build (src/Makefile)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fwrapv")
+
+# -pthread at compile time, not just at link time: the makefile build passes it
+# to both, and on a glibc new enough to keep pthread_create in libc FindThreads
+# resolves the link side with no flag at all, which would leave the two builds
+# compiling the sources in different states (_REENTRANT and friends).
+include(CheckCCompilerFlag)
+check_c_compiler_flag(-pthread ZLOG_HAVE_PTHREAD_FLAG)
+if (ZLOG_HAVE_PTHREAD_FLAG)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+endif ()
+
+# the makefile build is -Werror everywhere except mingw; keep that, but let
+# packagers building with a compiler we have not seen turn it off
+option(ZLOG_WERROR "treat compiler warnings as errors" ON)
+if (ZLOG_WERROR AND NOT MINGW)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+endif ()
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb3 -DDEBUG")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 
