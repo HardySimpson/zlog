@@ -290,6 +290,9 @@ $RECYCLE.BIN/
 # build folder
 /build/
 
+# generated pkg-config file
+/src/zlog.pc
+
 # End of https://www.toptal.com/developers/gitignore/api/c,c++,bazel,cmake,linux,macos,windows,jetbrains+all,visualstudiocode
 .cache
 .clangd

@@ -87,6 +87,7 @@ INCLUDE_PATH?=include
 LIBRARY_PATH?=lib
 BINARY_PATH=bin
 PKGCONFIG_PATH?=pkgconfig
+PKGCONFIG_LIBS_PRIVATE?=-pthread
 INSTALL_INCLUDE_PATH= $(PREFIX)/$(INCLUDE_PATH)
 INSTALL_LIBRARY_PATH= $(PREFIX)/$(LIBRARY_PATH)
 INSTALL_BINARY_PATH=  $(PREFIX)/$(BINARY_PATH)
@@ -126,6 +127,7 @@ ifeq ($(UNAME), MINGW)
 
    REAL_CFLAGS  := $(REAL_CFLAGS) -I$(INSTALL_INCLUDE_PATH)
    REAL_LDFLAGS := $(REAL_LDFLAGS) -L$(INSTALL_LIBRARY_PATH) -lws2_32 -lunixem
+   PKGCONFIG_LIBS_PRIVATE := -lws2_32 -lunixem
 endif
 
 all: $(DYLIBNAME) $(BINS)
@@ -187,22 +189,15 @@ version.h: Makefile
 	@echo "Generating version.h"
 	@echo "#define ZLOG_VERSION $(ZLOG_CSTRING_VERSION)" > version.h
 
-zlog.pc: Makefile
+zlog.pc: zlog.pc.in Makefile
 	@echo "Generating zlog.pc"
-	@echo ""                                         >  zlog.pc
-	@echo "prefix=$(PREFIX)"                         >> zlog.pc
-	@echo "exec_prefix=\$${prefix}"                  >> zlog.pc
-	@echo "libdir=\$${exec_prefix}/$(LIBRARY_PATH)"  >> zlog.pc
-	@echo "includedir=\$${prefix}/$(INCLUDE_PATH)"   >> zlog.pc
-	@echo ""                                         >> zlog.pc
-	@echo "Name: zlog"                               >> zlog.pc
-	@echo "Description: The zlog C logger framework" >> zlog.pc
-	@echo "URL: http://hardysimpson.github.io/zlog/" >> zlog.pc
-	@echo "Version: $(ZLOG_MAJOR).$(ZLOG_MINOR).$(ZLOG_PATCH)" \
-	                                                 >> zlog.pc
-	@echo "Libs: -L\$${libdir} -lzlog"               >> zlog.pc
-	@echo "Cflags: -I\$${includedir}"                >> zlog.pc
-	@echo ""                                         >> zlog.pc
+	@sed -e 's|@prefix@|$(PREFIX)|g' \
+	     -e 's|@exec_prefix@|$${prefix}|g' \
+	     -e 's|@libdir@|$${exec_prefix}/$(LIBRARY_PATH)|g' \
+	     -e 's|@includedir@|$${prefix}/$(INCLUDE_PATH)|g' \
+	     -e 's|@ZLOG_VERSION@|$(ZLOG_MAJOR).$(ZLOG_MINOR).$(ZLOG_PATCH)|g' \
+	     -e 's|@ZLOG_LIBS_PRIVATE@|$(PKGCONFIG_LIBS_PRIVATE)|g' \
+	     zlog.pc.in > $@
 
 $(DYLIBNAME): $(OBJ)
 	$(DYLIB_MAKE_CMD) $(OBJ) $(REAL_LDFLAGS)

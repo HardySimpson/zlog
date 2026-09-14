@@ -59,3 +59,23 @@ install(FILES
         COMPONENT zlog
         DESTINATION include
 )
+
+# pkg-config support
+set(prefix "${CMAKE_INSTALL_PREFIX}")
+set(exec_prefix "\${prefix}")
+set(libdir "\${exec_prefix}/lib")
+set(includedir "\${prefix}/include")
+
+if (WIN32)
+    set(ZLOG_LIBS_PRIVATE "-lws2_32 -lunixem")
+else ()
+    set(ZLOG_LIBS_PRIVATE "-pthread")
+endif ()
+
+configure_file(zlog.pc.in ${CMAKE_CURRENT_BINARY_DIR}/zlog.pc @ONLY)
+
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/zlog.pc
+        COMPONENT zlog
+        DESTINATION lib/pkgconfig
+)

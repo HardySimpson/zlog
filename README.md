@@ -117,6 +117,14 @@ $ ./test_hello
 hello, zlog
 ```
 
+Both the Makefile and the CMake build install a pkg-config file, so the flags above can also be queried:
+
+```bash
+$ cc -o test_hello test_hello.c $(pkg-config --cflags --libs zlog)
+```
+
+Add `--static` when linking against libzlog.a, so that the private dependencies are pulled in as well.
+
 ## 4. Advanced Usage
 
 * syslog model, better than log4j model
