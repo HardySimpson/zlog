@@ -24,20 +24,36 @@ message(STATUS "path : ${CMAKE_FIND_ROOT_PATH}")
 
 set(CMAKE_MODULE_PATH ${zlog_SOURCE_DIR}/cmake)
 
-SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "2")
-SET(CPACK_PACKAGE_VERSION_PATCH "18")
+# The version is defined once, in src/version.h, and parsed by both build
+# systems (see src/Makefile) so the library, the file names and the packages
+# can never disagree.
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS src/version.h)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/src/version.h" ZLOG_VERSION_LINE
+        REGEX "^#define[ \t]+ZLOG_VERSION[ \t]+\"[0-9]+\\.[0-9]+\\.[0-9]+\"")
+string(REGEX REPLACE "^.*\"([0-9]+\\.[0-9]+\\.[0-9]+)\".*$" "\\1" ZLOG_VERSION "${ZLOG_VERSION_LINE}")
+
+if (NOT ZLOG_VERSION MATCHES "^[0-9]+\\.[0-9]+\\.[0-9]+$")
+    message(FATAL_ERROR "cannot parse ZLOG_VERSION from src/version.h")
+endif ()
+
+string(REPLACE "." ";" ZLOG_VERSION_PARTS ${ZLOG_VERSION})
+list(GET ZLOG_VERSION_PARTS 0 CPACK_PACKAGE_VERSION_MAJOR)
+list(GET ZLOG_VERSION_PARTS 1 CPACK_PACKAGE_VERSION_MINOR)
+list(GET ZLOG_VERSION_PARTS 2 CPACK_PACKAGE_VERSION_PATCH)
 SET(CPACK_RPM_PACKAGE_RELEASE 1) # release version.
-SET(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-SET(ZLOG_VERSION ${CPACK_PACKAGE_VERSION})
-SET(ZLOG_SO_VERSION ${CPACK_PACKAGE_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION ${ZLOG_VERSION})
+
+# soname is libzlog.so.MAJOR.MINOR, as shipped by the makefile build since 1.2
+SET(ZLOG_SO_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
+
+message(STATUS "version : ${ZLOG_VERSION} (soname ${ZLOG_SO_VERSION})")
 
 message(STATUS "platform : ${CMAKE_SYSTEM}")
 
 add_definitions("-g -Wall -Wstrict-prototypes")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic -D_DEFAULT_SOURCE")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb3 -DDEBUG")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELASE} -O2")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 
 if (WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 ")

@@ -41,11 +41,17 @@ OBJ=    \
 BINS=zlog-chk-conf
 LIBNAME=libzlog
 
-ZLOG_MAJOR=1
-ZLOG_MINOR=2
-ZLOG_PATCH=18
+# The version is defined once, in version.h, and parsed by both build systems
+# (see the top level CMakeLists.txt) so the library, the file names and the
+# packages can never disagree.
+ZLOG_VERSION := $(shell sed -n 's/^#define[ \t]*ZLOG_VERSION[ \t]*"\([0-9.]*\)".*/\1/p' version.h)
+ZLOG_MAJOR := $(word 1,$(subst ., ,$(ZLOG_VERSION)))
+ZLOG_MINOR := $(word 2,$(subst ., ,$(ZLOG_VERSION)))
+ZLOG_PATCH := $(word 3,$(subst ., ,$(ZLOG_VERSION)))
 
-ZLOG_CSTRING_VERSION := $(shell printf '\\"%d.%d.%d\\"' $(ZLOG_MAJOR) $(ZLOG_MINOR) $(ZLOG_PATCH))
+ifeq ($(ZLOG_PATCH),)
+  $(error cannot parse ZLOG_VERSION from version.h)
+endif
 
 # for mingw (cut the last part of the uname)
 UNAME := $(shell uname | cut -c -5)
@@ -74,10 +80,10 @@ REAL_LDFLAGS=$(LDFLAGS) -pthread
 
 DYLIBSUFFIX=so
 STLIBSUFFIX=a
-DYLIB_MINOR_NAME=$(LIBNAME).$(DYLIBSUFFIX).$(ZLOG_MAJOR).$(ZLOG_MINOR)
-DYLIB_MAJOR_NAME=$(LIBNAME).$(DYLIBSUFFIX).$(ZLOG_MAJOR)
+DYLIB_FULL_NAME=$(LIBNAME).$(DYLIBSUFFIX).$(ZLOG_VERSION)
+DYLIB_SONAME=$(LIBNAME).$(DYLIBSUFFIX).$(ZLOG_MAJOR).$(ZLOG_MINOR)
 DYLIBNAME=$(LIBNAME).$(DYLIBSUFFIX)
-DYLIB_MAKE_CMD=$(CC) -shared -Wl,-soname,$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
+DYLIB_MAKE_CMD=$(CC) -shared -Wl,-soname,$(DYLIB_SONAME) -o $(DYLIBNAME) $(LDFLAGS)
 STLIBNAME=$(LIBNAME).$(STLIBSUFFIX)
 STLIB_MAKE_CMD=$(AR) rcs $(STLIBNAME)
 
@@ -99,16 +105,16 @@ compiler_platform := $(shell sh -c '$(CC) --version|grep -i apple')
 
 ifeq ($(uname_S),SunOS)
 #  REAL_LDFLAGS+= -ldl -lnsl -lsocket
-  DYLIB_MAKE_CMD=$(CC) -G -o $(DYLIBNAME) -h $(DYLIB_MINOR_NAME) $(LDFLAGS)
+  DYLIB_MAKE_CMD=$(CC) -G -o $(DYLIBNAME) -h $(DYLIB_SONAME) $(LDFLAGS)
   INSTALL= cp -r
 endif
 
 # For Darwin builds, check the compiler platform above is not empty. The covers cross compilation on Linux
 ifneq ($(compiler_platform),)
   DYLIBSUFFIX=dylib
-  DYLIB_MINOR_NAME=$(LIBNAME).$(ZLOG_MAJOR).$(ZLOG_MINOR).$(DYLIBSUFFIX)
-  DYLIB_MAJOR_NAME=$(LIBNAME).$(ZLOG_MAJOR).$(DYLIBSUFFIX)
-  DYLIB_MAKE_CMD=$(CC) -dynamiclib -install_name $(INSTALL_LIBRARY_PATH)/$(DYLIB_MINOR_NAME) -o $(DYLIBNAME) $(LDFLAGS)
+  DYLIB_FULL_NAME=$(LIBNAME).$(ZLOG_VERSION).$(DYLIBSUFFIX)
+  DYLIB_SONAME=$(LIBNAME).$(ZLOG_MAJOR).$(ZLOG_MINOR).$(DYLIBSUFFIX)
+  DYLIB_MAKE_CMD=$(CC) -dynamiclib -install_name $(INSTALL_LIBRARY_PATH)/$(DYLIB_SONAME) -o $(DYLIBNAME) $(LDFLAGS)
   REAL_CFLAGS+= -D_DARWIN_C_SOURCE
 endif
 
@@ -117,7 +123,7 @@ ifeq ($(uname_S),AIX)
   # not to mention dynamic linker .a preference...
   DYLIB_MAKE_CMD=$(CC) -shared -Wl,-G,-b64 -maix64 -pthread -o $(DYLIBNAME) $(LDFLAGS)
   REAL_CFLAGS+= -maix64
-  STLIB_MAKE_CMD=OBJECT_MODE=64 $(AR) rcs $(STLIBNAME) $(DYLIB_MAJOR_NAME)
+  STLIB_MAKE_CMD=OBJECT_MODE=64 $(AR) rcs $(STLIBNAME) $(DYLIB_SONAME)
 endif
 
 ifeq ($(UNAME), MINGW)
@@ -175,7 +181,7 @@ zc_hashtable.o: zc_hashtable.c zc_defs.h zc_profile.h zc_arraylist.h \
 zc_profile.o: zc_profile.c fmacros.h zc_profile.h zc_xplatform.h
 zc_util.o: zc_util.c zc_defs.h zc_profile.h zc_arraylist.h zc_hashtable.h \
  zc_xplatform.h zc_util.h
-zlog-chk-conf.o: zlog-chk-conf.c fmacros.h zlog.h
+zlog-chk-conf.o: zlog-chk-conf.c fmacros.h zlog.h version.h
 lockfile.o: lockfile.c
 consumer.o: consumer.c
 fifo.o: fifo.c
@@ -185,17 +191,13 @@ zlog.o: zlog.c fmacros.h conf.h zc_defs.h zc_profile.h zc_arraylist.h \
  record.h rule.h version.h
 zlog_win.o: zlog_win.c
 
-version.h: Makefile
-	@echo "Generating version.h"
-	@echo "#define ZLOG_VERSION $(ZLOG_CSTRING_VERSION)" > version.h
-
 zlog.pc: zlog.pc.in Makefile
 	@echo "Generating zlog.pc"
 	@sed -e 's|@prefix@|$(PREFIX)|g' \
 	     -e 's|@exec_prefix@|$${prefix}|g' \
 	     -e 's|@libdir@|$${exec_prefix}/$(LIBRARY_PATH)|g' \
 	     -e 's|@includedir@|$${prefix}/$(INCLUDE_PATH)|g' \
-	     -e 's|@ZLOG_VERSION@|$(ZLOG_MAJOR).$(ZLOG_MINOR).$(ZLOG_PATCH)|g' \
+	     -e 's|@ZLOG_VERSION@|$(ZLOG_VERSION)|g' \
 	     -e 's|@ZLOG_LIBS_PRIVATE@|$(PKGCONFIG_LIBS_PRIVATE)|g' \
 	     zlog.pc.in > $@
 
@@ -203,8 +205,8 @@ $(DYLIBNAME): $(OBJ)
 	$(DYLIB_MAKE_CMD) $(OBJ) $(REAL_LDFLAGS)
 	# for use in test folder - linux and requirement for aix runtime
 	# resolving
-	cp -f $(DYLIBNAME) $(DYLIB_MAJOR_NAME)
-	cp -f $(DYLIBNAME) $(DYLIB_MINOR_NAME)
+	ln -sf $(DYLIBNAME) $(DYLIB_SONAME)
+	ln -sf $(DYLIBNAME) $(DYLIB_FULL_NAME)
 
 $(STLIBNAME): $(OBJ)
 	$(STLIB_MAKE_CMD) $(OBJ)
@@ -222,7 +224,7 @@ zlog-chk-conf: zlog-chk-conf.o $(STLIBNAME) $(DYLIBNAME)
 	$(CC) -std=c99 -pedantic -c $(REAL_CFLAGS) $<
 
 clean:
-	rm -rf $(DYLIBNAME) $(STLIBNAME) $(BINS) *.o *.gcda *.gcno *.gcov $(DYLIB_MINOR_NAME) $(DYLIB_MAJOR_NAME) zlog.pc
+	rm -rf $(DYLIBNAME) $(STLIBNAME) $(BINS) *.o *.gcda *.gcno *.gcov $(DYLIB_SONAME) $(DYLIB_FULL_NAME) zlog.pc
 
 dep:
 	$(CC) -MM *.c
@@ -244,9 +246,9 @@ install: $(DYLIBNAME) $(STLIBNAME) zlog.pc
 	mkdir -p $(INSTALL_INCLUDE_PATH) $(INSTALL_LIBRARY_PATH) $(INSTALL_BINARY_PATH) $(INSTALL_PKGCONFIG_PATH)
 	$(INSTALL) zlog.h $(INSTALL_INCLUDE_PATH)
 	$(INSTALL) zlog-chk-conf $(INSTALL_BINARY_PATH)
-	$(INSTALL) $(DYLIBNAME) $(INSTALL_LIBRARY_PATH)/$(DYLIB_MINOR_NAME)
-	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_MINOR_NAME) $(DYLIB_MAJOR_NAME)
-	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_MAJOR_NAME) $(DYLIBNAME)
+	$(INSTALL) $(DYLIBNAME) $(INSTALL_LIBRARY_PATH)/$(DYLIB_FULL_NAME)
+	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_FULL_NAME) $(DYLIB_SONAME)
+	cd $(INSTALL_LIBRARY_PATH) && ln -sf $(DYLIB_SONAME) $(DYLIBNAME)
 	$(INSTALL) $(STLIBNAME) $(INSTALL_LIBRARY_PATH)
 	$(INSTALL) zlog.pc $(INSTALL_PKGCONFIG_PATH)
 
