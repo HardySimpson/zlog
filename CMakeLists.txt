@@ -75,6 +75,30 @@ endif ()
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb3 -DDEBUG")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 
+# Sanitizer build types, used by the CI matrix and documented in
+# doc/developer.md: cmake -DCMAKE_BUILD_TYPE=Tsan|Asan
+set(CMAKE_C_FLAGS_TSAN "-g -O1 -fno-omit-frame-pointer -fsanitize=thread")
+set(CMAKE_EXE_LINKER_FLAGS_TSAN "-fsanitize=thread")
+set(CMAKE_SHARED_LINKER_FLAGS_TSAN "-fsanitize=thread")
+set(CMAKE_MODULE_LINKER_FLAGS_TSAN "-fsanitize=thread")
+
+set(CMAKE_C_FLAGS_ASAN "-g -O1 -fno-omit-frame-pointer -fsanitize=address")
+set(CMAKE_EXE_LINKER_FLAGS_ASAN "-fsanitize=address")
+set(CMAKE_SHARED_LINKER_FLAGS_ASAN "-fsanitize=address")
+set(CMAKE_MODULE_LINKER_FLAGS_ASAN "-fsanitize=address")
+
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        Debug Release RelWithDebInfo MinSizeRel Tsan Asan)
+
+# these two only exist for gcc and clang: say so instead of silently building
+# an unsanitized library, which is what an undefined build type would do
+if (CMAKE_BUILD_TYPE MATCHES "^(Tsan|Asan)$"
+        AND NOT CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    message(FATAL_ERROR
+            "CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} needs gcc or clang, "
+            "not ${CMAKE_C_COMPILER_ID}")
+endif ()
+
 if (WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 ")
 endif ()
