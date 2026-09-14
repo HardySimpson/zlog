@@ -59,6 +59,10 @@ if (WIN32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 ")
 endif ()
 
+# lib vs lib64, bin, include: let the platform decide, the way the makefile
+# build lets LIBRARY_PATH/BINARY_PATH/INCLUDE_PATH decide
+include(GNUInstallDirs)
+
 cmake_policy(SET CMP0015 NEW)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${zlog_BINARY_DIR}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${zlog_BINARY_DIR}/lib")
