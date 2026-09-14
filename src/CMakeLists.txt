@@ -41,7 +41,12 @@ if (WIN32)
     )
 endif ()
 
-set_target_properties(zlog_s PROPERTIES OUTPUT_NAME zlog)
+# -fPIC, like the makefile build: the static library must stay linkable into
+# a shared object
+set_target_properties(zlog_s PROPERTIES
+        OUTPUT_NAME zlog
+        POSITION_INDEPENDENT_CODE ON
+)
 
 add_executable(zlog-chk-conf zlog-chk-conf.c)
 target_link_libraries(zlog-chk-conf zlog)
