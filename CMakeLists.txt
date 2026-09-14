@@ -19,7 +19,7 @@ cmake_minimum_required(VERSION 3.12)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for compile commands used by lsp
 
 message(STATUS "path : ${CMAKE_FIND_ROOT_PATH}")
-project(zlog)
+project(zlog LANGUAGES C)
 message(STATUS "path : ${CMAKE_FIND_ROOT_PATH}")
 
 set(CMAKE_MODULE_PATH ${zlog_SOURCE_DIR}/cmake)

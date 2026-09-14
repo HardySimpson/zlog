@@ -116,4 +116,4 @@ my_cat.*      > stdout;           simple
 
 - macOS：生成 `.dylib`，Makefile 自动适配
 - Windows：需引入 `unixem` 库，CMake 条件处理
-- C++ 用户可使用 `src/zlog_cpp.h` 包装器（ZlogCPP 类 + ZLOGD/I/W/E 宏）
+- C++：本库为纯 C 实现，不含任何 C++ 代码和 C++ 封装类；`src/zlog.h` 带 `extern "C"` 保护，可直接在 C++ 中包含
