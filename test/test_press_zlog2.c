@@ -31,7 +31,7 @@ void * work(void *ptr)
 {
 	long j = loop_count;
 	char category[20];
-	sprintf(category, "cat%ld", (long)ptr);
+	snprintf(category, sizeof(category), "cat%ld", (long)ptr);
 	zlog_category_t *zc;
 
 	zc = zlog_get_category(category);
