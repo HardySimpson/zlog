@@ -98,8 +98,11 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 	 */
 	a_event->tid = pthread_self();
 
-	a_event->tid_str_len = sprintf(a_event->tid_str, "%lu", (unsigned long)a_event->tid);
-	a_event->tid_hex_str_len = sprintf(a_event->tid_hex_str, "%lx", (unsigned long)a_event->tid);
+	/* the buffers hold any unsigned long in decimal or hex, so no truncation */
+	a_event->tid_str_len = snprintf(a_event->tid_str, sizeof(a_event->tid_str),
+			"%lu", (unsigned long)a_event->tid);
+	a_event->tid_hex_str_len = snprintf(a_event->tid_hex_str, sizeof(a_event->tid_hex_str),
+			"%lx", (unsigned long)a_event->tid);
 
 #ifdef __linux__
 	a_event->ktid = syscall(SYS_gettid);
@@ -110,7 +113,8 @@ zlog_event_t *zlog_event_new(int time_cache_count)
 #endif
 
 #if defined(__linux__) || defined(__APPLE__)
-	a_event->ktid_str_len = sprintf(a_event->ktid_str, "%u", (unsigned int)a_event->ktid);
+	a_event->ktid_str_len = snprintf(a_event->ktid_str, sizeof(a_event->ktid_str),
+			"%u", (unsigned int)a_event->ktid);
 #endif
 
 	//zlog_event_profile(a_event, ZC_DEBUG);
