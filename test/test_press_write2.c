@@ -33,7 +33,7 @@ void * work(void *ptr)
     static char log[] = "2012-06-14 20:30:38.481187 INFO   24536:140716226213632:test_press_zlog.c:36 loglog\n";
 	char file[20];
 
-	sprintf(file, "press.%ld.log", (long)ptr);
+	snprintf(file, sizeof(file), "press.%ld.log", (long)ptr);
 
 	int fd;
 	fd = open(file, O_CREAT | O_WRONLY | O_APPEND , 0644);
