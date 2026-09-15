@@ -16,7 +16,7 @@ int gethostname_w(char *name, size_t len)
 	if (rc != 0) {
 		rc = GetComputerNameEx(ComputerNameDnsHostname, name, &newlen);
 		if (rc == 0) {
-			sprintf(name, "noname");
+			snprintf(name, len, "noname");
 		}
 	}
 	return 0;
@@ -75,9 +75,15 @@ void setenv(const char *name, const char *value)
 #ifdef HAVE_SETENV
     setenv(name, value, 1);
 #else
-    int len = strlen(value)+1+strlen(value)+1;
+    /* name + '=' + value + '\0' */
+    size_t len = strlen(name) + 1 + strlen(value) + 1;
     char *str = malloc(len);
-    sprintf(str, "%s=%s", name, value);
+
+    if (!str)
+        return;
+
+    snprintf(str, len, "%s=%s", name, value);
+    /* putenv keeps the string itself, so it must not be freed here */
     putenv(str);
 #endif
 }
