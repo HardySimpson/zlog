@@ -132,17 +132,14 @@ static void *logc_func(void *arg)
          * in this wakeup. sig_recv is only incremented when a message is
          * actually dequeued, so it never overshoots sig_send. */
         unsigned int pending = sig_send_cache - logc->event.sig_recv;
-        unsigned long reserved_spins = 0;
         for (struct msg_head *head = fifo_peek(logc->event.queue);
              head && pending > 0;
              head = fifo_peek(logc->event.queue)) {
             unsigned flag = atomic_load_explicit(&head->flags, memory_order_acquire);
             if (flag == MSG_HEAD_FLAG_RESERVED) {
                 /* spin-wait for the producer to finish committing */
-                reserved_spins++;
                 continue;
             }
-            reserved_spins = 0;
 
             pending--;
             logc->event.sig_recv++;
