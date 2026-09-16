@@ -1,0 +1,11 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# the zlog targets carry Threads::Threads, and -pthread with it
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_dependency(Threads)
+
+include("${CMAKE_CURRENT_LIST_DIR}/zlogTargets.cmake")
+
+check_required_components(zlog)
