@@ -183,6 +183,12 @@ static int zlog_rule_output_static_file_rotate(zlog_rule_t * a_rule, zlog_thread
 	struct zlog_stat info;
 	int fd = -1;
 
+    /* under the consumer the caller has no thread of its own, and
+     * zlog_rule_gen_archive_path() below needs one for archive_path_buf */
+    if (data) {
+        a_thread = data->thread;
+    }
+
 	if (zlog_format_gen_msg(a_rule->format, a_thread, data)) {
 		zc_error("zlog_format_gen_msg fail");
 		return -1;
@@ -459,7 +465,11 @@ static int zlog_rule_output_syslog(zlog_rule_t * a_rule, zlog_thread_t * a_threa
         } else {
             msg_buf = a_thread->msg_buf;
         }
-        a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+        if (data) {
+            a_level = zlog_level_list_get(zlog_env_conf->levels, data->meta->level);
+        } else {
+            a_level = zlog_level_list_get(zlog_env_conf->levels, a_thread->event->level);
+        }
         zlog_buf_seal(msg_buf);
         syslog(a_rule->syslog_facility | a_level->syslog_level, "%s", zlog_buf_str(msg_buf));
 #endif
@@ -1103,32 +1113,34 @@ void zlog_rule_del(zlog_rule_t * a_rule)
 /*******************************************************************************/
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
-    zlog_event_t *event = NULL;
+    int level;
     if (data) {
-        event = data->thread->event;
+        /* the level this message was logged at, not whatever the producing
+         * thread has moved on to since */
+        level = data->meta->level;
     } else {
-        event = a_thread->event;
+        level = a_thread->event->level;
     }
     switch (a_rule->compare_char) {
     case '*':
         return a_rule->output(a_rule, a_thread, data);
         break;
     case '.':
-        if (event->level >= a_rule->level) {
+        if (level >= a_rule->level) {
             return a_rule->output(a_rule, a_thread, data);
         } else {
             return 0;
         }
         break;
     case '=':
-        if (event->level == a_rule->level) {
+        if (level == a_rule->level) {
             return a_rule->output(a_rule, a_thread, data);
         } else {
             return 0;
         }
         break;
     case '!':
-        if (event->level != a_rule->level) {
+        if (level != a_rule->level) {
             return a_rule->output(a_rule, a_thread, data);
         } else {
             return 0;
