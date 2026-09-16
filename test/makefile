@@ -16,6 +16,7 @@ exe = 		\
 	test_bitmap	\
 	test_conf	\
 	test_conf2  \
+	test_consumer_rules	\
 	test_dzlog_conf	\
 	test_hashtable	\
 	test_hello	\
@@ -49,6 +50,6 @@ $(exe)  :       %:%.o
 	$(CC) $(REAL_CFLAGS) -o $@ -c $<
 
 clean	:
-	rm -f press.log* *.o $(exe)
+	rm -f press.log* consumer_rules_* *.o $(exe)
 
 .PHONY : clean all
