@@ -14,7 +14,43 @@ Downloads: <https://github.com/HardySimpson/zlog/releases>
 ```bash
 tar -zxvf zlog-latest-stable.tar.gz
 cd zlog-latest-stable/
-make 
+```
+
+zlog can be built either with CMake or with the plain makefile. Both produce the same shared and static libraries, the
+`zlog-chk-conf` tool and a pkg-config file.
+
+### 1.1 CMake
+
+Needs CMake 3.12 or newer.
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release -B build
+cmake --build build -j8
+sudo cmake --install build
+```
+
+`CMAKE_INSTALL_PREFIX` says where it goes, `/usr/local` by default. The GNU install directories are honoured, so
+distributions that keep their libraries in `lib64` can ask for that:
+
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/zlog -DCMAKE_INSTALL_LIBDIR=lib64 -B build
+```
+
+Configure with `-DUNIT_TEST=ON` to build the test suite, which ctest then runs:
+
+```bash
+cmake -DUNIT_TEST=ON -B build
+cmake --build build -j8
+ctest --test-dir build
+```
+
+Besides the usual `Debug` and `Release`, the build types `Tsan` and `Asan` build the library and the tests under the
+thread and address sanitizers. See `doc/developer.md`.
+
+### 1.2 Makefile
+
+```bash
+make
 sudo make install
 ```
 
@@ -25,8 +61,12 @@ make PREFIX=/usr/local/
 sudo make PREFIX=/usr/local/ install
 ```
 
-PREFIX indicates the installation destination for zlog. After installation, refresh your dynamic linker to make sure
-your program can find zlog library.
+PREFIX indicates the installation destination for zlog, and `LIBRARY_PATH` the library directory under it (`lib` by
+default, so pass `LIBRARY_PATH=lib64` where that is the convention).
+
+### 1.3 After installing
+
+Refresh your dynamic linker to make sure your program can find the zlog library.
 
 ```bash
 $ sudo vi /etc/ld.so.conf
@@ -117,13 +157,23 @@ $ ./test_hello
 hello, zlog
 ```
 
-Both the Makefile and the CMake build install a pkg-config file, so the flags above can also be queried:
+Both builds install a pkg-config file, so the flags above can also be queried:
 
 ```bash
 $ cc -o test_hello test_hello.c $(pkg-config --cflags --libs zlog)
 ```
 
 Add `--static` when linking against libzlog.a, so that the private dependencies are pulled in as well.
+
+The CMake build also installs a package config, so a CMake project can just ask for zlog:
+
+```cmake
+find_package(zlog REQUIRED)
+target_link_libraries(test_hello PRIVATE zlog::zlog)
+```
+
+`zlog::zlog_s` is the static library. Both targets carry the include directory and the thread flags, so nothing else
+needs setting.
 
 ## 4. Advanced Usage
 
@@ -147,5 +197,4 @@ Add `--static` when linking against libzlog.a, so that the private dependencies 
 * Downloads: <https://github.com/HardySimpson/zlog/releases>
 * Author's Email: <HardySimpson1984@gmail.com>
 * Auto tools version: <https://github.com/bmanojlovic/zlog>
-* CMake verion: <https://github.com/lisongmin/zlog>
 * Windows version: <https://github.com/lopsd07/WinZlog>
