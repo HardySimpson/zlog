@@ -1,10 +1,22 @@
+# Toolchain selection mirrors src/Makefile, so that CC and CROSS_COMPILE reach
+# the tests as well as the library
+CROSS_COMPILE?=
+CC:=$(CROSS_COMPILE)$(shell sh -c 'type $(CROSS_COMPILE)$(CC) >/dev/null 2>/dev/null && echo $(CC) || echo gcc')
+
+OPTIMIZATION?=-O2
+DEBUG?=-g
+REAL_CFLAGS=$(OPTIMIZATION) $(DEBUG) -Wall -D_GNU_SOURCE $(CFLAGS) -I. -I../src
+REAL_LDFLAGS=$(LDFLAGS) -L../src -lzlog -lpthread -Wl,-rpath ../src
+
 exe = 		\
+	fifo_test	\
 	test_tmp	\
 	test_longlog	\
 	test_buf	\
 	test_bitmap	\
 	test_conf	\
 	test_conf2  \
+	test_dzlog_conf	\
 	test_hashtable	\
 	test_hello	\
 	test_hex	\
@@ -15,6 +27,7 @@ exe = 		\
 	test_multithread	\
 	test_record	\
 	test_pipe	\
+	test_pipe2	\
 	test_press_zlog		\
 	test_press_zlog2	\
 	test_press_write	\
@@ -30,10 +43,10 @@ exe = 		\
 all     :       $(exe)
 
 $(exe)  :       %:%.o
-	gcc -O2 -g -o $@ $^ -L../src -lzlog -lpthread -Wl,-rpath ../src
+	$(CC) -o $@ $^ $(REAL_LDFLAGS)
 
 .c.o	:
-	gcc -O2 -g -Wall -D_GNU_SOURCE -o $@ -c $< -I. -I../src
+	$(CC) $(REAL_CFLAGS) -o $@ -c $<
 
 clean	:
 	rm -f press.log* *.o $(exe)
