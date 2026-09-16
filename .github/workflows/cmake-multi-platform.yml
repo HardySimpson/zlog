@@ -16,16 +16,15 @@ jobs:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
-      # Set up a matrix to run the following 3 configurations:
-      # 1. <Windows, Release, latest MSVC compiler toolchain on the default runner image, default generator>
-      # 2. <Linux, Release, latest GCC compiler toolchain on the default runner image, default generator>
-      # 3. <Linux, Release, latest Clang compiler toolchain on the default runner image, default generator>
-      #
-      # To add more build types (Release, Debug, RelWithDebInfo, etc.) customize the build_type list.
+      # Every build type the project defines, on x86_64 and arm64, with both
+      # compilers. RelWithDebInfo and MinSizeRel are here because they define
+      # NDEBUG, which Release also does but Debug, Tsan and Asan do not: code
+      # that only works with asserts enabled stays broken until something
+      # builds it that way.
       # todo: add windows-latest
       matrix:
         os: [ubuntu-latest, ubuntu-22.04-arm]
-        build_type: [Release, Debug, Tsan, Asan]
+        build_type: [Release, Debug, RelWithDebInfo, MinSizeRel, Tsan, Asan]
         c_compiler: [gcc, clang]
         exclude:
             - c_compiler: gcc
@@ -67,10 +66,10 @@ jobs:
     strategy:
       fail-fast: false
 
-      # Mirror the Ubuntu build matrix: Release/Debug/Tsan/Asan x clang.
+      # Mirror the Ubuntu build matrix: every build type x clang.
       # macOS only ships Apple Clang; gcc is an alias for it on macOS runners.
       matrix:
-        build_type: [Release, Debug, Tsan, Asan]
+        build_type: [Release, Debug, RelWithDebInfo, MinSizeRel, Tsan, Asan]
 
     steps:
     - uses: actions/checkout@v4
