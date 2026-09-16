@@ -50,7 +50,10 @@ message(STATUS "version : ${ZLOG_VERSION} (soname ${ZLOG_SO_VERSION})")
 
 message(STATUS "platform : ${CMAKE_SYSTEM}")
 
-add_definitions("-g -Wall -Wstrict-prototypes")
+# warnings for every config; debug info is left to the per config flags below,
+# so Release is optimised without it and RelWithDebInfo keeps it, rather than
+# every config carrying -g because add_definitions() cannot tell them apart
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wstrict-prototypes")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -pedantic -D_DEFAULT_SOURCE")
 
 # defined signed overflow, as in the makefile build (src/Makefile)
