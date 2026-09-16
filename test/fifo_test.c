@@ -111,7 +111,9 @@ int main(int argc, char **argv)
     fprintf(stderr, "==== start ====\n");
 
     pthread_t tids;
-    assert(!pthread_create(&tids, NULL, thread_func, &conf));
+    int rc = pthread_create(&tids, NULL, thread_func, &conf);
+    assert(rc == 0);
+    (void)rc;
 
     for (unsigned i = 0; i < conf.test_cnt; i++) {
         struct msg_head *head = NULL;
@@ -131,7 +133,9 @@ int main(int argc, char **argv)
         fifo_out(fifo, head);
     }
 
-    assert(!pthread_join(tids, NULL));
+    rc = pthread_join(tids, NULL);
+    assert(rc == 0);
+    (void)rc;
     fifo_destroy(fifo);
 
 exit:
