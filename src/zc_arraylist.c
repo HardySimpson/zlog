@@ -62,13 +62,15 @@ void zc_arraylist_del(zc_arraylist_t * a_list)
 	return;
 }
 
+/* max is the index that has to fit afterwards, so the array needs max + 1
+ * entries: sizing it to max leaves a_list->array[max] one past the end */
 static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 {
 	void *tmp;
 	int new_size;
 	int diff_size;
 
-	new_size = zc_max(a_list->size * 2, max);
+	new_size = zc_max(a_list->size * 2, max + 1);
 	tmp = realloc(a_list->array, new_size * sizeof(void *));
 	if (!tmp) {
 		zc_error("realloc fail, errno[%d]", errno);
@@ -83,6 +85,10 @@ static int zc_arraylist_expand_inner(zc_arraylist_t * a_list, int max)
 
 int zc_arraylist_set(zc_arraylist_t * a_list, int idx, void *data)
 {
+	if (idx < 0) {
+		zc_error("idx[%d] is negative", idx);
+		return -1;
+	}
 	if (idx > a_list->size - 1) {
 		if (zc_arraylist_expand_inner(a_list, idx)) {
 			zc_error("expand_internal fail");
