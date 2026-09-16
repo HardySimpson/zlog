@@ -287,4 +287,7 @@ coverage: gcov
 noopt:
 	$(MAKE) OPTIMIZATION=""
 
-.PHONY: all clean dep install 32bit gprof gcov noopt cross-compile-help
+# zlog.pc is phony on purpose: its contents depend on PREFIX, LIBRARY_PATH and
+# INCLUDE_PATH, which make cannot track, so a second `make install PREFIX=...`
+# would otherwise install the prefix from the first one
+.PHONY: all clean dep install 32bit gprof gcov noopt cross-compile-help zlog.pc

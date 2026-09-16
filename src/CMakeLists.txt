@@ -122,7 +122,25 @@ else ()
     set(ZLOG_LIBS_PRIVATE "-pthread")
 endif ()
 
+# once now, so the build tree has a usable zlog.pc ...
 configure_file(zlog.pc.in ${CMAKE_CURRENT_BINARY_DIR}/zlog.pc @ONLY)
+
+# ... and again at install time, so that a prefix given only to the install step
+# ends up in the installed file rather than the one configure saw
+install(CODE "
+    set(ZLOG_PC_IN \"${CMAKE_CURRENT_SOURCE_DIR}/zlog.pc.in\")
+    set(ZLOG_PC_OUT \"${CMAKE_CURRENT_BINARY_DIR}/zlog.pc\")
+    set(ZLOG_INSTALL_LIBDIR \"${CMAKE_INSTALL_LIBDIR}\")
+    set(ZLOG_INSTALL_INCLUDEDIR \"${CMAKE_INSTALL_INCLUDEDIR}\")
+    set(ZLOG_VERSION \"${ZLOG_VERSION}\")
+    set(ZLOG_LIBS_PRIVATE \"${ZLOG_LIBS_PRIVATE}\")
+"
+        COMPONENT zlog
+)
+
+install(SCRIPT ${CMAKE_SOURCE_DIR}/cmake/InstallPkgConfig.cmake
+        COMPONENT zlog
+)
 
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/zlog.pc
