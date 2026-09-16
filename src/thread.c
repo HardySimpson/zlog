@@ -39,11 +39,19 @@ void zlog_thread_profile(zlog_thread_t * a_thread, int flag)
 			a_thread->pre_msg_buf,
 			a_thread->msg_buf);
 
+	/* mdc and event profile assert on NULL, zlog_buf_profile does not, so
+	 * guard every buf: a half built thread has some of them unset */
 	zlog_mdc_profile(a_thread->mdc, flag);
 	zlog_event_profile(a_thread->event, flag);
-	zlog_buf_profile(a_thread->pre_path_buf, flag);
-	zlog_buf_profile(a_thread->path_buf, flag);
-	zlog_buf_profile(a_thread->archive_path_buf, flag);
+	if (a_thread->pre_path_buf) {
+		zlog_buf_profile(a_thread->pre_path_buf, flag);
+	}
+	if (a_thread->path_buf) {
+		zlog_buf_profile(a_thread->path_buf, flag);
+	}
+	if (a_thread->archive_path_buf) {
+		zlog_buf_profile(a_thread->archive_path_buf, flag);
+	}
     if (a_thread->pre_msg_buf) {
         zlog_buf_profile(a_thread->pre_msg_buf, flag);
     }
@@ -62,9 +70,12 @@ void zlog_thread_del(zlog_thread_t * a_thread)
         }
         zc_debug("fullcnt %d\n", a_thread->producer.full_cnt);
 	}
-    zc_debug("zlog_thread_del[%lx], producer en %d, cnt %d", a_thread->event->tid,
-             a_thread->producer.en,
-             atomic_load_explicit(&a_thread->producer.refcnt, memory_order_relaxed));
+    /* event is NULL when zlog_thread_new cleans up a half built thread */
+    if (a_thread->event) {
+        zc_debug("zlog_thread_del[%lx], producer en %d, cnt %d", a_thread->event->tid,
+                 a_thread->producer.en,
+                 atomic_load_explicit(&a_thread->producer.refcnt, memory_order_relaxed));
+    }
     if (a_thread->mdc)
         zlog_mdc_del(a_thread->mdc);
     if (a_thread->event)
