@@ -22,6 +22,7 @@ exe = 		\
 	test_hello	\
 	test_hex	\
 	test_init	\
+	test_init_from_string	\
 	test_level	\
 	test_leak	\
 	test_mdc	\
@@ -50,6 +51,6 @@ $(exe)  :       %:%.o
 	$(CC) $(REAL_CFLAGS) -o $@ -c $<
 
 clean	:
-	rm -f press.log* consumer_rules_* *.o $(exe)
+	rm -f press.log* consumer_rules_* init_from_string_* *.o $(exe)
 
 .PHONY : clean all
