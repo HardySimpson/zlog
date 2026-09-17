@@ -54,10 +54,11 @@ static pthread_rwlock_t zlog_env_lock = PTHREAD_RWLOCK_INITIALIZER;
  * raises zlog_env_writers, and a reader waits while it is up.
  *
  * Except a reader that already holds the lock. A user record function runs
- * with the read lock held, and one that logs takes it a second time; waiting
- * there would be waiting for a writer that is waiting for this very thread.
- * Such a reader goes straight in, which the underlying lock allows, as
- * neither libc holds a reader back for a pending writer on its own.
+ * with the read lock held, and one that logs would take it a second time;
+ * waiting there would be waiting for a writer that is waiting for this very
+ * thread. Such a reader does not wait, and does not acquire either: the
+ * nesting is counted and the lock it already holds is kept until the
+ * outermost release.
  */
 #define ZLOG_GIVEWAY_YIELDS 64
 
@@ -69,8 +70,16 @@ static int zlog_env_rdlock(void)
 	int rc;
 	int yields = 0;
 
-	while (zlog_env_rdlock_depth == 0
-			&& atomic_load_explicit(&zlog_env_writers, memory_order_acquire) > 0) {
+	/* Already inside -- a record function that logs, say. Count the nesting
+	 * instead of acquiring again: the second acquisition is what deadlocks
+	 * against a waiting writer on a writer preferring rwlock, which is what
+	 * macOS has, and it buys nothing anywhere else either. */
+	if (zlog_env_rdlock_depth > 0) {
+		zlog_env_rdlock_depth++;
+		return 0;
+	}
+
+	while (atomic_load_explicit(&zlog_env_writers, memory_order_acquire) > 0) {
 		if (yields++ < ZLOG_GIVEWAY_YIELDS) {
 			sched_yield();
 		} else {
@@ -81,7 +90,7 @@ static int zlog_env_rdlock(void)
 	}
 
 	rc = pthread_rwlock_rdlock(&zlog_env_lock);
-	if (rc == 0) zlog_env_rdlock_depth++;
+	if (rc == 0) zlog_env_rdlock_depth = 1;
 
 	return rc;
 }
@@ -98,10 +107,13 @@ static int zlog_env_wrlock(void)
 }
 
 /* a thread holding the read lock cannot also hold the write lock, so a
- * positive depth says which of the two this unlock ends */
+ * positive depth says which of the two this unlock ends -- and the lock stays
+ * held until the outermost reader lets go */
 static int zlog_env_unlock(void)
 {
-	if (zlog_env_rdlock_depth > 0) zlog_env_rdlock_depth--;
+	if (zlog_env_rdlock_depth > 0 && --zlog_env_rdlock_depth > 0) {
+		return 0;
+	}
 
 	return pthread_rwlock_unlock(&zlog_env_lock);
 }
