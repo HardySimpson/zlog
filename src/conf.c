@@ -468,7 +468,7 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 	/* [global:1] [levels:2] [formats:3] [rules:4] */
 
 	if (stat(a_conf->file, &a_stat)) {
-		zc_error("lstat conf file[%s] fail, errno[%d]", a_conf->file,
+		zc_error("stat conf file[%s] fail, errno[%d]", a_conf->file,
 			 errno);
 		return -1;
 	}
