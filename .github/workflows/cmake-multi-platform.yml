@@ -100,3 +100,44 @@ jobs:
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
+
+  build-alpine:
+    # musl, not glibc: pthread_t is a pointer there, which this tree has got
+    # wrong before (HardySimpson/zlog#280), and nothing else in the matrix
+    # would catch it. The build runs in a container rather than as a container
+    # job, so actions/checkout keeps running against the host's glibc.
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+      # No Tsan or Asan here: alpine's gcc ships no sanitizer runtimes, and
+      # thread sanitizer does not support musl at all.
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build and test with CMake
+      run: |
+        docker run --rm -v "$PWD:/src:ro" alpine:3.22 sh -c '
+          set -e
+          apk add --no-cache build-base cmake bash coreutils
+          cp -a /src /work && cd /work && rm -rf build
+          cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DUNIT_TEST=ON
+          cmake --build build -j$(nproc)
+          cd build && ctest --output-on-failure
+        '
+
+    - name: Build with the makefile
+      # the makefile build is what broke on alpine in #280, and no other job
+      # builds it at all
+      run: |
+        docker run --rm -v "$PWD:/src:ro" alpine:3.22 sh -c '
+          set -e
+          apk add --no-cache build-base bash
+          cp -a /src /work && cd /work
+          make -j$(nproc)
+          make -C test -j$(nproc)
+        '
