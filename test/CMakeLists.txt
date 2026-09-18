@@ -49,14 +49,17 @@ foreach (test_src ${SRCS})
 
     list(FIND not_auto_add_test ${test_name} not_auto_test)
     if (not_auto_test EQUAL -1)
-        add_test("${test_name}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${test_name}")
+        # the target form, not a path: it is what lets ctest put
+        # CMAKE_CROSSCOMPILING_EMULATOR in front when these are built for
+        # another architecture
+        add_test(NAME ${test_name} COMMAND ${test_name})
     endif ()
 endforeach (test_src)
 
 # test with args
-add_test(test_hello "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_hello" hello_output 3)
-add_test(test_longlog "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_longlog" 2222)
-add_test(test_bitmap "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/test_bitmap" 0xaa55 0x66)
+add_test(NAME test_hello COMMAND test_hello hello_output 3)
+add_test(NAME test_longlog COMMAND test_longlog 2222)
+add_test(NAME test_bitmap COMMAND test_bitmap 0xaa55 0x66)
 
 file(GLOB CONF_FILES . *.conf)
 file(COPY
@@ -96,7 +99,11 @@ foreach (case ${script_test})
         COMMAND ${BASH} ${CMAKE_SOURCE_DIR}/scripts/test.sh -t ${case}
         WORKING_DIRECTORY ${TEST_WORKING_DIR}
     )
-    set_property(TEST ${case} PROPERTY ENVIRONMENT "bin_dir=${TEST_BIN_DIR};conf_dir=${CMAKE_CURRENT_BINARY_DIR}")
+    # scripts/test.sh runs the binaries itself, so it needs the emulator as
+    # well; a space joined string, as ENVIRONMENT is itself a ; separated list
+    string(JOIN " " ZLOG_TEST_EMULATOR ${CMAKE_CROSSCOMPILING_EMULATOR})
+    set_property(TEST ${case} PROPERTY ENVIRONMENT
+        "bin_dir=${TEST_BIN_DIR};conf_dir=${CMAKE_CURRENT_BINARY_DIR};emu=${ZLOG_TEST_EMULATOR}")
 endforeach(case)
 
 endif (UNIX)
