@@ -1,6 +1,8 @@
 #bin_dir=""
 #conf_dir=""
 asan_pre=""
+# set by ctest when the binaries are built for another architecture
+emu="${emu:-}"
 valgrind_cmd=""
 
 perf_wrap()
@@ -15,8 +17,8 @@ perf_wrap()
 
 test_press_perf()
 {
-    cons_press="rm -f press.log*; $bin_dir/test_consumer_reload_press_zlog 0 200 50 $conf_dir/test_consumer_press_zlog.conf"
-    norm_pess="rm -f press.log*; $bin_dir/test_consumer_reload_press_zlog 0 200 50 $conf_dir/test_press_zlog.conf"
+    cons_press="rm -f press.log*; $emu $bin_dir/test_consumer_reload_press_zlog 0 200 50 $conf_dir/test_consumer_press_zlog.conf"
+    norm_pess="rm -f press.log*; $emu $bin_dir/test_consumer_reload_press_zlog 0 200 50 $conf_dir/test_press_zlog.conf"
 
     cd build/bin
     perf_wrap "$cons_press" profile_cons.svg
@@ -26,7 +28,7 @@ test_press_perf()
 
 consumer_static_file_single()
 {
-    eval "$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 100 --threadN=10"
+    eval "$valgrind_cmd $asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 100 --threadN=10"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
@@ -40,7 +42,7 @@ varify_static_file_single()
     rm -f zlogA.txt
     rm -f zlogB.txt
     conf="static_file_single_A.conf"
-    eval "$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/$conf -n 1000"
+    eval "$valgrind_cmd $asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/$conf -n 1000"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test $conf"
@@ -48,7 +50,7 @@ varify_static_file_single()
     fi
 
     conf="consumer_static_file_single_B.conf"
-    eval "$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/$conf -n 1000"
+    eval "$valgrind_cmd $asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/$conf -n 1000"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test $conf"
@@ -67,7 +69,7 @@ varify_static_file_single()
 
 test_multi_thread()
 {
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10"
+    eval "$asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
@@ -78,7 +80,7 @@ test_multi_thread()
 test_multi_thread_ftrue()
 {
     rm -f zlog.txt.*
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/consumer_static_file_single_cmp.conf -n 1000 --threadN=50"
+    eval "$asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/consumer_static_file_single_cmp.conf -n 1000 --threadN=50"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
@@ -102,7 +104,7 @@ test_multi_thread_ftrue()
 
 test_multi_thread_record()
 {
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10 -r > output"
+    eval "$asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10 -m 10 --threadN=10 -r > output"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
@@ -112,7 +114,7 @@ test_multi_thread_record()
 
 test_multi_thread_reload()
 {
-    cmd="$valgrind_cmd $asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 500 -m 10 --threadN=10 --reloadcnt=8 --reloadms=400 \
+    cmd="$valgrind_cmd $asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 500 -m 10 --threadN=10 --reloadcnt=8 --reloadms=400 \
         -l $conf_dir/test_consumer_static_file_single.conf \
         -l $conf_dir/test_consumer_static_file_single.conf \
         -l $conf_dir/test_static_file_single.conf \
@@ -129,7 +131,7 @@ test_multi_thread_reload()
 
 test_multi_thread_recordms()
 {
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 2 --threadN=10 -r --recordms=100 > output"
+    eval "$asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 2 --threadN=10 -r --recordms=100 > output"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
@@ -139,7 +141,7 @@ test_multi_thread_recordms()
 
 test_simple()
 {
-    eval "$asan_pre $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10"
+    eval "$asan_pre $emu $bin_dir/test_dzlog_conf -f $conf_dir/test_consumer_static_file_single.conf -n 10"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
@@ -152,7 +154,7 @@ fifo()
     output="output"
     target="cf64f2750cd39abc18d86cb152d0ec77"
     testcnt=350000
-    eval "$asan_pre $bin_dir/fifo_test -s 0x800000 -e 16 -n $testcnt > $output"
+    eval "$asan_pre $emu $bin_dir/fifo_test -s 0x800000 -e 16 -n $testcnt > $output"
     ret=$?
     if [[ "$ret" -ne 0 ]]; then
         echo "failed to test ${FUNCNAME[0]}"
