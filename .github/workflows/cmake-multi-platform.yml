@@ -141,3 +141,50 @@ jobs:
           make -j$(nproc)
           make -C test -j$(nproc)
         '
+
+  build-arm32:
+    # 32 bit arm: the one place where size_t is not unsigned long and a pointer
+    # is four bytes, which nothing else in the matrix covers -- and where a
+    # printf conversion in the tests had gone unnoticed. Cross compiled here,
+    # with the tests run under qemu, which is what CMAKE_CROSSCOMPILING_EMULATOR
+    # is for; the aarch64 runner above covers 64 bit arm natively.
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+      # No Tsan or Asan: their runtimes do not work under qemu user emulation.
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install the cross toolchain and qemu
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-linux-gnueabihf qemu-user
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_SYSTEM_NAME=Linux
+        -DCMAKE_SYSTEM_PROCESSOR=arm
+        -DCMAKE_C_COMPILER=arm-linux-gnueabihf-gcc
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DUNIT_TEST=ON
+        "-DCMAKE_CROSSCOMPILING_EMULATOR=/usr/bin/qemu-arm;-L;/usr/arm-linux-gnueabihf"
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} -j$(nproc)
+
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      run: ctest --output-on-failure
