@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "failed to create fifo\n");
         goto exit;
     }
-    fprintf(stderr, "create fifo size %lx\n", fifo_size(fifo));
+    fprintf(stderr, "create fifo size %zx\n", fifo_size(fifo));
 
     unsigned per_data_size = required_element_size;
     struct conf conf = {
