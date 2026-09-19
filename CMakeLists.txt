@@ -16,6 +16,24 @@
 
 cmake_minimum_required(VERSION 3.12)
 
+# An in source build writes its own Makefile over the hand written ones -- the
+# top level, src/ and, with UNIT_TEST, test/ -- and leaves CMakeCache.txt and
+# CMakeFiles/ in the tree. Refuse before project() so nothing is generated;
+# REALPATH so that reaching the same directory through a symlink still counts.
+# Building into a subdirectory of the source tree, cmake -B build, is fine.
+get_filename_component(ZLOG_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}" REALPATH)
+get_filename_component(ZLOG_BIN_DIR "${CMAKE_CURRENT_BINARY_DIR}" REALPATH)
+if (ZLOG_SRC_DIR STREQUAL ZLOG_BIN_DIR)
+    message(FATAL_ERROR
+            "zlog does not support in source builds: they overwrite the "
+            "makefiles that are part of the source tree.\n"
+            "Build into a directory instead:\n"
+            "    cmake -B build\n"
+            "    cmake --build build\n"
+            "Remove the CMakeCache.txt and CMakeFiles/ this attempt left "
+            "behind first.")
+endif ()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # for compile commands used by lsp
 
 message(STATUS "path : ${CMAKE_FIND_ROOT_PATH}")
