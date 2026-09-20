@@ -20,6 +20,7 @@ exe = 		\
 	test_consumer_rules	\
 	test_dzlog_conf	\
 	test_hashtable	\
+	test_fork	\
 	test_hello	\
 	test_hex	\
 	test_init	\
