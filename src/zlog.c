@@ -118,6 +118,90 @@ static int zlog_env_unlock(void)
 	return pthread_rwlock_unlock(&zlog_env_lock);
 }
 
+/* fork() copies the lock in whatever state it was in, and only the forking
+ * thread survives into the child. A fork while another thread was logging
+ * therefore leaves the child holding a read locked zlog_env_lock that nobody
+ * will ever release, and the child hangs on its first log call
+ * (HardySimpson/zlog#246).
+ *
+ * Take the lock for writing before the fork, so the copy is taken at a moment
+ * when no thread is inside zlog -- which also means no thread holds the
+ * rotater mutex, as rotation runs under the read lock -- and let it go again
+ * on both sides afterwards.
+ */
+static __thread int zlog_atfork_held = 0;
+
+/* a lock as it is before anyone has touched it, for the child handler below */
+static const pthread_rwlock_t zlog_env_lock_fresh = PTHREAD_RWLOCK_INITIALIZER;
+
+static void zlog_atfork_prepare(void)
+{
+	/* fork() from inside a log call -- from a record function, say. This
+	 * thread already holds the lock for reading, so asking for it for
+	 * writing here would wait for itself. Let the fork proceed unprotected;
+	 * there is nothing this can do about that case. */
+	if (zlog_env_rdlock_depth > 0) {
+		zlog_atfork_held = 0;
+		return;
+	}
+
+	zlog_atfork_held = (zlog_env_wrlock() == 0);
+}
+
+static void zlog_atfork_parent(void)
+{
+	if (zlog_atfork_held) {
+		zlog_atfork_held = 0;
+		(void) zlog_env_unlock();
+	}
+}
+
+static void zlog_atfork_child(void)
+{
+	/* The child has one thread, and the lock it inherited still says that
+	 * writers are queued for it -- threads that are not here. Unlocking does
+	 * not clear that bookkeeping, and pthread_rwlock_rdlock() would block on
+	 * it forever, so start the lock over instead. That is only safe because
+	 * the prepare handler held it for writing across the fork: whatever it
+	 * protects was not half written when the copy was taken.
+	 */
+	int rc;
+
+	atomic_store_explicit(&zlog_env_writers, 0, memory_order_release);
+	zlog_env_rdlock_depth = 0;
+
+	/* give back what the prepare handler took, before reinitialising it */
+	if (zlog_atfork_held) {
+		zlog_atfork_held = 0;
+		(void) pthread_rwlock_unlock(&zlog_env_lock);
+	}
+
+	rc = pthread_rwlock_init(&zlog_env_lock, NULL);
+	if (rc) {
+		/* macOS will not reinitialise a lock it considers busy: it returns
+		 * EBUSY and leaves the lock exactly as it was, where glibc simply
+		 * zeroes the fields and asks nothing. And this lock is busy whatever
+		 * the child does to it first, because the threads that were queued
+		 * for it when the fork was taken are counted in it and are not here
+		 * to count themselves out again -- so the child would keep the lock
+		 * it inherited and wait on it for good.
+		 *
+		 * Reach the same fresh lock the other way then, and write the value
+		 * one has before it is first used. Nothing is leaked by that: an
+		 * rwlock owns no memory of its own, neither here nor on glibc. */
+		zlog_env_lock = zlog_env_lock_fresh;
+	}
+}
+
+static pthread_once_t zlog_atfork_once = PTHREAD_ONCE_INIT;
+
+static void zlog_atfork_register(void)
+{
+	if (pthread_atfork(zlog_atfork_prepare, zlog_atfork_parent, zlog_atfork_child)) {
+		zc_error("pthread_atfork fail, errno[%d]", errno);
+	}
+}
+
 zlog_conf_t *zlog_env_conf;
 static pthread_key_t zlog_thread_key;
 static zc_hashtable_t *zlog_env_categories;
@@ -292,6 +376,8 @@ XFUNC int zlog_init(const char *config)
 	zc_debug("------zlog_init start------");
 	zc_debug("------compile time[%s %s], version[%s]------", __DATE__, __TIME__, ZLOG_VERSION);
 
+	pthread_once(&zlog_atfork_once, zlog_atfork_register);
+
 	rc = zlog_env_wrlock();
 	if (rc) {
 		zc_error("pthread_rwlock_wrlock fail, rc[%d]", rc);
@@ -334,6 +420,8 @@ XFUNC int zlog_init_from_string(const char *config_string)
     int rc;
     zc_debug("------zlog_init start------");
     zc_debug("------compile time[%s %s], version[%s]------", __DATE__, __TIME__, ZLOG_VERSION);
+
+    pthread_once(&zlog_atfork_once, zlog_atfork_register);
 
     rc = zlog_env_wrlock();
     if (rc) {
@@ -378,6 +466,8 @@ XFUNC int dzlog_init(const char *config, const char *cname)
 	zc_debug("------dzlog_init start------");
 	zc_debug("------compile time[%s %s], version[%s]------",
 			__DATE__, __TIME__, ZLOG_VERSION);
+
+	pthread_once(&zlog_atfork_once, zlog_atfork_register);
 
 	rc = zlog_env_wrlock();
 	if (rc) {
