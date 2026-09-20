@@ -30,6 +30,7 @@ exe = 		\
 	test_mdc	\
 	test_multithread	\
 	test_record	\
+	test_rotate_lock	\
 	test_pipe	\
 	test_pipe2	\
 	test_press_zlog		\
