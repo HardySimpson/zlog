@@ -480,6 +480,11 @@ static int zlog_rotater_trylock(zlog_rotater_t *a_rotater)
 
     a_rotater->lock_fd = lock_file(a_rotater->lock_file);
 	if (a_rotater->lock_fd == INVALID_LOCK_FD) {
+		/* give the mutex back: holding it here would fail every later
+		 * rotation with EBUSY, for the life of the process */
+		if (pthread_mutex_unlock(&(a_rotater->lock_mutex))) {
+			zc_error("pthread_mutex_unlock fail, errno[%d]", errno);
+		}
 		return -1;
 	}
 
