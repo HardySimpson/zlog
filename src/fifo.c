@@ -8,6 +8,14 @@
 #include <sys/param.h>
 #include <unistd.h>
 
+#if defined(MEMFD_CREATE_SYSCALL)
+#include <sys/syscall.h>
+#ifndef SYS_memfd_create
+#define SYS_memfd_create 319 /* Note: Check your specific architecture's syscall number */
+#endif
+#define memfd_create(name, flags) syscall(SYS_memfd_create, name, flags)
+#endif
+
 #include "misc.h"
 #include "zc_profile.h"
 
