@@ -67,6 +67,38 @@ static int ReadTotalFile( FILE * fp , char ** ptr , long * len )
         return 0;
 }
 
+static int check_hex_buf_len(const char *log, long dmp_len)
+{
+	FILE	*fp;
+	char	*content;
+	long	content_len;
+	char	expect[64];
+	int	nret;
+
+	fp = fopen(log, "r");
+	if (!fp) {
+		printf("fopen[%s] fail\n", log);
+		return -1;
+	}
+
+	nret = ReadTotalFile(fp, &content, &content_len);
+	fclose(fp);
+	if (nret) {
+		printf("read[%s] fail, nret[%d]\n", log, nret);
+		return -2;
+	}
+
+	snprintf(expect, sizeof(expect), "hex_buf_len=[%ld]", dmp_len);
+	nret = (strstr(content, expect) == NULL);
+	if (nret) {
+		printf("[%s] not found in [%s]\n", expect, log);
+	}
+
+	free(content);
+
+	return nret;
+}
+
 int main(int argc, char** argv)
 {
 	int rc;
@@ -106,6 +138,11 @@ int main(int argc, char** argv)
 
 
 	rc = ReadTotalFile(fp, &dmp, &dmp_len);
+	if (rc) {
+		printf("read[%s] fail, rc[%d]\n", argv[1], rc);
+		zlog_fini();
+		return -3;
+	}
 
 	while(ntimes--) hzlog_debug(zc, dmp, dmp_len);
 
@@ -113,6 +150,14 @@ int main(int argc, char** argv)
 	free(dmp);
 
 	zlog_fini();
+
+	/* the dump has to start with the length of the buffer, as the
+	 * user's guide says it does */
+	rc = check_hex_buf_len("hex.log", dmp_len);
+	if (rc) {
+		return -4;
+	}
+
 	printf("hex log end\n");
 	
 	return 0;
