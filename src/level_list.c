@@ -107,17 +107,12 @@ err:
 	return -1;
 }
 
+/* Always returns a level, whatever l is: an index outside the list, or one
+ * with no level defined, falls back to UNKNOWN at 254, which
+ * zlog_level_list_new() installs before any configuration is read. */
 zlog_level_t *zlog_level_list_get(zc_arraylist_t *levels, int l)
 {
 	zlog_level_t *a_level;
-
-#if 0
-	if ((l <= 0) || (l > 254)) {
-		/* illegal input from zlog() */
-		zc_error("l[%d] not in (0,254), set to UNKNOWN", l);
-		l = 254;
-	}
-#endif
 
 	a_level = zc_arraylist_get(levels, l);
 	if (a_level) {
