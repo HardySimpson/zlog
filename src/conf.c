@@ -436,12 +436,6 @@ static int zlog_conf_build_with_string(zlog_conf_t *a_conf,
             zc_error("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
             zc_error("line[%s]", line);
             goto exit;
-        } else if (rc > 0) {
-            zc_warn("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
-            zc_warn("line[%s]", line);
-            zc_warn("as strict init is set to false, ignore and go on");
-            rc = 0;
-            continue;
         }
     }
 
@@ -560,12 +554,6 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf)
 			zc_error("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
 			zc_error("line[%s]", line);
 			goto exit;
-		} else if (rc > 0) {
-			zc_warn("parse configure file[%s]line_no[%ld] fail", a_conf->file, line_no);
-			zc_warn("line[%s]", line);
-			zc_warn("as strict init is set to false, ignore and go on");
-			rc = 0;
-			continue;
 		}
 	}
 
@@ -593,11 +581,6 @@ static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf)
 		if (rc < 0) {
 			zc_error("parse in-memory configurations[%s] line [%s] fail", a_conf->cfg_ptr, pline);
 			break;
-		} else if (rc > 0) {
-			zc_error("parse in-memory configurations[%s] line [%s] fail", a_conf->cfg_ptr, pline);
-			zc_warn("as strict init is set to false, ignore and go on");
-			rc = 0;
-			continue;
 		}
 		pline = strtok(NULL, "\n");
 	}
