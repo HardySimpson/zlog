@@ -1135,6 +1135,8 @@ int zlog_init(const char *confpath);
 
 int zlog_reload(const char *confpath);
 
+int zlog_fsync(void);
+
 void zlog_fini(void);
 ```
 
@@ -1144,13 +1146,15 @@ zlog\_init() reads configuration from the file confpath. If confpath is NULL, it
 
 zlog\_reload() is designed to reload the configuration file. From the confpath it re-calculates the category-rule relationships, rebuilds thread buffers, and resets user-defined output function rules. It can be called at runtime when the configuration file is changed or you wish to use another configuration file. It can be called any number of times. If confpath is NULL, it reloads the last configuration file that zlog\_init() or zlog\_reload() specified. If zlog\_reload() failed, the current configuration in memory will remain unchanged. So zlog\_reload() is atomic.
 
+zlog\_fsync() writes every log file that zlog holds open out to disk, so that what has been logged so far survives a power cut or a crash of the machine. It is meant for the moments where that matters, for example just before shipping a log file somewhere, and is independent of the "fsync period" configuration, which syncs every N writes. If use\_writer\_thread is on, the messages still queued for the writer thread are written out first. Dynamic log files are closed after every write and are not affected; neither are stdout, stderr, syslog and user-defined output functions.
+
 zlog\_fini() releases all zlog API memory and closes opened files. It can be called any number of times.
 
 RETURN
 
 VALUE
 
-On success , zlog\_init() and zlog\_reload() return zero. On error, zlog\_init() and zlog\_reload() return -1, and a detailed error log will be recorded to the log file indicated by ZLOG\_PROFILE\_ERROR.
+On success , zlog\_init(), zlog\_reload() and zlog\_fsync() return zero. On error, they return -1, and a detailed error log will be recorded to the log file indicated by ZLOG\_PROFILE\_ERROR.
 
 6.2 category operation
 ----------------------

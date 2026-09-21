@@ -1288,6 +1288,46 @@ XFUNC void zlog_profile(void)
 	return;
 }
 /*******************************************************************************/
+XFUNC int zlog_fsync(void)
+{
+	int rc = 0;
+	int rd = 0;
+	int i = 0;
+	zlog_rule_t *a_rule;
+
+	rd = zlog_env_rdlock();
+	if (rd) {
+		zc_error("pthread_rwlock_rdlock fail, rd[%d]", rd);
+		return -1;
+	}
+
+	if (!zlog_env_is_init) {
+		zc_error("never call zlog_init() or dzlog_init() before");
+		rc = -1;
+		goto zlog_fsync_exit;
+	}
+
+	if (zlog_env_conf->log_consumer.en) {
+		/* the writer thread still has messages that are not written
+		 * at all yet, they come first */
+		log_consumer_queue_flush(process_data.logc);
+	}
+
+	/* keep going on error, a rule that can't be synced says nothing
+	 * about the others */
+	zc_arraylist_foreach(zlog_env_conf->rules, i, a_rule) {
+		if (zlog_rule_fsync(a_rule)) rc = -1;
+	}
+
+      zlog_fsync_exit:
+	rd = zlog_env_unlock();
+	if (rd) {
+		zc_error("pthread_rwlock_unlock fail, rd=[%d]", rd);
+		return -1;
+	}
+	return rc;
+}
+/*******************************************************************************/
 XFUNC int zlog_set_record(const char *rname, zlog_record_fn record_output)
 {
 	int rc = 0;

@@ -95,5 +95,6 @@ int zlog_rule_match_category(zlog_rule_t * a_rule, char *category);
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule);
 int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records);
 int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread, struct zlog_output_data *data);
+int zlog_rule_fsync(zlog_rule_t * a_rule);
 
 #endif

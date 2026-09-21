@@ -37,6 +37,12 @@ int zlog_reload(const char *config);
 int zlog_reload_from_string(const char *conf_string);
 void zlog_fini(void);
 
+/* write every log file zlog holds open out to disk, so that the log of
+ * what just happened survives a power cut or a crash of the machine.
+ * With use_writer_thread on, the messages still queued are written out
+ * first. */
+int zlog_fsync(void);
+
 void zlog_profile(void);
 
 zlog_category_t *zlog_get_category(const char *cname);

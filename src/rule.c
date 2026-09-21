@@ -1152,6 +1152,29 @@ int zlog_rule_output(zlog_rule_t * a_rule, zlog_thread_t * a_thread, struct zlog
 }
 
 /*******************************************************************************/
+int zlog_rule_fsync(zlog_rule_t * a_rule)
+{
+	int rc = 0;
+
+	zc_assert(a_rule, -1);
+
+	/* dynamic files are closed right after every write, and stdout,
+	 * stderr, syslog and user records are not ours to sync */
+	if (a_rule->pipe_fp) {
+		if (fflush(a_rule->pipe_fp)) {
+			zc_error("fflush fail, errno[%d]", errno);
+			rc = -1;
+		}
+	} else if (a_rule->static_fd > 0) {
+		if (fsync(a_rule->static_fd)) {
+			zc_error("fsync[%d] fail, errno[%d]", a_rule->static_fd, errno);
+			rc = -1;
+		}
+	}
+
+	return rc;
+}
+
 int zlog_rule_is_wastebin(zlog_rule_t * a_rule)
 {
 	zc_assert(a_rule, -1);
