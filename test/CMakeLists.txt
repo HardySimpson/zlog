@@ -60,6 +60,7 @@ endforeach (test_src)
 add_test(NAME test_hello COMMAND test_hello hello_output 3)
 add_test(NAME test_longlog COMMAND test_longlog 2222)
 add_test(NAME test_bitmap COMMAND test_bitmap 0xaa55 0x66)
+add_test(NAME test_hex COMMAND test_hex test_hex.conf 1)
 
 file(GLOB CONF_FILES . *.conf)
 file(COPY

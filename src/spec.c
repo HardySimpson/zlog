@@ -386,6 +386,21 @@ static int zlog_spec_write_usrmsg(zlog_spec_t * a_spec, zlog_thread_t * a_thread
 			goto zlog_hex_exit;
 		}
 
+		rc = zlog_buf_append(a_buf, "hex_buf_len=[", sizeof("hex_buf_len=[")-1);
+		if (rc) {
+			goto zlog_hex_exit;
+		}
+
+		rc = zlog_buf_printf_dec64(a_buf, a_thread->event->hex_buf_len, 0);
+		if (rc) {
+			goto zlog_hex_exit;
+		}
+
+		rc = zlog_buf_append(a_buf, "]", 1);
+		if (rc) {
+			goto zlog_hex_exit;
+		}
+
 		rc = zlog_buf_append(a_buf, ZLOG_HEX_HEAD, sizeof(ZLOG_HEX_HEAD)-1);
 		if (rc) {
 			goto zlog_hex_exit;
