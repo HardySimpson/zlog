@@ -87,6 +87,8 @@ if (ZLOG_HAVE_PTHREAD_FLAG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 endif ()
 
+include(CheckMemfdCreate)
+
 # the makefile build is -Werror everywhere except mingw; keep that, but let
 # packagers building with a compiler we have not seen turn it off
 option(ZLOG_WERROR "treat compiler warnings as errors" ON)
