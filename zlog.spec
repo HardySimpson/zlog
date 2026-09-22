@@ -1,5 +1,5 @@
 Name:           zlog
-Version:        1.2.8
+Version:        1.2.20
 Release:        1
 Summary:        zlog logger framework
 
