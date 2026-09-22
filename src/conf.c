@@ -25,6 +25,7 @@
 #ifndef _WIN32
 #include <unistd.h>
 #else
+#include <io.h>
 #include "zlog_win.h"
 #endif
 
@@ -111,6 +112,35 @@ static int zlog_conf_build_with_file(zlog_conf_t * a_conf);
 static int zlog_conf_build_with_string(zlog_conf_t *a_conf,
 	const char *conf_string);
 static int zlog_conf_build_with_in_memory(zlog_conf_t * a_conf);
+
+/* The rotate lock file defaults to the configuration file itself, and
+ * lock_file() needs it read-write. A configuration the process may only read
+ * -- /etc/zlog.conf owned by root, a file installed 444 by a package -- then
+ * fails the lock on every rotation, so the log grows without bound and the
+ * only trace is a "lock file error : Permission denied" that needs
+ * ZLOG_PROFILE_ERROR to be seen at all. Fall back to the lock file used when
+ * there is no configuration file, rather than leave rotation dead.
+ *
+ * Only for the default: a lock file named in [global] is the user's choice,
+ * and failing it loudly beats rotating against a path they did not ask for.
+ */
+static void zlog_conf_fallback_rotate_lock_file(zlog_conf_t * a_conf)
+{
+	if (a_conf->file[0] == '\0') return;
+	if (STRCMP(a_conf->rotate_lock_file, !=, a_conf->file)) return;
+
+#ifdef _WIN32
+	if (_access(a_conf->rotate_lock_file, 2) == 0) return;
+#else
+	if (access(a_conf->rotate_lock_file, W_OK) == 0) return;
+#endif
+
+	zc_warn("rotate lock file[%s] is not writable, errno[%d],"
+		" rotating against [%s] instead",
+		a_conf->rotate_lock_file, errno,
+		ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE);
+	strcpy(a_conf->rotate_lock_file, ZLOG_CONF_BACKUP_ROTATE_LOCK_FILE);
+}
 
 enum{
 	NO_CFG,
@@ -654,6 +684,8 @@ static int zlog_conf_parse_line(zlog_conf_t * a_conf, char *line, int *section)
 				zlog_rotater_del(a_conf->rotater);
 				a_conf->rotater = NULL;
 			}
+			zlog_conf_fallback_rotate_lock_file(a_conf);
+
 			a_conf->rotater = zlog_rotater_new(a_conf->rotate_lock_file);
 			if (!a_conf->rotater) {
 				zc_error("zlog_rotater_new fail");
