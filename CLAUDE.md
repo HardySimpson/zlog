@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-**zlog** 是一个高性能、线程安全、纯C语言日志库（C99标准），版本 1.2.18，Apache 2.0 许可。支持 Linux、macOS、AIX、Windows，无第三方依赖（仅 POSIX + pthread）。
+**zlog** 是一个高性能、线程安全、纯C语言日志库（C99标准），版本 1.2.20，Apache 2.0 许可。支持 Linux、macOS、AIX、Windows，无第三方依赖（仅 POSIX + pthread）。
 
 ## 构建命令
 
@@ -89,22 +89,34 @@ zlog_reload(config_path)
 
 ```ini
 [global]
-strict_init = 1
-buf_size_min = 1K
-buf_size_max = 16M
+strict init = true
+buffer min = 1K
+buffer max = 16M
+rotate lock file = /tmp/zlog-rotate.lock
 
 [formats]
 simple = "%m%n"
 default = "%d(%F %T).%ms %-6V (%c:%F:%L) - %m%n"
 
 [rules]
-my_cat.INFO   > /var/log/app.log, 100M; default
-my_cat.*      > stdout;           simple
+my_cat.INFO   "/var/log/app.log", 100M; default
+my_cat.*      >stdout; simple
 ```
 
-**常用转换字符：** `%m`(消息) `%n`(换行) `%d`(时间) `%t`(线程ID) `%c`(分类) `%V`(级别) `%F`(文件) `%L`(行号) `%M`(函数名)
+`[global]` 的键名由空格分隔的单词组成（`strict init`、`buffer min`、`buffer max`、
+`file perms`、`rotate lock file`、`default format`、`reload conf period`、
+`fsync period`），不是下划线形式。`rotate lock file` 默认为配置文件本身，所以配置文件
+若不可写，轮转会静默失败（见 `src/conf.c` 的默认值与 `src/lockfile.c:28` 的 `O_RDWR`）。
 
-**输出目标：** `>stdout` `>stderr` `>/path/file, SIZE` `>|program`（管道） `>sys; facility`（syslog）
+**常用转换字符：** `%m`(消息) `%n`(换行) `%d`(时间) `%ms`/`%us`(毫秒/微秒) `%t`(线程ID)
+`%c`(分类) `%V`/`%v`(级别，大写/小写) `%F`/`%f`(源文件，全路径/文件名) `%L`(行号)
+`%U`(函数名) `%p`(进程ID) `%H`(主机名) `%M(key)`(MDC 值)
+
+**输出目标：** `"/path/file", SIZE`（文件，路径必须加引号） `>stdout` `>stderr`
+`>syslog, LOG_LOCAL0`（syslog） `| program`（管道）
+
+注意 `>` 只用于 `stdout`、`stderr` 和 `syslog`：写文件要用带引号的路径，`>` 加路径
+或不加引号的路径都会被 `src/rule.c` 拒绝（`the string after is not syslog, stdout or stderr`）。
 
 ## 测试
 
