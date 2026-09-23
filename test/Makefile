@@ -14,6 +14,7 @@ exe = 		\
 	test_longlog	\
 	test_buf	\
 	test_buf_max_truncate	\
+	test_buf_truncate_repeat	\
 	test_bitmap	\
 	test_conf	\
 	test_conf2  \
