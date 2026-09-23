@@ -2,90 +2,90 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 项目概述
+## Overview
 
-**zlog** 是一个高性能、线程安全、纯C语言日志库（C99标准），版本 1.2.20，Apache 2.0 许可。支持 Linux、macOS、AIX、Windows，无第三方依赖（仅 POSIX + pthread）。
+**zlog** is a high performance, thread safe, pure C logging library (C99), version 1.2.20, under the Apache 2.0 licence. It supports Linux, macOS, AIX and Windows, and has no third party dependencies (POSIX + pthread only).
 
-## 构建命令
+## Build commands
 
-### CMake（推荐）
+### CMake (preferred)
 
 ```bash
-# 基本构建
+# plain build
 cmake -B build
 cmake --build build -j8
 cmake --install build
 
-# 带单元测试
+# with the unit tests
 cmake -DUNIT_TEST=ON -B build
 cmake --build build -j8
-ctest --test-dir build           # 运行所有测试
-ctest --test-dir build -V        # 详细输出
-ctest --test-dir build -R <name> # 运行单个测试
+ctest --test-dir build           # run every test
+ctest --test-dir build -V        # verbose output
+ctest --test-dir build -R <name> # run a single test
 
-# ThreadSanitizer 构建
+# ThreadSanitizer build
 cmake -DCMAKE_BUILD_TYPE=Tsan -B build
 ```
 
-### Makefile（传统）
+### Makefile (traditional)
 
 ```bash
-make                   # 构建动态库
-make install           # 安装（默认 /usr/local）
+make                   # build the shared library
+make install           # install (/usr/local by default)
 make PREFIX=/opt/zlog install
-make 32bit             # 32位构建
-make test              # 构建并运行测试
+make 32bit             # 32 bit build
+make test              # build and run the tests
 make clean
 ```
 
-### 配置验证工具
+### Configuration checker
 
 ```bash
 ./src/zlog-chk-conf <config_file>
 ```
 
-## 架构概览
+## Architecture
 
-数据流：**初始化** → **配置解析** → **分类匹配** → **规则过滤** → **格式化** → **输出目标**
+Data flow: **init** → **configuration parsing** → **category matching** → **rule filtering** → **formatting** → **output**
 
-### 核心组件
+### Core components
 
-| 模块 | 文件 | 职责 |
-|------|------|------|
-| 核心库 | `src/zlog.c` | 全局状态、init/fini、公共 API |
-| 配置系统 | `src/conf.c` | 配置文件解析、验证、重加载 |
-| 分类系统 | `src/category.c/h`, `src/category_table.c` | 日志分类、规则关联、级别位图 |
-| 规则引擎 | `src/rule.c` | 规则匹配、输出分发、文件轮转触发 |
-| 格式系统 | `src/format.c`, `src/spec.c` | 转换字符解析、消息格式化 |
-| 线程系统 | `src/thread.c`, `src/consumer.c`, `src/fifo.c` | TLS 管理、异步输出、生产者/消费者 |
-| 缓冲系统 | `src/buf.c` | 动态缓冲，可自适应大小 |
-| 文件轮转 | `src/rotater.c`, `src/lockfile.c` | 大小触发轮转、进程间锁 |
-| MDC | `src/mdc.c` | Mapped Diagnostic Context（线程上下文数据） |
-| 工具库 | `src/zc_arraylist.c`, `src/zc_hashtable.c`, `src/zc_util.c` | 内部数据结构 |
+| Module | Files | Responsibility |
+|--------|-------|----------------|
+| Core | `src/zlog.c` | global state, init/fini, public API |
+| Configuration | `src/conf.c` | parsing, validation, reload |
+| Categories | `src/category.c/h`, `src/category_table.c` | log categories, rule association, level bitmap |
+| Rule engine | `src/rule.c` | rule matching, output dispatch, rotation trigger |
+| Formatting | `src/format.c`, `src/spec.c` | conversion character parsing, message formatting |
+| Threading | `src/thread.c`, `src/consumer.c`, `src/fifo.c` | TLS management, asynchronous output, producer/consumer |
+| Buffers | `src/buf.c` | dynamic buffer, grows as needed |
+| Rotation | `src/rotater.c`, `src/lockfile.c` | size triggered rotation, inter-process lock |
+| MDC | `src/mdc.c` | Mapped Diagnostic Context (per thread context data) |
+| Utilities | `src/zc_arraylist.c`, `src/zc_hashtable.c`, `src/zc_util.c` | internal data structures |
 
-### 线程安全机制
+### Thread safety
 
-- `pthread_rwlock_t` 保护全局配置
-- TLS（线程局部存储）存储线程相关数据（缓冲区、事件等）
-- 文件轮转使用锁文件（`src/lockfile.c`）保证进程间同步
+- `pthread_rwlock_t` protects the global configuration
+- TLS (thread local storage) holds the per thread data (buffers, events, ...)
+- rotation uses a lock file (`src/lockfile.c`) to synchronise between processes
 
-### 公共 API（`src/zlog.h`）
+### Public API (`src/zlog.h`)
 
 ```c
-zlog_init(config_path)          // 初始化
-zlog_get_category("cat_name")   // 获取分类句柄
-zlog_info(cat, fmt, ...)        // 普通日志宏（含 debug/warn/error/fatal）
-zlog_fini()                     // 清理
+zlog_init(config_path)          // initialise
+zlog_get_category("cat_name")   // get a category handle
+zlog_info(cat, fmt, ...)        // the usual macros (debug/warn/error/fatal too)
+zlog_fini()                     // clean up
 
-// 默认分类接口
+// default category interface
 dzlog_init(config_path, "cat_name")
 dzlog_info(fmt, ...)
 
-// 运行时重加载
+// reload at run time
 zlog_reload(config_path)
 ```
 
-## 配置文件格式
+## Configuration file format
 
 ```ini
 [global]
@@ -103,31 +103,35 @@ my_cat.INFO   "/var/log/app.log", 100M; default
 my_cat.*      >stdout; simple
 ```
 
-`[global]` 的键名由空格分隔的单词组成（`strict init`、`buffer min`、`buffer max`、
-`file perms`、`rotate lock file`、`default format`、`reload conf period`、
-`fsync period`），不是下划线形式。`rotate lock file` 默认为配置文件本身，而
-`src/lockfile.c:28` 以 `O_RDWR` 打开它；配置文件若不可写，会自动回退到
-`/tmp/zlog.lock` 并告警（见 `src/conf.c` 的 `zlog_conf_fallback_rotate_lock_file`）。
-显式配置的锁文件不会被回退。
+The `[global]` keys are space separated words (`strict init`, `buffer min`,
+`buffer max`, `file perms`, `rotate lock file`, `default format`,
+`reload conf period`, `fsync period`), not underscore names. `rotate lock file`
+defaults to the configuration file itself, which `src/lockfile.c:28` opens
+`O_RDWR`; when that file is not writable, zlog falls back to `/tmp/zlog.lock`
+and warns (see `zlog_conf_fallback_rotate_lock_file` in `src/conf.c`). A lock
+file named in `[global]` is never replaced that way.
 
-**常用转换字符：** `%m`(消息) `%n`(换行) `%d`(时间) `%ms`/`%us`(毫秒/微秒) `%t`(线程ID)
-`%c`(分类) `%V`/`%v`(级别，大写/小写) `%F`/`%f`(源文件，全路径/文件名) `%L`(行号)
-`%U`(函数名) `%p`(进程ID) `%H`(主机名) `%M(key)`(MDC 值)
+**Common conversion characters:** `%m` (message) `%n` (newline) `%d` (time)
+`%ms`/`%us` (milli/microseconds) `%t` (thread id) `%c` (category)
+`%V`/`%v` (level, upper/lower case) `%F`/`%f` (source file, full path/basename)
+`%L` (line) `%U` (function) `%p` (pid) `%H` (hostname) `%M(key)` (MDC value)
 
-**输出目标：** `"/path/file", SIZE`（文件，路径必须加引号） `>stdout` `>stderr`
-`>syslog, LOG_LOCAL0`（syslog） `| program`（管道）
+**Output targets:** `"/path/file", SIZE` (a file, the path must be quoted)
+`>stdout` `>stderr` `>syslog, LOG_LOCAL0` (syslog) `| program` (pipe)
 
-注意 `>` 只用于 `stdout`、`stderr` 和 `syslog`：写文件要用带引号的路径，`>` 加路径
-或不加引号的路径都会被 `src/rule.c` 拒绝（`the string after is not syslog, stdout or stderr`）。
+Note that `>` is only for `stdout`, `stderr` and `syslog`: a file target needs a
+quoted path, and both `>` followed by a path and an unquoted path are rejected
+by `src/rule.c` (`the string after is not syslog, stdout or stderr`).
 
-## 测试
+## Tests
 
-测试文件位于 `test/`，共 30 个 C 测试程序。集成测试脚本：`scripts/test.sh`。
+The tests live in `test/`: 38 C programs, plus a fuzzer under `test/fuzzers/`.
+The integration script is `scripts/test.sh`.
 
-配置示例参考 `test/test_hello.conf`。
+See `test/test_hello.conf` for a configuration example.
 
-## 平台注意事项
+## Platform notes
 
-- macOS：生成 `.dylib`，Makefile 自动适配
-- Windows：需引入 `unixem` 库，CMake 条件处理
-- C++：本库为纯 C 实现，不含任何 C++ 代码和 C++ 封装类；`src/zlog.h` 带 `extern "C"` 保护，可直接在 C++ 中包含
+- macOS: builds a `.dylib`, the makefile adapts on its own
+- Windows: needs the `unixem` library, handled conditionally in CMake
+- C++: the library is pure C, with no C++ code and no C++ wrapper classes; `src/zlog.h` is guarded with `extern "C"`, so it can be included from C++ directly
