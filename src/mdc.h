@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_mdc_h
-#define __zlog_mdc_h
+#ifndef ZLOG_MDC_H
+#define ZLOG_MDC_H
 
 #include "zc_defs.h"
 

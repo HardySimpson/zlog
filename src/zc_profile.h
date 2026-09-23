@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zc_profile_h
-#define __zc_profile_h
+#ifndef ZC_PROFILE_H
+#define ZC_PROFILE_H
 
 #include <stdarg.h>
 

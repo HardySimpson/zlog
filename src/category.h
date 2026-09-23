@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_category_h
-#define __zlog_category_h
+#ifndef ZLOG_CATEGORY_H
+#define ZLOG_CATEGORY_H
 
 #include "zc_defs.h"
 #include "thread.h"

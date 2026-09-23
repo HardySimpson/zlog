@@ -1,5 +1,5 @@
-#ifndef __MISC_H
-#define __MISC_H
+#ifndef ZLOG_MISC_H
+#define ZLOG_MISC_H
 
 #include <pthread.h>
 #include <stdalign.h>

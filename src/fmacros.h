@@ -1,5 +1,5 @@
-#ifndef __zlog_fmacro_h
-#define __zlog_fmacro_h
+#ifndef ZLOG_FMACROS_H
+#define ZLOG_FMACROS_H
 
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE

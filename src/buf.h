@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_buf_h
-#define __zlog_buf_h
+#ifndef ZLOG_BUF_H
+#define ZLOG_BUF_H
 
 /* buf, is a dynamic expand buffer for one single log,
  * as one single log will interlace if use multiple write() to file.

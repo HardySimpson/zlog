@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __zc_xplatform_h
-#define __zc_xplatform_h
+#ifndef ZC_XPLATFORM_H
+#define ZC_XPLATFORM_H
 
 #include <limits.h>
 #define XFUNC __attribute__((visibility("default")))

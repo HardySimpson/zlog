@@ -11,8 +11,8 @@
  * =============================================================================
  */
 
-#ifndef __ZLOG_LOCK_FILE_H__
-#define __ZLOG_LOCK_FILE_H__
+#ifndef ZLOG_LOCKFILE_H
+#define ZLOG_LOCKFILE_H
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -41,4 +41,4 @@ LOCK_FD lock_file(char* path);
  */
 bool unlock_file(LOCK_FD fd);
 
-#endif //__ZLOG_LOCK_FILE_H__
+#endif //ZLOG_LOCKFILE_H

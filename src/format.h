@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_format_h
-#define __zlog_format_h
+#ifndef ZLOG_FORMAT_H
+#define ZLOG_FORMAT_H
 
 #include "thread.h"
 #include "zc_defs.h"

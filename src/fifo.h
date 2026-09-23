@@ -1,5 +1,5 @@
-#ifndef __FIFO_H
-#define __FIFO_H
+#ifndef ZLOG_FIFO_H
+#define ZLOG_FIFO_H
 
 #include <stdatomic.h>
 #include <stdio.h>

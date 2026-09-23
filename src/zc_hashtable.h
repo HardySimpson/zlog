@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zc_hashtalbe_h
-#define __zc_hashtalbe_h
+#ifndef ZC_HASHTABLE_H
+#define ZC_HASHTABLE_H
 
 #include <stdlib.h>
 

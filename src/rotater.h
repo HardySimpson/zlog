@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_rotater_h
-#define __zlog_rotater_h
+#ifndef ZLOG_ROTATER_H
+#define ZLOG_ROTATER_H
 
 #include "zc_defs.h"
 #include "lockfile.h"
