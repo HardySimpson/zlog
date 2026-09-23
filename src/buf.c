@@ -235,13 +235,30 @@ int zlog_buf_vprintf(zlog_buf_t * a_buf, const char *format, va_list args)
 		return -1;
 	} else if (nwrite >= size_left) {
 		int rc;
+		size_t size_filled = size_left;
 		//zc_debug("nwrite[%d]>=size_left[%ld],format[%s],resize", nwrite, size_left, format);
 		rc = zlog_buf_resize(a_buf, nwrite - size_left + 1);
 		if (rc > 0) {
 			zc_error("conf limit to %ld, can't extend, so truncate", a_buf->size_max);
-			va_copy(ap, args);
 			size_left = a_buf->end_plus_1 - a_buf->tail;
-			vsnprintf(a_buf->tail, size_left, format, ap);
+
+			/* Only when the resize above won some room: the call that
+			 * got us here already filled the buffer as it was, and
+			 * formatting again into the same space produces the same
+			 * bytes at a price that is anything but the same.
+			 *
+			 * vsnprintf() has to walk the whole conversion however
+			 * little of it fits, and glibc is an order of magnitude
+			 * slower doing it once the output no longer fits: ~4ms for
+			 * a 4MB %s into 2MB against ~0.2ms when it fits. A process
+			 * logging messages over buffer_max paid that twice for
+			 * every line, which is most of what made "%.200m" of a 4MB
+			 * message expensive (HardySimpson/zlog#95). */
+			if (size_left > size_filled) {
+				va_copy(ap, args);
+				vsnprintf(a_buf->tail, size_left, format, ap);
+			}
+
 			a_buf->tail += size_left - 1;
 			//*(a_buf->tail) = '\0';
 			zlog_buf_truncate(a_buf);
