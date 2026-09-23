@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_record_table_h
-#define __zlog_record_table_h
+#ifndef ZLOG_RECORD_TABLE_H
+#define ZLOG_RECORD_TABLE_H
 
 #include "zc_defs.h"
 #include "record.h"

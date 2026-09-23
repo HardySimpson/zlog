@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_event_h
-#define __zlog_event_h
+#ifndef ZLOG_EVENT_H
+#define ZLOG_EVENT_H
 
 #include <sys/types.h>  /* for pid_t */
 #include <sys/time.h>   /* for struct timeval */

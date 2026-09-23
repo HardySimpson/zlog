@@ -12,8 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __zc_util_h
-#define __zc_util_h
+#ifndef ZC_UTIL_H
+#define ZC_UTIL_H
 
 size_t zc_parse_byte_size(char *astring);
 int zc_str_replace_env(char *str, size_t str_size);

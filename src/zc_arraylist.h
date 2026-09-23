@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zc_arraylist_h
-#define __zc_arraylist_h
+#ifndef ZC_ARRAYLIST_H
+#define ZC_ARRAYLIST_H
 
 #define ARRAY_LIST_DEFAULT_SIZE 32
 

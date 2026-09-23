@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_thread_h
-#define  __zlog_thread_h
+#ifndef ZLOG_THREAD_H
+#define  ZLOG_THREAD_H
 
 #include <stdatomic.h>
 #include <stdbool.h>

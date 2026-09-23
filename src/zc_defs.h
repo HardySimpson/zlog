@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zc_defs_h
-#define __zc_defs_h
+#ifndef ZC_DEFS_H
+#define ZC_DEFS_H
 
 #include "zc_profile.h"
 #include "zc_arraylist.h"

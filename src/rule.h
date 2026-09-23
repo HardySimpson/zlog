@@ -18,8 +18,8 @@
  * @brief rule decide to output in format by category & level
  */
 
-#ifndef __zlog_rule_h
-#define __zlog_rule_h
+#ifndef ZLOG_RULE_H
+#define ZLOG_RULE_H
 
 #include <stdio.h>
 #include <pthread.h>

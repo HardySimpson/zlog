@@ -1,5 +1,5 @@
-#ifndef __CONSUMER_H
-#define __CONSUMER_H
+#ifndef ZLOG_CONSUMER_H
+#define ZLOG_CONSUMER_H
 
 #include <pthread.h>
 #include <stdbool.h>

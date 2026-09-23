@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_spec_h
-#define __zlog_spec_h
+#ifndef ZLOG_SPEC_H
+#define ZLOG_SPEC_H
 
 #include "event.h"
 #include "buf.h"

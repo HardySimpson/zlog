@@ -1,5 +1,5 @@
-#ifndef _ZLOG_WIN_H_
-#define _ZLOG_WIN_H_
+#ifndef ZLOG_WIN_H
+#define ZLOG_WIN_H
 
 #include <time.h>
 
