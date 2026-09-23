@@ -105,8 +105,10 @@ my_cat.*      >stdout; simple
 
 `[global]` 的键名由空格分隔的单词组成（`strict init`、`buffer min`、`buffer max`、
 `file perms`、`rotate lock file`、`default format`、`reload conf period`、
-`fsync period`），不是下划线形式。`rotate lock file` 默认为配置文件本身，所以配置文件
-若不可写，轮转会静默失败（见 `src/conf.c` 的默认值与 `src/lockfile.c:28` 的 `O_RDWR`）。
+`fsync period`），不是下划线形式。`rotate lock file` 默认为配置文件本身，而
+`src/lockfile.c:28` 以 `O_RDWR` 打开它；配置文件若不可写，会自动回退到
+`/tmp/zlog.lock` 并告警（见 `src/conf.c` 的 `zlog_conf_fallback_rotate_lock_file`）。
+显式配置的锁文件不会被回退。
 
 **常用转换字符：** `%m`(消息) `%n`(换行) `%d`(时间) `%ms`/`%us`(毫秒/微秒) `%t`(线程ID)
 `%c`(分类) `%V`/`%v`(级别，大写/小写) `%F`/`%f`(源文件，全路径/文件名) `%L`(行号)
