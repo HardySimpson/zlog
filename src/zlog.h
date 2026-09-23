@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef __zlog_h
-#define __zlog_h
+/* not __zlog_h: an identifier starting with two underscores is reserved for
+ * the implementation in every translation unit that includes this header
+ * (C99 7.1.3, HardySimpson/zlog#52) */
+#ifndef ZLOG_H
+#define ZLOG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -291,4 +294,4 @@ typedef enum {
 }
 #endif
 
-#endif
+#endif /* ZLOG_H */
