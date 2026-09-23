@@ -19,6 +19,7 @@ exe = 		\
 	test_conf_file_type	\
 	test_consumer_rules	\
 	test_dzlog_conf	\
+	test_env_replace	\
 	test_hashtable	\
 	test_fork	\
 	test_hello	\
