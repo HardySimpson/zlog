@@ -13,11 +13,15 @@
  * limitations under the License.
  */
 
-/* not __zlog_h: an identifier starting with two underscores is reserved for
+/* Not __zlog_h: an identifier starting with two underscores is reserved for
  * the implementation in every translation unit that includes this header
- * (C99 7.1.3, HardySimpson/zlog#52) */
-#ifndef ZLOG_H
-#define ZLOG_H
+ * (C99 7.1.3, HardySimpson/zlog#52). Qualified with the project name on top
+ * of that, because this is the header that gets installed and a plain ZLOG_H
+ * shares a namespace with every other library on the system -- a collision
+ * expands the second header to nothing, with no diagnostic
+ * (HardySimpson/zlog#356) */
+#ifndef ZLOG_ZLOG_H
+#define ZLOG_ZLOG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -294,4 +298,4 @@ typedef enum {
 }
 #endif
 
-#endif /* ZLOG_H */
+#endif /* ZLOG_ZLOG_H */
