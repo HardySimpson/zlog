@@ -13,6 +13,7 @@ exe = 		\
 	test_tmp	\
 	test_longlog	\
 	test_buf	\
+	test_buf_max_truncate	\
 	test_bitmap	\
 	test_conf	\
 	test_conf2  \

@@ -156,6 +156,7 @@ err:
 int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread, struct zlog_output_data *data)
 {
 	int i;
+	int rc;
 	zlog_spec_t *a_spec;
 
     if (data) {
@@ -166,11 +167,24 @@ int zlog_format_gen_msg(zlog_format_t * a_format, zlog_thread_t * a_thread, stru
     }
 
 	zc_arraylist_foreach(a_format->pattern_specs, i, a_spec) {
-		if (zlog_spec_gen_msg(a_spec, a_thread, data) == 0) {
-			continue;
-		} else {
+		rc = zlog_spec_gen_msg(a_spec, a_thread, data);
+		if (rc == 0) continue;
+
+		if (rc < 0) {
+			zc_error("zlog_spec_gen_msg fail");
 			return -1;
 		}
+
+		/* rc > 0: the buffer reached buffer_max and the message was
+		 * truncated in place, the truncation string ("..." and a newline)
+		 * already written. That is what a maximum is for, so write what
+		 * there is instead of returning an error the rules turn into a
+		 * dropped message -- the whole log line went missing, and only
+		 * ZLOG_PROFILE_ERROR said why (HardySimpson/zlog#95).
+		 *
+		 * Nothing more can be appended, so the specs left in the pattern
+		 * are skipped rather than each truncating again. */
+		break;
 	}
 
 	return 0;
