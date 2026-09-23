@@ -86,6 +86,7 @@ int zc_str_replace_env(char *str, size_t str_size)
 {
 	char *p;
 	char *q;
+	const char *env;
 	char fmt[MAXLEN_CFG_LINE + 1];
 	char env_key[MAXLEN_CFG_LINE + 1];
 	char env_value[MAXLEN_CFG_LINE + 1];
@@ -120,7 +121,10 @@ int zc_str_replace_env(char *str, size_t str_size)
 		q = p + 1 + nread;
 
 		nscan = sscanf(q, "E(%[^)])%n", env_key, &nread);
-		if (nscan == 0) {
+		if (nscan <= 0) {
+			/* not an environment variable, or nothing left to read:
+			 * EOF here would fall through to the ) check below with a
+			 * stale nread and fail the whole string over a trailing % */
 			continue;
 		}
 
@@ -131,7 +135,10 @@ int zc_str_replace_env(char *str, size_t str_size)
 			return -1;
 		}
 
-		env_value_len = snprintf(env_value, sizeof(env_value), fmt, getenv(env_key));
+		env = getenv(env_key);
+		if (!env) env = "";
+
+		env_value_len = snprintf(env_value, sizeof(env_value), fmt, env);
 		if (env_value_len < 0 || env_value_len >= sizeof(env_value)) {
 			zc_error("snprintf fail, errno[%d], evn_value_len[%d]",
 				 errno, env_value_len);
@@ -146,6 +153,15 @@ int zc_str_replace_env(char *str, size_t str_size)
 
 		memmove(p + env_value_len, q, strlen(q) + 1);
 		memcpy(p, env_value, env_value_len);
+
+		/* the tail moved with the substitution, q did not: carry on from
+		 * the end of what was just written. Left as it was, the next pass
+		 * starts inside the tail when the value is shorter than %E(key) --
+		 * "%E(A)%E(B)" with a one character A left %E(B) unexpanded, and
+		 * a format or a path that keeps a stray %E() fails zlog_init() --
+		 * or inside the substituted value when it is longer, which would
+		 * expand whatever the environment happens to contain */
+		q = p + env_value_len;
 
 	} while (1);
 
