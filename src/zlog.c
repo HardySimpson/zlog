@@ -1393,4 +1393,16 @@ XFUNC int dzlog_level_enabled(const int level)
 	return zlog_level_enabled(zlog_default_category, level);
 }
 
+XFUNC int zlog_category_has_rules(zlog_category_t *category)
+{
+	int has_rules = 0;
+
+	zlog_env_rdlock();
+	has_rules = category && category->fit_rules
+			&& (zc_arraylist_len(category->fit_rules) > 0);
+	zlog_env_unlock();
+
+	return has_rules;
+}
+
 XFUNC const char *zlog_version(void) { return ZLOG_VERSION; }

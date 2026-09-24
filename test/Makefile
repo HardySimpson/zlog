@@ -47,6 +47,7 @@ exe = 		\
 	test_default	\
 	test_profile	\
 	test_category   \
+	test_category_has_rules	\
 	test_prompt	\
 	test_enabled
 
