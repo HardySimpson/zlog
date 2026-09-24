@@ -109,6 +109,16 @@ static int zlog_env_wrlock(void)
 /* a thread holding the read lock cannot also hold the write lock, so a
  * positive depth says which of the two this unlock ends -- and the lock stays
  * held until the outermost reader lets go */
+static int zlog_env_trywrlock(void)
+{
+	int rc;
+
+	atomic_fetch_add_explicit(&zlog_env_writers, 1, memory_order_acq_rel);
+	rc = pthread_rwlock_trywrlock(&zlog_env_lock);
+	atomic_fetch_sub_explicit(&zlog_env_writers, 1, memory_order_acq_rel);
+
+	return rc;
+}
 static int zlog_env_unlock(void)
 {
 	if (zlog_env_rdlock_depth > 0 && --zlog_env_rdlock_depth > 0) {
@@ -658,6 +668,26 @@ XFUNC int zlog_reload_from_string(const char *conf_string)
 }
 
 /*******************************************************************************/
+XFUNC int zlog_fini_try(void)
+{
+	/* No zc_debug()/zc_error() on the way in: the caller of this one is
+	 * typically a signal handler, and the profile writes go through
+	 * fopen()/fprintf(). zlog_fini_inner() below uses them regardless, so
+	 * this is a smaller exposure, not none of it. */
+	if (zlog_env_trywrlock()) {
+		/* EBUSY, or EDEADLK when this thread is the one holding it */
+		return -1;
+	}
+
+	if (zlog_env_is_init) {
+		zlog_fini_inner();
+		zlog_env_is_init = 0;
+	}
+
+	zlog_env_unlock();
+	return 0;
+}
+
 XFUNC void zlog_fini(void)
 {
 	int rc = 0;
