@@ -24,6 +24,7 @@ exe = 		\
 	test_env_replace	\
 	test_hashtable	\
 	test_fork	\
+	test_fini_try	\
 	test_hello	\
 	test_hex	\
 	test_init	\
