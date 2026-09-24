@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -26,6 +27,9 @@
 
 static long loop_count;
 
+/* what work() hands back to pthread_join() when it could not do its job */
+#define WORK_FAIL ((void *)1)
+
 
 void * work(void *ptr)
 {
@@ -37,15 +41,24 @@ void * work(void *ptr)
 
 	int fd;
 	fd = open(file, O_CREAT | O_WRONLY | O_APPEND , 0644);
-	//FILE *fp;
+	if (fd < 0) {
+		fprintf(stderr, "open[%s] fail, errno[%d]\n", file, errno);
+		return WORK_FAIL;
+	}
 
 	while(j-- > 0) {
-		(void)(write(fd, log, sizeof(log)-1) + 1); /* bypass warning */
-		//fwrite(log, sizeof(log)-1, 1, fp);
+		if (write(fd, log, sizeof(log)-1) != (ssize_t)(sizeof(log)-1)) {
+			fprintf(stderr, "write[%s] fail, errno[%d]\n", file, errno);
+			close(fd);
+			return WORK_FAIL;
+		}
 	}
-	//fclose(fp);
-	close(fd);
-	return 0;
+
+	if (close(fd)) {
+		fprintf(stderr, "close[%s] fail, errno[%d]\n", file, errno);
+		return WORK_FAIL;
+	}
+	return NULL;
 }
 
 
@@ -54,29 +67,62 @@ int test(long process_count, long thread_count)
 	long i;
 	pid_t pid;
 	long j;
+	long children = 0;
+	int child_failed = 0;
+	int rc;
 
 	for (i = 0; i < process_count; i++) {
 		pid = fork();
 		if (pid < 0) {
-			printf("fork fail\n");
+			fprintf(stderr, "fork fail, errno[%d]\n", errno);
+			break;
 		} else if(pid == 0) {
 			pthread_t  tid[thread_count];
+			long started = 0;
+			int failed = 0;
+			void *res;
 
 			for (j = 0; j < thread_count; j++) { 
-				pthread_create(&(tid[j]), NULL, work, (void*)j);
+				rc = pthread_create(&(tid[j]), NULL, work, (void*)j);
+				if (rc) {
+					fprintf(stderr, "pthread_create fail, rc[%d]\n", rc);
+					break;
+				}
+				started++;
 			}
-			for (j = 0; j < thread_count; j++) { 
-				pthread_join(tid[j], NULL);
+			/* join what was started, not what was asked for */
+			for (j = 0; j < started; j++) { 
+				res = NULL;
+				rc = pthread_join(tid[j], &res);
+				if (rc) {
+					fprintf(stderr, "pthread_join fail, rc[%d]\n", rc);
+					failed = 1;
+				} else if (res == WORK_FAIL) {
+					failed = 1;
+				}
 			}
-			return 0;
+			return (failed || started != thread_count) ? 1 : 0;
+		}
+		children++;
+	}
+
+	/* wait for the children there are: waiting process_count times over
+	 * after a fork failed just spins on ECHILD */
+	for (i = 0; i < children; i++) {
+		int status = 0;
+
+		if (wait(&status) < 0) {
+			fprintf(stderr, "wait fail, errno[%d]\n", errno);
+			child_failed = 1;
+			break;
+		}
+		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+			fprintf(stderr, "a child failed, status[%d]\n", status);
+			child_failed = 1;
 		}
 	}
 
-	for (i = 0; i < process_count; i++) {
-		pid = wait(NULL);
-	}
-
-	return 0;
+	return (child_failed || children != process_count) ? 1 : 0;
 }
 
 
@@ -89,7 +135,6 @@ int main(int argc, char** argv)
 
 
 	loop_count = atol(argv[3]);
-	test(atol(argv[1]), atol(argv[2]));
-	
-	return 0;
+
+	return test(atol(argv[1]), atol(argv[2]));
 }
