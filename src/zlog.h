@@ -55,6 +55,12 @@ void zlog_profile(void);
 zlog_category_t *zlog_get_category(const char *cname);
 int zlog_level_enabled(zlog_category_t *category, const int level);
 
+/* Non-zero when the configuration has at least one rule for this category,
+ * whether by name or through a wildcard. zlog_get_category() hands back a
+ * usable handle for any name at all, so it cannot tell a category the
+ * configuration knows about from one it has never heard of; this can. */
+int zlog_category_has_rules(zlog_category_t *category);
+
 int zlog_put_mdc(const char *key, const char *value);
 char *zlog_get_mdc(const char *key);
 void zlog_remove_mdc(const char *key);
