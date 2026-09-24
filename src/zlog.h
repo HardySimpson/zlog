@@ -52,6 +52,19 @@ int zlog_fsync(void);
 
 void zlog_profile(void);
 
+/* zlog_fini() that gives up instead of waiting for the configuration lock.
+ * Returns 0 when zlog was finished (or was not initialised), -1 when the lock
+ * was held and nothing was done.
+ *
+ * zlog_fini() blocks until every thread inside zlog has left, which never
+ * ends when the caller is a signal handler that interrupted a thread holding
+ * the lock -- the handler runs on that same thread, and the lock is not
+ * recursive, so the process hangs where it meant to exit
+ * (HardySimpson/zlog#49). Note that this makes the exit path terminate; it
+ * does not make zlog async-signal-safe. A handler that has to log should
+ * prefer setting a flag and doing the work outside it. */
+int zlog_fini_try(void);
+
 zlog_category_t *zlog_get_category(const char *cname);
 int zlog_level_enabled(zlog_category_t *category, const int level);
 
