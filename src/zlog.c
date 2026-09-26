@@ -374,7 +374,7 @@ XFUNC int zlog_init(const char *config)
 {
 	int rc;
 	zc_debug("------zlog_init start------");
-	zc_debug("------compile time[%s %s], version[%s]------", __DATE__, __TIME__, ZLOG_VERSION);
+	zc_debug("------version[%s]------", ZLOG_VERSION);
 
 	pthread_once(&zlog_atfork_once, zlog_atfork_register);
 
@@ -419,7 +419,7 @@ XFUNC int zlog_init_from_string(const char *config_string)
 {
     int rc;
     zc_debug("------zlog_init start------");
-    zc_debug("------compile time[%s %s], version[%s]------", __DATE__, __TIME__, ZLOG_VERSION);
+    zc_debug("------version[%s]------", ZLOG_VERSION);
 
     pthread_once(&zlog_atfork_once, zlog_atfork_register);
 
@@ -464,8 +464,7 @@ XFUNC int dzlog_init(const char *config, const char *cname)
 {
 	int rc = 0;
 	zc_debug("------dzlog_init start------");
-	zc_debug("------compile time[%s %s], version[%s]------",
-			__DATE__, __TIME__, ZLOG_VERSION);
+	zc_debug("------version[%s]------", ZLOG_VERSION);
 
 	pthread_once(&zlog_atfork_once, zlog_atfork_register);
 
