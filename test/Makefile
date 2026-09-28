@@ -28,6 +28,7 @@ exe = 		\
 	test_hello	\
 	test_hex	\
 	test_init	\
+	test_is_init	\
 	test_init_from_string	\
 	test_level	\
 	test_lock_fairness	\

@@ -52,6 +52,13 @@ int zlog_fsync(void);
 
 void zlog_profile(void);
 
+/* Non-zero when zlog_init(), dzlog_init() or one of the _from_string()
+ * variants has run and zlog_fini() has not. Meant for a library that can be
+ * used on its own or inside a program that already set zlog up, and has to
+ * find out which. It is a snapshot: another thread may finish zlog the moment
+ * after it returns. */
+int zlog_is_init(void);
+
 /* zlog_fini() that gives up instead of waiting for the configuration lock.
  * Returns 0 when zlog was finished (or was not initialised), -1 when the lock
  * was held and nothing was done.
