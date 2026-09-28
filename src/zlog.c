@@ -1422,6 +1422,17 @@ XFUNC int dzlog_level_enabled(const int level)
 	return zlog_level_enabled(zlog_default_category, level);
 }
 
+XFUNC int zlog_is_init(void)
+{
+	int is_init = 0;
+
+	zlog_env_rdlock();
+	is_init = zlog_env_is_init;
+	zlog_env_unlock();
+
+	return is_init;
+}
+
 XFUNC int zlog_category_has_rules(zlog_category_t *category)
 {
 	int has_rules = 0;
