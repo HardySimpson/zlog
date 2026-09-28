@@ -220,15 +220,12 @@ int zlog_thread_rebuild_event(zlog_thread_t * a_thread, int time_cache_count)
 	event_new = zlog_event_new(time_cache_count);
 	if (!event_new) {
 		zc_error("zlog_event_new fail");
-		goto err;
+		return -1;
 	}
 
 	zlog_event_del(a_thread->event);
 	a_thread->event = event_new;
 	return 0;
-err:
-	if (event_new) zlog_event_del(event_new);
-	return -1;
 }
 
 
