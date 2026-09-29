@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	zlog_category_t *zc;
 
 	if (argc != 2) {
-		printf("useage: test_longlog [count]\n");
+		printf("usage: test_longlog [count]\n");
 		exit(1);
 	}
 

@@ -75,7 +75,7 @@ $ sudo ldconfig
 ```
 
 Before running a real program, make sure libzlog.so is in the directory where the system's dynamic lib loader can find
-it. The command metioned above are for linux. Other systems will need a similar set of actions.
+it. The command mentioned above are for linux. Other systems will need a similar set of actions.
 
 ## 2. Configuration file
 

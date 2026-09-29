@@ -5064,7 +5064,7 @@ $ zlog-chk-conf -h
 \end_layout
 
 \begin_layout LyX-Code
-Useage: zlog-chk-conf [conf files]...
+Usage: zlog-chk-conf [conf files]...
  	
 \end_layout
 
@@ -5591,7 +5591,7 @@ line
 \bar under
 func
 \bar default
- 填写为__func__或者__FUNCTION__，如果编译器支持的话，如果不支持，就填写为"<unkown>"。
+ 填写为__func__或者__FUNCTION__，如果编译器支持的话，如果不支持，就填写为"<unknown>"。
 \end_layout
 
 \begin_layout Standard

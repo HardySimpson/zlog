@@ -24,7 +24,7 @@ int main(int argc, char** argv)
 	int i, j;
 
 	if (argc != 3) {
-		printf("useage: test_bitmap i j\n");
+		printf("usage: test_bitmap i j\n");
 		exit(1);
 	}
 

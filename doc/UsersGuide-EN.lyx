@@ -198,7 +198,7 @@ log format customization
 
 \begin_layout Itemize
 multiple output, include static file path, dynamic file path, stdout, stderr,
- syslog, user-defined ouput
+ syslog, user-defined output
 \end_layout
 
 \begin_layout Itemize
@@ -351,7 +351,7 @@ literal "false"
 \end_layout
 
 \begin_layout Standard
-cmake verion: 
+cmake version: 
 \begin_inset CommandInset href
 LatexCommand href
 target "https://github.com/lisongmin/zlog"
@@ -390,7 +390,7 @@ zlog 1.2 provides these features:
 \begin_deeper
 \begin_layout Enumerate
 support for pipeline.
- Now zlog can send ouput log through programs like cronolog
+ Now zlog can send output log through programs like cronolog
 \end_layout
 
 \begin_layout Enumerate
@@ -1134,7 +1134,7 @@ But in bb.log, there will be two
 \begin_layout Standard
 From this example, you see the difference.
  Log4j can not do it easily.
- In zlog, one category may correspond to mutiple rules, and rules can have
+ In zlog, one category may correspond to multiple rules, and rules can have
  different level, output, and format combinations.
  The user has an easy, clear way to filter and multi-ouput all logs on demand.
 \end_layout
@@ -1145,7 +1145,7 @@ Expand syslog model
 
 \begin_layout Standard
 You can see that category in zlog is more like facility in syslog.
- Unfortunately, facility in sylog is an int, and the value of facility must
+ Unfortunately, facility in syslog is an int, and the value of facility must
  be chosen from a limited system-defined range.
  zlog does better, making it a string variable.
 \end_layout
@@ -1510,7 +1510,7 @@ mutex_lock is for multi-thread and fcntl_lock is for multi-process.
  The lock is system-wide, and when a process dies unexpectedly, the operating
  system releases all locks owned by the process.
  That's why I chose fcntl lock for rotating log safely.
- The process needs read-write permisson for lock_file to lock it.
+ The process needs read-write permission for lock_file to lock it.
 \end_layout
 
 \begin_layout Standard
@@ -1678,7 +1678,7 @@ reference "ite:synchronous-I/O-file"
 
 \end_inset
 
-.The defualt is 0, which means let the operating system flush the output
+.The default is 0, which means let the operating system flush the output
  buffer when it wants.
  
 \end_layout
@@ -4320,7 +4320,7 @@ This section begins with [rules].
 
 \begin_layout Standard
 When zlog_init() is called, all rules will be read into memory.
- When zlog_get_category() is called, mutiple rules will be assigned to each
+ When zlog_get_category() is called, multiple rules will be assigned to each
  category, in the way 
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -5031,7 +5031,7 @@ This is an example of how zlog pipelines its output to cronolog.
  zlog_init(), and forward logs will be written to the open descriptor in
  the "normal" format.
  Writing through pipeline and cronnolog is faster than dynamic file of zlog,
- as there is no need to open and close file descripter each time when logs
+ as there is no need to open and close file descriptor each time when logs
  are written to a pipe.
 \end_layout
 
@@ -5484,7 +5484,7 @@ Using zlog, there is no need for external rotate action to complete the
 \end_layout
 
 \begin_layout Standard
-or using cronolog for faster performace:
+or using cronolog for faster performance:
 \end_layout
 
 \begin_layout LyX-Code
@@ -5746,7 +5746,7 @@ $ zlog-chk-conf -h
 \end_layout
 
 \begin_layout LyX-Code
-Useage: zlog-chk-conf [conf files]...
+Usage: zlog-chk-conf [conf files]...
  	
 \end_layout
 
@@ -6409,7 +6409,7 @@ ZLOG_LEVEL_FATAL = 120
 \end_layout
 
 \begin_layout Standard
-Each fuction has its macros for easy use.
+Each function has its macros for easy use.
  For example,
 \end_layout
 
@@ -7082,7 +7082,7 @@ record
 \end_layout
 
 \begin_layout Standard
-The members of struct zlog_msg_t are decribed below:
+The members of struct zlog_msg_t are described below:
 \end_layout
 
 \begin_layout Standard
@@ -7480,7 +7480,7 @@ $ grep Li aa.log >Li.log
 \end_layout
 
 \begin_layout Standard
-Or, another way is to seperate them to different log file when log action
+Or, another way is to separate them to different log file when log action
  is taken.
  In .conf
 \end_layout
@@ -7590,7 +7590,7 @@ zlog.error.log is not created, as no error occurs.
 \begin_layout Standard
 As you can see, debug log shows how zlog is inited and finished, but no
  debug log is written when zlog_info() is executed.
- That's for efficency.
+ That's for efficiency.
 \end_layout
 
 \begin_layout Standard
@@ -7651,7 +7651,7 @@ Now, you could find the reason why the expected log doesn't generate, and
 \end_layout
 
 \begin_layout Standard
-Runtime profiling causes a loss of efficency.
+Runtime profiling causes a loss of efficiency.
  Normally, I keep ZLOG_PROFILE_ERROR on and ZLOG_PROFILE_DEBUG off in my
  environment.
  
@@ -7980,7 +7980,7 @@ means that level >= TRACE, which is TRACE, INFO, NOTICE, WARN, ERROR, FATAL
 \end_layout
 
 \begin_layout Standard
-The conversion charactor %V of format string generates the uppercase value
+The conversion character %V of format string generates the uppercase value
  of the level string and %v generates the lowercase value of the level string.
 \end_layout
 
@@ -8247,7 +8247,7 @@ INFO info hello, zlog - info
 
 \begin_layout Standard
 That's just what we expect.
- The configuration file only allows >=TRACE ouput to screen.
+ The configuration file only allows >=TRACE output to screen.
  And %V and %v work as well.
 \end_layout
 

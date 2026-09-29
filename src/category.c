@@ -49,7 +49,7 @@ void zlog_category_del(zlog_category_t * a_category)
 	return;
 }
 
-/* overlap one rule's level bitmap to cateogry,
+/* overlap one rule's level bitmap to category,
  * so category can judge whether a log level will be output by itself
  * It is safe when configure is reloaded, when rule will be released an recreated
  */
@@ -195,7 +195,7 @@ void zlog_category_commit_rules(zlog_category_t * a_category)
 
 /* rollback fail: fit_rules_backup != 0 */
 /* rollback success: fit_rules 1, fit_rules_backup 0 */
-/* so whether update succes or not, make things back to old */
+/* so whether update success or not, make things back to old */
 void zlog_category_rollback_rules(zlog_category_t * a_category)
 {
 	zc_assert(a_category,);
