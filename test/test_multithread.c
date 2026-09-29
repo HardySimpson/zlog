@@ -44,7 +44,7 @@ enum {
 struct thread_info {    /* Used as argument to thread_start() */
 	pthread_t thread_id;    /* ID returned by pthread_create() */
 	int       thread_num;   /* Application-defined thread # */
-	zlog_category_t *zc;    /* The logger category struc address; (All threads will use the same category, so he same address) */
+	zlog_category_t *zc;    /* The logger category struct address; (All threads will use the same category, so he same address) */
 	long long int loop;     /* Counter incremented to check the thread's health */
 };
 
@@ -60,7 +60,7 @@ void intercept(int sig)
     signal (sig, SIG_DFL);
     raise (sig);
 
-	printf("You can import datas below in a spreadsheat and check if any thread stopped increment the Loop counter during the test.\n\n");
+	printf("You can import data below in a spreadsheet and check if any thread stopped increment the Loop counter during the test.\n\n");
 	printf("Thread;Loop\n");
 	for (i=0; i<NB_THREADS; i++)
 	{
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
 	int i = 0;
 	struct stat stat_0, stat_1;
 
-	/* Create the logging directory if not yet ceated */
+	/* Create the logging directory if not yet created */
 	mkdir("./test_multithread-logs", 0777);
 
 	if (stat(CONFIG, &stat_0))
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
 		}
     }
 
-	/* Wait and log thread informations */
+	/* Wait and log thread information */
 	sleep(1);
 	for (i=0; i<NB_THREADS; i++)
 	{
@@ -192,7 +192,7 @@ int main(int argc, char** argv)
 		/* Is configuration file modified */
 		reload = (stat_0.st_mtime != stat_1.st_mtime);
 
-		/* Or do we want to reload periodicaly the configuration file */
+		/* Or do we want to reload periodically the configuration file */
 		if ( ! reload)
 			if ( RELOAD_DELAY > 0)
 				reload = (i % RELOAD_DELAY == 0);

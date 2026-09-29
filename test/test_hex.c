@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 	int	ntimes;
 
 	if (argc != 3) {
-		printf("useage: test_hex [file] [ntimes]\n");
+		printf("usage: test_hex [file] [ntimes]\n");
 		exit(1);
 	}
 

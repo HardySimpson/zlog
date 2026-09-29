@@ -147,7 +147,7 @@ int zc_str_replace_env(char *str, size_t str_size)
 
 		str_len = str_len - (q - p) + env_value_len;
 		if (str_len > str_size - 1) {
-			zc_error("repalce env_value[%s] cause overlap", env_value);
+			zc_error("replace env_value[%s] cause overlap", env_value);
 			return -1;
 		}
 

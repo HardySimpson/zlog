@@ -107,7 +107,7 @@ int zc_arraylist_add(zc_arraylist_t * a_list, void *data)
 	return zc_arraylist_set(a_list, a_list->len, data);
 }
 
-/* assum idx < len */
+/* assume idx < len */
 static int zc_arraylist_insert_inner(zc_arraylist_t * a_list, int idx,
 				     void *data)
 {

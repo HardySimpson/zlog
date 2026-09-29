@@ -386,7 +386,7 @@ static int zlog_rotater_parse_archive_path(zlog_rotater_t * a_rotater)
 			return -1;
 		}
 
-		/* copy and substitue #i to * in glob_path*/
+		/* copy and substitute #i to * in glob_path*/
 		len = p - a_rotater->archive_path;
 		if (len > sizeof(a_rotater->glob_path) - 1) {
 			zc_error("sizeof glob_path not enough,len[%ld]", (long) len);
@@ -531,7 +531,7 @@ int zlog_rotater_rotate(zlog_rotater_t *a_rotater,
 
 	if (info.st_size + msg_len <= archive_max_size) {
 		/* file not so big,
-		 * may alread rotate by oth process or thread,
+		 * may already rotate by oth process or thread,
 		 * return */
 		rc = 0;
 		goto exit;

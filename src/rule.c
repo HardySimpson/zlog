@@ -940,7 +940,7 @@ zlog_rule_t *zlog_rule_new(char *line,
 			if (a_rule->archive_max_size <= 0) {
 				a_rule->output = zlog_rule_output_static_file_single;
 			} else {
-				/* as rotate, so need to reopen everytime */
+				/* as rotate, so need to reopen every time */
 				a_rule->output = zlog_rule_output_static_file_rotate;
 			}
 
@@ -1225,7 +1225,7 @@ int zlog_rule_set_record(zlog_rule_t * a_rule, zc_hashtable_t *records)
 
 	if (a_rule->output != zlog_rule_output_static_record 
 	&&  a_rule->output != zlog_rule_output_dynamic_record) {
-		return 0; /* fliter, may go through not record rule */
+		return 0; /* filter, may go through not record rule */
 	}
 
 	a_record = zc_hashtable_get(records, a_rule->record_name);

@@ -560,7 +560,7 @@ XFUNC int zlog_reload(const char *config)
     struct stat buffer;
     is_file = stat(config, &buffer) == 0;
 
-    /* reset counter, whether automaticlly or mannually */
+    /* reset counter, whether automatically or manually */
     zlog_env_reload_conf_count = 0;
 
     if (is_file) {
@@ -629,7 +629,7 @@ XFUNC int zlog_reload(const char *config)
 
     zlog_conf_del(zlog_env_conf);
     zlog_env_conf = new_conf;
-    zc_debug("------zlog_reload success, total init verison[%d] ------", zlog_env_init_version);
+    zc_debug("------zlog_reload success, total init version[%d] ------", zlog_env_init_version);
     zlog_env_init_version++;
     rc = zlog_env_unlock();
     if (rc) {
@@ -1044,7 +1044,7 @@ static void log_producer_send(zlog_thread_t *a_thread, zlog_category_t * categor
 
     ret = vsnprintf(usr_str->formatted_string, usr_str_size, format, args);
     if (ret < 0) {
-        /* should not happend */
+        /* should not happen */
         zc_error("failed to print to formatted_string ret %d", ret);
         goto discard;
     }
@@ -1096,7 +1096,7 @@ static void _log(zlog_category_t * category,
 	 * And will be the right value after zlog_reload()
 	 *
 	 * For speed up, if one log will not be output,
-	 * There is no need to aquire rdlock.
+	 * There is no need to acquire rdlock.
 	 */
 	zlog_env_rdlock();
 	
@@ -1228,7 +1228,7 @@ XFUNC void hdzlog(const char *file, size_t filelen,
 		goto exit;
 	}
 
-	/* that's the differnce, must judge default_category in lock */
+	/* that's the difference, must judge default_category in lock */
 	if (!zlog_default_category) {
 		zc_error("zlog_default_category is null,"
 			"dzlog_init() or dzlog_set_cateogry() is not called above");

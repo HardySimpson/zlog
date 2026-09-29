@@ -49,7 +49,7 @@ w thread:
     check if reload config
 
 
-category -> standlone, per print, shared by threads
+category -> standalone, per print, shared by threads
     rule * n // ref conf.rules
 
 conf.formats
