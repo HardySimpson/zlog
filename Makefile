@@ -5,7 +5,7 @@ TARGETS=noopt 32bit
 all:
 	cd src && $(MAKE) $@
 
-install:
+install: all
 	cd src && $(MAKE) $@
 
 $(TARGETS):
@@ -14,7 +14,7 @@ $(TARGETS):
 doc:
 	cd doc && $(MAKE)
 
-test:
+test: all
 	cd test && $(MAKE)
 
 TAGS:
