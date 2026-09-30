@@ -53,10 +53,17 @@ struct zlog_rule_s {
 
 	char file_path[MAXLEN_PATH + 1];
 	zc_arraylist_t *dynamic_specs;
-	int static_fd;
-	dev_t static_dev;
-	ino_t static_ino;
-    int rotate_fd;
+	/* Shared by every thread logging through the rule, and written when one
+	 * of them finds a different file at file_path -- after a rotation, or
+	 * after an external tool moved it. Relaxed is enough: a thread that
+	 * reads a stale inode reopens once too often, which dup2() makes
+	 * harmless, or once too late, which the next message catches. */
+	atomic_int static_fd;
+	/* dev_t and ino_t held as atomic_ullong: the _Atomic qualifier is C11
+	 * and this builds as C99 with -pedantic, where the stdatomic typedefs
+	 * are still available */
+	atomic_ullong static_dev;
+	atomic_ullong static_ino;
 
 	long archive_max_size;
 	int archive_max_count;
