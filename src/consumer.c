@@ -15,10 +15,26 @@
 
 #include "consumer.h"
 
+/* Report what the pthread calls below return, in every build.
+ *
+ * They used to be checked with assert(), which NDEBUG removes from Release,
+ * RelWithDebInfo and MinSizeRel -- the builds people ship -- so the return
+ * values went unexamined exactly where it matters (HardySimpson/zlog#357).
+ *
+ * Reporting is the honest maximum here. On a correctly initialised normal
+ * mutex these fail with EINVAL or EDEADLK, which means corrupted memory or a
+ * programming error, and there is no state a logging library can restore at
+ * that point; carrying on at least leaves the application running and says
+ * what happened. */
+#define ZC_PTHREAD_CHECK(expr) \
+    do { \
+        int _pthread_rc = (expr); \
+        if (_pthread_rc) zc_error(#expr " fail, rc[%d]", _pthread_rc); \
+    } while (0)
+
 static void enque_event_exit(struct log_consumer *logc)
 {
-    int _r = pthread_mutex_lock(&logc->event.queue_in_lock);
-    assert(_r == 0); (void)_r;
+    ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->event.queue_in_lock));
     logc->exit = true; /* ensure this is the last */
     for (;;) {
         struct msg_head *head = fifo_reserve(logc->event.queue, msg_cmd_size());
@@ -33,19 +49,15 @@ static void enque_event_exit(struct log_consumer *logc)
         fifo_commit(logc->event.queue, head);
         break;
     }
-    _r = pthread_mutex_unlock(&logc->event.queue_in_lock);
-    assert(_r == 0); (void)_r;
+    ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->event.queue_in_lock));
 }
 
 static void enque_signal(struct log_consumer *logc)
 {
-    int _r = pthread_mutex_lock(&logc->event.siglock);
-    assert(_r == 0); (void)_r;
+    ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->event.siglock));
     logc->event.sig_send++;
-    _r = pthread_cond_signal(&logc->event.cond);
-    assert(_r == 0); (void)_r;
-    _r = pthread_mutex_unlock(&logc->event.siglock);
-    assert(_r == 0); (void)_r;
+    ZC_PTHREAD_CHECK(pthread_cond_signal(&logc->event.cond));
+    ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->event.siglock));
 }
 
 static void handle_log(struct log_consumer *logc, struct msg_head *head, bool *exit)
@@ -72,13 +84,10 @@ static void handle_log(struct log_consumer *logc, struct msg_head *head, bool *e
                 *exit = true;
                 return;
             } else if (cmd->cmd == MSG_CMD_FLUSH) {
-                int _r = pthread_mutex_lock(&logc->flush.siglock);
-                assert(_r == 0); (void)_r;
+                ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->flush.siglock));
                 logc->flush.done = true;
-                _r = pthread_cond_signal(&logc->flush.cond);
-                assert(_r == 0); (void)_r;
-                _r = pthread_mutex_unlock(&logc->flush.siglock);
-                assert(_r == 0); (void)_r;
+                ZC_PTHREAD_CHECK(pthread_cond_signal(&logc->flush.cond));
+                ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->flush.siglock));
             }
             offset += msg_cmd_size();
             break;
@@ -119,13 +128,13 @@ static void *logc_func(void *arg)
 
     for (; !exit;) {
         unsigned int sig_send_cache;
-        pthread_mutex_lock(&logc->event.siglock);
+        ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->event.siglock));
         /* empty */
         if (logc->event.sig_recv == logc->event.sig_send) {
-            pthread_cond_wait(&logc->event.cond, &logc->event.siglock);
+            ZC_PTHREAD_CHECK(pthread_cond_wait(&logc->event.cond, &logc->event.siglock));
         }
         sig_send_cache = logc->event.sig_send;
-        pthread_mutex_unlock(&logc->event.siglock);
+        ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->event.siglock));
         /* has data */
 
         /* pending: number of committed/discarded messages still to consume
@@ -326,7 +335,7 @@ struct msg_head *log_consumer_queue_reserve(struct log_consumer *logc, unsigned 
 {
     struct msg_head *head = NULL;
 
-    pthread_mutex_lock(&logc->event.queue_in_lock);
+    ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->event.queue_in_lock));
     if (logc->exit) {
         zc_error("log consumer exited, return");
         goto exit;
@@ -335,7 +344,7 @@ struct msg_head *log_consumer_queue_reserve(struct log_consumer *logc, unsigned 
     head = fifo_reserve(logc->event.queue, size);
 
 exit:
-    pthread_mutex_unlock(&logc->event.queue_in_lock);
+    ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->event.queue_in_lock));
 
     return head;
 }
@@ -353,8 +362,7 @@ void log_consumer_queue_commit_signal(struct log_consumer *logc, struct msg_head
 
 void log_consumer_queue_flush(struct log_consumer *logc)
 {
-    int _r = pthread_mutex_lock(&logc->event.queue_in_lock);
-    assert(_r == 0); (void)_r;
+    ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->event.queue_in_lock));
     for (;;) {
         struct msg_head *head = fifo_reserve(logc->event.queue, msg_cmd_size());
         if (!head) {
@@ -369,13 +377,12 @@ void log_consumer_queue_flush(struct log_consumer *logc)
         fifo_commit(logc->event.queue, head);
         break;
     }
-    _r = pthread_mutex_unlock(&logc->event.queue_in_lock);
-    assert(_r == 0); (void)_r;
+    ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->event.queue_in_lock));
     enque_signal(logc);
 
-    pthread_mutex_lock(&logc->flush.siglock);
+    ZC_PTHREAD_CHECK(pthread_mutex_lock(&logc->flush.siglock));
     while (!logc->flush.done) {
-        pthread_cond_wait(&logc->flush.cond, &logc->flush.siglock);
+        ZC_PTHREAD_CHECK(pthread_cond_wait(&logc->flush.cond, &logc->flush.siglock));
     }
-    pthread_mutex_unlock(&logc->flush.siglock);
+    ZC_PTHREAD_CHECK(pthread_mutex_unlock(&logc->flush.siglock));
 }
