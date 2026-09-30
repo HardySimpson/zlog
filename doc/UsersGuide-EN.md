@@ -532,7 +532,7 @@ Global section begins with \[global\]. This section can be omitted.The syntax is
     
 *   rotate lock file
     
-    This specifies a lock file for rotating a log safely in multi-process situations. zlog will open the file at zlog\_init() with the permission of read-write. The pseudo-code for rotating a log file is:
+    This specifies a lock file for rotating a log safely in multi-process situations. zlog opens the file read-write the first time a rotation is due, not at zlog\_init(), and creates it with mode 0644 if it is not there. A symbolic link in its place is refused rather than followed. The pseudo-code for rotating a log file is:
     
     ```c
     write(log_file, a_log)
@@ -548,7 +548,9 @@ Global section begins with \[global\]. This section can be omitted.The syntax is
     
     By default, rotate lock file = self. This way, zlog does not create any lock file and sets the configuration file as the lock file. As fcntl is advisory, it does not really forbid programmers to change and store the configuration file. Generally speaking, one log file will not be rotated by processes run by different operating system users, so using the configuration file as lock file is safe.
     
-    If you choose another path as lock file, for example, /tmp/zlog.lock, zlog will create it at zlog\_init(). Make sure your program has permission to create and read-write the file. If processes run by different operating system users need to write and rotate the same log file, make sure that each program has permission to create and read-write the same lock file.
+    Locking needs write permission, so a configuration file the process may only read cannot serve as its own lock file. zlog falls back to /tmp/zlog.lock in that case and warns, rather than failing every rotation for the life of the process. The same fallback is used when there is no configuration file at all, as with zlog\_init\_from\_string().
+    
+    If you choose another path as lock file, for example, /tmp/zlog.lock, zlog will create it at the first rotation. Make sure your program has permission to create and read-write the file. If processes run by different operating system users need to write and rotate the same log file, create the lock file beforehand and give each of them write access to it: the file zlog creates is owned by whichever process got there first, and mode 0644 does not grant the others the write access that locking needs.
     
 *   default format
     
