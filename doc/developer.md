@@ -31,11 +31,8 @@ compiler rather than quietly building without a sanitizer.
 
 # RELEASE
 
-The version number lives in exactly one place, `src/version.h`:
-
-```c
-#define ZLOG_VERSION "1.2.19"
-```
+The version number lives in exactly one place, `src/version.h`, as a single
+`#define ZLOG_VERSION "MAJOR.MINOR.PATCH"` line.
 
 Both build systems parse that line — CMake in `CMakeLists.txt` (it also feeds
 `CPACK_PACKAGE_VERSION` and the soname) and make in `src/Makefile` — so nothing
@@ -45,33 +42,34 @@ ABI contract for already linked programs; bump it only when that is intended.
 
 Steps for a release:
 
-1. Bump `ZLOG_VERSION` in `src/version.h`.
+1. Bump `ZLOG_VERSION` in `src/version.h`, and the `Version:` field in
+   `zlog.spec`, which is not derived from it.
 2. Add the matching entry at the top of `Changelog`.
-3. Commit both, e.g. `version: 1.2.19`.
-4. Check that the build agrees:
+3. Commit both, with the new version as the subject: `version: $(zlog_version)`
+   where the shell function below reads it back out of the tree.
+4. Check that the build agrees — it prints the version and the soname it
+   derived:
 
    ```bash
-   cmake -B build            # prints: version : 1.2.19 (soname 1.2)
+   cmake -B build            # prints: version : MAJOR.MINOR.PATCH (soname MAJOR.MINOR)
    ```
 
 5. Tag the commit, using the bare version number as the tag name — no `v`
-   prefix, matching the existing tags:
+   prefix, matching the existing tags.
+6. Push the commit, then the tag.
 
-   ```bash
-   git tag -a 1.2.19 -m "version: 1.2.19"
-   ```
+Steps 3, 5 and 6 read the version rather than repeating it, so there is nothing
+to keep in step with a release:
 
-6. Push the commit and the tag:
+```bash
+zlog_version() { sed -n 's/^#define ZLOG_VERSION "\(.*\)"/\1/p' src/version.h; }
 
-   ```bash
-   git push origin master
-   git push origin 1.2.19
-   ```
+git commit -m "version: $(zlog_version)" src/version.h zlog.spec Changelog
+git tag -a "$(zlog_version)" -m "version: $(zlog_version)"
+git push origin master
+git push origin "$(zlog_version)"
+```
 
 Always bump `src/version.h` *before* tagging: the tag has to point at a commit
 that already carries the new version, otherwise the tarball GitHub generates
 for the release reports the previous version.
-
-The `Version:` field in `zlog.spec` is not derived from `src/version.h` and is
-maintained separately; keep it in mind if you build RPMs from that spec file
-rather than with CPack.
