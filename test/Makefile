@@ -32,6 +32,7 @@ exe = 		\
 	test_init_from_string	\
 	test_level	\
 	test_lock_fairness	\
+	test_lockfile_perms	\
 	test_leak	\
 	test_mdc	\
 	test_multithread	\
