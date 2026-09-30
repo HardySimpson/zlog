@@ -42,8 +42,7 @@ ABI contract for already linked programs; bump it only when that is intended.
 
 Steps for a release:
 
-1. Bump `ZLOG_VERSION` in `src/version.h`, and the `Version:` field in
-   `zlog.spec`, which is not derived from it.
+1. Bump `ZLOG_VERSION` in `src/version.h`.
 2. Add the matching entry at the top of `Changelog`.
 3. Commit both, with the new version as the subject: `version: $(zlog_version)`
    where the shell function below reads it back out of the tree.
@@ -64,7 +63,7 @@ to keep in step with a release:
 ```bash
 zlog_version() { sed -n 's/^#define ZLOG_VERSION "\(.*\)"/\1/p' src/version.h; }
 
-git commit -m "version: $(zlog_version)" src/version.h zlog.spec Changelog
+git commit -m "version: $(zlog_version)" src/version.h Changelog
 git tag -a "$(zlog_version)" -m "version: $(zlog_version)"
 git push origin master
 git push origin "$(zlog_version)"
