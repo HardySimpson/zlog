@@ -125,8 +125,8 @@ by `src/rule.c` (`the string after is not syslog, stdout or stderr`).
 
 ## Tests
 
-The tests live in `test/`: 38 C programs, plus a fuzzer under `test/fuzzers/`.
-The integration script is `scripts/test.sh`.
+The tests live in `test/`, one C program each, plus a fuzzer under
+`test/fuzzers/`. The integration script is `scripts/test.sh`.
 
 See `test/test_hello.conf` for a configuration example.
 
