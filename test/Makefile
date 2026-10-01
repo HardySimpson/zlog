@@ -37,6 +37,7 @@ exe = 		\
 	test_multithread	\
 	test_record	\
 	test_rotate_lock	\
+	test_rotate_reopen	\
 	test_rotate_readonly_conf	\
 	test_pipe	\
 	test_pipe2	\
