@@ -1,3 +1,85 @@
+zlog (1.2.20) unstable; urgency=medium
+
+  * Added zlog_fsync(), to flush the logs to disk on demand.
+  * Added zlog_is_init(), so a library can tell whether the program around it
+    has already set zlog up.
+  * Added zlog_category_has_rules(), so a caller can tell a category the
+    configuration covers from one it has never heard of.
+  * Added zlog_fini_try(), which gives up instead of waiting for the
+    configuration lock. zlog_fini() from a signal handler that interrupted a
+    thread inside zlog waits forever.
+  * A rotating rule keeps its file open between messages: two syscalls a line
+    instead of four, and about 1.8x faster.
+  * An oversized message is formatted once instead of twice: "%.200m" of a 4MB
+    message is about twice as fast, for identical output.
+  * A message longer than buffer max is truncated instead of being dropped.
+  * Every %E(NAME) in a format or a file path is replaced, not just the first
+    one. Two of them used to fail zlog_init().
+  * The rotate lock file falls back to /tmp/zlog.lock when the configuration
+    file is not writable, instead of failing every rotation silently. It is
+    created 0644 rather than 0777, and a symbolic link in its place is refused.
+  * The pthread return values in the writer thread are checked in release
+    builds too, not only where asserts are compiled in.
+  * hzlog prints the buffer length in front of the dump.
+  * Include guards no longer use identifiers reserved to the implementation;
+    the public one is ZLOG_ZLOG_H.
+  * __DATE__ and __TIME__ are gone, so the build is reproducible.
+  * Fixed the install and test targets in the top level Makefile.
+  * zlog.spec is gone: CPack generates its own, and the distributions that
+    package zlog use their own.
+  * Dead code removed from conf.c, level_list.c and thread.c, and the debug
+    messages removed from CMakeLists.txt.
+  * The release procedure is written down in doc/developer.md and no longer
+    names a version, the rotate lock file section of the users guide says what
+    the code does, and CLAUDE.md is corrected and translated to English.
+  * Typos fixed throughout the tree.
+  * Tests added for zlog_init(NULL), the rotation lock file, buffer max
+    truncation, %E() replacement, and the return values test_press_write2 used
+    to ignore.
+
+ -- deemar <5099702+deemar@users.noreply.github.com>
+
+zlog (1.2.19) unstable; urgency=medium
+
+  * Producer/consumer mode: logging can hand off to a writer thread.
+  * Added dzlog_level_enabled().
+  * pkg-config support: zlog.pc is generated from a template by both builds,
+    for the prefix actually being installed to.
+  * A CMake package config, so find_package(zlog) and zlog::zlog work, with
+    installation into the GNUInstallDirs destinations and the same soname,
+    major.minor, from both build systems.
+  * Cross-compilation support in the makefile, C11 for atomics, and warnings
+    treated as errors.
+  * macOS (Apple Silicon) support, and CI on x86-64, arm64, 32-bit arm and
+    musl, in every build type, with Tsan and Asan build types added.
+  * A markdown version of the UsersGuide.
+  * Fixed logging from the child of fork() in a threaded process.
+  * Fixed a failed rotation lock wedging the rotater for the life of the
+    process, and writers starving behind the log readers.
+  * Fixed a double free in a destructor-attribute logger, a one element
+    overflow in the arraylist, a crash cleaning up a half built thread, and a
+    heap overflow in the Windows setenv shim.
+  * Fixed a hang in release builds, and zlog_version() and
+    dzlog_level_enabled() missing from them.
+  * Fixed a leak when configuring from a string, the level and thread used by
+    the consumer thread, and the missing memfd_create wrapper on uClibc.
+  * zlog_init() returns an error when the configuration file is not a regular
+    file.
+
+ -- deemar <5099702+deemar@users.noreply.github.com>
+
+zlog (1.2.18) unstable; urgency=medium
+
+  * CMake refactoring, README and documentation refresh, BUILD renamed to
+    BUILD.bazel, the test makefile renamed Makefile, clang-format updated.
+  * The Changelog converted to Debian style, and Apache licence headers put on
+    all files.
+  * Fixed a buffer overflow (#251).
+  * Fixed %g in a format making configuration parsing fail (#248).
+  * The Bazel target is publicly visible (#242).
+
+ -- deemar <5099702+deemar@users.noreply.github.com>
+
 zlog (1.2.17) unstable; urgency=medium
 
   * Change License to Apache 2.0, for more people.
