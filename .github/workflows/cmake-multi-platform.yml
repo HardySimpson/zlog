@@ -101,6 +101,16 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       run: ctest --build-config ${{ matrix.build_type }}
 
+    - name: Build with the makefile
+      # /usr/bin/make on macOS is GNU make 3.81, which no other job uses and
+      # which parses the makefiles differently from make >= 4.3 (#376). The
+      # makefile ignores the build type, so build it once.
+      if: matrix.build_type == 'Release'
+      run: |
+        make --version | head -1
+        make -j$(sysctl -n hw.ncpu)
+        make -C test -j$(sysctl -n hw.ncpu)
+
   build-alpine:
     # musl, not glibc: pthread_t is a pointer there, which this tree has got
     # wrong before (HardySimpson/zlog#280), and nothing else in the matrix
