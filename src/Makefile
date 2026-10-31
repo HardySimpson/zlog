@@ -44,7 +44,9 @@ LIBNAME=libzlog
 # The version is defined once, in version.h, and parsed by both build systems
 # (see the top level CMakeLists.txt) so the library, the file names and the
 # packages can never disagree.
-ZLOG_VERSION := $(shell sed -n 's/^#define[ \t]*ZLOG_VERSION[ \t]*"\([0-9.]*\)".*/\1/p' version.h)
+# No '#' in the pattern: before GNU make 4.3 it starts a comment even inside
+# $(shell ...), which breaks the build with make 3.81 (the macOS default).
+ZLOG_VERSION := $(shell sed -n 's/^.define[[:space:]]*ZLOG_VERSION[[:space:]]*"\([0-9.]*\)".*/\1/p' version.h)
 ZLOG_MAJOR := $(word 1,$(subst ., ,$(ZLOG_VERSION)))
 ZLOG_MINOR := $(word 2,$(subst ., ,$(ZLOG_VERSION)))
 ZLOG_PATCH := $(word 3,$(subst ., ,$(ZLOG_VERSION)))
